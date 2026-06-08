@@ -14,12 +14,11 @@
 
 Publish the highest-demand packages first:
 
-- `godot-project-doctor`
 - `godot-asset-pipeline-doctor`
 - `godot-export-preset-doctor`
 - `godot-mobile-perf-doctor`
 
-Then publish the remaining packages once the first feedback cycle is complete.
+The `godot-project-doctor` command remains part of the repository, but the exact `godot-project-doctor` distribution name is already used on PyPI. Publish it later under a distinct package name if demand is clear.
 
 Use the manual `Publish Python Packages` GitHub workflow for releases. It builds the selected package, runs `twine check`, and publishes through PyPI Trusted Publishing.
 
@@ -27,12 +26,11 @@ For new projects, create pending publishers in PyPI before the first workflow ru
 
 | PyPI project | GitHub owner | Repository | Workflow | Environment |
 |---|---|---|---|---|
-| `godot-project-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
 | `godot-asset-pipeline-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
 | `godot-export-preset-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
 | `godot-mobile-perf-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
 
-Run `godot-project-doctor` first. After that release succeeds, publish the other three packages one at a time so failures are easy to isolate.
+Run `godot-asset-pipeline-doctor` first. After that release succeeds, publish the other two packages one at a time so failures are easy to isolate.
 
 ## Godot community outreach
 

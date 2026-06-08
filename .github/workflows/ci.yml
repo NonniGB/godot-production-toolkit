@@ -46,7 +46,6 @@ jobs:
         run: |
           python -m pip install --upgrade build twine
           for package in \
-            godot-project-doctor \
             godot-asset-pipeline-doctor \
             godot-export-preset-doctor \
             godot-mobile-perf-doctor
