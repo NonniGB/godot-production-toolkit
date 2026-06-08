@@ -6,6 +6,7 @@
   asset thresholds, export placeholder handling, and mobile viewport budgets.
 - Added tests and documentation for the new configuration options.
 - Updated GitHub Action examples to pin the current `v0.1.2` release.
+- Added a release-alignment verifier for CI and pre-release checks.
 
 ## 0.1.1 - 2026-06-08
 

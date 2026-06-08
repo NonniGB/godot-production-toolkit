@@ -7,8 +7,10 @@
 3. Set the repository About description to: `CI-friendly production diagnostics for Godot 4 projects.`
 4. Add topics: `godot`, `godot4`, `gamedev`, `ci`, `github-actions`, `python`, `sarif`, `mobile`, `localization`, `pixel-art`, `testing`, `qa`.
 5. Ensure the root README links the project overview, metadata, validation commands, and release checklist.
-6. Create a GitHub release for the current version with a concise description of the suite and the main adoption path.
-7. Pin action examples to the latest tagged release, currently `@v0.1.2`.
+6. Bump the root `pyproject.toml` version to the suite release you are about to tag.
+7. Create a GitHub release for the current version with a concise description of the suite and the main adoption path.
+8. Pin action examples to the latest tagged release, currently `@v0.1.2`.
+9. Run `python verify_release_alignment.py` before tagging to catch stale README, action, changelog, or package-version references.
 
 ## PyPI release
 

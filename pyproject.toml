@@ -1,6 +1,6 @@
 [project]
 name = "godot-production-toolkit"
-version = "0.1.0"
+version = "0.1.2"
 description = "CI-friendly production diagnostics for Godot 4 projects."
 readme = "README.md"
 requires-python = ">=3.11"
