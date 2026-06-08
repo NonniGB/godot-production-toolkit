@@ -24,8 +24,8 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/example/godot-scene-signal-auditor"
-Issues = "https://github.com/example/godot-scene-signal-auditor/issues"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-scene-signal-auditor"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 godot-signal-audit = "godot_signal_auditor.cli:entrypoint"

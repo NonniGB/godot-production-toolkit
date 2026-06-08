@@ -24,8 +24,8 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/example/gdscript-api-comment-coverage"
-Issues = "https://github.com/example/gdscript-api-comment-coverage/issues"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/gdscript-api-comment-coverage"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 gdscript-api-coverage = "gdscript_api_coverage.cli:entrypoint"

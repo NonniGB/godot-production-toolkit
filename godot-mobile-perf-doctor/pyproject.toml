@@ -24,8 +24,8 @@ classifiers = [
 dependencies = ["Pillow>=10"]
 
 [project.urls]
-Homepage = "https://github.com/example/godot-mobile-perf-doctor"
-Issues = "https://github.com/example/godot-mobile-perf-doctor/issues"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-mobile-perf-doctor"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 godot-mobile-perf-doctor = "godot_mobile_perf_doctor.cli:entrypoint"

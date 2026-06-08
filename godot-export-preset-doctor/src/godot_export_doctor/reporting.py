@@ -50,7 +50,7 @@ def render_sarif_report(findings: list[Finding]) -> str:
                 "tool": {
                     "driver": {
                         "name": "godot-export-preset-doctor",
-                        "informationUri": "https://github.com/example/godot-export-preset-doctor",
+                        "informationUri": "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-export-preset-doctor",
                         "rules": [
                             {
                                 "id": rule,

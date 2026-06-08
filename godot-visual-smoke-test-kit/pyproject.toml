@@ -24,8 +24,8 @@ classifiers = [
 dependencies = ["Pillow>=10"]
 
 [project.urls]
-Homepage = "https://github.com/example/godot-visual-smoke-test-kit"
-Issues = "https://github.com/example/godot-visual-smoke-test-kit/issues"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-visual-smoke-test-kit"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 godot-visual-smoke = "godot_visual_smoke.cli:entrypoint"

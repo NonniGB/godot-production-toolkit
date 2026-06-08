@@ -24,8 +24,8 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/example/godot-export-preset-doctor"
-Issues = "https://github.com/example/godot-export-preset-doctor/issues"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-export-preset-doctor"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 godot-export-doctor = "godot_export_doctor.cli:entrypoint"

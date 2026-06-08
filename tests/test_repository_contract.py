@@ -140,6 +140,29 @@ class RepositoryContractTests(unittest.TestCase):
 
         self.assertEqual([], matches)
 
+    def test_public_files_do_not_use_placeholder_repository_urls(self) -> None:
+        placeholders = (
+            "github.com/" + "example",
+            "owner/" + "godot-production-toolkit",
+            "OWNER/" + "godot-production-toolkit",
+            "your-" + "user",
+        )
+        ignored_dirs = {".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
+        text_suffixes = {".json", ".md", ".py", ".toml", ".yml", ".yaml"}
+
+        matches: list[str] = []
+        for path in ROOT.rglob("*"):
+            if any(part in ignored_dirs for part in path.parts):
+                continue
+            if not path.is_file() or path.suffix.lower() not in text_suffixes:
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for placeholder in placeholders:
+                if placeholder in text:
+                    matches.append(f"{path.relative_to(ROOT)}: {placeholder}")
+
+        self.assertEqual([], matches)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -29,8 +29,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/example/godot-asset-pipeline-doctor"
-Issues = "https://github.com/example/godot-asset-pipeline-doctor/issues"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-asset-pipeline-doctor"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 godot-asset-doctor = "godot_asset_doctor.cli:main"

@@ -24,8 +24,8 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/example/godot-input-map-auditor"
-Issues = "https://github.com/example/godot-input-map-auditor/issues"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-input-map-auditor"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 godot-input-audit = "godot_input_auditor.cli:entrypoint"

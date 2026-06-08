@@ -24,8 +24,8 @@ classifiers = [
 dependencies = ["Pillow>=10"]
 
 [project.urls]
-Homepage = "https://github.com/example/pixel-space-asset-toolkit"
-Issues = "https://github.com/example/pixel-space-asset-toolkit/issues"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/pixel-space-asset-toolkit"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 pixel-space-assets = "pixel_space_assets.cli:entrypoint"

@@ -24,8 +24,8 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/example/godot-localization-qa-guard"
-Issues = "https://github.com/example/godot-localization-qa-guard/issues"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-localization-qa-guard"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 godot-l10n-guard = "godot_l10n_guard.cli:entrypoint"

@@ -24,8 +24,8 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/example/godot-save-schema-guard"
-Issues = "https://github.com/example/godot-save-schema-guard/issues"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-save-schema-guard"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 godot-save-guard = "godot_save_guard.cli:entrypoint"
