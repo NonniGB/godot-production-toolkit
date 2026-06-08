@@ -26,7 +26,7 @@ Start with focused examples rather than broad claims:
 - "CI check for Godot export presets before an Android release."
 - "Find mobile-unfriendly textures and import settings."
 - "Generate a PR artifact summarizing Godot production risks."
-- "Use JSON/SARIF output so coding agents can act on findings."
+- "Use JSON/SARIF output so CI jobs and local scripts can act on findings."
 
 Good places to share after release:
 

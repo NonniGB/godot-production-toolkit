@@ -1,8 +1,8 @@
-# Agentic Usage
+# Automation Usage
 
-Read `agent-tool.json` first. It declares the CLI entry point, module entry point, output formats, write behavior, and exit-code contract.
+Read `tool-manifest.json` first. It declares the CLI entry point, module entry point, output formats, write behavior, and exit-code behavior.
 
-Agent-safe generation examples:
+Automation-friendly generation examples:
 
 ```powershell
 pixel-space-assets starfield --width 1080 --height 1920 --seed 42 --stars 900 --output generated/starfield.png --manifest generated/starfield.json --format json

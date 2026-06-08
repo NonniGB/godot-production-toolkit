@@ -14,4 +14,4 @@ The output is a table:
 | class | Inventory | scripts/inventory.gd:2 | yes |
 ```
 
-Commit the generated index if you want code reviews to show API surface changes.
+Commit the generated index if you want code reviews to show API changes.

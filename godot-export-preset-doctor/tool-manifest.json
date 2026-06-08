@@ -9,7 +9,7 @@
     "human_output": ["text", "markdown docs"],
     "visual_interface": "none"
   },
-  "agent_contract": {
+  "run_behavior": {
     "noninteractive": true,
     "safe_on_private_projects": true,
     "network_required": false,
@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Agent-safe release audit",
+      "purpose": "Automation-friendly release audit",
       "command": "godot-export-doctor <project> --platform Android --format json --output export-report.json --fail-on none"
     },
     {

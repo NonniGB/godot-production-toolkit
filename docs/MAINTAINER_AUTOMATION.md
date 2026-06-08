@@ -9,7 +9,7 @@ Use labels consistently:
 - `docs`: documentation-only change.
 - `good-first-issue`: safe scoped contribution.
 - `needs-fixture`: report needs a minimal project or sample file.
-- `agentic-interface`: output, manifest, or automation contract issue.
+- `automation`: output format, manifest, or CI workflow issue.
 
 Ask for command, expected result, actual result, Python version, Godot version where relevant, and a minimal fixture.
 
@@ -21,21 +21,21 @@ Use small releases:
 - Minor release for new output formats, rule groups, or config options.
 - Keep changelogs per tool because every tool remains standalone.
 
-## Agentic maintenance
+## Automation maintenance
 
-Agents should start from:
+For automation or CI changes, start from:
 
 1. `PROJECT_OVERVIEW.md`
 2. `project-metadata.json`
-3. The relevant `agent-tool.json`
+3. The relevant `tool-manifest.json`
 4. The affected tool README and tests
 
-Prefer JSON output for automated analysis and Markdown or HTML output for human handoff.
+Prefer JSON output for scripts and Markdown or HTML output for human review.
 
 ## Validation commands
 
 ```powershell
-python verify_agent_interfaces.py
+python verify_tool_manifests.py
 python -m unittest discover -s tests -v
 python -m unittest discover -s godot-project-doctor/tests -v
 python -m unittest discover -s godot-ci-doctor-action/tests -v

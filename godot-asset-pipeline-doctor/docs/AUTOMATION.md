@@ -1,8 +1,8 @@
-# Agentic Usage
+# Automation Usage
 
-Read `agent-tool.json` first. It declares the CLI entry point, module entry point, output formats, write behavior, and exit-code contract.
+Read `tool-manifest.json` first. It declares the CLI entry point, module entry point, output formats, write behavior, and exit-code behavior.
 
-Agent-safe command:
+Automation-friendly command:
 
 ```powershell
 godot-asset-doctor <project> --profile android-mobile --format json --output asset-report.json --fail-on none

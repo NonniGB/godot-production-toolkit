@@ -1,4 +1,4 @@
-# Agentic Usage
+# Automation Usage
 
 Use `plan` or `run --dry-run` before executing checks. These commands are noninteractive and do not create report directories.
 
@@ -13,4 +13,4 @@ Run checks only after reviewing the planned commands:
 godot-project-doctor run godot-project-doctor.toml --format markdown --output reports\summary.md
 ```
 
-Agents should prefer JSON for planning and HTML or Markdown for handoff reports.
+Use JSON for planning and HTML or Markdown when someone needs to read the report.

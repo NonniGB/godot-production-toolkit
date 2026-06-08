@@ -1,7 +1,7 @@
 import re
 import unittest
 from pathlib import Path
-import verify_agent_interfaces
+import verify_tool_manifests
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -68,12 +68,12 @@ SECRET_PATTERNS = (
 )
 
 
-class RepositoryContractTests(unittest.TestCase):
+class RepositoryStructureTests(unittest.TestCase):
     def test_expected_projects_exist(self) -> None:
         missing = sorted(name for name in EXISTING_TOOLS | NEW_PROJECTS if not (ROOT / name).is_dir())
         self.assertEqual([], missing)
 
-    def test_existing_tools_keep_standalone_package_contract(self) -> None:
+    def test_existing_tools_keep_standalone_package_layout(self) -> None:
         required = {
             "README.md",
             "LICENSE",
@@ -81,8 +81,8 @@ class RepositoryContractTests(unittest.TestCase):
             "CONTRIBUTING.md",
             "SECURITY.md",
             "pyproject.toml",
-            "agent-tool.json",
-            "docs/AGENTIC_USAGE.md",
+            "tool-manifest.json",
+            "docs/AUTOMATION.md",
         }
 
         missing: list[str] = []
@@ -93,7 +93,7 @@ class RepositoryContractTests(unittest.TestCase):
 
         self.assertEqual([], missing)
 
-    def test_umbrella_cli_contract_files_exist(self) -> None:
+    def test_umbrella_cli_package_files_exist(self) -> None:
         required = {
             "README.md",
             "LICENSE",
@@ -101,8 +101,8 @@ class RepositoryContractTests(unittest.TestCase):
             "CONTRIBUTING.md",
             "SECURITY.md",
             "pyproject.toml",
-            "agent-tool.json",
-            "docs/AGENTIC_USAGE.md",
+            "tool-manifest.json",
+            "docs/AUTOMATION.md",
             "examples/godot-project-doctor.toml",
             "src/godot_project_doctor/cli.py",
             "src/godot_project_doctor/runner.py",
@@ -113,14 +113,14 @@ class RepositoryContractTests(unittest.TestCase):
         missing = sorted(rel_path for rel_path in required if not (ROOT / "godot-project-doctor" / rel_path).exists())
         self.assertEqual([], missing)
 
-    def test_github_action_contract_files_exist(self) -> None:
+    def test_github_action_files_exist(self) -> None:
         required = {
             "README.md",
             "LICENSE",
             "CHANGELOG.md",
             "CONTRIBUTING.md",
             "SECURITY.md",
-            "agent-tool.json",
+            "tool-manifest.json",
             "action.yml",
             "tests/test_action_metadata.py",
         }
@@ -141,8 +141,8 @@ class RepositoryContractTests(unittest.TestCase):
         missing = sorted(rel_path for rel_path in required if not (ROOT / rel_path).exists())
         self.assertEqual([], missing)
 
-    def test_agent_manifest_verifier_covers_all_agent_projects(self) -> None:
-        self.assertTrue((EXISTING_TOOLS | NEW_PROJECTS).issubset(set(verify_agent_interfaces.TOOLS)))
+    def test_tool_manifest_verifier_covers_all_projects(self) -> None:
+        self.assertTrue((EXISTING_TOOLS | NEW_PROJECTS).issubset(set(verify_tool_manifests.TOOLS)))
 
     def test_public_files_do_not_reference_private_project_names(self) -> None:
         ignored_dirs = {".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}

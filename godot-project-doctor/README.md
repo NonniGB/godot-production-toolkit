@@ -30,7 +30,7 @@ Use `examples/godot-project-doctor.toml` as a starting point. Project-audit tool
 
 ## Outputs
 
-- `json` for agents and CI.
+- `json` for CI and local automation.
 - `markdown` for PR comments and release notes.
 - `html` for static artifacts.
 - `text` for local terminal use.

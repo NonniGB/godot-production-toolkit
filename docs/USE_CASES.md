@@ -1,6 +1,6 @@
 # Use Cases
 
-Godot Production Toolkit is meant to sit beside normal unit tests, scene tests, and manual playtesting. It checks the release surfaces that are easy to forget until late in a build.
+Godot Production Toolkit is meant to sit beside normal unit tests, scene tests, and manual playtesting. It checks the release checks that are easy to forget until late in a build.
 
 ## Android Release Readiness
 
@@ -96,7 +96,7 @@ This helps catch:
 
 ## Visual Smoke Checks
 
-Use this for UI screens, menus, HUDs, and other stable render surfaces:
+Use this for UI screens, menus, HUDs, and other stable rendered screens:
 
 ```powershell
 godot-visual-smoke plan visual-smoke.toml --project . --format json
@@ -109,7 +109,7 @@ This helps catch:
 - Layout regressions.
 - Unexpected pixel changes after rendering or theme updates.
 
-## Agent And CI Workflows
+## Automation And CI Workflows
 
 Use JSON, SARIF, Markdown, and HTML outputs when another tool needs to read the result:
 
@@ -118,4 +118,4 @@ godot-project-doctor run --project . --checks assets,export,input,mobile_perf --
 godot-project-doctor summarize reports\godot-project-doctor --format html --output reports\godot-project-doctor\summary.html
 ```
 
-The individual tool commands remain visible in the plan output, so a maintainer or agent can reproduce a failure without reverse-engineering the umbrella CLI.
+The individual tool commands remain visible in the plan output, so a maintainer can reproduce a failure without reverse-engineering the umbrella CLI.

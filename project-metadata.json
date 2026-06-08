@@ -1,6 +1,6 @@
 {
   "project_name": "Godot Production Toolkit",
-  "one_line_summary": "A suite of CI-friendly, agent-readable production diagnostics for Godot 4 projects, mobile-first 2D games, release readiness, localization, visual smoke checks, save compatibility, and pixel asset workflows.",
+  "one_line_summary": "A suite of CI-friendly production diagnostics for Godot 4 projects, mobile-first 2D games, release readiness, localization, visual smoke checks, save compatibility, and pixel asset workflows.",
   "repository": "https://github.com/NonniGB/godot-production-toolkit",
   "tool_count": 12,
   "tools": [
@@ -65,9 +65,9 @@
       "interfaces": ["cli", "json", "png", "html-gallery"]
     }
   ],
-  "agentic_interfaces": {
-    "manifest_files": "Each agent-facing project has agent-tool.json.",
-    "manifest_validator": "python verify_agent_interfaces.py",
+  "automation_interfaces": {
+    "manifest_files": "Each automation-ready project has tool-manifest.json.",
+    "manifest_validator": "python verify_tool_manifests.py",
     "machine_outputs": ["json", "sarif"],
     "human_outputs": ["text", "markdown", "html", "png-diffs", "mermaid"],
     "noninteractive_default": true,
@@ -85,7 +85,7 @@
     "support_docs": true,
     "code_of_conduct": true,
     "changelogs": true,
-    "tests": "unittest suites in every Python tool plus root repository contract tests"
+    "tests": "unittest suites in every Python tool plus root project checks"
   },
   "governance": [
     "LICENSE",
@@ -107,7 +107,7 @@
     "docs/assets/screenshots/project-doctor-terminal.png"
   ],
   "verification_commands": [
-    "python verify_agent_interfaces.py",
+    "python verify_tool_manifests.py",
     "python -m unittest discover -s tests -v",
     "python -m unittest discover -s godot-project-doctor/tests -v",
     "python -m unittest discover -s godot-ci-doctor-action/tests -v",

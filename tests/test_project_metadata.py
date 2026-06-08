@@ -16,7 +16,7 @@ class ProjectMetadataTests(unittest.TestCase):
             "repository",
             "tool_count",
             "tools",
-            "agentic_interfaces",
+            "automation_interfaces",
             "ci_and_maintenance",
             "governance",
             "verification_commands",
@@ -64,7 +64,7 @@ class ProjectMetadataTests(unittest.TestCase):
                 "# Maintainer Automation",
                 "Issue triage",
                 "Release cadence",
-                "Agentic maintenance",
+                "Automation maintenance",
                 "Validation commands",
             ),
         }

@@ -5,7 +5,7 @@
 Run:
 
 ```powershell
-python verify_agent_interfaces.py
+python verify_tool_manifests.py
 python -m unittest discover -s tests -v
 ```
 

@@ -1,6 +1,6 @@
 # Project Overview
 
-Godot Production Toolkit is a suite of CI-friendly, agent-readable diagnostics for Godot 4 projects.
+Godot Production Toolkit is a suite of CI-friendly production diagnostics for Godot 4 projects.
 
 The tools focus on repeated production risks that are easy to miss late in development: export preset mistakes, texture and import hygiene, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, visual regressions, and pixel asset workflow checks.
 
@@ -19,14 +19,14 @@ The tools focus on repeated production risks that are easy to miss late in devel
 - Keep every tool useful on its own.
 - Keep command-line behavior noninteractive by default.
 - Prefer deterministic checks over opaque analysis.
-- Make reports easy for people and agents to parse.
+- Make reports easy to read in a terminal, a browser, or a CI log.
 - Avoid project-specific examples in public documentation.
 - Avoid network access unless a host platform, such as GitHub Actions, is installing packages.
 
 ## Main Entry Points
 
 ```powershell
-python verify_agent_interfaces.py
+python verify_tool_manifests.py
 python -m unittest discover -s tests -v
 python -m pip install -e .\godot-project-doctor
 godot-project-doctor plan --project path\to\godot-project --format json
@@ -36,7 +36,7 @@ For workflow examples, see `docs/USE_CASES.md`. For a runnable synthetic fixture
 
 ## Maintenance Model
 
-The repository keeps a normal public project surface:
+The repository keeps a normal public project structure:
 
 - `LICENSE`
 - `CONTRIBUTING.md`

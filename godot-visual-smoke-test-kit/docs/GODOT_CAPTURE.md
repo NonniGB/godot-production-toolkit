@@ -12,4 +12,4 @@ The planned command expects a helper script at:
 res://addons/visual_smoke/capture_scene.gd
 ```
 
-A later release can include that helper once the command contract has been tested across Godot versions.
+A later release can include that helper once the command behavior has been tested across Godot versions.

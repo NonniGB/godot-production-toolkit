@@ -24,20 +24,20 @@ REQUIRED_TOP_LEVEL = {
     "entrypoint",
     "module",
     "interfaces",
-    "agent_contract",
+    "run_behavior",
     "recommended_commands",
 }
 REQUIRED_INTERFACES = {"cli", "machine_output", "human_output"}
-REQUIRED_CONTRACT = {"noninteractive", "safe_on_private_projects", "network_required", "exit_codes"}
+REQUIRED_RUN_BEHAVIOR = {"noninteractive", "safe_on_private_projects", "network_required", "exit_codes"}
 
 
 def main() -> int:
     root = Path(__file__).resolve().parent
     errors: list[str] = []
     for tool in TOOLS:
-        manifest_path = root / tool / "agent-tool.json"
+        manifest_path = root / tool / "tool-manifest.json"
         if not manifest_path.exists():
-            errors.append(f"{tool}: missing agent-tool.json")
+            errors.append(f"{tool}: missing tool-manifest.json")
             continue
         data = json.loads(manifest_path.read_text(encoding="utf-8"))
         missing = REQUIRED_TOP_LEVEL - set(data)
@@ -46,9 +46,9 @@ def main() -> int:
         interface_missing = REQUIRED_INTERFACES - set(data.get("interfaces", {}))
         if interface_missing:
             errors.append(f"{tool}: missing interface keys {sorted(interface_missing)}")
-        contract_missing = REQUIRED_CONTRACT - set(data.get("agent_contract", {}))
-        if contract_missing:
-            errors.append(f"{tool}: missing contract keys {sorted(contract_missing)}")
+        behavior_missing = REQUIRED_RUN_BEHAVIOR - set(data.get("run_behavior", {}))
+        if behavior_missing:
+            errors.append(f"{tool}: missing run behavior keys {sorted(behavior_missing)}")
         if not data.get("recommended_commands"):
             errors.append(f"{tool}: recommended_commands is empty")
 
@@ -56,7 +56,7 @@ def main() -> int:
         for error in errors:
             print(error)
         return 1
-    print(f"Validated {len(TOOLS)} agent tool manifests.")
+    print(f"Validated {len(TOOLS)} tool manifests.")
     return 0
 
 

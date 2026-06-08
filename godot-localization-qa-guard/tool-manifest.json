@@ -9,7 +9,7 @@
     "human_output": ["text", "markdown report"],
     "visual_interface": "none"
   },
-  "agent_contract": {
+  "run_behavior": {
     "noninteractive": true,
     "safe_on_private_projects": true,
     "network_required": false,
@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Agent-safe localization report",
+      "purpose": "Automation-friendly localization report",
       "command": "godot-l10n-guard <project> --translations translations --scan-scripts --scan-scenes --format json --output localization-report.json --fail-on none"
     },
     {

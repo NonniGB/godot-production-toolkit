@@ -10,5 +10,5 @@ dist/
 INPUT_REFERENCE.md
 input_actions.gd
 *.json
-!agent-tool.json
+!tool-manifest.json
 !examples/**/*.json
