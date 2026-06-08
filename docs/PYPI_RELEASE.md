@@ -4,7 +4,7 @@ Package publishing uses PyPI Trusted Publishing rather than local API tokens.
 
 ## Published Packages
 
-These packages are published at `0.1.0`:
+These packages are published as standalone PyPI distributions:
 
 - [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
 - [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)

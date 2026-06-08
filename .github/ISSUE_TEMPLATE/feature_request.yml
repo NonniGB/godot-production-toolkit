@@ -26,14 +26,36 @@ body:
   - type: textarea
     id: problem
     attributes:
-      label: Problem
-      description: What workflow is currently hard, risky, or impossible?
+      label: Workflow or problem
+      description: What release, CI, asset, localization, input, save, or mobile workflow is currently hard, risky, or repetitive?
+      placeholder: |
+        I am trying to...
+        The tool currently makes this hard because...
+        I currently work around it by...
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
       label: Proposed behavior
-      description: Describe the command, output, or documentation change you would expect.
+      description: Describe the command, output, rule, config option, or documentation change you would expect.
+      placeholder: |
+        Example command:
+          godot-asset-doctor . --profile pixel-2d --new-option ...
+
+        Expected output/report:
+          It should flag...
     validations:
       required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example project shape
+      description: Optional, but useful. Paste a tiny file tree, config snippet, or CI step that shows where the feature would fit.
+      placeholder: |
+        project.godot
+        export_presets.cfg
+        assets/ui/button.png
+        .github/workflows/release.yml
+    validations:
+      required: false

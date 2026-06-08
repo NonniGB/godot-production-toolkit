@@ -4,13 +4,15 @@ Release-readiness checks for Godot `export_presets.cfg`, focused on Android, CI 
 
 The tool is a companion to export automation. It does not build the game; it catches risky preset drift before a release job runs `godot --headless --export-release`.
 
+Use it when a release preset changes, when setting up a new export target, or before cutting a public build from CI.
+
 ## Install
 
 ```powershell
 python -m pip install -e .
 ```
 
-When published:
+From PyPI:
 
 ```powershell
 python -m pip install godot-export-preset-doctor
@@ -28,6 +30,27 @@ Use `--fail-on none` while exploring a report:
 
 ```powershell
 godot-export-doctor examples\bad-export-project --fail-on none
+```
+
+## Real Workflow: Gate Release Presets In CI
+
+Run the checker before a Godot export step so preset drift fails early:
+
+```powershell
+godot-export-doctor . --platform Android --fail-on warning --format sarif --output reports\export-doctor.sarif
+```
+
+This is especially useful for:
+
+- catching debug flags that were left enabled in release-like presets;
+- checking Android package id, version, icon, and ABI readiness;
+- spotting local keystore paths or literal credential values before reports are shared;
+- confirming export paths exist and match the expected target.
+
+For a first pass on an existing project, avoid failing the build while you review findings:
+
+```powershell
+godot-export-doctor . --platform Android --fail-on none --format json --output reports\export-doctor.json
 ```
 
 ## What It Checks
@@ -70,6 +93,13 @@ SARIF:
 
 ```powershell
 godot-export-doctor . --format sarif --output export-doctor.sarif
+```
+
+## CI Example
+
+```yaml
+- run: python -m pip install godot-export-preset-doctor
+- run: godot-export-doctor . --platform Android --fail-on warning --format sarif --output reports/export-doctor.sarif
 ```
 
 ## Documentation

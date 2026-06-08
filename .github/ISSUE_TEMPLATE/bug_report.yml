@@ -26,18 +26,47 @@ body:
   - type: textarea
     id: repro
     attributes:
-      label: Reproduction
-      description: Include the command, minimal project or fixture shape, expected result, and actual result.
+      label: What happened?
+      description: Paste the exact command and the output or traceback. A reduced fixture is best, but a short file tree is enough to start.
       placeholder: |
-        Command:
-        Expected:
-        Actual:
+        Command I ran:
+          godot-export-doctor . --platform Android
+
+        What I expected:
+          The command should pass because...
+
+        What happened instead:
+          Paste the error, warning, traceback, or surprising finding here.
+
+        Minimal project shape if useful:
+          project.godot
+          export_presets.cfg
+          assets/player.png.import
     validations:
       required: true
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Smallest useful example
+      description: If you can, paste the smallest config snippet, command output, or file names needed to reproduce the issue. Do not paste private assets, secrets, signing keys, or full proprietary projects.
+      placeholder: |
+        export_presets.cfg snippet:
+        [preset.0]
+        platform="Android"
+
+        Or attach/link a tiny public repro project.
+    validations:
+      required: false
   - type: textarea
     id: environment
     attributes:
       label: Environment
-      description: Python version, Godot version if relevant, operating system, and package version.
+      description: Python version, Godot version if relevant, operating system, install method, and package version.
+      placeholder: |
+        OS:
+        Python:
+        Godot:
+        Package/version:
+        Installed with pip, source checkout, or GitHub Action:
     validations:
       required: true

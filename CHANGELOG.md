@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 - 2026-06-08
+
+- Improved the root README first-run guidance for new Godot users.
+- Improved PyPI package READMEs for the three published standalone tools.
+- Made issue templates easier to fill in with command, output, fixture, and environment prompts.
+
 ## 0.1.0 - 2026-06-08
 
 Initial Godot Production Toolkit release package:

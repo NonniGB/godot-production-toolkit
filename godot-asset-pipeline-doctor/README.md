@@ -2,7 +2,9 @@
 
 CI-friendly PNG and Godot `.import` checks for pixel-art and mobile asset pipelines.
 
-The tool is designed for generic Godot projects, including private commercial games. Public examples use placeholder project names and do not require publishing project-specific content.
+Use this before merging sprites, UI art, icons, backgrounds, or other PNG-heavy changes. It checks for import settings and texture shapes that commonly cause blurry pixel art, color fringes, or mobile memory surprises.
+
+The tool is designed for generic Godot projects, including private commercial games. Public examples use placeholder project names and do not require publishing project-specific content. It does not need the Godot editor and does not run project scripts.
 
 ## What It Catches
 
@@ -22,7 +24,7 @@ From a local checkout:
 python -m pip install -e .
 ```
 
-After publishing to PyPI:
+From PyPI:
 
 ```powershell
 python -m pip install godot-asset-pipeline-doctor
@@ -58,6 +60,27 @@ Run through Python after installing the package:
 
 ```powershell
 python -m godot_asset_doctor examples\tiny-godot-project --fail-on none
+```
+
+## Real Workflow: Review New Art Before A Merge
+
+Run a strict pixel-art scan when a pull request changes `assets/`, `sprites/`, or `ui/`:
+
+```powershell
+godot-asset-doctor . --profile pixel-2d --fail-on warning --format json --output reports\asset-doctor.json
+```
+
+Use the findings to catch:
+
+- pixel art imported with mipmaps enabled;
+- transparent sprite edges that can show colored fringes;
+- missing `.import` files that mean assets have not been opened by Godot yet;
+- unexpectedly large textures before they land in the main branch.
+
+For Android-focused review, switch profile:
+
+```powershell
+godot-asset-doctor . --profile android-mobile --fail-on error --format sarif --output reports\asset-doctor.sarif
 ```
 
 ## Profiles
@@ -127,6 +150,13 @@ python -m unittest discover -s tests -v
 ## CI
 
 The included GitHub Actions workflow installs the package and runs the test suite on Python 3.11, 3.12, and 3.13.
+
+In a project CI job, install from PyPI and keep the report as an artifact:
+
+```yaml
+- run: python -m pip install godot-asset-pipeline-doctor
+- run: godot-asset-doctor . --profile android-mobile --format json --output reports/asset-doctor.json
+```
 
 ## Design Notes
 

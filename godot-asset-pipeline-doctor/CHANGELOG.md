@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## 0.1.1 - 2026-06-08
+
+### Changed
+
+- Improved the PyPI README with a clearer first-use workflow, CI example, and release-review guidance.
+
 ## 0.1.0 - 2026-06-08
 
 ### Added

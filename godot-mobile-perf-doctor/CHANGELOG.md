@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-06-08
+
+- Improved the PyPI README with a practical Android test-build workflow and CI example.
+
 ## 0.1.0 - 2026-06-08
 
 - Added static `project.godot` settings parser.

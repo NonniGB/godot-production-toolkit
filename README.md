@@ -12,6 +12,8 @@ Godot Production Toolkit helps solo developers and small teams catch release ris
 
 It is built as ten standalone command-line tools, one umbrella CLI, and one GitHub Action. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
 
+**Fastest path:** install one of the PyPI packages below if you need a single check today, or use the GitHub Action if you want release-readiness reports on every pull request. Use the source checkout when you want the umbrella `godot-project-doctor` command to run several tools together.
+
 ![Godot Project Doctor HTML report](docs/assets/screenshots/project-doctor-html-report.png)
 
 ## What This Is For
@@ -55,6 +57,12 @@ python -m pip install godot-asset-pipeline-doctor
 python -m pip install godot-export-preset-doctor
 python -m pip install godot-mobile-perf-doctor
 ```
+
+Pick the package that matches the risk you are trying to reduce:
+
+- `godot-export-preset-doctor`: before an Android, Windows, Linux, or web export job.
+- `godot-asset-pipeline-doctor`: before merging new sprites, UI art, icons, or large textures.
+- `godot-mobile-perf-doctor`: before testing a Godot 4 project on Android hardware.
 
 Preview checks without writing files:
 

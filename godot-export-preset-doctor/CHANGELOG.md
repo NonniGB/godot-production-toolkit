@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-06-08
+
+- Improved the PyPI README with concrete release-gating and CI examples.
+
 ## 0.1.0 - 2026-06-08
 
 - Added Godot `export_presets.cfg` parsing.
