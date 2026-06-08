@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gdscript-api-comment-coverage"
+version = "0.1.0"
+description = "Generate GDScript API indexes and enforce public API comment coverage."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "GDScript API Comment Coverage contributors" }]
+keywords = ["godot", "gdscript", "documentation", "coverage", "ci", "gamedev"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Documentation",
+  "Topic :: Software Development :: Quality Assurance"
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/gdscript-api-comment-coverage"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
+
+[project.scripts]
+gdscript-api-coverage = "gdscript_api_coverage.cli:entrypoint"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

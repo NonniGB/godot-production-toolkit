@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "godot-visual-smoke-test-kit"
+version = "0.1.0"
+description = "Screenshot diff and baseline helpers for Godot visual smoke tests."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Godot Visual Smoke Test Kit contributors" }]
+keywords = ["godot", "screenshot", "visual-regression", "ci", "gamedev"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Multimedia :: Graphics",
+  "Topic :: Software Development :: Quality Assurance"
+]
+dependencies = ["Pillow>=10"]
+
+[project.urls]
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-visual-smoke-test-kit"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
+
+[project.scripts]
+godot-visual-smoke = "godot_visual_smoke.cli:entrypoint"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

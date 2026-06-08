@@ -1,0 +1,77 @@
+{
+  "actions": [
+    {
+      "devices": [
+        "gamepad",
+        "keyboard"
+      ],
+      "events": [
+        {
+          "device": "keyboard",
+          "event_type": "InputEventKey",
+          "signature": "keyboard:key:65"
+        },
+        {
+          "device": "gamepad",
+          "event_type": "InputEventJoypadButton",
+          "signature": "gamepad:button:14"
+        }
+      ],
+      "name": "move_left"
+    },
+    {
+      "devices": [
+        "keyboard"
+      ],
+      "events": [
+        {
+          "device": "keyboard",
+          "event_type": "InputEventKey",
+          "signature": "keyboard:key:13"
+        }
+      ],
+      "name": "confirm"
+    },
+    {
+      "devices": [
+        "mouse"
+      ],
+      "events": [
+        {
+          "device": "mouse",
+          "event_type": "InputEventMouseButton",
+          "signature": "mouse:button:4"
+        }
+      ],
+      "name": "zoom_in"
+    }
+  ],
+  "findings": [
+    {
+      "action": "move_left",
+      "message": "Input action 'move_left' is missing required device(s): touch.",
+      "rule_id": "missing_required_device",
+      "severity": "error"
+    },
+    {
+      "action": "confirm",
+      "message": "Input action 'confirm' is missing required device(s): touch.",
+      "rule_id": "missing_required_device",
+      "severity": "error"
+    },
+    {
+      "action": "zoom_in",
+      "message": "Input action 'zoom_in' is missing required device(s): keyboard, touch.",
+      "rule_id": "missing_required_device",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "actions": 3,
+    "errors": 3,
+    "findings": 3,
+    "warnings": 0
+  },
+  "tool": "godot-input-map-auditor"
+}
+

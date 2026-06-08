@@ -1,0 +1,5 @@
+config_version=5
+
+[application]
+config/name="Tiny Signal Fixture"
+run/main_scene="res://scenes/menu.tscn"

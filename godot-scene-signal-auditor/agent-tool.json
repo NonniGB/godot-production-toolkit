@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-scene-signal-auditor",
+  "entrypoint": "godot-signal-audit",
+  "module": "python -m godot_signal_auditor",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json"],
+    "human_output": ["text", "mermaid graph"],
+    "visual_interface": "Mermaid graph output"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold, or --fail-on none",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Agent-safe signal report",
+      "command": "godot-signal-audit <project> --autoload EventBus,SignalBus --format json --output signal-report.json --fail-on none"
+    },
+    {
+      "purpose": "Architecture graph",
+      "command": "godot-signal-audit <project> --format mermaid --output docs/SIGNAL_GRAPH.md --fail-on none"
+    }
+  ]
+}

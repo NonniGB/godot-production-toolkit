@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-mobile-perf-doctor",
+  "entrypoint": "godot-mobile-perf-doctor",
+  "module": "python -m godot_mobile_perf_doctor",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json", "sarif"],
+    "human_output": ["text", "markdown report"],
+    "visual_interface": "none"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold, or --fail-on none",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Agent-safe static performance report",
+      "command": "godot-mobile-perf-doctor <project> --static --format json --output mobile-perf-report.json --fail-on none"
+    },
+    {
+      "purpose": "Human release report",
+      "command": "godot-mobile-perf-doctor <project> --static --format markdown --output mobile-perf-report.md"
+    },
+    {
+      "purpose": "GitHub code scanning SARIF",
+      "command": "godot-mobile-perf-doctor <project> --static --format sarif --output mobile-perf-report.sarif --fail-on none"
+    }
+  ]
+}

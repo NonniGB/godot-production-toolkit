@@ -1,0 +1,128 @@
+{
+  "project_name": "Godot Production Toolkit",
+  "one_line_summary": "A suite of CI-friendly, agent-readable production diagnostics for Godot 4 projects, mobile-first 2D games, release readiness, localization, visual smoke checks, save compatibility, and pixel asset workflows.",
+  "repository": "https://github.com/NonniGB/godot-production-toolkit",
+  "tool_count": 12,
+  "tools": [
+    {
+      "name": "godot-project-doctor",
+      "role": "Umbrella CLI for planning, running, and summarizing the suite.",
+      "interfaces": ["cli", "json", "markdown", "html"]
+    },
+    {
+      "name": "godot-ci-doctor-action",
+      "role": "GitHub composite action wrapper for CI use.",
+      "interfaces": ["github-action", "json-artifacts", "markdown-artifacts", "html-artifacts"]
+    },
+    {
+      "name": "godot-asset-pipeline-doctor",
+      "role": "PNG and Godot .import checks for pixel art and mobile memory risks.",
+      "interfaces": ["cli", "json", "sarif", "text"]
+    },
+    {
+      "name": "godot-export-preset-doctor",
+      "role": "Release-readiness checks for export_presets.cfg.",
+      "interfaces": ["cli", "json", "sarif", "text"]
+    },
+    {
+      "name": "gdscript-api-comment-coverage",
+      "role": "Public GDScript API documentation and coverage gate.",
+      "interfaces": ["cli", "json", "markdown"]
+    },
+    {
+      "name": "godot-input-map-auditor",
+      "role": "Input coverage and duplicate binding checks.",
+      "interfaces": ["cli", "json", "sarif", "markdown", "gdscript"]
+    },
+    {
+      "name": "godot-localization-qa-guard",
+      "role": "CSV/PO translation checks and project key usage scan.",
+      "interfaces": ["cli", "json", "sarif", "markdown"]
+    },
+    {
+      "name": "godot-save-schema-guard",
+      "role": "Save fixture schema validation and migration command checks.",
+      "interfaces": ["cli", "json", "markdown"]
+    },
+    {
+      "name": "godot-scene-signal-auditor",
+      "role": "Scene signal connection and autoload coupling analysis.",
+      "interfaces": ["cli", "json", "mermaid"]
+    },
+    {
+      "name": "godot-visual-smoke-test-kit",
+      "role": "Visual smoke plan, screenshot diff, and approval helpers.",
+      "interfaces": ["cli", "json", "png-diffs"]
+    },
+    {
+      "name": "godot-mobile-perf-doctor",
+      "role": "Static mobile performance diagnostics for Godot projects.",
+      "interfaces": ["cli", "json", "sarif", "markdown"]
+    },
+    {
+      "name": "pixel-space-asset-toolkit",
+      "role": "Deterministic pixel sci-fi asset generation and cleanup utilities.",
+      "interfaces": ["cli", "json", "png", "html-gallery"]
+    }
+  ],
+  "agentic_interfaces": {
+    "manifest_files": "Each agent-facing project has agent-tool.json.",
+    "manifest_validator": "python verify_agent_interfaces.py",
+    "machine_outputs": ["json", "sarif"],
+    "human_outputs": ["text", "markdown", "html", "png-diffs", "mermaid"],
+    "noninteractive_default": true,
+    "network_required_for_tools": false,
+    "network_required_for_github_action_install": true
+  },
+  "ci_and_maintenance": {
+    "github_workflow": ".github/workflows/ci.yml",
+    "issue_templates": true,
+    "pull_request_template": true,
+    "dependabot": ".github/dependabot.yml",
+    "codeowners": ".github/CODEOWNERS",
+    "security_docs": true,
+    "contributing_docs": true,
+    "support_docs": true,
+    "code_of_conduct": true,
+    "changelogs": true,
+    "tests": "unittest suites in every Python tool plus root repository contract tests"
+  },
+  "governance": [
+    "LICENSE",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "CODE_OF_CONDUCT.md",
+    "CHANGELOG.md",
+    ".github/CODEOWNERS",
+    ".github/dependabot.yml",
+    "docs/RELEASE_CHECKLIST.md",
+    "docs/PROJECT_HEALTH.md"
+  ],
+  "public_examples": [
+    "docs/USE_CASES.md",
+    "examples/release-readiness-demo/README.md",
+    "docs/assets/sample-reports/release-readiness-summary.html",
+    "docs/assets/screenshots/project-doctor-html-report.png",
+    "docs/assets/screenshots/project-doctor-terminal.png"
+  ],
+  "verification_commands": [
+    "python verify_agent_interfaces.py",
+    "python -m unittest discover -s tests -v",
+    "python -m unittest discover -s godot-project-doctor/tests -v",
+    "python -m unittest discover -s godot-ci-doctor-action/tests -v",
+    "python -m unittest discover -s godot-asset-pipeline-doctor/tests -v",
+    "python -m unittest discover -s godot-mobile-perf-doctor/tests -v"
+  ],
+  "current_limitations": [
+    "Some specialized tools require project-specific fixtures or visual smoke capture scripts to be fully useful.",
+    "The tools are intentionally narrow and production-focused rather than a broad Godot framework.",
+    "Package publishing can be staged by demand and maintainer capacity."
+  ],
+  "release_priorities": [
+    "Maintain one public umbrella repository with all tools and the GitHub Action.",
+    "Keep tagged releases tied to passing CI runs.",
+    "Publish the highest-demand packages first: godot-project-doctor, godot-asset-pipeline-doctor, godot-export-preset-doctor, and godot-mobile-perf-doctor.",
+    "Use concise examples and minimal fixtures when discussing issues or improvements."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "required": ["version", "credits", "player"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "type": "integer" },
+    "credits": { "type": "number" },
+    "player": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" }
+      }
+    }
+  }
+}

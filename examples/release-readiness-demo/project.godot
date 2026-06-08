@@ -1,0 +1,27 @@
+config_version=5
+
+[application]
+config/name="Release Readiness Demo"
+run/main_scene="res://scenes/menu.tscn"
+
+[display]
+window/size/viewport_width=2560
+window/size/viewport_height=1440
+window/stretch/mode="disabled"
+
+[rendering]
+renderer/rendering_method="forward_plus"
+
+[input]
+move_left={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":65), Object(InputEventJoypadButton,"button_index":14)]
+}
+confirm={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":13)]
+}
+zoom_in={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"button_index":4)]
+}

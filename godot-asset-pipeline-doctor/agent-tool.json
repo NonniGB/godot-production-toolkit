@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-asset-pipeline-doctor",
+  "entrypoint": "godot-asset-doctor",
+  "module": "python -m godot_asset_doctor",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json", "sarif"],
+    "human_output": ["text", "markdown docs"],
+    "visual_interface": "none"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold, or --fail-on none",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Agent-safe JSON audit",
+      "command": "godot-asset-doctor <project> --profile android-mobile --format json --output asset-report.json --fail-on none"
+    },
+    {
+      "purpose": "Strict CI gate",
+      "command": "godot-asset-doctor <project> --profile pixel-2d --fail-on warning"
+    },
+    {
+      "purpose": "GitHub code scanning SARIF",
+      "command": "godot-asset-doctor <project> --profile pixel-2d --format sarif --output asset-report.sarif --fail-on none"
+    }
+  ]
+}

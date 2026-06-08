@@ -1,0 +1,4 @@
+[params]
+mipmaps/generate=true
+texture_filter=1
+process/fix_alpha_border=false

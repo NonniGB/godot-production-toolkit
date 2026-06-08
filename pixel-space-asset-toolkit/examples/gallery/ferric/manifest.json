@@ -1,0 +1,33 @@
+{
+  "count": 6,
+  "material": "ferric",
+  "seed": 7,
+  "size": 32,
+  "tiles": [
+    {
+      "file": "ferric_000.png",
+      "seed": 7
+    },
+    {
+      "file": "ferric_001.png",
+      "seed": 8
+    },
+    {
+      "file": "ferric_002.png",
+      "seed": 9
+    },
+    {
+      "file": "ferric_003.png",
+      "seed": 10
+    },
+    {
+      "file": "ferric_004.png",
+      "seed": 11
+    },
+    {
+      "file": "ferric_005.png",
+      "seed": 12
+    }
+  ],
+  "type": "asteroid-hex"
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "name": "gdscript-api-comment-coverage",
+  "entrypoint": "gdscript-api-coverage",
+  "module": "python -m gdscript_api_coverage",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json"],
+    "human_output": ["text", "markdown API index"],
+    "visual_interface": "none"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "coverage thresholds passed, or --fail-on none",
+      "1": "coverage threshold failure",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Agent-safe coverage report",
+      "command": "gdscript-api-coverage <project> --format json --output gdscript-api-report.json --fail-on none"
+    },
+    {
+      "purpose": "Generate human API docs",
+      "command": "gdscript-api-coverage <project> --write-docs docs/API_INDEX.md --min-all 80"
+    }
+  ]
+}

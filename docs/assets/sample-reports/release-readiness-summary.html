@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Godot Project Doctor Report</title>
+<style>
+:root{color-scheme:light;--ink:#172033;--muted:#667085;--line:#d7dce5;--bg:#f7f8fb;--panel:#fff;--accent:#2563eb;--ok:#047857;--warn:#b45309;--err:#b42318}
+*{box-sizing:border-box}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;margin:0;line-height:1.45;color:var(--ink);background:var(--bg)}
+main{max-width:1120px;margin:0 auto;padding:40px 28px}.eyebrow{color:var(--accent);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+h1{margin:.25rem 0 .35rem;font-size:2.2rem;line-height:1.08}p.lead{margin:0 0 1.4rem;color:var(--muted);max-width:760px}
+.totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:24px 0}.metric{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;box-shadow:0 8px 24px rgba(23,32,51,.06)}
+.metric strong{display:block;color:var(--muted);font-size:.84rem}.metric span{font-size:2rem;font-weight:800}
+section{margin-top:28px}table{border-collapse:separate;border-spacing:0;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;box-shadow:0 8px 24px rgba(23,32,51,.06)}
+th,td{border-bottom:1px solid var(--line);padding:.72rem;text-align:left;vertical-align:top}tr:last-child td{border-bottom:0}th{background:#eef2f7;color:#344054;font-size:.84rem}
+.status{display:inline-block;border-radius:999px;padding:.2rem .55rem;font-size:.78rem;font-weight:700}.status.clean{background:#ecfdf3;color:var(--ok)}.status.warning{background:#fffaeb;color:var(--warn)}.status.error{background:#fef3f2;color:var(--err)}
+.findings{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.finding{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:0 8px 24px rgba(23,32,51,.05)}
+.finding h3{margin:.25rem 0;font-size:1rem}.finding p{margin:.25rem 0 .5rem;color:var(--muted)}.finding-severity{font-size:.75rem;font-weight:800;text-transform:uppercase;color:var(--err)}small{color:var(--muted)}
+@media(max-width:720px){main{padding:28px 16px}.totals{grid-template-columns:1fr}h1{font-size:1.7rem}table{font-size:.88rem}}
+</style>
+</head>
+<body>
+<main>
+<div class="eyebrow">Godot production checks</div>
+<h1>Godot Project Doctor Report</h1>
+<p class="lead">A compact release-readiness summary for export presets, assets, input maps, localization, scene wiring, and mobile performance checks.</p>
+<div class="totals">
+<div class="metric"><strong>Tools checked</strong><span>4</span></div>
+<div class="metric"><strong>Errors</strong><span>7</span></div>
+<div class="metric"><strong>Warnings</strong><span>8</span></div>
+</div>
+<section>
+<h2>Check Results</h2>
+<table>
+<thead><tr><th>Status</th><th>Tool</th><th>Errors</th><th>Warnings</th><th>Report</th></tr></thead>
+<tbody>
+<tr><td><span class="status warning">Review</span></td><td>assets</td><td>0</td><td>3</td><td>docs\assets\sample-reports\assets.json</td></tr>
+<tr><td><span class="status error">Action needed</span></td><td>godot-export-preset-doctor</td><td>4</td><td>2</td><td>docs\assets\sample-reports\export.json</td></tr>
+<tr><td><span class="status error">Action needed</span></td><td>godot-input-map-auditor</td><td>3</td><td>0</td><td>docs\assets\sample-reports\input-map.json</td></tr>
+<tr><td><span class="status warning">Review</span></td><td>godot-mobile-perf-doctor</td><td>0</td><td>3</td><td>docs\assets\sample-reports\mobile-perf.json</td></tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>Top Findings</h2>
+<div class="findings">
+<article class="finding"><span class="finding-severity">warning</span><h3>alpha_border_fix_disabled</h3><p>Alpha border fixing is disabled on an image with transparency.</p><small>assets</small></article>
+<article class="finding"><span class="finding-severity">warning</span><h3>pixel_mipmaps_enabled</h3><p>Mipmaps are enabled for a pixel-art profile asset.</p><small>assets</small></article>
+<article class="finding"><span class="finding-severity">warning</span><h3>transparent_edge_rgb</h3><p>1 fully transparent edge pixel(s) carry non-black RGB values.</p><small>assets</small></article>
+<article class="finding"><span class="finding-severity">error</span><h3>missing_export_path</h3><p>Export path is missing.</p><small>godot-export-preset-doctor</small></article>
+<article class="finding"><span class="finding-severity">warning</span><h3>debug_option_enabled_in_release</h3><p>Release-like preset has debug option &#x27;debug/export_remote_debug&#x27; enabled.</p><small>godot-export-preset-doctor</small></article>
+<article class="finding"><span class="finding-severity">error</span><h3>android_package_id_missing</h3><p>Android package/unique_name is missing.</p><small>godot-export-preset-doctor</small></article>
+<article class="finding"><span class="finding-severity">error</span><h3>missing_required_device</h3><p>Input action &#x27;move_left&#x27; is missing required device(s): touch.</p><small>godot-input-map-auditor</small></article>
+<article class="finding"><span class="finding-severity">error</span><h3>missing_required_device</h3><p>Input action &#x27;confirm&#x27; is missing required device(s): touch.</p><small>godot-input-map-auditor</small></article>
+<article class="finding"><span class="finding-severity">error</span><h3>missing_required_device</h3><p>Input action &#x27;zoom_in&#x27; is missing required device(s): keyboard, touch.</p><small>godot-input-map-auditor</small></article>
+<article class="finding"><span class="finding-severity">warning</span><h3>forward_plus_renderer_mobile_risk</h3><p>Forward+ renderer is expensive for many Android/mobile 2D projects; consider Mobile or Compatibility renderer after visual testing.</p><small>godot-mobile-perf-doctor</small></article>
+<article class="finding"><span class="finding-severity">warning</span><h3>large_base_viewport</h3><p>Base viewport 2560x1440 exceeds 1080p; profile &#x27;portrait-2d&#x27; may waste fill-rate on mobile.</p><small>godot-mobile-perf-doctor</small></article>
+<article class="finding"><span class="finding-severity">warning</span><h3>stretch_disabled</h3><p>Stretch mode is disabled or missing; mobile projects usually need explicit scaling behavior.</p><small>godot-mobile-perf-doctor</small></article>
+</div>
+</section>
+</main>
+</body>
+</html>
+

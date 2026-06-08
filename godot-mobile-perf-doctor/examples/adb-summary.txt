@@ -1,0 +1,4 @@
+Device: Pixel 8
+Android: 15
+Total frames rendered: 120
+Janky frames: 6 (5.0%)

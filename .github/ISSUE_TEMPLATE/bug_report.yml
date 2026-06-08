@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a reproducible problem in one of the tools.
+title: "[bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Tool
+      description: Which tool is affected?
+      options:
+        - godot-project-doctor
+        - godot-asset-pipeline-doctor
+        - godot-export-preset-doctor
+        - gdscript-api-comment-coverage
+        - godot-input-map-auditor
+        - godot-localization-qa-guard
+        - godot-save-schema-guard
+        - godot-scene-signal-auditor
+        - godot-visual-smoke-test-kit
+        - godot-mobile-perf-doctor
+        - pixel-space-asset-toolkit
+        - godot-ci-doctor-action
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Include the command, minimal project or fixture shape, expected result, and actual result.
+      placeholder: |
+        Command:
+        Expected:
+        Actual:
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Python version, Godot version if relevant, operating system, and package version.
+    validations:
+      required: true

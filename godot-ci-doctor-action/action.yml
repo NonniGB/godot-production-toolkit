@@ -1,0 +1,110 @@
+name: Godot CI Doctor
+description: Run the Godot production toolkit in GitHub Actions and write JSON, Markdown, and HTML reports.
+
+inputs:
+  project:
+    description: Path to the Godot project directory.
+    required: false
+    default: "."
+  config:
+    description: Optional godot-project-doctor.toml path.
+    required: false
+    default: ""
+  checks:
+    description: Comma-separated check ids to run when no config supplies checks.
+    required: false
+    default: "assets,export,api_comments,input,localization,signals,mobile_perf"
+  reports-dir:
+    description: Directory where report artifacts are written.
+    required: false
+    default: "reports/godot-project-doctor"
+  fail-on:
+    description: Smallest severity that should fail the workflow.
+    required: false
+    default: "error"
+  output-formats:
+    description: Comma-separated summary formats to write. Supported values are json, markdown, and html.
+    required: false
+    default: "json,markdown,html"
+  python-version:
+    description: Python version used to install and run the tools.
+    required: false
+    default: "3.11"
+  tool-packages:
+    description: Space-separated packages to install before running the doctor.
+    required: false
+    default: "godot-project-doctor godot-asset-pipeline-doctor godot-export-preset-doctor gdscript-api-comment-coverage godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor"
+
+outputs:
+  summary-json:
+    description: Path to the JSON summary report.
+    value: ${{ steps.paths.outputs.summary-json }}
+  summary-markdown:
+    description: Path to the Markdown summary report.
+    value: ${{ steps.paths.outputs.summary-markdown }}
+  summary-html:
+    description: Path to the HTML summary report.
+    value: ${{ steps.paths.outputs.summary-html }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install doctor packages
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install ${{ inputs.tool-packages }}
+
+    - name: Prepare report paths
+      id: paths
+      shell: bash
+      run: |
+        mkdir -p "${{ inputs.reports-dir }}"
+        echo "summary-json=${{ inputs.reports-dir }}/summary.json" >> "$GITHUB_OUTPUT"
+        echo "summary-markdown=${{ inputs.reports-dir }}/summary.md" >> "$GITHUB_OUTPUT"
+        echo "summary-html=${{ inputs.reports-dir }}/summary.html" >> "$GITHUB_OUTPUT"
+
+    - name: Run Godot project doctor
+      shell: bash
+      run: |
+        config_arg=()
+        if [ -n "${{ inputs.config }}" ]; then
+          config_arg=("${{ inputs.config }}")
+        fi
+        godot-project-doctor run "${config_arg[@]}" \
+          --project "${{ inputs.project }}" \
+          --checks "${{ inputs.checks }}" \
+          --reports-dir "${{ inputs.reports-dir }}" \
+          --fail-on none \
+          --format json \
+          --output "${{ steps.paths.outputs.summary-json }}"
+
+    - name: Write Markdown summary
+      if: contains(inputs.output-formats, 'markdown')
+      shell: bash
+      run: |
+        godot-project-doctor summarize "${{ inputs.reports-dir }}" \
+          --format markdown \
+          --output "${{ steps.paths.outputs.summary-markdown }}" \
+          --fail-on none
+
+    - name: Write HTML summary
+      if: contains(inputs.output-formats, 'html')
+      shell: bash
+      run: |
+        godot-project-doctor summarize "${{ inputs.reports-dir }}" \
+          --format html \
+          --output "${{ steps.paths.outputs.summary-html }}" \
+          --fail-on none
+
+    - name: Apply fail threshold
+      shell: bash
+      run: |
+        godot-project-doctor summarize "${{ inputs.reports-dir }}" \
+          --format text \
+          --fail-on "${{ inputs.fail-on }}"

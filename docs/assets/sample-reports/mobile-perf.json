@@ -1,0 +1,37 @@
+{
+  "adb": null,
+  "findings": [
+    {
+      "message": "Forward+ renderer is expensive for many Android/mobile 2D projects; consider Mobile or Compatibility renderer after visual testing.",
+      "path": null,
+      "rule_id": "forward_plus_renderer_mobile_risk",
+      "severity": "warning"
+    },
+    {
+      "message": "Base viewport 2560x1440 exceeds 1080p; profile 'portrait-2d' may waste fill-rate on mobile.",
+      "path": null,
+      "rule_id": "large_base_viewport",
+      "severity": "warning"
+    },
+    {
+      "message": "Stretch mode is disabled or missing; mobile projects usually need explicit scaling behavior.",
+      "path": null,
+      "rule_id": "stretch_disabled",
+      "severity": "warning"
+    }
+  ],
+  "summary": {
+    "errors": 0,
+    "findings": 3,
+    "large_textures": 0,
+    "textures": 1,
+    "warnings": 3
+  },
+  "textures": {
+    "large_textures": [],
+    "total_estimated_rgba_mb": 0.02,
+    "total_textures": 1
+  },
+  "tool": "godot-mobile-perf-doctor"
+}
+

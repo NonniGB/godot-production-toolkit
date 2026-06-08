@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "godot-mobile-perf-doctor"
+version = "0.1.0"
+description = "Static mobile performance diagnostics for Godot 4 projects."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Godot Mobile Perf Doctor contributors" }]
+keywords = ["godot", "android", "mobile", "performance", "textures", "ci", "gamedev"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: System :: Benchmark"
+]
+dependencies = ["Pillow>=10"]
+
+[project.urls]
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-mobile-perf-doctor"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
+
+[project.scripts]
+godot-mobile-perf-doctor = "godot_mobile_perf_doctor.cli:entrypoint"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

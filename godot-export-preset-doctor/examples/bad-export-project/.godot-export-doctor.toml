@@ -1,0 +1,4 @@
+format = "text"
+fail_on = "warning"
+platform = "Android"
+required_android_abis = ["arm64-v8a"]
