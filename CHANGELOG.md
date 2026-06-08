@@ -5,6 +5,7 @@
 - Added project-specific configuration for the three published packages:
   asset thresholds, export placeholder handling, and mobile viewport budgets.
 - Added tests and documentation for the new configuration options.
+- Updated GitHub Action examples to pin the current `v0.1.2` release.
 
 ## 0.1.1 - 2026-06-08
 

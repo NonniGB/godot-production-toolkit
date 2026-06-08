@@ -7,8 +7,8 @@
 3. Set the repository About description to: `CI-friendly production diagnostics for Godot 4 projects.`
 4. Add topics: `godot`, `godot4`, `gamedev`, `ci`, `github-actions`, `python`, `sarif`, `mobile`, `localization`, `pixel-art`, `testing`, `qa`.
 5. Ensure the root README links the project overview, metadata, validation commands, and release checklist.
-6. Create a `v0.1.0` release with a concise description of the suite and the first adoption path.
-7. Pin the action example to `@v0.1.0`.
+6. Create a GitHub release for the current version with a concise description of the suite and the main adoption path.
+7. Pin action examples to the latest tagged release, currently `@v0.1.2`.
 
 ## PyPI release
 

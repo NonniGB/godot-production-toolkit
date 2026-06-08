@@ -20,10 +20,10 @@ Check:
 
 ## Tagging
 
-Use semantic versioning. For the first public release:
+Use semantic versioning. For example:
 
 ```powershell
-git tag v0.1.0
+git tag v0.1.2
 git push origin main --tags
 ```
 

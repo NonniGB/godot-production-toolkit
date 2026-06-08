@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "name": "godot-ci-doctor-action",
-  "entrypoint": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.0",
+  "entrypoint": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2",
   "module": "github composite action",
   "interfaces": {
     "cli": false,
@@ -23,11 +23,11 @@
   "recommended_commands": [
     {
       "purpose": "Minimal pull request workflow",
-      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.0"
+      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2"
     },
     {
       "purpose": "Strict release workflow",
-      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.0 with fail-on: warning"
+      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2 with fail-on: warning"
     }
   ]
 }

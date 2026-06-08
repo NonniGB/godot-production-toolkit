@@ -115,7 +115,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 Add the suite to a Godot project with one workflow step:
 
 ```yaml
-- uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.0
+- uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2
   with:
     project: .
     checks: assets,export,input,localization,signals,mobile_perf

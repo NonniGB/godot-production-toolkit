@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.0
+      - uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2
         with:
           project: .
           checks: assets,export,input,localization,signals,mobile_perf
