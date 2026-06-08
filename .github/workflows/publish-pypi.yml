@@ -8,7 +8,6 @@ on:
         required: true
         type: choice
         options:
-          - godot-project-doctor
           - godot-asset-pipeline-doctor
           - godot-export-preset-doctor
           - godot-mobile-perf-doctor

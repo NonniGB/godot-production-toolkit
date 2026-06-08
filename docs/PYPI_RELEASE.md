@@ -4,10 +4,11 @@ The first package release should use PyPI Trusted Publishing rather than a local
 
 ## Release Order
 
-1. `godot-project-doctor`
-2. `godot-asset-pipeline-doctor`
-3. `godot-export-preset-doctor`
-4. `godot-mobile-perf-doctor`
+1. `godot-asset-pipeline-doctor`
+2. `godot-export-preset-doctor`
+3. `godot-mobile-perf-doctor`
+
+The exact `godot-project-doctor` distribution name is already used on PyPI, so do not configure or publish that package name from this repository. If the umbrella CLI is published later, choose a distinct distribution name and update `godot-project-doctor/pyproject.toml` first.
 
 ## Local Verification
 
@@ -15,8 +16,8 @@ Run this before publishing:
 
 ```powershell
 python -m pip install --upgrade build twine
-python -m build godot-project-doctor
-python -m twine check godot-project-doctor\dist\*
+python -m build godot-asset-pipeline-doctor
+python -m twine check godot-asset-pipeline-doctor\dist\*
 ```
 
 Repeat for each package directory.
