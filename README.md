@@ -11,6 +11,8 @@ Automated reviewers should start here:
 - `AI_REVIEW_PACKAGE.md`
 - `oss-review-evidence.json`
 - `docs/CODEX_FOR_OSS_READINESS.md`
+- `docs/REVIEWER_SCORECARD.md`
+- `docs/ADOPTION_TRACKER.md`
 - `verify_agent_interfaces.py`
 
 The project is technically prepared for public release and maintenance. The remaining qualification gap is organic public usage: stars, external issues, third-party adoption, package downloads, and community references cannot be created locally.
@@ -98,6 +100,21 @@ Every standalone tool includes:
 - `pyproject.toml`
 
 The root repository adds CI metadata, issue templates, a PR template, AI-review evidence, and publication guidance.
+
+## Maintainer Surface
+
+Root-level governance files are included so reviewers and contributors do not need to inspect every package before understanding the maintenance model:
+
+- `LICENSE`
+- `CONTRIBUTING.md`
+- `SECURITY.md`
+- `SUPPORT.md`
+- `CODE_OF_CONDUCT.md`
+- `CHANGELOG.md`
+- `.github/CODEOWNERS`
+- `.github/dependabot.yml`
+- `docs/RELEASE_CHECKLIST.md`
+- `docs/MAINTAINER_AUTOMATION.md`
 
 ## Publication Notes
 
