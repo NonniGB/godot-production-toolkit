@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-export-preset-doctor",
+  "entrypoint": "godot-export-doctor",
+  "module": "python -m godot_export_doctor",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json", "sarif"],
+    "human_output": ["text", "markdown docs"],
+    "visual_interface": "none"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold, or --fail-on none",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Agent-safe release audit",
+      "command": "godot-export-doctor <project> --platform Android --format json --output export-report.json --fail-on none"
+    },
+    {
+      "purpose": "Code scanning output",
+      "command": "godot-export-doctor <project> --format sarif --output export-doctor.sarif --fail-on error"
+    }
+  ]
+}

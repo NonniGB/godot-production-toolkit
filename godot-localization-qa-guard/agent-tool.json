@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-localization-qa-guard",
+  "entrypoint": "godot-l10n-guard",
+  "module": "python -m godot_l10n_guard",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json", "sarif"],
+    "human_output": ["text", "markdown report"],
+    "visual_interface": "none"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold, or --fail-on none",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Agent-safe localization report",
+      "command": "godot-l10n-guard <project> --translations translations --scan-scripts --scan-scenes --format json --output localization-report.json --fail-on none"
+    },
+    {
+      "purpose": "Release markdown report",
+      "command": "godot-l10n-guard <project> --translations translations --require fr,es,de --format markdown --output docs/LOCALIZATION_QA.md"
+    },
+    {
+      "purpose": "GitHub code scanning SARIF",
+      "command": "godot-l10n-guard <project> --translations translations --scan-scripts --scan-scenes --format sarif --output localization-report.sarif --fail-on none"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+config_version=5
+
+[application]
+config/name="Tiny Input Fixture"
+run/main_scene="res://main.tscn"
+
+[input]
+move_left={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":65), Object(InputEventJoypadButton,"button_index":14)]
+}
+confirm={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":13), Object(InputEventScreenTouch,"index":0)]
+}
+zoom_in={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"button_index":4)]
+}

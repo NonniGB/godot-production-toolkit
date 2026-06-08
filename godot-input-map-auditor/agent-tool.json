@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-input-map-auditor",
+  "entrypoint": "godot-input-audit",
+  "module": "python -m godot_input_auditor",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json", "sarif"],
+    "human_output": ["text", "markdown input reference", "GDScript constants"],
+    "visual_interface": "none"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold, or --fail-on none",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Agent-safe input report",
+      "command": "godot-input-audit <project> --require keyboard,touch --format json --output input-report.json --fail-on none"
+    },
+    {
+      "purpose": "Generate docs and constants",
+      "command": "godot-input-audit <project> --write-docs docs/INPUT_REFERENCE.md --generate-gd scripts/generated/input_actions.gd"
+    },
+    {
+      "purpose": "GitHub code scanning SARIF",
+      "command": "godot-input-audit <project> --require keyboard,touch --format sarif --output input-report.sarif --fail-on none"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/godot-project-doctor"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "pip"
+    directory: "/godot-asset-pipeline-doctor"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "pip"
+    directory: "/godot-export-preset-doctor"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "pip"
+    directory: "/godot-mobile-perf-doctor"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

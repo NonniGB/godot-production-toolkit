@@ -1,0 +1,42 @@
+name: Suite CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  validate:
+    name: Validate tool suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          for project in */pyproject.toml; do
+            dir="${project%/pyproject.toml}"
+            python -m pip install -e "$dir"
+          done
+
+      - name: Validate agent manifests
+        run: python verify_agent_interfaces.py
+
+      - name: Run repository contract tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Run package test suites
+        shell: bash
+        run: |
+          for tests_dir in */tests; do
+            python -m unittest discover -s "$tests_dir" -v
+          done

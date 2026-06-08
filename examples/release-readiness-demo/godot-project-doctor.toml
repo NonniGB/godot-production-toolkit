@@ -1,0 +1,17 @@
+[project]
+path = "."
+reports_dir = "../../docs/assets/sample-reports"
+fail_on = "none"
+checks = ["assets", "export", "input", "mobile_perf"]
+
+[tools.assets]
+args = ["--profile", "pixel-2d", "--fail-on", "none"]
+
+[tools.export]
+args = ["--platform", "Android", "--fail-on", "none"]
+
+[tools.input]
+args = ["--require", "keyboard,touch", "--fail-on", "none"]
+
+[tools.mobile_perf]
+args = ["--profile", "portrait-2d", "--max-texture-dimension", "1024", "--fail-on", "none"]

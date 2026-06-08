@@ -1,0 +1,58 @@
+# Project Overview
+
+Godot Production Toolkit is a suite of CI-friendly, agent-readable diagnostics for Godot 4 projects.
+
+The tools focus on repeated production risks that are easy to miss late in development: export preset mistakes, texture and import hygiene, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, visual regressions, and pixel asset workflow checks.
+
+## What Ships
+
+- Ten standalone Python CLI packages.
+- One umbrella CLI: `godot-project-doctor`.
+- One composite GitHub Action: `godot-ci-doctor-action`.
+- JSON output for automation.
+- SARIF output for selected CI/code-scanning checks.
+- Markdown, HTML, Mermaid, text, PNG diff, and generated asset outputs for human review.
+- Root and per-tool tests, examples, contribution docs, security notes, and changelogs.
+
+## Design Principles
+
+- Keep every tool useful on its own.
+- Keep command-line behavior noninteractive by default.
+- Prefer deterministic checks over opaque analysis.
+- Make reports easy for people and agents to parse.
+- Avoid project-specific examples in public documentation.
+- Avoid network access unless a host platform, such as GitHub Actions, is installing packages.
+
+## Main Entry Points
+
+```powershell
+python verify_agent_interfaces.py
+python -m unittest discover -s tests -v
+python -m pip install -e .\godot-project-doctor
+godot-project-doctor plan --project path\to\godot-project --format json
+```
+
+For workflow examples, see `docs/USE_CASES.md`. For a runnable synthetic fixture with sample reports and screenshots, see `examples/release-readiness-demo/README.md`.
+
+## Maintenance Model
+
+The repository keeps a normal public project surface:
+
+- `LICENSE`
+- `CONTRIBUTING.md`
+- `SECURITY.md`
+- `SUPPORT.md`
+- `CODE_OF_CONDUCT.md`
+- `CHANGELOG.md`
+- `.github/ISSUE_TEMPLATE/`
+- `.github/pull_request_template.md`
+- `.github/dependabot.yml`
+- `docs/RELEASE_CHECKLIST.md`
+- `docs/MAINTAINER_AUTOMATION.md`
+
+## Current Limitations
+
+- The tools are intentionally narrow production checks, not a general Godot framework.
+- Some checks need project-owned fixtures or baselines to provide their best signal.
+- Visual smoke testing still depends on a project-specific capture command before diffing screenshots.
+- Package publishing can be staged; the umbrella CLI and highest-demand diagnostics are the natural first package candidates.

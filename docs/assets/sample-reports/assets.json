@@ -1,0 +1,67 @@
+{
+  "assets": [
+    {
+      "import_metadata": {
+        "params": {
+          "mipmaps/generate": true,
+          "process/fix_alpha_border": false,
+          "texture_filter": 1
+        },
+        "path": "examples\\release-readiness-demo\\assets\\ui_panel.png.import",
+        "sections": {
+          "params": {
+            "mipmaps/generate": true,
+            "process/fix_alpha_border": false,
+            "texture_filter": 1
+          }
+        }
+      },
+      "path": "examples\\release-readiness-demo\\assets\\ui_panel.png",
+      "png": {
+        "contaminated_transparent_edge_pixel_count": 1,
+        "contaminated_transparent_pixel_count": 1,
+        "estimated_rgba_bytes": 18432,
+        "has_alpha": true,
+        "height": 48,
+        "mode": "RGBA",
+        "palette_color_count": 6,
+        "path": "examples\\release-readiness-demo\\assets\\ui_panel.png",
+        "transparent_pixel_count": 1088,
+        "width": 96
+      }
+    }
+  ],
+  "issues": [
+    {
+      "code": "alpha_border_fix_disabled",
+      "message": "Alpha border fixing is disabled on an image with transparency.",
+      "path": "examples\\release-readiness-demo\\assets\\ui_panel.png",
+      "severity": "warning",
+      "suggestion": "Enable alpha border fixing or ensure transparent pixels are decontaminated in source art."
+    },
+    {
+      "code": "pixel_mipmaps_enabled",
+      "message": "Mipmaps are enabled for a pixel-art profile asset.",
+      "path": "examples\\release-readiness-demo\\assets\\ui_panel.png",
+      "severity": "warning",
+      "suggestion": "Disable mipmap generation unless the asset is intentionally scaled in 3D or at many sizes."
+    },
+    {
+      "code": "transparent_edge_rgb",
+      "message": "1 fully transparent edge pixel(s) carry non-black RGB values.",
+      "path": "examples\\release-readiness-demo\\assets\\ui_panel.png",
+      "severity": "warning",
+      "suggestion": "Clean transparent RGB data or enable alpha-border fixing to reduce fringe artifacts."
+    }
+  ],
+  "summary": {
+    "asset_count": 1,
+    "error_count": 0,
+    "info_count": 0,
+    "issue_count": 3,
+    "profile": "pixel-2d",
+    "root": "examples\\release-readiness-demo",
+    "warning_count": 3
+  }
+}
+

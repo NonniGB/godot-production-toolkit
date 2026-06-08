@@ -1,0 +1,30 @@
+PS> godot-project-doctor run examples\release-readiness-demo\godot-project-doctor.toml --dry-run
+Godot Project Doctor Plan
+Project: examples\release-readiness-demo
+Reports: docs\assets\sample-reports
+- assets: godot-asset-doctor examples\release-readiness-demo --format json --output docs\assets\sample-reports\assets.json --profile pixel-2d --fail-on none
+- export: godot-export-doctor examples\release-readiness-demo --format json --output docs\assets\sample-reports\export.json --platform Android --fail-on none
+- api_comments: disabled (not selected)
+- input: godot-input-audit examples\release-readiness-demo --format json --output docs\assets\sample-reports\input-map.json --require keyboard,touch --fail-on none
+- localization: disabled (not selected)
+- save_schema: disabled (not selected)
+- signals: disabled (not selected)
+- visual_smoke: disabled (not selected)
+- mobile_perf: godot-mobile-perf-doctor examples\release-readiness-demo --static --format json --output docs\assets\sample-reports\mobile-perf.json --profile portrait-2d --max-texture-dimension 1024 --fail-on none
+- pixel_assets: disabled (not selected)
+
+PS> godot-project-doctor summarize docs\assets\sample-reports --format markdown
+# Godot Project Doctor Report
+
+- Tools: 4
+- Errors: 7
+- Warnings: 8
+
+| Tool | Errors | Warnings | Report |
+|---|---:|---:|---|
+| assets | 0 | 3 | docs\assets\sample-reports\assets.json |
+| godot-export-preset-doctor | 4 | 2 | docs\assets\sample-reports\export.json |
+| godot-input-map-auditor | 3 | 0 | docs\assets\sample-reports\input-map.json |
+| godot-mobile-perf-doctor | 0 | 3 | docs\assets\sample-reports\mobile-perf.json |
+
+

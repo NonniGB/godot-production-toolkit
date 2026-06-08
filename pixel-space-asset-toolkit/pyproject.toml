@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pixel-space-asset-toolkit"
+version = "0.1.0"
+description = "Deterministic pixel-art sci-fi asset utilities for starfields, asteroid tiles, cleanup, and previews."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Pixel Space Asset Toolkit contributors" }]
+keywords = ["pixel-art", "procedural", "godot", "space", "assets", "gamedev"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Multimedia :: Graphics",
+  "Topic :: Games/Entertainment"
+]
+dependencies = ["Pillow>=10"]
+
+[project.urls]
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/pixel-space-asset-toolkit"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
+
+[project.scripts]
+pixel-space-assets = "pixel_space_assets.cli:entrypoint"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

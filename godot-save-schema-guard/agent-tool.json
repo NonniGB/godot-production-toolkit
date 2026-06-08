@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-save-schema-guard",
+  "entrypoint": "godot-save-guard",
+  "module": "python -m godot_save_guard",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json"],
+    "human_output": ["text", "markdown report"],
+    "visual_interface": "none"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": false,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold, or --fail-on none",
+      "1": "findings met selected fail threshold or migration command failed",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Agent-safe save validation",
+      "command": "godot-save-guard validate <fixtures> --schema <schema.json> --format json --output save-report.json --fail-on none"
+    },
+    {
+      "purpose": "Release compatibility report",
+      "command": "godot-save-guard validate <fixtures> --schema <schema.json> --format markdown --output docs/SAVE_COMPATIBILITY.md"
+    }
+  ]
+}

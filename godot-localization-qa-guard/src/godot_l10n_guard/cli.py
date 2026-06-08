@@ -1,0 +1,123 @@
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+from .audit import audit_catalogs
+from .csv_parser import parse_csv_file
+from .models import CsvTable, PoCatalog
+from .po_parser import parse_po_file
+from .reporting import render_json_report, render_markdown_report, render_sarif_report, render_text_report
+from .usage_scanner import scan_project_keys
+
+Catalog = CsvTable | PoCatalog
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = _build_parser()
+    args = parser.parse_args(argv)
+    project = Path(args.project)
+    catalogs = _load_catalogs(args)
+    used_keys = (
+        scan_project_keys(project, scan_scripts=args.scan_scripts, scan_scenes=args.scan_scenes)
+        if args.scan_scripts or args.scan_scenes
+        else None
+    )
+    findings = audit_catalogs(
+        catalogs,
+        required_languages=_parse_languages(args.require),
+        source_language=args.source_lang,
+        used_keys=used_keys,
+    )
+
+    rendered = _render(args.format, catalogs, findings)
+    if args.output:
+        output = Path(args.output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(rendered + "\n", encoding="utf-8")
+    else:
+        print(rendered)
+
+    return _exit_code(findings, args.fail_on)
+
+
+def entrypoint() -> None:
+    raise SystemExit(main())
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="godot-l10n-guard",
+        description="Audit Godot CSV and PO localization files.",
+    )
+    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.0")
+    parser.add_argument("project", help="Godot project directory.")
+    parser.add_argument("--translations", help="Directory containing CSV and PO translation files.")
+    parser.add_argument("--csv", action="append", default=[], help="Godot CSV translation file.")
+    parser.add_argument("--po", action="append", default=[], help="PO file or directory.")
+    parser.add_argument("--require", default="", help="Comma-separated target languages required.")
+    parser.add_argument("--source-lang", default="en", help="Source language column. Default: en.")
+    parser.add_argument("--scan-scripts", action="store_true", help="Scan .gd files for tr(\"KEY\").")
+    parser.add_argument("--scan-scenes", action="store_true", help="Scan .tscn/.scn text values for key-like strings.")
+    parser.add_argument("--format", choices=["text", "json", "markdown", "sarif"], default="text")
+    parser.add_argument("--output", help="Write report to a file instead of stdout.")
+    parser.add_argument("--fail-on", choices=["warning", "error", "none"], default="warning")
+    return parser
+
+
+def _load_catalogs(args: argparse.Namespace) -> list[Catalog]:
+    catalogs: list[Catalog] = []
+    paths: list[Path] = []
+    for raw in args.csv:
+        paths.append(Path(raw))
+    if args.translations:
+        root = Path(args.translations)
+        if root.exists():
+            paths.extend(sorted(root.glob("*.csv")))
+            paths.extend(sorted(root.glob("*.po")))
+    for raw in args.po:
+        path = Path(raw)
+        if path.is_dir():
+            paths.extend(sorted(path.glob("*.po")))
+        else:
+            paths.append(path)
+
+    seen: set[Path] = set()
+    for path in paths:
+        resolved = path.resolve()
+        if resolved in seen or not path.exists():
+            continue
+        seen.add(resolved)
+        if path.suffix.lower() == ".csv":
+            catalogs.append(parse_csv_file(path))
+        elif path.suffix.lower() == ".po":
+            catalogs.append(parse_po_file(path))
+    return catalogs
+
+
+def _parse_languages(raw: str) -> set[str]:
+    return {part.strip() for part in raw.split(",") if part.strip()}
+
+
+def _render(format_name: str, catalogs: list[Catalog], findings: object) -> str:
+    if format_name == "json":
+        return render_json_report(catalogs, findings)
+    if format_name == "markdown":
+        return render_markdown_report(catalogs, findings)
+    if format_name == "sarif":
+        return render_sarif_report(catalogs, findings)
+    return render_text_report(catalogs, findings)
+
+
+def _exit_code(findings: object, fail_on: str) -> int:
+    if fail_on == "none":
+        return 0
+    severities = {finding.severity for finding in findings}
+    if fail_on == "error":
+        return 1 if "error" in severities else 0
+    return 1 if ("error" in severities or "warning" in severities) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

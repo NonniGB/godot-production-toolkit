@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-project-doctor",
+  "entrypoint": "godot-project-doctor",
+  "module": "python -m godot_project_doctor",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json"],
+    "human_output": ["text", "markdown", "html"],
+    "visual_interface": "static html report"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "plan/dry-run succeeded or no findings at selected fail threshold",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Agent-safe dry run",
+      "command": "godot-project-doctor run --project <project> --checks assets,export,mobile_perf --dry-run --format json"
+    },
+    {
+      "purpose": "Static HTML report from existing JSON reports",
+      "command": "godot-project-doctor summarize reports/godot-project-doctor --format html --output reports/index.html"
+    }
+  ]
+}

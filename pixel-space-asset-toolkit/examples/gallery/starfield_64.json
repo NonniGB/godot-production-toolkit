@@ -1,0 +1,8 @@
+{
+  "height": 64,
+  "output": "examples\\gallery\\starfield_64.png",
+  "seed": 42,
+  "stars": 80,
+  "type": "starfield",
+  "width": 64
+}

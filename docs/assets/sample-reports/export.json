@@ -1,0 +1,78 @@
+{
+  "findings": [
+    {
+      "message": "Export path is missing.",
+      "option": null,
+      "preset_index": 0,
+      "preset_name": "Android Release",
+      "rule_id": "missing_export_path",
+      "severity": "error"
+    },
+    {
+      "message": "Release-like preset has debug option 'debug/export_remote_debug' enabled.",
+      "option": "debug/export_remote_debug",
+      "preset_index": 0,
+      "preset_name": "Android Release",
+      "rule_id": "debug_option_enabled_in_release",
+      "severity": "warning"
+    },
+    {
+      "message": "Android package/unique_name is missing.",
+      "option": "package/unique_name",
+      "preset_index": 0,
+      "preset_name": "Android Release",
+      "rule_id": "android_package_id_missing",
+      "severity": "error"
+    },
+    {
+      "message": "Android version/code must be >= 1 and version/name must be set.",
+      "option": null,
+      "preset_index": 0,
+      "preset_name": "Android Release",
+      "rule_id": "android_version_missing",
+      "severity": "error"
+    },
+    {
+      "message": "Android preset has no enabled CPU architecture.",
+      "option": null,
+      "preset_index": 0,
+      "preset_name": "Android Release",
+      "rule_id": "android_abi_missing",
+      "severity": "error"
+    },
+    {
+      "message": "Android launcher icon options are missing or empty.",
+      "option": null,
+      "preset_index": 0,
+      "preset_name": "Android Release",
+      "rule_id": "android_launcher_icons_missing",
+      "severity": "warning"
+    }
+  ],
+  "presets": [
+    {
+      "export_filter": "all_resources",
+      "export_path": "",
+      "index": 0,
+      "name": "Android Release",
+      "options": {
+        "architectures/arm64-v8a": false,
+        "debug/export_remote_debug": true,
+        "keystore/release_password": "",
+        "package/unique_name": "",
+        "version/code": 0,
+        "version/name": ""
+      },
+      "platform": "Android",
+      "runnable": false
+    }
+  ],
+  "summary": {
+    "errors": 4,
+    "findings": 6,
+    "presets": 1,
+    "warnings": 2
+  },
+  "tool": "godot-export-preset-doctor"
+}
+
