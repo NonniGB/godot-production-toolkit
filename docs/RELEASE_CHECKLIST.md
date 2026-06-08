@@ -13,6 +13,7 @@ Run every affected package test suite from its package directory.
 
 Check:
 
+- Root `pyproject.toml` version matches the suite tag you intend to create.
 - `PROJECT_OVERVIEW.md` reflects current status.
 - `project-metadata.json` reflects current tool count and output formats.
 - Root and per-tool changelogs mention user-facing changes.
