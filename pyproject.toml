@@ -1,12 +1,23 @@
 [project]
 name = "godot-production-toolkit"
 version = "0.1.0"
-description = "A suite of standalone Godot production-readiness tools with CI-friendly orchestration."
+description = "CI-friendly production diagnostics for Godot 4 projects."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Godot Production Toolkit contributors" }]
-keywords = ["godot", "gamedev", "ci", "tools", "open-source"]
+keywords = [
+  "godot",
+  "godot4",
+  "gamedev",
+  "ci",
+  "github-actions",
+  "qa",
+  "sarif",
+  "mobile",
+  "localization",
+  "pixel-art",
+]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
@@ -21,6 +32,21 @@ dependencies = []
 tool_count = 10
 umbrella_cli = "godot-project-doctor"
 github_action = "godot-ci-doctor-action"
+repository_description = "CI-friendly production diagnostics for Godot 4 projects."
+repository_topics = [
+  "godot",
+  "godot4",
+  "gamedev",
+  "ci",
+  "github-actions",
+  "python",
+  "sarif",
+  "mobile",
+  "localization",
+  "pixel-art",
+  "testing",
+  "qa",
+]
 
 [tool.ruff]
 line-length = 120
