@@ -1,0 +1,10 @@
+; Engine configuration file.
+; This tiny fixture is only for documentation and CLI smoke tests.
+
+config_version=5
+
+[application]
+
+config/name="Tiny Asset Doctor Example"
+config/features=PackedStringArray("4.3")
+

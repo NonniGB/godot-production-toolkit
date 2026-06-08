@@ -1,0 +1,141 @@
+# Godot Asset Pipeline Doctor
+
+CI-friendly PNG and Godot `.import` checks for pixel-art and mobile asset pipelines.
+
+The tool is designed for generic Godot projects, including private commercial games. Public examples use placeholder project names and do not require publishing project-specific content.
+
+## What It Catches
+
+- Missing Godot `.import` metadata next to PNG assets.
+- Mipmaps enabled on pixel-art profile assets.
+- Alpha-border fixing disabled on transparent assets.
+- Fully transparent edge pixels that still contain RGB color data.
+- Large textures that are risky for Android/mobile memory budgets.
+- Very large texture dimensions that may exceed conservative device limits.
+- Unexpectedly large palettes in pixel-art folders.
+
+## Install
+
+From a local checkout:
+
+```powershell
+python -m pip install -e .
+```
+
+After publishing to PyPI:
+
+```powershell
+python -m pip install godot-asset-pipeline-doctor
+```
+
+## Quick Start
+
+Scan a Godot project with the default profile:
+
+```powershell
+godot-asset-doctor C:\Projects\ArcadePrototype
+```
+
+Strict pixel-art check:
+
+```powershell
+godot-asset-doctor C:\Projects\ArcadePrototype --profile pixel-2d --fail-on warning
+```
+
+Android/mobile check with JSON output:
+
+```powershell
+godot-asset-doctor C:\Projects\ArcadePrototype --profile android-mobile --format json --output asset-report.json
+```
+
+Exclude generated or vendor folders:
+
+```powershell
+godot-asset-doctor C:\Projects\ArcadePrototype --exclude "addons/vendor/**" --exclude "assets/generated/**"
+```
+
+Run through Python after installing the package:
+
+```powershell
+python -m godot_asset_doctor examples\tiny-godot-project --fail-on none
+```
+
+## Profiles
+
+| Profile | Use Case |
+|---|---|
+| `default` | Balanced local scan; combines pixel and mobile warnings. |
+| `pixel-2d` | Sprites, UI, icons, tiles, and crisp 2D assets. |
+| `android-mobile` | Mobile release review, especially large textures and missing import data. |
+
+## Exit Codes
+
+| Flag | Behavior |
+|---|---|
+| `--fail-on none` | Always exits `0` unless the CLI itself errors. |
+| `--fail-on error` | Exits `1` if any error is found. This is the default. |
+| `--fail-on warning` | Exits `1` if any warning or error is found. Useful for strict CI. |
+
+## Config File
+
+Create `.godot-asset-doctor.toml` in the project root:
+
+```toml
+profile = "pixel-2d"
+format = "json"
+fail_on = "warning"
+output = "asset-report.json"
+exclude = ["addons/vendor/**", "assets/generated/**"]
+```
+
+Then run:
+
+```powershell
+godot-asset-doctor C:\Projects\ArcadePrototype
+```
+
+CLI flags override config values. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
+
+## Example Output
+
+```text
+Godot Asset Pipeline Doctor
+Root: C:\Projects\ArcadePrototype
+Profile: pixel-2d
+Assets: 18 | Issues: 3 | Errors: 0 | Warnings: 3
+
+[WARNING] transparent_edge_rgb: C:\Projects\ArcadePrototype\assets\player.png
+  4 fully transparent edge pixel(s) carry non-black RGB values.
+  Suggestion: Clean transparent RGB data or enable alpha-border fixing to reduce fringe artifacts.
+```
+
+## Documentation
+
+- [Rule reference](docs/RULE_REFERENCE.md)
+- [Configuration](docs/CONFIGURATION.md)
+- [Pixel-art workflow](docs/PIXEL_ART.md)
+- [Mobile texture guide](docs/MOBILE_TEXTURES.md)
+- [CI usage](docs/CI.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+
+## Tests
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+## CI
+
+The included GitHub Actions workflow installs the package and runs the test suite on Python 3.11, 3.12, and 3.13.
+
+## Design Notes
+
+- The scanner does not need a Godot binary.
+- The scanner does not execute project scripts.
+- The scanner does not upload files or contact external services.
+- Default scans ignore common non-asset artifact folders such as `docs`, `logs`, and `test-results`.
+- JSON reports can include local paths, so review them before sharing publicly.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

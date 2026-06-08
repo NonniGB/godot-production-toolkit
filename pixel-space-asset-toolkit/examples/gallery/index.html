@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pixel Space Asset Toolkit Gallery</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+        background: #080a12;
+        color: #f2f5ff;
+      }
+      body {
+        margin: 0;
+        padding: 32px;
+      }
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 28px;
+        margin: 0 0 8px;
+      }
+      p {
+        color: #b7c0d8;
+        margin: 0 0 24px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+      }
+      figure {
+        margin: 0;
+        padding: 16px;
+        border: 1px solid #27304a;
+        border-radius: 8px;
+        background: #101625;
+      }
+      img {
+        width: 100%;
+        image-rendering: pixelated;
+        border: 1px solid #2d3857;
+        background: #05070d;
+      }
+      figcaption {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #dce5ff;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Pixel Space Asset Toolkit Gallery</h1>
+      <p>Deterministic sample outputs generated from fixed seeds.</p>
+      <section class="grid" aria-label="Generated assets">
+        <figure>
+          <img src="starfield_64.png" alt="Generated pixel starfield sample">
+          <figcaption>Starfield, 64 x 64, seed 42</figcaption>
+        </figure>
+        <figure>
+          <img src="ferric_preview.png" alt="Ferric asteroid tile contact sheet">
+          <figcaption>Ferric asteroid tile preview, seed 7</figcaption>
+        </figure>
+      </section>
+    </main>
+  </body>
+</html>

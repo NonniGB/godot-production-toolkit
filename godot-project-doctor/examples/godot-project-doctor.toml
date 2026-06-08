@@ -1,0 +1,20 @@
+[project]
+path = "."
+reports_dir = "reports/godot-project-doctor"
+fail_on = "error"
+checks = ["assets", "export", "api_comments", "input", "localization", "signals", "mobile_perf"]
+
+[tools.assets]
+args = ["--profile", "pixel-2d"]
+
+[tools.mobile_perf]
+args = ["--profile", "portrait-2d"]
+
+[tools.visual_smoke]
+enabled = false
+config = "visual-smoke.toml"
+
+[tools.save_schema]
+enabled = false
+fixtures = "tests/fixtures/saves"
+schema = "schemas/save.schema.json"

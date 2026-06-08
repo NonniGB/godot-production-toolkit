@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "godot-export-preset-doctor"
+version = "0.1.0"
+description = "CI-friendly release-readiness checks for Godot export_presets.cfg files."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Godot Export Preset Doctor contributors" }]
+keywords = ["godot", "export", "android", "ci", "release", "gamedev"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Utilities"
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/example/godot-export-preset-doctor"
+Issues = "https://github.com/example/godot-export-preset-doctor/issues"
+
+[project.scripts]
+godot-export-doctor = "godot_export_doctor.cli:entrypoint"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent Tool Manifest",
+  "type": "object",
+  "required": ["schema_version", "name", "entrypoint", "module", "interfaces", "agent_contract", "recommended_commands"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "name": { "type": "string" },
+    "entrypoint": { "type": "string" },
+    "module": { "type": "string" },
+    "interfaces": {
+      "type": "object",
+      "required": ["cli", "machine_output", "human_output"],
+      "properties": {
+        "cli": { "type": "boolean" },
+        "machine_output": { "type": "array", "items": { "type": "string" } },
+        "human_output": { "type": "array", "items": { "type": "string" } },
+        "visual_interface": { "type": "string" }
+      }
+    },
+    "agent_contract": {
+      "type": "object",
+      "required": ["noninteractive", "safe_on_private_projects", "network_required", "exit_codes"],
+      "properties": {
+        "noninteractive": { "type": "boolean" },
+        "safe_on_private_projects": { "type": "boolean" },
+        "network_required": { "type": "boolean" },
+        "writes_only_when_requested": { "type": "boolean" },
+        "exit_codes": { "type": "object" }
+      }
+    },
+    "recommended_commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["purpose", "command"],
+        "properties": {
+          "purpose": { "type": "string" },
+          "command": { "type": "string" }
+        }
+      }
+    }
+  }
+}

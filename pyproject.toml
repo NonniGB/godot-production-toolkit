@@ -1,0 +1,28 @@
+[project]
+name = "godot-production-toolkit"
+version = "0.1.0"
+description = "A suite of standalone Godot production-readiness tools plus agent-friendly orchestration."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Godot Production Toolkit contributors" }]
+keywords = ["godot", "gamedev", "ci", "tools", "open-source"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = []
+
+[tool.godot-production-toolkit]
+tool_count = 10
+umbrella_cli = "godot-project-doctor"
+github_action = "godot-ci-doctor-action"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"

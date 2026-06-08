@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-ci-doctor-action",
+  "entrypoint": "uses: owner/godot-production-toolkit/godot-ci-doctor-action@v0.1.0",
+  "module": "github composite action",
+  "interfaces": {
+    "cli": false,
+    "machine_output": ["json", "sarif"],
+    "human_output": ["markdown", "html"],
+    "visual_interface": "GitHub Actions artifacts"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": true,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "checks completed below selected fail threshold",
+      "1": "findings met selected fail threshold or an action step failed",
+      "2": "underlying CLI usage error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Minimal pull request workflow",
+      "command": "uses: owner/godot-production-toolkit/godot-ci-doctor-action@v0.1.0"
+    },
+    {
+      "purpose": "Strict release workflow",
+      "command": "uses: owner/godot-production-toolkit/godot-ci-doctor-action@v0.1.0 with fail-on: warning"
+    }
+  ]
+}

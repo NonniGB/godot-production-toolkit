@@ -1,0 +1,131 @@
+{
+  "project_name": "Godot Production Toolkit",
+  "one_line_summary": "A suite of CI-friendly, agent-readable production diagnostics for Godot 4 projects, mobile-first 2D games, release readiness, localization, visual smoke checks, save compatibility, and pixel asset workflows.",
+  "open_source_programme_fit": {
+    "target_programme": "Codex for Open Source",
+    "fit_summary": "The project is structured as maintainable open-source infrastructure for a real developer ecosystem rather than as a single private project dump.",
+    "why_it_matters": [
+      "Godot has strong editor and runtime tooling, but many indie teams lack lightweight CI gates for production readiness.",
+      "The tools target repeated release risks: export presets, texture memory, localization gaps, input coverage, scene signal drift, save compatibility, and visual regressions.",
+      "Every tool has CLI and agentic contracts so coding agents can run checks, parse output, and propose fixes."
+    ],
+    "not_claimed": [
+      "No claim of guaranteed qualification.",
+      "No claim of existing broad public adoption before publication.",
+      "No private project examples are required to understand or use the tools."
+    ]
+  },
+  "tool_count": 12,
+  "tools": [
+    {
+      "name": "godot-project-doctor",
+      "role": "Umbrella CLI for planning, running, and summarizing the suite.",
+      "interfaces": ["cli", "json", "markdown", "html"],
+      "review_value": "Shows the suite is coherent and easy to run in one command."
+    },
+    {
+      "name": "godot-ci-doctor-action",
+      "role": "GitHub composite action wrapper for CI adoption.",
+      "interfaces": ["github-action", "json-artifacts", "markdown-artifacts", "html-artifacts"],
+      "review_value": "Gives external maintainers a low-friction path to use the suite."
+    },
+    {
+      "name": "godot-asset-pipeline-doctor",
+      "role": "PNG and Godot .import checks for pixel art and mobile memory risks.",
+      "interfaces": ["cli", "json", "sarif", "text"],
+      "review_value": "Catches concrete production defects before release."
+    },
+    {
+      "name": "godot-export-preset-doctor",
+      "role": "Release-readiness checks for export_presets.cfg.",
+      "interfaces": ["cli", "json", "sarif", "text"],
+      "review_value": "Security-adjacent export validation with redaction-oriented reporting."
+    },
+    {
+      "name": "gdscript-api-comment-coverage",
+      "role": "Public GDScript API documentation and coverage gate.",
+      "interfaces": ["cli", "json", "markdown"],
+      "review_value": "Encourages maintainable APIs in larger Godot projects."
+    },
+    {
+      "name": "godot-input-map-auditor",
+      "role": "Input coverage and duplicate binding checks.",
+      "interfaces": ["cli", "json", "sarif", "markdown", "gdscript"],
+      "review_value": "Directly supports cross-platform and mobile-first projects."
+    },
+    {
+      "name": "godot-localization-qa-guard",
+      "role": "CSV/PO translation checks and project key usage scan.",
+      "interfaces": ["cli", "json", "sarif", "markdown"],
+      "review_value": "Turns localization into a repeatable release gate."
+    },
+    {
+      "name": "godot-save-schema-guard",
+      "role": "Save fixture schema validation and migration command checks.",
+      "interfaces": ["cli", "json", "markdown"],
+      "review_value": "Prevents save compatibility regressions."
+    },
+    {
+      "name": "godot-scene-signal-auditor",
+      "role": "Scene signal connection and autoload coupling analysis.",
+      "interfaces": ["cli", "json", "mermaid"],
+      "review_value": "Highlights maintainability risks in growing scene trees."
+    },
+    {
+      "name": "godot-visual-smoke-test-kit",
+      "role": "Visual smoke plan, screenshot diff, and approval helpers.",
+      "interfaces": ["cli", "json", "png-diffs"],
+      "review_value": "Adds visible regression evidence for game UI and render surfaces."
+    },
+    {
+      "name": "godot-mobile-perf-doctor",
+      "role": "Static mobile performance diagnostics for Godot projects.",
+      "interfaces": ["cli", "json", "sarif", "markdown"],
+      "review_value": "Targets a high-friction Godot release problem: Android performance readiness."
+    },
+    {
+      "name": "pixel-space-asset-toolkit",
+      "role": "Deterministic pixel sci-fi asset generation and cleanup utilities.",
+      "interfaces": ["cli", "json", "png", "html-gallery"],
+      "review_value": "Demonstrates usable visual tooling while staying generic."
+    }
+  ],
+  "agentic_interfaces": {
+    "manifest_files": "Each agent-facing project has agent-tool.json.",
+    "manifest_validator": "python verify_agent_interfaces.py",
+    "machine_outputs": ["json", "sarif"],
+    "human_outputs": ["text", "markdown", "html", "png-diffs", "mermaid"],
+    "noninteractive_default": true,
+    "network_required_for_tools": false,
+    "network_required_for_github_action_install": true
+  },
+  "ci_and_maintenance": {
+    "github_workflow": ".github/workflows/portfolio-ci.yml",
+    "issue_templates": true,
+    "pull_request_template": true,
+    "security_docs": true,
+    "contributing_docs": true,
+    "changelogs": true,
+    "tests": "unittest suites in every Python tool plus root repository contract tests"
+  },
+  "verification_commands": [
+    "python verify_agent_interfaces.py",
+    "python -m unittest discover -s tests -v",
+    "python -m unittest discover -s godot-project-doctor/tests -v",
+    "python -m unittest discover -s godot-ci-doctor-action/tests -v",
+    "python -m unittest discover -s godot-asset-pipeline-doctor/tests -v",
+    "python -m unittest discover -s godot-mobile-perf-doctor/tests -v"
+  ],
+  "current_limitations": [
+    "The suite is pre-publication and does not yet have stars, forks, external issues, package downloads, or third-party usage reports.",
+    "Some specialized tools require project-specific fixtures or visual smoke capture scripts to be fully useful.",
+    "The tools are intentionally narrow and production-focused rather than a broad Godot framework."
+  ],
+  "adoption_gap": "The remaining gap is organic public usage: stars, external issues, independent projects using the action, PyPI downloads, Godot forum mentions, and external PRs cannot be forced locally.",
+  "recommended_publication_path": [
+    "Publish as one public umbrella repository with all tools and the GitHub Action.",
+    "Tag v0.1.0 and attach a release note that links AI_REVIEW_PACKAGE.md and this evidence file.",
+    "Publish the highest-demand packages to PyPI first: godot-project-doctor, godot-asset-pipeline-doctor, godot-export-preset-doctor, and godot-mobile-perf-doctor.",
+    "Share concise examples with Godot communities and invite focused issues."
+  ]
+}

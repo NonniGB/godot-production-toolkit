@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "name": "pixel-space-asset-toolkit",
+  "entrypoint": "pixel-space-assets",
+  "module": "python -m pixel_space_assets",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json status", "manifest.json"],
+    "human_output": ["PNG assets", "preview sheets", "static gallery"],
+    "visual_interface": "examples/gallery/index.html and generated PNG previews"
+  },
+  "agent_contract": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "asset generation succeeded",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Agent-safe starfield generation",
+      "command": "pixel-space-assets starfield --width 1080 --height 1920 --seed 42 --stars 900 --output generated/starfield.png --manifest generated/starfield.json --format json"
+    },
+    {
+      "purpose": "Agent-safe asteroid tile generation",
+      "command": "pixel-space-assets asteroid-hex --material ferric --count 32 --size 64 --seed 7 --output generated/ferric --format json"
+    }
+  ]
+}
