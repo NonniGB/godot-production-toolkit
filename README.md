@@ -7,7 +7,7 @@ CI-friendly production diagnostics for Godot 4 projects.
 
 Godot Production Toolkit helps solo developers and small teams catch release risks before they become late-stage debugging work: export preset mistakes, texture/import problems, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, and visual regressions.
 
-It is built as ten standalone command-line tools, one umbrella CLI, and one GitHub Action. Each tool can run locally, in CI, or from an agent workflow using structured JSON/SARIF output.
+It is built as ten standalone command-line tools, one umbrella CLI, and one GitHub Action. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
 
 ![Godot Project Doctor HTML report](docs/assets/screenshots/project-doctor-html-report.png)
 
@@ -20,7 +20,7 @@ Use the toolkit when you want repeatable checks around practical Godot release w
 - **Before localizing a build:** catch missing translations, placeholder mismatches, unchanged strings, and unused keys.
 - **Before changing save data:** validate save fixtures against a schema and document migration commands.
 - **Before shipping visual changes:** compare screenshots against approved baselines.
-- **Before reviewing a PR with an agent:** produce JSON, Markdown, HTML, and SARIF reports that are easy to parse.
+- **Before reviewing a PR:** produce JSON, Markdown, HTML, and SARIF reports that make failures easier to reproduce.
 
 ## Project Map
 
@@ -32,7 +32,7 @@ Start with these files when evaluating or extending the suite:
 - `project-metadata.json`
 - `docs/PROJECT_HEALTH.md`
 - `docs/MAINTAINER_AUTOMATION.md`
-- `verify_agent_interfaces.py`
+- `verify_tool_manifests.py`
 
 ## Quick Start
 
@@ -73,7 +73,7 @@ The demo shows how the toolkit reports incomplete Android export settings, risky
 
 ## Tool Set
 
-| Tool | Purpose | Agent/CI Outputs |
+| Tool | Purpose | Automation/CI Outputs |
 |---|---|---|
 | `godot-project-doctor` | Umbrella CLI for planning, running, and summarizing the suite. | JSON, Markdown, HTML |
 | `godot-ci-doctor-action` | GitHub composite action wrapper. | JSON, Markdown, HTML artifacts |
@@ -108,7 +108,7 @@ Upload `reports/godot-project-doctor` as a workflow artifact to keep JSON, Markd
 Run from the repository root:
 
 ```powershell
-python verify_agent_interfaces.py
+python verify_tool_manifests.py
 python -m unittest discover -s tests -v
 ```
 
@@ -118,26 +118,26 @@ Run each package suite from that package directory:
 python -m unittest discover -s tests -v
 ```
 
-## Repository Contract
+## What's Included
 
-Every standalone tool includes:
+Every standalone tool has the same basic shape so it is easy to browse, test, and package:
 
 - `README.md`
 - `LICENSE`
 - `CHANGELOG.md`
 - `CONTRIBUTING.md`
 - `SECURITY.md`
-- `agent-tool.json`
-- `docs/AGENTIC_USAGE.md`
+- `tool-manifest.json`
+- `docs/AUTOMATION.md`
 - `examples/`
 - `tests/`
 - `pyproject.toml`
 
-The root repository adds CI metadata, issue templates, a PR template, project metadata, and release guidance.
+The root folder adds CI metadata, issue templates, a PR template, project metadata, and release guidance.
 
-## Maintainer Surface
+## Maintainer Notes
 
-Root-level governance files are included so contributors do not need to inspect every package before understanding the maintenance model:
+These root-level files explain how the project is maintained and how contributors can report issues:
 
 - `LICENSE`
 - `CONTRIBUTING.md`

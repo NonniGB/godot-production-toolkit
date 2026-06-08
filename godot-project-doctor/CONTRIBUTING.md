@@ -6,4 +6,4 @@ Use small, focused changes with tests.
 python -m unittest discover -s tests -v
 ```
 
-When changing command planning, update `examples/godot-project-doctor.toml` and `docs/AGENTIC_USAGE.md`.
+When changing command planning, update `examples/godot-project-doctor.toml` and `docs/AUTOMATION.md`.

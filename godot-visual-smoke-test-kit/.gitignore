@@ -9,5 +9,5 @@ build/
 dist/
 visual-smoke-output/
 *.json
-!agent-tool.json
+!tool-manifest.json
 !examples/**/*.json

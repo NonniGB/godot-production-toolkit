@@ -9,7 +9,7 @@
     "human_output": ["text", "markdown", "html"],
     "visual_interface": "static html report"
   },
-  "agent_contract": {
+  "run_behavior": {
     "noninteractive": true,
     "safe_on_private_projects": true,
     "network_required": false,
@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Agent-safe dry run",
+      "purpose": "Automation-friendly dry run",
       "command": "godot-project-doctor run --project <project> --checks assets,export,mobile_perf --dry-run --format json"
     },
     {

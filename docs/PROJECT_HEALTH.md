@@ -23,8 +23,8 @@ Godot Production Toolkit is a collection of narrow production checks for Godot 4
 
 ## Maintenance Checks
 
-- `python verify_agent_interfaces.py` validates every `agent-tool.json` manifest.
-- `python -m unittest discover -s tests -v` validates root repository contracts.
+- `python verify_tool_manifests.py` validates every `tool-manifest.json` manifest.
+- `python -m unittest discover -s tests -v` validates the root project checks.
 - Each Python package has its own unittest suite under `<tool>/tests/`.
 - `.github/workflows/ci.yml` runs root checks and package suites.
 - `.github/dependabot.yml` keeps selected Python package dependencies visible.

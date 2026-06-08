@@ -2,7 +2,7 @@
 
 Generate a Markdown API index for Godot GDScript projects and enforce configurable comment coverage for public classes, signals, exported properties, constants, and public functions.
 
-The goal is practical maintainability: a codebase-level map that can run in CI and catch undocumented public surfaces before they spread.
+The goal is practical maintainability: a codebase-level map that can run in CI and catch undocumented public APIs before they spread.
 
 ## Install
 

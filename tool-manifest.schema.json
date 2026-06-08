@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Agent Tool Manifest",
+  "title": "Godot Production Toolkit Manifest",
   "type": "object",
-  "required": ["schema_version", "name", "entrypoint", "module", "interfaces", "agent_contract", "recommended_commands"],
+  "required": ["schema_version", "name", "entrypoint", "module", "interfaces", "run_behavior", "recommended_commands"],
   "properties": {
     "schema_version": { "type": "string" },
     "name": { "type": "string" },
@@ -18,7 +18,7 @@
         "visual_interface": { "type": "string" }
       }
     },
-    "agent_contract": {
+    "run_behavior": {
       "type": "object",
       "required": ["noninteractive", "safe_on_private_projects", "network_required", "exit_codes"],
       "properties": {

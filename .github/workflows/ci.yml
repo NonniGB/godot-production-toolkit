@@ -28,10 +28,10 @@ jobs:
             python -m pip install -e "$dir"
           done
 
-      - name: Validate agent manifests
-        run: python verify_agent_interfaces.py
+      - name: Validate tool manifests
+        run: python verify_tool_manifests.py
 
-      - name: Run repository contract tests
+      - name: Run root tests
         run: python -m unittest discover -s tests -v
 
       - name: Run package test suites

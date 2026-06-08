@@ -43,7 +43,7 @@ godot-project-doctor summarize reports/godot-project-doctor --format html --outp
 
 The action writes:
 
-- `summary.json` for agents and CI processing.
+- `summary.json` for CI processing and local scripts.
 - `summary.md` for PR comments and release notes.
 - `summary.html` for a static human-readable report.
 - SARIF files when enabled by individual tools or future `godot-project-doctor` config.

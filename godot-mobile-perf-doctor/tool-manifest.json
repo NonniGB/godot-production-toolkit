@@ -9,7 +9,7 @@
     "human_output": ["text", "markdown report"],
     "visual_interface": "none"
   },
-  "agent_contract": {
+  "run_behavior": {
     "noninteractive": true,
     "safe_on_private_projects": true,
     "network_required": false,
@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Agent-safe static performance report",
+      "purpose": "Automation-friendly static performance report",
       "command": "godot-mobile-perf-doctor <project> --static --format json --output mobile-perf-report.json --fail-on none"
     },
     {

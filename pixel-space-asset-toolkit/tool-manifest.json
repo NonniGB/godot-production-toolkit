@@ -9,7 +9,7 @@
     "human_output": ["PNG assets", "preview sheets", "static gallery"],
     "visual_interface": "examples/gallery/index.html and generated PNG previews"
   },
-  "agent_contract": {
+  "run_behavior": {
     "noninteractive": true,
     "safe_on_private_projects": true,
     "network_required": false,
@@ -21,11 +21,11 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Agent-safe starfield generation",
+      "purpose": "Automation-friendly starfield generation",
       "command": "pixel-space-assets starfield --width 1080 --height 1920 --seed 42 --stars 900 --output generated/starfield.png --manifest generated/starfield.json --format json"
     },
     {
-      "purpose": "Agent-safe asteroid tile generation",
+      "purpose": "Automation-friendly asteroid tile generation",
       "command": "pixel-space-assets asteroid-hex --material ferric --count 32 --size 64 --seed 7 --output generated/ferric --format json"
     }
   ]

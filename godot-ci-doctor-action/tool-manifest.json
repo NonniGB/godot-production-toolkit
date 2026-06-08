@@ -9,7 +9,7 @@
     "human_output": ["markdown", "html"],
     "visual_interface": "GitHub Actions artifacts"
   },
-  "agent_contract": {
+  "run_behavior": {
     "noninteractive": true,
     "safe_on_private_projects": true,
     "network_required": true,

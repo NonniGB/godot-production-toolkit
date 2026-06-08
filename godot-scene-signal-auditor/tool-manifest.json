@@ -9,7 +9,7 @@
     "human_output": ["text", "mermaid graph"],
     "visual_interface": "Mermaid graph output"
   },
-  "agent_contract": {
+  "run_behavior": {
     "noninteractive": true,
     "safe_on_private_projects": true,
     "network_required": false,
@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Agent-safe signal report",
+      "purpose": "Automation-friendly signal report",
       "command": "godot-signal-audit <project> --autoload EventBus,SignalBus --format json --output signal-report.json --fail-on none"
     },
     {

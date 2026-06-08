@@ -9,5 +9,5 @@ build/
 dist/
 mobile-perf-report.*
 *.json
-!agent-tool.json
+!tool-manifest.json
 !examples/**/*.json

@@ -46,7 +46,7 @@ class CliTests(unittest.TestCase):
             self.assertTrue(output.exists())
             self.assertTrue(manifest.exists())
 
-    def test_starfield_cli_can_print_json_status_for_agents(self) -> None:
+    def test_starfield_cli_can_print_json_status_for_automation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp) / "starfield.png"
             stdout = StringIO()

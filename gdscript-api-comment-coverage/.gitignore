@@ -9,5 +9,5 @@ build/
 dist/
 API_INDEX.md
 *.json
-!agent-tool.json
+!tool-manifest.json
 !examples/**/*.json

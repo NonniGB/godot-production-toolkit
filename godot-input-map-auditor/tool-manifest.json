@@ -9,7 +9,7 @@
     "human_output": ["text", "markdown input reference", "GDScript constants"],
     "visual_interface": "none"
   },
-  "agent_contract": {
+  "run_behavior": {
     "noninteractive": true,
     "safe_on_private_projects": true,
     "network_required": false,
@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Agent-safe input report",
+      "purpose": "Automation-friendly input report",
       "command": "godot-input-audit <project> --require keyboard,touch --format json --output input-report.json --fail-on none"
     },
     {

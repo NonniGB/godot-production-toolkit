@@ -9,7 +9,7 @@
     "human_output": ["text", "markdown API index"],
     "visual_interface": "none"
   },
-  "agent_contract": {
+  "run_behavior": {
     "noninteractive": true,
     "safe_on_private_projects": true,
     "network_required": false,
@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Agent-safe coverage report",
+      "purpose": "Automation-friendly coverage report",
       "command": "gdscript-api-coverage <project> --format json --output gdscript-api-report.json --fail-on none"
     },
     {

@@ -37,7 +37,7 @@ class ApproveRunnerTests(unittest.TestCase):
         self.assertIn("--resolution", command)
         self.assertIn("720x1280", command)
 
-    def test_plan_cli_can_emit_json_for_agents(self) -> None:
+    def test_plan_cli_can_emit_json_for_automation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             config = root / "visual-smoke.toml"

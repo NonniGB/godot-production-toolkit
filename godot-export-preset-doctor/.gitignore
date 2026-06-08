@@ -9,5 +9,5 @@ build/
 dist/
 *.sarif
 *.json
-!agent-tool.json
+!tool-manifest.json
 !examples/**/*.json
