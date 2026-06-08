@@ -6,6 +6,7 @@ Run:
 
 ```powershell
 python verify_tool_manifests.py
+python verify_release_alignment.py
 python -m unittest discover -s tests -v
 ```
 
@@ -14,6 +15,7 @@ Run every affected package test suite from its package directory.
 Check:
 
 - Root `pyproject.toml` version matches the suite tag you intend to create.
+- `python verify_release_alignment.py` passes before tagging.
 - `PROJECT_OVERVIEW.md` reflects current status.
 - `project-metadata.json` reflects current tool count and output formats.
 - Root and per-tool changelogs mention user-facing changes.

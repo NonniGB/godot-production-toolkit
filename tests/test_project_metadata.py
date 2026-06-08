@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 import unittest
 
+import verify_tool_manifests
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -28,6 +30,14 @@ class ProjectMetadataTests(unittest.TestCase):
         self.assertEqual(metadata["tool_count"], 12)
         self.assertEqual(len(metadata["tools"]), 12)
         self.assertGreaterEqual(len(metadata["verification_commands"]), 4)
+
+    def test_project_metadata_matches_manifest_list(self) -> None:
+        metadata = json.loads((ROOT / "project-metadata.json").read_text(encoding="utf-8"))
+        metadata_tools = {tool["name"] for tool in metadata["tools"]}
+
+        self.assertEqual(set(verify_tool_manifests.TOOLS), metadata_tools)
+        self.assertEqual(len(verify_tool_manifests.TOOLS), metadata["tool_count"])
+        self.assertIn("python verify_release_alignment.py", metadata["verification_commands"])
 
     def test_project_overview_is_root_visible_and_neutral(self) -> None:
         text = (ROOT / "PROJECT_OVERVIEW.md").read_text(encoding="utf-8")
