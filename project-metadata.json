@@ -2,6 +2,21 @@
   "project_name": "Godot Production Toolkit",
   "one_line_summary": "A suite of CI-friendly production diagnostics for Godot 4 projects, mobile-first 2D games, release readiness, localization, visual smoke checks, save compatibility, and pixel asset workflows.",
   "repository": "https://github.com/NonniGB/godot-production-toolkit",
+  "repository_description": "CI-friendly production diagnostics for Godot 4 projects.",
+  "repository_topics": [
+    "godot",
+    "godot4",
+    "gamedev",
+    "ci",
+    "github-actions",
+    "python",
+    "sarif",
+    "mobile",
+    "localization",
+    "pixel-art",
+    "testing",
+    "qa"
+  ],
   "tool_count": 12,
   "tools": [
     {

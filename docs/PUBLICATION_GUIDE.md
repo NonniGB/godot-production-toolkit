@@ -4,9 +4,11 @@
 
 1. Initialize the root repository.
 2. Publish it as a public repository named `godot-production-toolkit`.
-3. Ensure the root README links the project overview, metadata, validation commands, and release checklist.
-4. Create a `v0.1.0` release with a concise description of the suite and the first adoption path.
-5. Pin the action example to `@v0.1.0`.
+3. Set the repository About description to: `CI-friendly production diagnostics for Godot 4 projects.`
+4. Add topics: `godot`, `godot4`, `gamedev`, `ci`, `github-actions`, `python`, `sarif`, `mobile`, `localization`, `pixel-art`, `testing`, `qa`.
+5. Ensure the root README links the project overview, metadata, validation commands, and release checklist.
+6. Create a `v0.1.0` release with a concise description of the suite and the first adoption path.
+7. Pin the action example to `@v0.1.0`.
 
 ## PyPI release
 
