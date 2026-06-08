@@ -33,6 +33,12 @@ Record:
 
 - Release URL.
 - CI run URL.
-- PyPI package URLs when published.
+- PyPI package URLs and publish workflow run URLs.
 - Issues or pull requests that should influence follow-up fixes.
 - Documentation gaps discovered after release.
+
+Current `0.1.0` package URLs:
+
+- [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
+- [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)
+- [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/)

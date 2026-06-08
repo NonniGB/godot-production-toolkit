@@ -12,25 +12,25 @@
 
 ## PyPI release
 
-Publish the highest-demand packages first:
+The highest-demand packages are published on PyPI:
 
-- `godot-asset-pipeline-doctor`
-- `godot-export-preset-doctor`
-- `godot-mobile-perf-doctor`
+- [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
+- [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)
+- [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/)
 
 The `godot-project-doctor` command remains part of the repository, but the exact `godot-project-doctor` distribution name is already used on PyPI. Publish it later under a distinct package name if demand is clear.
 
-Use the manual `Publish Python Packages` GitHub workflow for releases. It builds the selected package, runs `twine check`, and publishes through PyPI Trusted Publishing.
+Use the manual package-specific GitHub workflow for releases. Each workflow builds one package, runs `twine check`, and publishes through PyPI Trusted Publishing.
 
 For new projects, create pending publishers in PyPI before the first workflow run:
 
 | PyPI project | GitHub owner | Repository | Workflow | Environment |
 |---|---|---|---|---|
 | `godot-asset-pipeline-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
-| `godot-export-preset-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
-| `godot-mobile-perf-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
+| `godot-export-preset-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-export-preset-doctor.yml` | `pypi` |
+| `godot-mobile-perf-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-mobile-perf-doctor.yml` | `pypi` |
 
-Run `godot-asset-pipeline-doctor` first. After that release succeeds, publish the other two packages one at a time so failures are easy to isolate.
+Release package updates one at a time so failures are easy to isolate.
 
 ## Godot community outreach
 

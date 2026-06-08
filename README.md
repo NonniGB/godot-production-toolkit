@@ -2,6 +2,9 @@
 
 [![Suite CI](https://github.com/NonniGB/godot-production-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/NonniGB/godot-production-toolkit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![godot-asset-pipeline-doctor on PyPI](https://img.shields.io/pypi/v/godot-asset-pipeline-doctor?label=asset%20doctor)](https://pypi.org/project/godot-asset-pipeline-doctor/)
+[![godot-export-preset-doctor on PyPI](https://img.shields.io/pypi/v/godot-export-preset-doctor?label=export%20doctor)](https://pypi.org/project/godot-export-preset-doctor/)
+[![godot-mobile-perf-doctor on PyPI](https://img.shields.io/pypi/v/godot-mobile-perf-doctor?label=mobile%20perf)](https://pypi.org/project/godot-mobile-perf-doctor/)
 
 CI-friendly production diagnostics for Godot 4 projects.
 
@@ -43,6 +46,14 @@ python -m pip install -e .\godot-project-doctor
 python -m pip install -e .\godot-asset-pipeline-doctor
 python -m pip install -e .\godot-export-preset-doctor
 python -m pip install -e .\godot-mobile-perf-doctor
+```
+
+The three first standalone packages are also available from PyPI:
+
+```powershell
+python -m pip install godot-asset-pipeline-doctor
+python -m pip install godot-export-preset-doctor
+python -m pip install godot-mobile-perf-doctor
 ```
 
 Preview checks without writing files:
@@ -156,8 +167,12 @@ These root-level files explain how the project is maintained and how contributor
 
 ## Package Publication
 
-The repository is published as one umbrella toolkit. The `godot-project-doctor` command is available from a source checkout, while PyPI publication is staged for the highest-demand standalone packages: `godot-asset-pipeline-doctor`, `godot-export-preset-doctor`, and `godot-mobile-perf-doctor`.
+The repository is published as one umbrella toolkit. The `godot-project-doctor` command is available from a source checkout, while the highest-demand standalone packages are published on PyPI:
+
+- [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
+- [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)
+- [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/)
 
 The exact `godot-project-doctor` distribution name is already used on PyPI, so the umbrella CLI needs a distinct package name before it can be published there.
 
-See [docs/PYPI_RELEASE.md](docs/PYPI_RELEASE.md) for the package release order and Trusted Publishing setup.
+See [docs/PYPI_RELEASE.md](docs/PYPI_RELEASE.md) for release commands and Trusted Publishing notes.

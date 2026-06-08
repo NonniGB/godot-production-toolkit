@@ -9,3 +9,4 @@ Initial Godot Production Toolkit release package:
 - `godot-ci-doctor-action` GitHub Action wrapper.
 - JSON, SARIF, Markdown, HTML, Mermaid, and PNG report formats.
 - Project overview, metadata, and root maintainer governance files.
+- PyPI releases for `godot-asset-pipeline-doctor`, `godot-export-preset-doctor`, and `godot-mobile-perf-doctor`.
