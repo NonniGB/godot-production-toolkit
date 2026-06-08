@@ -156,6 +156,8 @@ These root-level files explain how the project is maintained and how contributor
 
 ## Package Publication
 
-The repository is published as one umbrella toolkit. Package publication can be staged for the highest-demand tools: `godot-project-doctor`, `godot-asset-pipeline-doctor`, `godot-export-preset-doctor`, and `godot-mobile-perf-doctor`.
+The repository is published as one umbrella toolkit. The `godot-project-doctor` command is available from a source checkout, while PyPI publication is staged for the highest-demand standalone packages: `godot-asset-pipeline-doctor`, `godot-export-preset-doctor`, and `godot-mobile-perf-doctor`.
+
+The exact `godot-project-doctor` distribution name is already used on PyPI, so the umbrella CLI needs a distinct package name before it can be published there.
 
 See [docs/PYPI_RELEASE.md](docs/PYPI_RELEASE.md) for the package release order and Trusted Publishing setup.
