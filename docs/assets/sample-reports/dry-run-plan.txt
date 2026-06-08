@@ -1,13 +1,13 @@
 Godot Project Doctor Plan
-Project: C:\Temp\tools\examples\release-readiness-demo
-Reports: C:\Temp\tools\docs\assets\sample-reports
-- assets: godot-asset-doctor C:\Temp\tools\examples\release-readiness-demo --format json --output C:\Temp\tools\docs\assets\sample-reports\assets.json --profile pixel-2d --fail-on none
-- export: godot-export-doctor C:\Temp\tools\examples\release-readiness-demo --format json --output C:\Temp\tools\docs\assets\sample-reports\export.json --platform Android --fail-on none
+Project: examples\release-readiness-demo
+Reports: docs\assets\sample-reports
+- assets: godot-asset-doctor examples\release-readiness-demo --format json --output docs\assets\sample-reports\assets.json --profile pixel-2d --fail-on none
+- export: godot-export-doctor examples\release-readiness-demo --format json --output docs\assets\sample-reports\export.json --platform Android --fail-on none
 - api_comments: disabled (not selected)
-- input: godot-input-audit C:\Temp\tools\examples\release-readiness-demo --format json --output C:\Temp\tools\docs\assets\sample-reports\input-map.json --require keyboard,touch --fail-on none
+- input: godot-input-audit examples\release-readiness-demo --format json --output docs\assets\sample-reports\input-map.json --require keyboard,touch --fail-on none
 - localization: disabled (not selected)
 - save_schema: disabled (not selected)
 - signals: disabled (not selected)
 - visual_smoke: disabled (not selected)
-- mobile_perf: godot-mobile-perf-doctor C:\Temp\tools\examples\release-readiness-demo --static --format json --output C:\Temp\tools\docs\assets\sample-reports\mobile-perf.json --profile portrait-2d --max-texture-dimension 1024 --fail-on none
+- mobile_perf: godot-mobile-perf-doctor examples\release-readiness-demo --static --format json --output docs\assets\sample-reports\mobile-perf.json --profile portrait-2d --max-texture-dimension 1024 --fail-on none
 - pixel_assets: disabled (not selected)

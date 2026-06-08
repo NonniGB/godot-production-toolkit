@@ -71,6 +71,10 @@ godot-project-doctor summarize docs\assets\sample-reports --format html --output
 
 The demo shows how the toolkit reports incomplete Android export settings, risky pixel-art import settings, missing input-device coverage, and mobile performance warnings.
 
+A separate public demo repository shows the GitHub Action in a clean fixture project:
+
+- [godot-production-toolkit-demo](https://github.com/NonniGB/godot-production-toolkit-demo)
+
 ## Tool Set
 
 | Tool | Purpose | Automation/CI Outputs |
@@ -153,3 +157,5 @@ These root-level files explain how the project is maintained and how contributor
 ## Package Publication
 
 The repository is published as one umbrella toolkit. Package publication can be staged for the highest-demand tools: `godot-project-doctor`, `godot-asset-pipeline-doctor`, `godot-export-preset-doctor`, and `godot-mobile-perf-doctor`.
+
+See [docs/PYPI_RELEASE.md](docs/PYPI_RELEASE.md) for the package release order and Trusted Publishing setup.

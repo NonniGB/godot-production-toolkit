@@ -172,6 +172,32 @@ class RepositoryStructureTests(unittest.TestCase):
 
         self.assertEqual([], matches)
 
+    def test_public_files_do_not_reference_local_workspace_paths(self) -> None:
+        ignored_dirs = {".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
+        text_suffixes = {".cfg", ".gd", ".html", ".json", ".md", ".py", ".toml", ".txt", ".yml", ".yaml"}
+        path_terms = tuple(
+            "".join(parts)
+            for parts in (
+                ("C:", "\\", "Temp"),
+                ("C:", "/", "Temp"),
+                ("C:", "\\", "Users"),
+                ("C:", "/", "Users"),
+            )
+        )
+
+        matches: list[str] = []
+        for path in ROOT.rglob("*"):
+            if any(part in ignored_dirs for part in path.parts):
+                continue
+            if not path.is_file() or path.suffix.lower() not in text_suffixes:
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for term in path_terms:
+                if term in text:
+                    matches.append(f"{path.relative_to(ROOT)}: {term}")
+
+        self.assertEqual([], matches)
+
     def test_public_files_do_not_expose_programme_positioning(self) -> None:
         ignored_dirs = {".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
         text_suffixes = {".json", ".md", ".py", ".toml", ".txt", ".yml", ".yaml"}
