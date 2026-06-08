@@ -2,7 +2,7 @@
 
 Release-readiness checks for Godot `export_presets.cfg`, focused on Android, CI export hygiene, debug flags, signing safety, package identity, ABIs, icons, and missing export paths.
 
-The tool is a companion to export automation. It does not build the game; it catches risky preset drift before a release job runs `godot --headless --export-release`.
+The tool is a companion to export workflows. It does not build the game; it catches risky preset drift before a release job runs `godot --headless --export-release`.
 
 Use it when a release preset changes, when setting up a new export target, or before cutting a public build from CI.
 
@@ -60,7 +60,7 @@ godot-export-doctor . --platform Android --fail-on none --format json --output r
 - Android package id, version code/name, enabled ABI, and launcher icon readiness.
 - Release-like presets with debug options enabled.
 - Hard-coded password, token, secret, or keystore-like values.
-- JSON and SARIF output for automation.
+- JSON and SARIF output for scripts and CI.
 
 ## Configuration
 

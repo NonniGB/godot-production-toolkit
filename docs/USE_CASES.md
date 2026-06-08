@@ -109,7 +109,7 @@ This helps catch:
 - Layout regressions.
 - Unexpected pixel changes after rendering or theme updates.
 
-## Automation And CI Workflows
+## Script And CI Workflows
 
 Use JSON, SARIF, Markdown, and HTML outputs when another tool needs to read the result:
 

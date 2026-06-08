@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly dry run",
+      "purpose": "Script-friendly dry run",
       "command": "godot-project-doctor run --project <project> --checks assets,export,mobile_perf --dry-run --format json"
     },
     {

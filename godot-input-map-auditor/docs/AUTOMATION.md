@@ -1,8 +1,8 @@
-# Automation Usage
+# Script And CI Usage
 
 Read `tool-manifest.json` first. It declares the CLI entry point, module entry point, output formats, write behavior, and exit-code behavior.
 
-Automation-friendly command:
+Script-friendly command:
 
 ```powershell
 godot-input-audit <project> --require keyboard,touch --format json --output input-report.json --fail-on none

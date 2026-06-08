@@ -1,8 +1,8 @@
-# Automation Usage
+# Script And CI Usage
 
 Read `tool-manifest.json` first. It declares the CLI entry point, module entry point, output formats, write behavior, and exit-code behavior.
 
-Automation-friendly generation examples:
+Script-friendly generation examples:
 
 ```powershell
 pixel-space-assets starfield --width 1080 --height 1920 --seed 42 --stars 900 --output generated/starfield.png --manifest generated/starfield.json --format json

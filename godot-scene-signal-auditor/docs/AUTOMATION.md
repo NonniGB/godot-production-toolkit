@@ -1,8 +1,8 @@
-# Automation Usage
+# Script And CI Usage
 
 Read `tool-manifest.json` first. It declares the CLI entry point, module entry point, output formats, write behavior, and exit-code behavior.
 
-Automation-friendly command:
+Script-friendly command:
 
 ```powershell
 godot-signal-audit <project> --autoload EventBus,SignalBus --format json --output signal-report.json --fail-on none

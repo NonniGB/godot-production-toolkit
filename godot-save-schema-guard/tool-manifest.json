@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly save validation",
+      "purpose": "Script-friendly save validation",
       "command": "godot-save-guard validate <fixtures> --schema <schema.json> --format json --output save-report.json --fail-on none"
     },
     {

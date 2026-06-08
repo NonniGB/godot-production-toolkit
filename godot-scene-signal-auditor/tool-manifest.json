@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly signal report",
+      "purpose": "Script-friendly signal report",
       "command": "godot-signal-audit <project> --autoload EventBus,SignalBus --format json --output signal-report.json --fail-on none"
     },
     {

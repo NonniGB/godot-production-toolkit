@@ -21,11 +21,11 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly starfield generation",
+      "purpose": "Script-friendly starfield generation",
       "command": "pixel-space-assets starfield --width 1080 --height 1920 --seed 42 --stars 900 --output generated/starfield.png --manifest generated/starfield.json --format json"
     },
     {
-      "purpose": "Automation-friendly asteroid tile generation",
+      "purpose": "Script-friendly asteroid tile generation",
       "command": "pixel-space-assets asteroid-hex --material ferric --count 32 --size 64 --seed 7 --output generated/ferric --format json"
     }
   ]

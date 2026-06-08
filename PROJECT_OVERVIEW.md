@@ -9,7 +9,7 @@ The tools focus on repeated production risks that are easy to miss late in devel
 - Ten standalone Python CLI packages.
 - One umbrella CLI: `godot-project-doctor`.
 - One composite GitHub Action: `godot-ci-doctor-action`.
-- JSON output for automation.
+- JSON output for scripts and CI.
 - SARIF output for selected CI/code-scanning checks.
 - Markdown, HTML, Mermaid, text, PNG diff, and generated asset outputs for human review.
 - Root and per-tool tests, examples, contribution docs, security notes, and changelogs.
@@ -48,7 +48,7 @@ The repository keeps a normal public project structure:
 - `.github/pull_request_template.md`
 - `.github/dependabot.yml`
 - `docs/RELEASE_CHECKLIST.md`
-- `docs/MAINTAINER_AUTOMATION.md`
+- `docs/MAINTAINER_GUIDE.md`
 
 ## Current Limitations
 

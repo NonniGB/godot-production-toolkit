@@ -1,8 +1,8 @@
-# Automation Usage
+# Script And CI Usage
 
 Read `tool-manifest.json` first. It declares the CLI entry point, module entry point, output formats, write behavior, and exit-code behavior.
 
-Automation-friendly validation command:
+Script-friendly validation command:
 
 ```powershell
 godot-save-guard validate <fixtures> --schema <schema.json> --format json --output save-report.json --fail-on none

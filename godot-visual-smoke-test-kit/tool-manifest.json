@@ -22,11 +22,11 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly capture plan",
+      "purpose": "Script-friendly capture plan",
       "command": "godot-visual-smoke plan visual-smoke.toml --project <project> --format json"
     },
     {
-      "purpose": "Automation-friendly screenshot comparison",
+      "purpose": "Script-friendly screenshot comparison",
       "command": "godot-visual-smoke compare <baseline.png> <current.png> --diff <diff.png> --format json --output visual-report.json --fail-on none"
     }
   ]

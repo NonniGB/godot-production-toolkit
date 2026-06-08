@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly static performance report",
+      "purpose": "Script-friendly static performance report",
       "command": "godot-mobile-perf-doctor <project> --static --format json --output mobile-perf-report.json --fail-on none"
     },
     {

@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly JSON audit",
+      "purpose": "Script-friendly JSON audit",
       "command": "godot-asset-doctor <project> --profile android-mobile --format json --output asset-report.json --fail-on none"
     },
     {

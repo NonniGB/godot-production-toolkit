@@ -80,8 +80,8 @@
       "interfaces": ["cli", "json", "png", "html-gallery"]
     }
   ],
-  "automation_interfaces": {
-    "manifest_files": "Each automation-ready project has tool-manifest.json.",
+  "script_and_ci_interfaces": {
+    "manifest_files": "Each script-ready project has tool-manifest.json.",
     "manifest_validator": "python verify_tool_manifests.py",
     "machine_outputs": ["json", "sarif"],
     "human_outputs": ["text", "markdown", "html", "png-diffs", "mermaid"],
@@ -112,7 +112,8 @@
     ".github/CODEOWNERS",
     ".github/dependabot.yml",
     "docs/RELEASE_CHECKLIST.md",
-    "docs/PROJECT_HEALTH.md"
+    "docs/PROJECT_HEALTH.md",
+    "docs/MAINTAINER_GUIDE.md"
   ],
   "public_examples": [
     "docs/USE_CASES.md",
@@ -132,12 +133,12 @@
   "current_limitations": [
     "Some specialized tools require project-specific fixtures or visual smoke capture scripts to be fully useful.",
     "The tools are intentionally narrow and production-focused rather than a broad Godot framework.",
-    "Package publishing can be staged by demand and maintainer capacity."
+    "The umbrella CLI is source-checkout first because the exact godot-project-doctor PyPI distribution name is already used by another project."
   ],
   "release_priorities": [
     "Maintain one public umbrella repository with all tools and the GitHub Action.",
     "Keep tagged releases tied to passing CI runs.",
-    "Publish the highest-demand packages first: godot-project-doctor, godot-asset-pipeline-doctor, godot-export-preset-doctor, and godot-mobile-perf-doctor.",
+    "Maintain the published packages first: godot-asset-pipeline-doctor, godot-export-preset-doctor, and godot-mobile-perf-doctor.",
     "Use concise examples and minimal fixtures when discussing issues or improvements."
   ]
 }

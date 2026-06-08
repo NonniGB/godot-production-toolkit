@@ -34,9 +34,8 @@ Start with these files when evaluating or extending the suite:
 - `PROJECT_OVERVIEW.md`
 - `docs/USE_CASES.md`
 - `examples/release-readiness-demo/README.md`
-- `project-metadata.json`
 - `docs/PROJECT_HEALTH.md`
-- `docs/MAINTAINER_AUTOMATION.md`
+- `docs/MAINTAINER_GUIDE.md`
 - `verify_tool_manifests.py`
 
 ## Quick Start
@@ -96,7 +95,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 
 ## Tool Set
 
-| Tool | Purpose | Automation/CI Outputs |
+| Tool | Purpose | Script/CI Outputs |
 |---|---|---|
 | `godot-project-doctor` | Umbrella CLI for planning, running, and summarizing the suite. | JSON, Markdown, HTML |
 | `godot-ci-doctor-action` | GitHub composite action wrapper. | JSON, Markdown, HTML artifacts |
@@ -171,7 +170,7 @@ These root-level files explain how the project is maintained and how contributor
 - `.github/CODEOWNERS`
 - `.github/dependabot.yml`
 - `docs/RELEASE_CHECKLIST.md`
-- `docs/MAINTAINER_AUTOMATION.md`
+- `docs/MAINTAINER_GUIDE.md`
 
 ## Package Publication
 

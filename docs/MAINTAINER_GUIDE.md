@@ -1,4 +1,4 @@
-# Maintainer Automation
+# Maintainer Guide
 
 ## Issue triage
 
@@ -9,7 +9,7 @@ Use labels consistently:
 - `docs`: documentation-only change.
 - `good-first-issue`: safe scoped contribution.
 - `needs-fixture`: report needs a minimal project or sample file.
-- `automation`: output format, manifest, or CI workflow issue.
+- `ci`: workflow, report format, manifest, or build issue.
 
 Ask for command, expected result, actual result, Python version, Godot version where relevant, and a minimal fixture.
 
@@ -21,9 +21,9 @@ Use small releases:
 - Minor release for new output formats, rule groups, or config options.
 - Keep changelogs per tool because every tool remains standalone.
 
-## Automation maintenance
+## CI and tooling maintenance
 
-For automation or CI changes, start from:
+For CI, report format, or command-line interface changes, start from:
 
 1. `PROJECT_OVERVIEW.md`
 2. `project-metadata.json`

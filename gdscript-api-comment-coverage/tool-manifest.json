@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly coverage report",
+      "purpose": "Script-friendly coverage report",
       "command": "gdscript-api-coverage <project> --format json --output gdscript-api-report.json --fail-on none"
     },
     {

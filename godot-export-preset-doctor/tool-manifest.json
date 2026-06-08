@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly release audit",
+      "purpose": "Script-friendly release audit",
       "command": "godot-export-doctor <project> --platform Android --format json --output export-report.json --fail-on none"
     },
     {

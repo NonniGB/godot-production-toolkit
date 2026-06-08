@@ -1,4 +1,4 @@
-# Automation Usage
+# Script And CI Usage
 
 Use `plan` or `run --dry-run` before executing checks. These commands are noninteractive and do not create report directories.
 

@@ -16,7 +16,7 @@ class ProjectMetadataTests(unittest.TestCase):
             "repository",
             "tool_count",
             "tools",
-            "automation_interfaces",
+            "script_and_ci_interfaces",
             "ci_and_maintenance",
             "governance",
             "verification_commands",
@@ -60,11 +60,11 @@ class ProjectMetadataTests(unittest.TestCase):
                 "Godot community outreach",
                 "Feedback loop",
             ),
-            "docs/MAINTAINER_AUTOMATION.md": (
-                "# Maintainer Automation",
+            "docs/MAINTAINER_GUIDE.md": (
+                "# Maintainer Guide",
                 "Issue triage",
                 "Release cadence",
-                "Automation maintenance",
+                "CI and tooling maintenance",
                 "Validation commands",
             ),
         }

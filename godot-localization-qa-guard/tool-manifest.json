@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly localization report",
+      "purpose": "Script-friendly localization report",
       "command": "godot-l10n-guard <project> --translations translations --scan-scripts --scan-scenes --format json --output localization-report.json --fail-on none"
     },
     {

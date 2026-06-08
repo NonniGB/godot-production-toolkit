@@ -22,7 +22,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Automation-friendly input report",
+      "purpose": "Script-friendly input report",
       "command": "godot-input-audit <project> --require keyboard,touch --format json --output input-report.json --fail-on none"
     },
     {

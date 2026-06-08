@@ -1,6 +1,6 @@
 # CI Integration
 
-Install the package and run it before export automation:
+Install the package and run it before the export step:
 
 ```yaml
 - name: Install export doctor
