@@ -20,7 +20,7 @@ Suggestion: open the project in Godot and reimport assets before relying on impo
 
 Severity: `error`
 
-One axis exceeds 4096 pixels. Some target devices may support larger textures, but this is risky for portable releases.
+One axis exceeds the configured texture-dimension limit. The default is 4096 pixels. Some target devices may support larger textures, but this is risky for portable releases.
 
 Suggestion: split or downscale the texture, or verify the real target-device limit.
 
@@ -30,7 +30,7 @@ Suggestion: split or downscale the texture, or verify the real target-device lim
 
 Severity: `warning`
 
-The image has more than 256 unique RGBA colors. This may be intentional, but it often indicates blended or anti-aliased art in a pixel-art asset folder.
+The image has more than the configured unique RGBA color threshold. The default is 256 colors. This may be intentional, but it often indicates blended or anti-aliased art in a pixel-art asset folder.
 
 ### `pixel_mipmaps_enabled`
 
@@ -56,7 +56,6 @@ Fully transparent edge pixels contain non-black RGB values. These hidden colors 
 
 Severity: `warning`
 
-The texture would occupy at least 16 MiB as RGBA in memory.
+The texture would occupy at least the configured RGBA memory threshold. The default is 16 MiB.
 
 Suggestion: reduce dimensions, review compression/import settings, or split the asset by use case.
-

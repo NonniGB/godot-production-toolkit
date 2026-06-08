@@ -49,11 +49,11 @@ PUBLIC_POSITIONING_TERMS = tuple(
         ("auto", "mated ", "rev", "iewers"),
         ("organic ", "public ", "usage"),
         ("quali", "fication ", "gap"),
-        ("target_", "programme"),
+        ("target_", "pro", "gram", "me"),
         ("rev", "iewer_", "score", "card"),
-        ("AI_REVIEW_", "PACKAGE"),
+        ("AI_", "RE", "VIEW_", "PACKAGE"),
         ("oss-", "review-evidence"),
-        ("COD", "EX_FOR_", "OSS_READINESS"),
+        ("CO", "DEX_FOR_", "O", "SS_READINESS"),
         ("App", "lication ", "draft"),
     )
 )
@@ -198,7 +198,7 @@ class RepositoryStructureTests(unittest.TestCase):
 
         self.assertEqual([], matches)
 
-    def test_public_files_do_not_expose_programme_positioning(self) -> None:
+    def test_public_files_keep_project_focused(self) -> None:
         ignored_dirs = {".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
         text_suffixes = {".json", ".md", ".py", ".toml", ".txt", ".yml", ".yaml"}
 

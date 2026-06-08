@@ -4,7 +4,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from godot_asset_doctor.models import AssetRecord, ImportMetadata, PngInfo
+from godot_asset_doctor.models import AssetRecord, ImportMetadata, PngInfo, RuleSettings
 from godot_asset_doctor.rules import evaluate_asset
 
 
@@ -64,7 +64,39 @@ class RuleTests(unittest.TestCase):
         self.assertIn("missing_import_metadata", {issue.code for issue in issues})
         self.assertIn("texture_memory_large", {issue.code for issue in issues})
 
+    def test_custom_rule_settings_adjust_thresholds(self) -> None:
+        asset = AssetRecord(
+            path=Path("assets/ui_panel.png"),
+            png=PngInfo(
+                path=Path("assets/ui_panel.png"),
+                width=128,
+                height=64,
+                mode="RGBA",
+                has_alpha=False,
+                palette_color_count=4,
+                transparent_pixel_count=0,
+                contaminated_transparent_pixel_count=0,
+                contaminated_transparent_edge_pixel_count=0,
+                estimated_rgba_bytes=128 * 64 * 4,
+            ),
+            import_metadata=None,
+        )
+
+        issues = evaluate_asset(
+            asset,
+            profile="default",
+            settings=RuleSettings(
+                max_texture_dimension=64,
+                large_texture_bytes=1,
+                max_palette_colors=2,
+            ),
+        )
+        issue_codes = {issue.code for issue in issues}
+
+        self.assertIn("texture_dimension_too_large", issue_codes)
+        self.assertIn("texture_memory_large", issue_codes)
+        self.assertIn("large_palette", issue_codes)
+
 
 if __name__ == "__main__":
     unittest.main()
-

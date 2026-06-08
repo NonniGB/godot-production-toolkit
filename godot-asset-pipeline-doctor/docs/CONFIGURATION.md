@@ -16,6 +16,9 @@ format = "json"
 fail_on = "warning"
 output = "asset-report.json"
 exclude = ["addons/vendor/**", "assets/generated/**"]
+max_texture_dimension = 4096
+large_texture_mb = 16
+max_palette_colors = 256
 ```
 
 Run with the default project-local config:
@@ -73,6 +76,24 @@ exclude = [
   "assets/generated/**",
 ]
 ```
+
+### `max_texture_dimension`
+
+Maximum allowed PNG width or height before `texture_dimension_too_large` is reported. The default is `4096`.
+
+Raise this only when your target platforms are known to support larger textures. Lower it for strict mobile or low-memory projects.
+
+### `large_texture_mb`
+
+Estimated RGBA memory threshold, in MiB, before `texture_memory_large` is reported. The default is `16`.
+
+This is based on uncompressed RGBA memory, not source PNG file size.
+
+### `max_palette_colors`
+
+Maximum unique RGBA color count before `large_palette` is reported in pixel-art profiles. The default is `256`.
+
+Lower this for tight sprite palettes, or raise it for painted UI and background art that still lives in the same asset tree.
 
 ## Default Ignored Folders
 

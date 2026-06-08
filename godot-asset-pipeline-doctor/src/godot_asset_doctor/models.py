@@ -6,6 +6,13 @@ from typing import Any
 
 
 @dataclass(frozen=True)
+class RuleSettings:
+    max_texture_dimension: int = 4096
+    large_texture_bytes: int = 16 * 1024 * 1024
+    max_palette_colors: int = 256
+
+
+@dataclass(frozen=True)
 class PngInfo:
     path: Path
     width: int
@@ -106,4 +113,3 @@ class ScanReport:
             "assets": [asset.to_dict() for asset in self.assets],
             "issues": [issue.to_dict() for issue in self.issues],
         }
-

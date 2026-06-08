@@ -5,7 +5,7 @@ from typing import Any
 from .models import Finding, TextureSummary
 
 
-def audit_settings(settings: dict[str, Any], *, profile: str) -> list[Finding]:
+def audit_settings(settings: dict[str, Any], *, profile: str, max_viewport_pixels: int = 1920 * 1080) -> list[Finding]:
     findings: list[Finding] = []
     renderer = str(settings.get("rendering/renderer/rendering_method", "")).lower()
     if renderer == "forward_plus":
@@ -19,12 +19,15 @@ def audit_settings(settings: dict[str, Any], *, profile: str) -> list[Finding]:
 
     width = _int_setting(settings, "display/window/size/viewport_width")
     height = _int_setting(settings, "display/window/size/viewport_height")
-    if width and height and width * height > 1920 * 1080:
+    if width and height and width * height > max_viewport_pixels:
         findings.append(
             Finding(
                 "large_base_viewport",
                 "warning",
-                f"Base viewport {width}x{height} exceeds 1080p; profile '{profile}' may waste fill-rate on mobile.",
+                (
+                    f"Base viewport {width}x{height} exceeds the configured "
+                    f"{max_viewport_pixels} pixel budget; profile '{profile}' may waste fill-rate on mobile."
+                ),
             )
         )
 

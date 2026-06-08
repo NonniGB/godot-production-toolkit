@@ -22,7 +22,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-asset-doctor 0.1.0", stdout.getvalue())
+        self.assertIn("godot-asset-doctor 0.1.2", stdout.getvalue())
 
     def test_cli_outputs_json_report_and_returns_failure_when_warning_threshold_is_used(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -92,6 +92,7 @@ class CliTests(unittest.TestCase):
                         'profile = "pixel-2d"',
                         'format = "json"',
                         'fail_on = "warning"',
+                        "max_palette_colors = 1",
                     ]
                 ),
                 encoding="utf-8",
@@ -105,6 +106,7 @@ class CliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             self.assertEqual(report["summary"]["profile"], "pixel-2d")
             self.assertIn("pixel_mipmaps_enabled", {issue["code"] for issue in report["issues"]})
+            self.assertIn("large_palette", {issue["code"] for issue in report["issues"]})
 
     def test_cli_outputs_sarif_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

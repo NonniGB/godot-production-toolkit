@@ -23,14 +23,16 @@ def evaluate_presets(
     *,
     platform: str | None = None,
     required_android_abis: Iterable[str] | None = None,
+    allowed_secret_patterns: Iterable[str] | None = None,
 ) -> list[Finding]:
     required_abis = tuple(required_android_abis or ())
+    secret_patterns = tuple(_compile_patterns(allowed_secret_patterns or ()))
     findings: list[Finding] = []
     for preset in presets:
         if platform and preset.platform.lower() != platform.lower():
             continue
         findings.extend(_generic_findings(preset))
-        findings.extend(_credential_findings(preset))
+        findings.extend(_credential_findings(preset, secret_patterns))
         if _is_release_like(preset):
             findings.extend(_release_findings(preset))
         if preset.platform.lower() == "android":
@@ -59,12 +61,16 @@ def _generic_findings(preset: ExportPreset) -> list[Finding]:
     return findings
 
 
-def _credential_findings(preset: ExportPreset) -> list[Finding]:
+def _credential_findings(preset: ExportPreset, allowed_secret_patterns: tuple[re.Pattern[str], ...]) -> list[Finding]:
     findings: list[Finding] = []
     for key, value in preset.options.items():
         if not isinstance(value, str) or not value:
             continue
-        if SECRET_KEY_RE.search(key) and not _looks_like_env_reference(value):
+        if (
+            SECRET_KEY_RE.search(key)
+            and not _looks_like_env_reference(value)
+            and not _matches_allowed_secret_pattern(value, allowed_secret_patterns)
+        ):
             findings.append(
                 _finding(
                     preset,
@@ -231,3 +237,17 @@ def _looks_like_env_reference(value: str) -> bool:
 
 def _looks_like_local_path(value: str) -> bool:
     return os.path.isabs(value) or ":" in value or "\\" in value
+
+
+def _compile_patterns(patterns: Iterable[str]) -> list[re.Pattern[str]]:
+    compiled: list[re.Pattern[str]] = []
+    for pattern in patterns:
+        try:
+            compiled.append(re.compile(str(pattern)))
+        except re.error:
+            continue
+    return compiled
+
+
+def _matches_allowed_secret_pattern(value: str, patterns: tuple[re.Pattern[str], ...]) -> bool:
+    return any(pattern.fullmatch(value.strip()) for pattern in patterns)

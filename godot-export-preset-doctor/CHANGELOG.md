@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 - 2026-06-08
+
+- Added `allowed_secret_patterns` config for deliberate credential placeholders in export presets.
+- Added tests for placeholder handling in the CLI and rule engine.
+
 ## 0.1.1 - 2026-06-08
 
 - Improved the PyPI README with concrete release-gating and CI examples.

@@ -26,6 +26,25 @@ godot-mobile-perf-doctor . --profile portrait-2d --format json --output perf-rep
 godot-mobile-perf-doctor . --adb-summary adb-summary.txt --format markdown --output mobile-perf-report.md
 ```
 
+## Config File
+
+Create `.godot-mobile-perf-doctor.toml` in the project root:
+
+```toml
+profile = "portrait-2d"
+format = "markdown"
+fail_on = "warning"
+output = "reports/mobile-perf.md"
+max_texture_dimension = 2048
+max_viewport_pixels = 2073600
+```
+
+CLI flags override config values:
+
+```powershell
+godot-mobile-perf-doctor . --static --max-viewport-pixels 921600 --format json
+```
+
 ## Real Workflow: Prepare An Android Test Build
 
 Run a static mobile scan before sending a build to a phone:
@@ -58,6 +77,7 @@ godot-mobile-perf-doctor . --adb-summary reports\adb-summary.txt --format json -
 ## Documentation
 
 - [Static checks](docs/STATIC_CHECKS.md)
+- [Configuration](docs/CONFIGURATION.md)
 - [Renderer guidance](docs/RENDERERS.md)
 - [Texture guidance](docs/TEXTURES.md)
 - [ADB summaries](docs/ADB.md)

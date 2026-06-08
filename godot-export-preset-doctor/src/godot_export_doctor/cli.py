@@ -24,6 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     fail_on = args.fail_on or str(config.get("fail_on", "warning"))
     platform = args.platform or config.get("platform")
     required_android_abis = config.get("required_android_abis", [])
+    allowed_secret_patterns = _configured_list(config, "allowed_secret_patterns")
 
     presets_file = _resolve_presets_file(project)
     if presets_file.exists():
@@ -33,6 +34,7 @@ def main(argv: list[str] | None = None) -> int:
             presets,
             platform=str(platform) if platform else None,
             required_android_abis=[str(abi) for abi in required_android_abis],
+            allowed_secret_patterns=allowed_secret_patterns,
         )
     else:
         report_presets = []
@@ -58,7 +60,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-export-doctor",
         description="Audit Godot export_presets.cfg release readiness.",
     )
-    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.0")
+    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.2")
     parser.add_argument("project", help="Godot project directory or export_presets.cfg path.")
     parser.add_argument("--config", help=f"TOML config path. Defaults to {DEFAULT_CONFIG}.")
     parser.add_argument("--platform", help="Only evaluate presets for a platform, such as Android.")
@@ -90,6 +92,15 @@ def _load_config(project: Path, explicit_config: Path | None) -> dict[str, Any]:
     if not isinstance(data, dict):
         return {}
     return data
+
+
+def _configured_list(config: dict[str, Any], key: str) -> list[str]:
+    value = config.get(key, [])
+    if isinstance(value, list):
+        return [str(item) for item in value]
+    if isinstance(value, str):
+        return [value]
+    return []
 
 
 def _filter_presets(presets: list[ExportPreset], platform: object) -> list[ExportPreset]:

@@ -20,6 +20,19 @@ class AuditTests(unittest.TestCase):
         self.assertIn("large_base_viewport", rule_ids)
         self.assertIn("stretch_disabled", rule_ids)
 
+    def test_viewport_budget_is_configurable(self) -> None:
+        findings = audit_settings(
+            {
+                "display/window/size/viewport_width": 1280,
+                "display/window/size/viewport_height": 720,
+                "display/window/stretch/mode": "canvas_items",
+            },
+            profile="portrait-2d",
+            max_viewport_pixels=1000,
+        )
+
+        self.assertIn("large_base_viewport", {finding.rule_id for finding in findings})
+
 
 if __name__ == "__main__":
     unittest.main()

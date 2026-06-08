@@ -109,6 +109,9 @@ format = "json"
 fail_on = "warning"
 output = "asset-report.json"
 exclude = ["addons/vendor/**", "assets/generated/**"]
+max_texture_dimension = 4096
+large_texture_mb = 16
+max_palette_colors = 256
 ```
 
 Then run:
@@ -117,7 +120,7 @@ Then run:
 godot-asset-doctor C:\Projects\ArcadePrototype
 ```
 
-CLI flags override config values. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
+CLI flags override config values. Use these thresholds when your project needs stricter mobile budgets or a looser palette limit for UI art. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
 
 ## Example Output
 

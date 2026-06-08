@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 
 from godot_asset_doctor.config import load_config
+from godot_asset_doctor.models import RuleSettings
 from godot_asset_doctor.reporting import report_to_json, report_to_sarif, report_to_text
 from godot_asset_doctor.scanner import scan_project
 
@@ -20,12 +21,17 @@ def main(argv: list[str] | None = None) -> int:
     fail_on = _configured_value(args.fail_on, config, "fail_on", "error")
     output = _configured_value(args.output, config, "output", None)
     exclude_globs = _configured_list(args.exclude, config, "exclude")
+    rule_settings = RuleSettings(
+        max_texture_dimension=_configured_int(args.max_texture_dimension, config, "max_texture_dimension", 4096),
+        large_texture_bytes=_configured_mib(args.large_texture_mb, config, "large_texture_mb", 16),
+        max_palette_colors=_configured_int(args.max_palette_colors, config, "max_palette_colors", 256),
+    )
 
     _validate_choice(parser, "profile", profile, {"default", "pixel-2d", "android-mobile"})
     _validate_choice(parser, "format", output_format, {"text", "json", "sarif"})
     _validate_choice(parser, "fail_on", fail_on, {"none", "warning", "error"})
 
-    report = scan_project(project_root, profile=profile, exclude_globs=exclude_globs)
+    report = scan_project(project_root, profile=profile, exclude_globs=exclude_globs, rule_settings=rule_settings)
     if output_format == "json":
         rendered = report_to_json(report)
     elif output_format == "sarif":
@@ -46,7 +52,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-asset-doctor",
         description="Scan Godot PNG assets and .import metadata for pixel-art and mobile release risks.",
     )
-    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.0")
+    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.2")
     parser.add_argument("path", nargs="?", default=".", help="Godot project directory to scan.")
     parser.add_argument(
         "--profile",
@@ -73,6 +79,24 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Exclude a project-relative glob such as 'addons/vendor/**'. Can be repeated.",
     )
     parser.add_argument(
+        "--max-texture-dimension",
+        type=int,
+        default=None,
+        help="Maximum allowed PNG width or height before a dimension error is reported.",
+    )
+    parser.add_argument(
+        "--large-texture-mb",
+        type=float,
+        default=None,
+        help="Estimated RGBA MiB threshold before a mobile texture memory warning is reported.",
+    )
+    parser.add_argument(
+        "--max-palette-colors",
+        type=int,
+        default=None,
+        help="Maximum unique RGBA color count before a pixel-art palette warning is reported.",
+    )
+    parser.add_argument(
         "--fix-suggestions",
         action="store_true",
         help="Accepted for compatibility; suggestions are included in all current reports.",
@@ -97,6 +121,28 @@ def _configured_list(cli_values: list[str] | None, config: dict[str, object], ke
     if cli_values:
         values.extend(cli_values)
     return values
+
+
+def _configured_int(cli_value: int | None, config: dict[str, object], key: str, default: int) -> int:
+    if cli_value is not None:
+        return cli_value
+    value = config.get(key, default)
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _configured_mib(cli_value: float | None, config: dict[str, object], key: str, default: float) -> int:
+    if cli_value is not None:
+        value = cli_value
+    else:
+        value = config.get(key, default)
+    try:
+        mib = float(value)
+    except (TypeError, ValueError):
+        mib = default
+    return int(mib * 1024 * 1024)
 
 
 def _validate_choice(parser: argparse.ArgumentParser, name: str, value: str | None, choices: set[str]) -> None:

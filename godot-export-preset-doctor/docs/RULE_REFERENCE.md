@@ -20,7 +20,7 @@
 ## Release And Security Rules
 
 - `debug_option_enabled_in_release`: a release-like preset has a truthy debug option.
-- `hardcoded_credential_value`: a password, token, or secret option has a literal value.
+- `hardcoded_credential_value`: a password, token, or secret option has a literal value. Values matching configured `allowed_secret_patterns` are treated as known placeholders.
 - `hardcoded_keystore_path`: a keystore-like option points to a local path.
 
 Credential findings redact values in every report format.

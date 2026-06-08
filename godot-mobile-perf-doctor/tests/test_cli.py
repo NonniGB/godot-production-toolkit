@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-perf-doctor 0.1.0", stdout.getvalue())
+        self.assertIn("godot-mobile-perf-doctor 0.1.2", stdout.getvalue())
 
     def test_cli_writes_json_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -58,6 +58,36 @@ renderer/rendering_method="forward_plus"
             self.assertEqual(driver["name"], "godot-mobile-perf-doctor")
             self.assertTrue(driver["rules"])
             self.assertTrue(sarif["runs"][0]["results"])
+
+    def test_cli_uses_config_file_defaults(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".godot-mobile-perf-doctor.toml").write_text(
+                "\n".join(
+                    [
+                        'format = "json"',
+                        'fail_on = "none"',
+                        "max_viewport_pixels = 1000",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (root / "project.godot").write_text(
+                """
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--static"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertIn("large_base_viewport", {finding["rule_id"] for finding in report["findings"]})
 
 
 if __name__ == "__main__":

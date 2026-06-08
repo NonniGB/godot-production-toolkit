@@ -66,6 +66,26 @@ class RuleTests(unittest.TestCase):
         self.assertNotIn("super-secret", secret_findings[0].message)
         self.assertIn("<redacted>", secret_findings[0].message)
 
+    def test_known_secret_placeholders_can_be_allowed(self) -> None:
+        preset = ExportPreset(
+            index=3,
+            name="Android Release",
+            platform="Android",
+            runnable=False,
+            export_path="build/game.apk",
+            options={
+                "package/unique_name": "com.example.game",
+                "version/code": 1,
+                "version/name": "1.0.0",
+                "architectures/arm64-v8a": True,
+                "keystore/release_password": "<set-in-ci>",
+            },
+        )
+
+        findings = evaluate_presets([preset], allowed_secret_patterns=[r"<.+>"])
+
+        self.assertNotIn("hardcoded_credential_value", {finding.rule_id for finding in findings})
+
 
 if __name__ == "__main__":
     unittest.main()

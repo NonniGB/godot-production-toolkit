@@ -6,7 +6,7 @@ from pathlib import Path
 
 from godot_asset_doctor.import_parser import parse_import_file
 from godot_asset_doctor.inspector import inspect_png
-from godot_asset_doctor.models import AssetRecord, ImportMetadata, ScanReport
+from godot_asset_doctor.models import AssetRecord, ImportMetadata, RuleSettings, ScanReport
 from godot_asset_doctor.rules import evaluate_asset
 
 
@@ -26,7 +26,12 @@ EXCLUDED_DIRS = {
 }
 
 
-def scan_project(root: Path, profile: str = "default", exclude_globs: list[str] | None = None) -> ScanReport:
+def scan_project(
+    root: Path,
+    profile: str = "default",
+    exclude_globs: list[str] | None = None,
+    rule_settings: RuleSettings | None = None,
+) -> ScanReport:
     root = root.resolve()
     report = ScanReport(root=root, profile=profile)
 
@@ -34,7 +39,7 @@ def scan_project(root: Path, profile: str = "default", exclude_globs: list[str] 
         import_metadata = _read_import_metadata(png_path)
         asset = AssetRecord(path=png_path, png=inspect_png(png_path), import_metadata=import_metadata)
         report.assets.append(asset)
-        report.issues.extend(evaluate_asset(asset, profile=profile))
+        report.issues.extend(evaluate_asset(asset, profile=profile, settings=rule_settings))
 
     report.issues.sort(key=lambda issue: (str(issue.path), issue.severity, issue.code))
     return report

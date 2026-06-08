@@ -1,30 +1,27 @@
 from __future__ import annotations
 
-from godot_asset_doctor.models import AssetRecord, Issue
+from godot_asset_doctor.models import AssetRecord, Issue, RuleSettings
 
 
-LARGE_TEXTURE_BYTES = 16 * 1024 * 1024
-MAX_TEXTURE_DIMENSION = 4096
-
-
-def evaluate_asset(asset: AssetRecord, profile: str) -> list[Issue]:
+def evaluate_asset(asset: AssetRecord, profile: str, settings: RuleSettings | None = None) -> list[Issue]:
+    rule_settings = settings or RuleSettings()
     issues: list[Issue] = []
-    issues.extend(_common_rules(asset))
+    issues.extend(_common_rules(asset, rule_settings))
 
     if profile == "pixel-2d":
-        issues.extend(_pixel_2d_rules(asset))
+        issues.extend(_pixel_2d_rules(asset, rule_settings))
     elif profile == "android-mobile":
-        issues.extend(_android_mobile_rules(asset))
+        issues.extend(_android_mobile_rules(asset, rule_settings))
     elif profile == "default":
-        issues.extend(_pixel_2d_rules(asset))
-        issues.extend(_android_mobile_rules(asset))
+        issues.extend(_pixel_2d_rules(asset, rule_settings))
+        issues.extend(_android_mobile_rules(asset, rule_settings))
     else:
         raise ValueError(f"Unknown profile: {profile}")
 
     return issues
 
 
-def _common_rules(asset: AssetRecord) -> list[Issue]:
+def _common_rules(asset: AssetRecord, settings: RuleSettings) -> list[Issue]:
     issues: list[Issue] = []
     png = asset.png
 
@@ -39,13 +36,16 @@ def _common_rules(asset: AssetRecord) -> list[Issue]:
             )
         )
 
-    if png.width > MAX_TEXTURE_DIMENSION or png.height > MAX_TEXTURE_DIMENSION:
+    if png.width > settings.max_texture_dimension or png.height > settings.max_texture_dimension:
         issues.append(
             Issue(
                 path=asset.path,
                 severity="error",
                 code="texture_dimension_too_large",
-                message=f"Texture is {png.width}x{png.height}, which exceeds {MAX_TEXTURE_DIMENSION}px on one axis.",
+                message=(
+                    f"Texture is {png.width}x{png.height}, which exceeds "
+                    f"{settings.max_texture_dimension}px on one axis."
+                ),
                 suggestion="Split the image, lower source resolution, or verify target devices support this texture size.",
             )
         )
@@ -53,18 +53,21 @@ def _common_rules(asset: AssetRecord) -> list[Issue]:
     return issues
 
 
-def _pixel_2d_rules(asset: AssetRecord) -> list[Issue]:
+def _pixel_2d_rules(asset: AssetRecord, settings: RuleSettings) -> list[Issue]:
     issues: list[Issue] = []
     png = asset.png
     params = asset.import_metadata.params if asset.import_metadata else {}
 
-    if png.palette_color_count > 256:
+    if png.palette_color_count > settings.max_palette_colors:
         issues.append(
             Issue(
                 path=asset.path,
                 severity="warning",
                 code="large_palette",
-                message=f"Image uses {png.palette_color_count} unique RGBA colors, which may not be intentional pixel art.",
+                message=(
+                    f"Image uses {png.palette_color_count} unique RGBA colors, "
+                    f"above the configured {settings.max_palette_colors} color pixel-art threshold."
+                ),
                 suggestion="Check whether this asset should be palette-reduced or excluded from the pixel-2d profile.",
             )
         )
@@ -108,11 +111,11 @@ def _pixel_2d_rules(asset: AssetRecord) -> list[Issue]:
     return issues
 
 
-def _android_mobile_rules(asset: AssetRecord) -> list[Issue]:
+def _android_mobile_rules(asset: AssetRecord, settings: RuleSettings) -> list[Issue]:
     issues: list[Issue] = []
     png = asset.png
 
-    if png.estimated_rgba_bytes >= LARGE_TEXTURE_BYTES:
+    if png.estimated_rgba_bytes >= settings.large_texture_bytes:
         mib = png.estimated_rgba_bytes / (1024 * 1024)
         issues.append(
             Issue(
@@ -125,4 +128,3 @@ def _android_mobile_rules(asset: AssetRecord) -> list[Issue]:
         )
 
     return issues
-

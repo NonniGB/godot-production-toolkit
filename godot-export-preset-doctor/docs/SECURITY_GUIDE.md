@@ -23,3 +23,13 @@ Also check `.gitignore` for local signing material:
 ```
 
 The tool redacts obvious credential values, but reports may still include preset names and local paths.
+
+## Placeholders
+
+Some teams keep harmless placeholders in `export_presets.cfg` and inject the real values in CI. Configure these explicitly so the report stays useful:
+
+```toml
+allowed_secret_patterns = ["<.+>", "set-in-ci"]
+```
+
+Keep the patterns narrow. This option is for placeholders, not for allowing real secrets in source control.

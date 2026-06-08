@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 - 2026-06-08
+
+- Added project-specific configuration for the three published packages:
+  asset thresholds, export placeholder handling, and mobile viewport budgets.
+- Added tests and documentation for the new configuration options.
+
 ## 0.1.1 - 2026-06-08
 
 - Improved the root README first-run guidance for new Godot users.
