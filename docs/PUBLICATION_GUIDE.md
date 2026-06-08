@@ -21,6 +21,19 @@ Publish the highest-demand packages first:
 
 Then publish the remaining packages once the first feedback cycle is complete.
 
+Use the manual `Publish Python Packages` GitHub workflow for releases. It builds the selected package, runs `twine check`, and publishes through PyPI Trusted Publishing.
+
+For new projects, create pending publishers in PyPI before the first workflow run:
+
+| PyPI project | GitHub owner | Repository | Workflow | Environment |
+|---|---|---|---|---|
+| `godot-project-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
+| `godot-asset-pipeline-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
+| `godot-export-preset-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
+| `godot-mobile-perf-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
+
+Run `godot-project-doctor` first. After that release succeeds, publish the other three packages one at a time so failures are easy to isolate.
+
 ## Godot community outreach
 
 Start with focused examples rather than broad claims:

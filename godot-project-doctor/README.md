@@ -5,7 +5,7 @@
 ## Install
 
 ```powershell
-python -m pip install -e C:\Temp\tools\godot-project-doctor
+python -m pip install -e .
 ```
 
 Install the standalone tools you want to run in the same environment.
