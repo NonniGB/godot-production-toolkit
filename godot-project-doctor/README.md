@@ -19,6 +19,10 @@ godot-project-doctor inspect path\to\godot-project
 godot-project-doctor recommend path\to\godot-project
 ```
 
+`inspect` reports the project shape, detected Godot signals, sample files, and
+the short check list it would start with. `recommend` adds priority, setup
+notes, and a dry-run command for each suggested check.
+
 Preview a starter config and workflow without writing files:
 
 ```powershell

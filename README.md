@@ -97,6 +97,10 @@ godot-project-doctor recommend path\to\godot-project
 godot-project-doctor init path\to\godot-project --dry-run --include-workflow
 ```
 
+`inspect` shows the project shape, sample files, detected addons/test
+frameworks, and the checks the toolkit would start with. `recommend` turns that
+scan into prioritized checks with setup notes and dry-run commands.
+
 Run checks and summarize the generated reports:
 
 ```powershell

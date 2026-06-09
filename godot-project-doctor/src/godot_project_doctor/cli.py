@@ -51,7 +51,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-project-doctor",
         description="Plan, run, and summarize the Godot production toolkit.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.2")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.3")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")
@@ -238,19 +238,48 @@ def _render_plan_text(plan: dict[str, object]) -> str:
 
 
 def _render_inspect_text(inspected: dict[str, object]) -> str:
+    details = inspected.get("details", {})
     lines = [
         "Godot Project Doctor Inspect",
         f"Project: {inspected['project']}",
-        "",
-        "Detected signals:",
     ]
+    if isinstance(details, dict) and details.get("project_name"):
+        lines.append(f"Name: {details['project_name']}")
+    if isinstance(details, dict):
+        lines.extend(
+            [
+                "",
+                "Project shape:",
+                f"- files: {details.get('file_count', 0)}",
+                f"- GDScript files: {details.get('gdscript_count', 0)}",
+                f"- PNG assets: {details.get('png_count', 0)}",
+                f"- localization files: {details.get('localization_count', 0)}",
+                f"- content data files: {details.get('content_file_count', 0)}",
+                f"- scenario result files: {details.get('scenario_result_count', 0)}",
+            ]
+        )
+        frameworks = details.get("test_frameworks", [])
+        if frameworks:
+            lines.append(f"- test frameworks: {', '.join(str(item) for item in frameworks)}")
+    lines.extend(["", "Detected signals:"])
     features = inspected["features"]
     for key, value in sorted(features.items()):
         label = "yes" if value else "no"
         lines.append(f"- {key.replace('_', ' ')}: {label}")
+    if isinstance(details, dict):
+        sample_paths = details.get("sample_paths", {})
+        if isinstance(sample_paths, dict):
+            visible_samples = [
+                f"{group}: {', '.join(paths)}"
+                for group, paths in sample_paths.items()
+                if isinstance(paths, list) and paths
+            ]
+            if visible_samples:
+                lines.extend(["", "Sample files:"])
+                lines.extend(f"- {sample}" for sample in visible_samples)
     lines.extend(["", "Recommended checks:"])
     for item in inspected["recommendations"]:
-        lines.append(f"- {item['id']}: {item['reason']}")
+        lines.append(f"- {item['id']}: {item['reason']} ({item.get('priority', 'normal')}; {item.get('config', 'ready')})")
     return "\n".join(lines)
 
 
@@ -267,6 +296,8 @@ def _render_recommend_text(payload: dict[str, object]) -> str:
                 f"  Reason: {item['reason']}",
                 f"  Why it helps: {item['why']}",
                 f"  Use it: {item['when']}",
+                f"  Setup: {item.get('config', 'ready from project path')}",
+                f"  Try: {item.get('command', 'godot-project-doctor run --project <project> --checks ' + item['id'] + ' --dry-run')}",
             ]
         )
     return "\n".join(lines)

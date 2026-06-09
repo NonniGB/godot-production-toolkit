@@ -163,7 +163,8 @@ def inspect_project(project: Path) -> dict[str, Any]:
     files = _project_files(root)
     suffixes = {path.suffix.lower() for path in files}
     names = {path.name.lower() for path in files}
-    rel_paths = {path.relative_to(root).as_posix() for path in files if path.is_relative_to(root)}
+    rel_paths = sorted(path.relative_to(root).as_posix() for path in files if path.is_relative_to(root))
+    test_frameworks = _detect_test_frameworks(rel_paths, names)
     features = {
         "project_file": (root / "project.godot").exists(),
         "export_presets": (root / "export_presets.cfg").exists(),
@@ -189,19 +190,53 @@ def inspect_project(project: Path) -> dict[str, Any]:
             path.startswith(("data/", "content/", "resources/")) and path.endswith((".json", ".csv", ".toml"))
             for path in rel_paths
         ),
-        "test_framework_likely": bool({"gut", "gdunit4"} & names)
-        or any("addons/gut" in path.lower() or "addons/gdunit4" in path.lower() for path in rel_paths),
+        "test_framework_likely": bool(test_frameworks),
     }
-    recommendations = recommend_checks_from_features(features)
+    details = {
+        "project_name": _project_name(root / "project.godot"),
+        "file_count": len(files),
+        "gdscript_count": sum(1 for path in files if path.suffix.lower() == ".gd"),
+        "png_count": sum(1 for path in files if path.suffix.lower() == ".png"),
+        "import_count": sum(1 for path in files if path.suffix.lower() == ".import"),
+        "localization_count": sum(1 for path in files if path.suffix.lower() in {".csv", ".po", ".pot", ".mo"}),
+        "content_file_count": sum(
+            1
+            for path in rel_paths
+            if path.startswith(("data/", "content/", "resources/")) and path.endswith((".json", ".csv", ".toml"))
+        ),
+        "scenario_result_count": sum(
+            1
+            for path in rel_paths
+            if ("scenario" in path.lower() or "smoke" in path.lower()) and path.endswith(".json")
+        ),
+        "test_frameworks": test_frameworks,
+        "sample_paths": {
+            "scripts": _sample_paths(rel_paths, lambda path: path.endswith(".gd")),
+            "assets": _sample_paths(rel_paths, lambda path: path.endswith((".png", ".import"))),
+            "content": _sample_paths(
+                rel_paths,
+                lambda path: path.startswith(("data/", "content/", "resources/"))
+                and path.endswith((".json", ".csv", ".toml")),
+            ),
+            "localization": _sample_paths(rel_paths, lambda path: path.endswith((".csv", ".po", ".pot", ".mo"))),
+            "scenario_results": _sample_paths(
+                rel_paths,
+                lambda path: ("scenario" in path.lower() or "smoke" in path.lower()) and path.endswith(".json"),
+            ),
+        },
+    }
+    recommendations = recommend_checks_from_features(features, str(root))
     return {
         "tool": "godot-project-doctor",
         "project": str(root),
         "features": features,
+        "details": details,
         "recommendations": recommendations,
+        "suggested_checks": [item["id"] for item in recommendations[:6]],
     }
 
 
-def recommend_checks_from_features(features: dict[str, Any]) -> list[dict[str, str]]:
+def recommend_checks_from_features(features: dict[str, Any], project: str | None = None) -> list[dict[str, str]]:
     recommended: list[dict[str, str]] = []
     rules = [
         ("export", bool(features.get("export_presets")), "export_presets.cfg is present."),
@@ -214,34 +249,20 @@ def recommend_checks_from_features(features: dict[str, Any]) -> list[dict[str, s
         ("save_schema", bool(features.get("save_fixtures_likely")), "Save-like JSON/TOML fixtures were found."),
         ("visual_smoke", bool(features.get("visual_smoke_likely")), "Visual/screenshot files or folders were found."),
         ("content_graph", bool(features.get("content_data_likely")), "Data/content JSON, CSV, or TOML files were found."),
-        ("scenario_report", bool(features.get("scenario_results_likely")), "Scenario result JSON files were found."),
+        (
+            "scenario_report",
+            bool(features.get("scenario_results_likely") or features.get("test_framework_likely")),
+            "Scenario results or a Godot test framework were found.",
+        ),
         ("mobile_ui", bool(features.get("mobile_ui_metadata_likely")), "Mobile UI metadata files were found."),
         ("architecture", bool(features.get("gdscript_files")), "GDScript files were found."),
     ]
     for check_id, enabled, reason in rules:
         if enabled:
-            guidance = CHECK_GUIDANCE[check_id]
-            recommended.append(
-                {
-                    "id": check_id,
-                    "title": _title_for_check(check_id),
-                    "reason": reason,
-                    "why": guidance["why"],
-                    "when": guidance["when"],
-                }
-            )
+            recommended.append(_recommendation(check_id, reason, project))
     if not recommended:
         for check_id in ("export", "assets", "input", "mobile_perf"):
-            guidance = CHECK_GUIDANCE[check_id]
-            recommended.append(
-                {
-                    "id": check_id,
-                    "title": _title_for_check(check_id),
-                    "reason": "Good first check for a Godot project.",
-                    "why": guidance["why"],
-                    "when": guidance["when"],
-                }
-            )
+            recommended.append(_recommendation(check_id, "Good first check for a Godot project.", project))
     return recommended
 
 
@@ -561,6 +582,65 @@ def _file_contains(path: Path, needle: str) -> bool:
         return needle in path.read_text(encoding="utf-8", errors="ignore")
     except OSError:
         return False
+
+
+def _project_name(project_file: Path) -> str | None:
+    if not project_file.exists():
+        return None
+    try:
+        for line in project_file.read_text(encoding="utf-8", errors="ignore").splitlines():
+            stripped = line.strip()
+            if stripped.startswith("config/name="):
+                return stripped.split("=", 1)[1].strip().strip('"')
+    except OSError:
+        return None
+    return None
+
+
+def _sample_paths(paths: list[str], predicate: Any, limit: int = 5) -> list[str]:
+    return [path for path in paths if predicate(path)][:limit]
+
+
+def _detect_test_frameworks(paths: list[str], names: set[str]) -> list[str]:
+    frameworks: list[str] = []
+    if "gut" in names or any("addons/gut" in path.lower() for path in paths):
+        frameworks.append("GUT")
+    if "gdunit4" in names or any("addons/gdunit4" in path.lower() for path in paths):
+        frameworks.append("GdUnit4")
+    return frameworks
+
+
+def _recommendation(check_id: str, reason: str, project: str | None) -> dict[str, str]:
+    guidance = CHECK_GUIDANCE[check_id]
+    config_hint = _config_hint(check_id)
+    command_project = project or "<project>"
+    return {
+        "id": check_id,
+        "title": _title_for_check(check_id),
+        "priority": _priority_for_check(check_id),
+        "reason": reason,
+        "why": guidance["why"],
+        "when": guidance["when"],
+        "config": config_hint,
+        "command": f"godot-project-doctor run --project {command_project} --checks {check_id} --dry-run",
+    }
+
+
+def _priority_for_check(check_id: str) -> str:
+    if check_id in {"export", "assets", "input", "localization", "mobile_perf", "content_graph"}:
+        return "high"
+    if check_id in {"api_comments", "signals", "architecture", "scenario_report"}:
+        return "medium"
+    return "specialized"
+
+
+def _config_hint(check_id: str) -> str:
+    for spec in TOOL_REGISTRY:
+        if spec.id == check_id:
+            if spec.required_config:
+                return f"needs config: {', '.join(spec.required_config)}"
+            return "ready from project path"
+    return "ready from project path"
 
 
 def _title_for_check(check_id: str) -> str:

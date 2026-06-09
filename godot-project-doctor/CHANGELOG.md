@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 - 2026-06-09
+
+- Expanded `inspect` with project shape counts, sample paths, project name detection, and test framework hints.
+- Updated `recommend` output with priority labels, setup notes, and ready-to-try command hints.
+- Improved recommendations for projects with GUT/GdUnit4 or scenario-style test evidence.
+
 ## 0.1.2 - 2026-06-09
 
 - Added `collect` to write a compact evidence folder with manifest and summary reports.

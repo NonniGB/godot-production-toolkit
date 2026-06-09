@@ -100,8 +100,12 @@ window/handheld/orientation=1
             (root / "export_presets.cfg").write_text("[preset.0]\nplatform=\"Android\"\n", encoding="utf-8")
             (root / "assets").mkdir()
             (root / "assets" / "icon.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+            (root / "scripts").mkdir()
+            (root / "scripts" / "player.gd").write_text("extends Node\n", encoding="utf-8")
             (root / "data").mkdir()
             (root / "data" / "items.json").write_text("[]", encoding="utf-8")
+            (root / "addons" / "gut").mkdir(parents=True)
+            (root / "addons" / "gut" / "plugin.cfg").write_text("[plugin]\nname=\"GUT\"\n", encoding="utf-8")
             (root / "reports").mkdir()
             (root / "reports" / "mobile-ui.json").write_text("{}", encoding="utf-8")
 
@@ -112,15 +116,28 @@ window/handheld/orientation=1
             self.assertTrue(inspected["features"]["export_presets"])
             self.assertTrue(inspected["features"]["png_assets"])
             self.assertTrue(inspected["features"]["content_data_likely"])
+            self.assertEqual(inspected["details"]["project_name"], "Tiny Project")
+            self.assertEqual(inspected["details"]["gdscript_count"], 1)
+            self.assertIn("GUT", inspected["details"]["test_frameworks"])
+            self.assertIn("scripts/player.gd", inspected["details"]["sample_paths"]["scripts"])
+            self.assertIn("assets/icon.png", inspected["details"]["sample_paths"]["assets"])
+            self.assertIn("export", inspected["suggested_checks"])
 
             recommend_stdout = StringIO()
             with redirect_stdout(recommend_stdout):
                 self.assertEqual(main(["recommend", str(root), "--format", "json"]), 0)
-            recommended = {item["id"] for item in json.loads(recommend_stdout.getvalue())["recommendations"]}
+            recommendation_payload = json.loads(recommend_stdout.getvalue())
+            recommended = {item["id"] for item in recommendation_payload["recommendations"]}
             self.assertIn("export", recommended)
             self.assertIn("assets", recommended)
             self.assertIn("content_graph", recommended)
             self.assertIn("mobile_ui", recommended)
+            self.assertIn("scenario_report", recommended)
+            export = next(item for item in recommendation_payload["recommendations"] if item["id"] == "export")
+            self.assertEqual(export["priority"], "high")
+            self.assertIn("godot-project-doctor run --project", export["command"])
+            mobile_ui = next(item for item in recommendation_payload["recommendations"] if item["id"] == "mobile_ui")
+            self.assertIn("needs config", mobile_ui["config"])
 
     def test_plan_includes_mobile_ui_when_metadata_is_configured(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -290,7 +307,7 @@ metadata = "reports/mobile-ui.json"
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.1.2", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.1.3", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -305,7 +322,7 @@ metadata = "reports/mobile-ui.json"
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.1.2", completed.stdout)
+        self.assertIn("godot-project-doctor 0.1.3", completed.stdout)
 
 
 if __name__ == "__main__":

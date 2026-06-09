@@ -23,6 +23,10 @@
   "recommended_commands": [
     {
       "purpose": "Inspect a project and recommend checks",
+      "command": "godot-project-doctor inspect <project> --format json"
+    },
+    {
+      "purpose": "Show prioritized check recommendations",
       "command": "godot-project-doctor recommend <project>"
     },
     {
