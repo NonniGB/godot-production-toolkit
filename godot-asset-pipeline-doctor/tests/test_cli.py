@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import wave
 
 from PIL import Image
 
@@ -61,7 +62,7 @@ class CliTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 1)
-            self.assertEqual(report["metadata"]["schema_version"], "1.1")
+            self.assertEqual(report["metadata"]["schema_version"], "1.2")
             self.assertEqual(report["metadata"]["tool_version"], "0.1.6")
             self.assertEqual(report["summary"]["asset_count"], 1)
             self.assertGreaterEqual(report["summary"]["warning_count"], 1)
@@ -70,6 +71,44 @@ class CliTests(unittest.TestCase):
             self.assertEqual(transparent_edge["title"], "Transparent edge RGB data")
             self.assertIn("bleed into visible edges", transparent_edge["explanation"])
             self.assertIn("transparent_edge_rgb", report["rules"])
+
+    def test_cli_audio_mobile_profile_reports_audio_assets(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project = Path(tmp_dir)
+            audio_path = project / "audio" / "music.wav"
+            audio_path.parent.mkdir()
+            with wave.open(str(audio_path), "wb") as handle:
+                handle.setnchannels(1)
+                handle.setsampwidth(2)
+                handle.setframerate(8000)
+                handle.writeframes(b"\x00\x00" * 8000)
+
+            stdout = StringIO()
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        str(project),
+                        "--profile",
+                        "audio-mobile",
+                        "--large-audio-mb",
+                        "0.001",
+                        "--max-audio-duration-seconds",
+                        "0.5",
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["image_asset_count"], 0)
+            self.assertEqual(report["summary"]["audio_asset_count"], 1)
+            self.assertEqual(report["audio_assets"][0]["audio"]["format"], "wav")
+            issue_codes = {issue["code"] for issue in report["issues"]}
+            self.assertIn("audio_file_large", issue_codes)
+            self.assertIn("audio_duration_long", issue_codes)
 
     def test_cli_uses_toml_config_defaults_when_arguments_are_not_provided(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -167,6 +206,8 @@ class CliTests(unittest.TestCase):
                 ["--max-texture-dimension", "0"],
                 ["--large-texture-mb", "0"],
                 ["--max-palette-colors", "0"],
+                ["--large-audio-mb", "0"],
+                ["--max-audio-duration-seconds", "0"],
             ]
 
             for extra_args in cases:

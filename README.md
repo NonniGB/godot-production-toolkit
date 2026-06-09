@@ -148,7 +148,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 |---|---|---|
 | `godot-project-doctor` | Umbrella CLI for planning, running, summarizing, and comparing the suite. | JSON, Markdown, HTML |
 | `godot-ci-doctor-action` | GitHub composite action wrapper. | JSON, Markdown, HTML artifacts |
-| `godot-asset-pipeline-doctor` | PNG and `.import` checks for pixel art and mobile memory risks. | JSON, SARIF |
+| `godot-asset-pipeline-doctor` | PNG/audio and `.import` checks for pixel art, mobile memory, and package-size risks. | JSON, SARIF |
 | `godot-content-graph-doctor` | Data-driven content id, reference, and numeric outlier checks. | JSON, Markdown, Mermaid |
 | `godot-export-preset-doctor` | Release-readiness checks for `export_presets.cfg`. | JSON, SARIF |
 | `gdscript-api-comment-coverage` | Public GDScript API docs and comment coverage gate. | JSON, Markdown |

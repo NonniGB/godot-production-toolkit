@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+- Added an `audio-mobile` profile for WAV, OGG, and MP3 budget checks.
+- Added audio file-size, WAV duration, large uncompressed audio, and missing import-metadata warnings.
+- Added configurable `large_audio_mb` and `max_audio_duration_seconds` thresholds.
+
 ## 0.1.6 - 2026-06-09
 
 - Added report metadata with schema version, tool version, root, profile, and supported output formats.

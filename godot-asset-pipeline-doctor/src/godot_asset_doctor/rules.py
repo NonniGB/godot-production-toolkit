@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from godot_asset_doctor.models import AssetRecord, Issue, RuleSettings
+from godot_asset_doctor.models import AssetRecord, AudioRecord, Issue, RuleSettings
 
 
 def evaluate_asset(asset: AssetRecord, profile: str, settings: RuleSettings | None = None) -> list[Issue]:
@@ -12,6 +12,8 @@ def evaluate_asset(asset: AssetRecord, profile: str, settings: RuleSettings | No
         issues.extend(_pixel_2d_rules(asset, rule_settings))
     elif profile == "android-mobile":
         issues.extend(_android_mobile_rules(asset, rule_settings))
+    elif profile == "audio-mobile":
+        return []
     elif profile == "default":
         issues.extend(_pixel_2d_rules(asset, rule_settings))
         issues.extend(_android_mobile_rules(asset, rule_settings))
@@ -19,6 +21,13 @@ def evaluate_asset(asset: AssetRecord, profile: str, settings: RuleSettings | No
         raise ValueError(f"Unknown profile: {profile}")
 
     return issues
+
+
+def evaluate_audio_asset(asset: AudioRecord, profile: str, settings: RuleSettings | None = None) -> list[Issue]:
+    rule_settings = settings or RuleSettings()
+    if profile not in {"default", "android-mobile", "audio-mobile"}:
+        return []
+    return _audio_mobile_rules(asset, rule_settings)
 
 
 def _common_rules(asset: AssetRecord, settings: RuleSettings) -> list[Issue]:
@@ -124,6 +133,61 @@ def _android_mobile_rules(asset: AssetRecord, settings: RuleSettings) -> list[Is
                 code="texture_memory_large",
                 message=f"Texture would occupy about {mib:.1f} MiB as RGBA in memory.",
                 suggestion="Reduce dimensions, use atlases carefully, or review compression/import settings for mobile builds.",
+            )
+        )
+
+    return issues
+
+
+def _audio_mobile_rules(asset: AudioRecord, settings: RuleSettings) -> list[Issue]:
+    issues: list[Issue] = []
+    audio = asset.audio
+
+    if asset.import_metadata is None:
+        issues.append(
+            Issue(
+                path=asset.path,
+                severity="warning",
+                code="missing_audio_import_metadata",
+                message="Audio file has no adjacent Godot .import metadata file.",
+                suggestion="Open the project in Godot or reimport audio before relying on import-setting checks.",
+            )
+        )
+
+    if audio.file_size_bytes >= settings.large_audio_bytes:
+        mib = audio.file_size_bytes / (1024 * 1024)
+        issues.append(
+            Issue(
+                path=asset.path,
+                severity="warning",
+                code="audio_file_large",
+                message=f"Audio source file is {mib:.1f} MiB, above the configured mobile budget.",
+                suggestion="Review compression, streaming settings, or whether this clip belongs in a lower-memory build.",
+            )
+        )
+
+    if audio.duration_seconds is not None and audio.duration_seconds > settings.max_audio_duration_seconds:
+        issues.append(
+            Issue(
+                path=asset.path,
+                severity="warning",
+                code="audio_duration_long",
+                message=(
+                    f"Audio duration is {audio.duration_seconds:.1f}s, above the configured "
+                    f"{settings.max_audio_duration_seconds:.1f}s budget."
+                ),
+                suggestion="Use streaming/compressed import settings for long music, ambience, or narration tracks.",
+            )
+        )
+
+    if audio.format == "wav" and audio.file_size_bytes >= settings.large_audio_bytes:
+        issues.append(
+            Issue(
+                path=asset.path,
+                severity="warning",
+                code="large_uncompressed_audio",
+                message="Large WAV files can create avoidable package size and memory pressure.",
+                suggestion="Keep WAV for short effects; consider OGG/MP3 or streaming import settings for longer clips.",
             )
         )
 

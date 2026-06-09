@@ -4,8 +4,8 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from godot_asset_doctor.models import AssetRecord, ImportMetadata, PngInfo, RuleSettings
-from godot_asset_doctor.rules import evaluate_asset
+from godot_asset_doctor.models import AssetRecord, AudioInfo, AudioRecord, ImportMetadata, PngInfo, RuleSettings
+from godot_asset_doctor.rules import evaluate_asset, evaluate_audio_asset
 
 
 class RuleTests(unittest.TestCase):
@@ -96,6 +96,32 @@ class RuleTests(unittest.TestCase):
         self.assertIn("texture_dimension_too_large", issue_codes)
         self.assertIn("texture_memory_large", issue_codes)
         self.assertIn("large_palette", issue_codes)
+
+    def test_audio_mobile_profile_flags_large_long_unimported_audio(self) -> None:
+        asset = AudioRecord(
+            path=Path("audio/music.wav"),
+            audio=AudioInfo(
+                path=Path("audio/music.wav"),
+                format="wav",
+                file_size_bytes=4096,
+                duration_seconds=61.0,
+                sample_rate_hz=44100,
+                channels=2,
+            ),
+            import_metadata=None,
+        )
+
+        issues = evaluate_audio_asset(
+            asset,
+            profile="audio-mobile",
+            settings=RuleSettings(large_audio_bytes=1024, max_audio_duration_seconds=30.0),
+        )
+        issue_codes = {issue.code for issue in issues}
+
+        self.assertIn("missing_audio_import_metadata", issue_codes)
+        self.assertIn("audio_file_large", issue_codes)
+        self.assertIn("audio_duration_long", issue_codes)
+        self.assertIn("large_uncompressed_audio", issue_codes)
 
 
 if __name__ == "__main__":

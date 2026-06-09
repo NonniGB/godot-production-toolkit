@@ -21,3 +21,5 @@ This is intentionally conservative. Runtime memory depends on compression, impor
 - Keep UI and sprite atlases scoped by scene or feature instead of building one huge atlas.
 - Re-run the scan before Android export.
 
+For audio-heavy projects, pair this with the `audio-mobile` profile described in
+[Audio asset guide](AUDIO_ASSETS.md).

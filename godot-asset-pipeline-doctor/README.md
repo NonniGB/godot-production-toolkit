@@ -1,8 +1,8 @@
 # Godot Asset Pipeline Doctor
 
-CI-friendly PNG and Godot `.import` checks for pixel-art and mobile asset pipelines.
+CI-friendly PNG, audio, and Godot `.import` checks for pixel-art and mobile asset pipelines.
 
-Use this before merging sprites, UI art, icons, backgrounds, or other PNG-heavy changes. It checks for import settings and texture shapes that commonly cause blurry pixel art, color fringes, or mobile memory surprises.
+Use this before merging sprites, UI art, icons, backgrounds, sound effects, or other asset-heavy changes. It checks for import settings and asset shapes that commonly cause blurry pixel art, color fringes, large packages, or mobile memory surprises.
 
 The tool is designed for generic Godot projects, including private commercial games. Public examples use placeholder project names and do not require publishing project-specific content. It does not need the Godot editor and does not run project scripts.
 
@@ -16,6 +16,8 @@ The tool is designed for generic Godot projects, including private commercial ga
 - Very large texture dimensions that may exceed conservative device limits.
 - Unexpectedly large palettes in pixel-art folders.
 - Sprite manifest dimension mismatches and out-of-bounds anchors.
+- Large or long audio clips that need compression or streaming review.
+- Missing Godot `.import` metadata next to audio files.
 
 ## Install
 
@@ -49,6 +51,12 @@ Android/mobile check with JSON output:
 
 ```powershell
 godot-asset-doctor C:\Projects\ArcadePrototype --profile android-mobile --format json --output asset-report.json
+```
+
+Audio-focused mobile check:
+
+```powershell
+godot-asset-doctor C:\Projects\ArcadePrototype --profile audio-mobile --large-audio-mb 6 --max-audio-duration-seconds 90
 ```
 
 Exclude generated or vendor folders:
@@ -98,6 +106,7 @@ godot-asset-doctor . --profile android-mobile --fail-on error --format sarif --o
 | `default` | Balanced local scan; combines pixel and mobile warnings. |
 | `pixel-2d` | Sprites, UI, icons, tiles, and crisp 2D assets. |
 | `android-mobile` | Mobile release review, especially large textures and missing import data. |
+| `audio-mobile` | Mobile/package-size review for WAV, OGG, and MP3 assets. |
 
 ## Exit Codes
 
@@ -120,6 +129,8 @@ exclude = ["addons/vendor/**", "assets/generated/**"]
 max_texture_dimension = 4096
 large_texture_mb = 16
 max_palette_colors = 256
+large_audio_mb = 8
+max_audio_duration_seconds = 120
 ```
 
 Then run:
@@ -155,6 +166,7 @@ local and CI reports are easier to compare.
 - [Configuration](docs/CONFIGURATION.md)
 - [Pixel-art workflow](docs/PIXEL_ART.md)
 - [Mobile texture guide](docs/MOBILE_TEXTURES.md)
+- [Audio asset guide](docs/AUDIO_ASSETS.md)
 - [Sprite manifests](docs/SPRITE_MANIFESTS.md)
 - [CI usage](docs/CI.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)

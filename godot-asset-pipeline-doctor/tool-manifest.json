@@ -9,6 +9,8 @@
     "human_output": ["text", "markdown docs"],
     "report_metadata": true,
     "plain_language_rule_help": true,
+    "asset_types": ["png", "wav", "ogg", "mp3"],
+    "profiles": ["default", "pixel-2d", "android-mobile", "audio-mobile"],
     "visual_interface": "none"
   },
   "run_behavior": {
@@ -26,6 +28,10 @@
     {
       "purpose": "Script-friendly JSON audit",
       "command": "godot-asset-doctor <project> --profile android-mobile --format json --output asset-report.json --fail-on none"
+    },
+    {
+      "purpose": "Audio budget audit",
+      "command": "godot-asset-doctor <project> --profile audio-mobile --format json --output audio-asset-report.json --fail-on none"
     },
     {
       "purpose": "Strict CI gate",

@@ -10,9 +10,25 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Large palette",
         "explanation": "A pixel-art profile asset uses more unique colors than the configured palette threshold.",
     },
+    "audio_duration_long": {
+        "title": "Long audio clip",
+        "explanation": "Long clips are more likely to need streaming or compression review on memory-constrained targets.",
+    },
+    "audio_file_large": {
+        "title": "Large audio file",
+        "explanation": "Large source audio can increase download size, install size, and mobile memory pressure.",
+    },
+    "large_uncompressed_audio": {
+        "title": "Large uncompressed audio",
+        "explanation": "Large WAV files are useful for short effects but risky for music, ambience, and narration.",
+    },
     "missing_import_metadata": {
         "title": "Missing Godot import metadata",
         "explanation": "The PNG does not have a neighboring .import file, so import-setting checks cannot fully run.",
+    },
+    "missing_audio_import_metadata": {
+        "title": "Missing audio import metadata",
+        "explanation": "The audio file does not have a neighboring .import file, so import-setting checks cannot fully run.",
     },
     "pixel_mipmaps_enabled": {
         "title": "Mipmaps enabled for pixel art",

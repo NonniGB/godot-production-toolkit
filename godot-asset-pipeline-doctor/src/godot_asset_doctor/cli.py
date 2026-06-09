@@ -33,14 +33,23 @@ def main(argv: list[str] | None = None) -> int:
         max_texture_dimension=_configured_int(args.max_texture_dimension, config, "max_texture_dimension", 4096),
         large_texture_bytes=_configured_mib(args.large_texture_mb, config, "large_texture_mb", 16),
         max_palette_colors=_configured_int(args.max_palette_colors, config, "max_palette_colors", 256),
+        large_audio_bytes=_configured_mib(args.large_audio_mb, config, "large_audio_mb", 8),
+        max_audio_duration_seconds=_configured_float(
+            args.max_audio_duration_seconds,
+            config,
+            "max_audio_duration_seconds",
+            120.0,
+        ),
     )
 
-    _validate_choice(parser, "profile", profile, {"default", "pixel-2d", "android-mobile"})
+    _validate_choice(parser, "profile", profile, {"default", "pixel-2d", "android-mobile", "audio-mobile"})
     _validate_choice(parser, "format", output_format, {"text", "json", "sarif"})
     _validate_choice(parser, "fail_on", fail_on, {"none", "warning", "error"})
     _validate_positive(parser, "max-texture-dimension", rule_settings.max_texture_dimension)
     _validate_positive(parser, "large-texture-mb", rule_settings.large_texture_bytes)
     _validate_positive(parser, "max-palette-colors", rule_settings.max_palette_colors)
+    _validate_positive(parser, "large-audio-mb", rule_settings.large_audio_bytes)
+    _validate_float_positive(parser, "max-audio-duration-seconds", rule_settings.max_audio_duration_seconds)
 
     report = scan_project(project_root, profile=profile, exclude_globs=exclude_globs, rule_settings=rule_settings)
     if output_format == "json":
@@ -63,13 +72,13 @@ def main(argv: list[str] | None = None) -> int:
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="godot-asset-doctor",
-        description="Scan Godot PNG assets and .import metadata for pixel-art and mobile release risks.",
+        description="Scan Godot image/audio assets and .import metadata for release risks.",
     )
     parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.6")
     parser.add_argument("path", nargs="?", default=".", help="Godot project directory to scan.")
     parser.add_argument(
         "--profile",
-        choices=["default", "pixel-2d", "android-mobile"],
+        choices=["default", "pixel-2d", "android-mobile", "audio-mobile"],
         default=None,
         help="Rule profile to apply.",
     )
@@ -108,6 +117,18 @@ def _build_parser() -> argparse.ArgumentParser:
         type=int,
         default=None,
         help="Maximum unique RGBA color count before a pixel-art palette warning is reported.",
+    )
+    parser.add_argument(
+        "--large-audio-mb",
+        type=float,
+        default=None,
+        help="Source audio MiB threshold before a mobile audio-size warning is reported.",
+    )
+    parser.add_argument(
+        "--max-audio-duration-seconds",
+        type=float,
+        default=None,
+        help="WAV duration threshold before a long-audio warning is reported.",
     )
     parser.add_argument(
         "--fix-suggestions",
@@ -185,12 +206,27 @@ def _configured_mib(cli_value: float | None, config: dict[str, object], key: str
     return int(mib * 1024 * 1024)
 
 
+def _configured_float(cli_value: float | None, config: dict[str, object], key: str, default: float) -> float:
+    if cli_value is not None:
+        return cli_value
+    value = config.get(key, default)
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def _validate_choice(parser: argparse.ArgumentParser, name: str, value: str | None, choices: set[str]) -> None:
     if value not in choices:
         parser.error(f"invalid {name} value {value!r}; choose one of {sorted(choices)}")
 
 
 def _validate_positive(parser: argparse.ArgumentParser, name: str, value: int) -> None:
+    if value <= 0:
+        parser.error(f"--{name} must be greater than zero")
+
+
+def _validate_float_positive(parser: argparse.ArgumentParser, name: str, value: float) -> None:
     if value <= 0:
         parser.error(f"--{name} must be greater than zero")
 

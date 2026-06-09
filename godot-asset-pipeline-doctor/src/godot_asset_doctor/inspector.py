@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+import wave
 
 from PIL import Image
 
-from godot_asset_doctor.models import PngInfo
+from godot_asset_doctor.models import AudioInfo, PngInfo
 
 
 def inspect_png(path: Path) -> PngInfo:
@@ -44,6 +45,30 @@ def inspect_png(path: Path) -> PngInfo:
         contaminated_transparent_edge_pixel_count=edge_contaminated_count,
         estimated_rgba_bytes=width * height * 4,
     )
+
+
+def inspect_audio(path: Path) -> AudioInfo:
+    """Inspect audio file size and basic WAV metadata without decoding samples."""
+    suffix = path.suffix.lower().lstrip(".")
+    file_size = path.stat().st_size
+    if suffix == "wav":
+        try:
+            with wave.open(str(path), "rb") as handle:
+                frame_count = handle.getnframes()
+                sample_rate = handle.getframerate()
+                channels = handle.getnchannels()
+            duration = frame_count / sample_rate if sample_rate else None
+            return AudioInfo(
+                path=path,
+                format="wav",
+                file_size_bytes=file_size,
+                duration_seconds=duration,
+                sample_rate_hz=sample_rate,
+                channels=channels,
+            )
+        except (EOFError, OSError, wave.Error):
+            return AudioInfo(path=path, format="wav", file_size_bytes=file_size)
+    return AudioInfo(path=path, format=suffix or "unknown", file_size_bytes=file_size)
 
 
 def _count_contaminated_edge_pixels(

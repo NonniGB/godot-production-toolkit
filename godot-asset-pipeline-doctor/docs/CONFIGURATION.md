@@ -19,6 +19,8 @@ exclude = ["addons/vendor/**", "assets/generated/**"]
 max_texture_dimension = 4096
 large_texture_mb = 16
 max_palette_colors = 256
+large_audio_mb = 8
+max_audio_duration_seconds = 120
 ```
 
 Run with the default project-local config:
@@ -44,6 +46,7 @@ Allowed values:
 - `default`
 - `pixel-2d`
 - `android-mobile`
+- `audio-mobile`
 
 ### `format`
 
@@ -94,6 +97,18 @@ This is based on uncompressed RGBA memory, not source PNG file size.
 Maximum unique RGBA color count before `large_palette` is reported in pixel-art profiles. The default is `256`.
 
 Lower this for tight sprite palettes, or raise it for painted UI and background art that still lives in the same asset tree.
+
+### `large_audio_mb`
+
+Source audio file-size threshold, in MiB, before `audio_file_large` is reported. The default is `8`.
+
+Lower this for strict mobile/web builds. Raise it for projects that intentionally ship longer music or narration.
+
+### `max_audio_duration_seconds`
+
+WAV duration threshold before `audio_duration_long` is reported. The default is `120`.
+
+This check only reports duration when the tool can read the WAV header. OGG and MP3 files still receive file-size and import-metadata checks.
 
 ## Default Ignored Folders
 
