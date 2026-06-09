@@ -8,6 +8,7 @@ from pathlib import Path
 from godot_mobile_ui_doctor.audit import audit_mobile_ui, build_readiness_matrix
 from godot_mobile_ui_doctor.cli import main
 from godot_mobile_ui_doctor.loader import load_metadata
+from godot_mobile_ui_doctor.visual_smoke import load_visual_smoke_viewports
 
 
 class MobileUiDoctorTests(unittest.TestCase):
@@ -37,6 +38,60 @@ class MobileUiDoctorTests(unittest.TestCase):
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
             self.assertGreater(report["summary"]["warnings"], 0)
+
+    def test_cli_can_use_visual_smoke_plan_viewports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            plan = root / "visual-plan.json"
+            output = root / "report.json"
+            data = _sample_metadata()
+            data.pop("viewports")
+            metadata.write_text(json.dumps(data), encoding="utf-8")
+            plan.write_text(json.dumps(_visual_smoke_plan()), encoding="utf-8")
+
+            exit_code = main(
+                [
+                    str(metadata),
+                    "--visual-smoke-plan",
+                    str(plan),
+                    "--format",
+                    "json",
+                    "--output",
+                    str(output),
+                ]
+            )
+
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["viewports"], 1)
+            self.assertGreater(report["summary"]["warnings"], 0)
+
+    def test_matrix_can_use_visual_smoke_plan_viewports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            plan = root / "visual-plan.json"
+            data = _sample_metadata()
+            data.pop("viewports")
+            metadata.write_text(json.dumps(data), encoding="utf-8")
+            plan.write_text(json.dumps(_visual_smoke_plan()), encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["matrix", str(metadata), "--visual-smoke-plan", str(plan), "--fail-on", "none"])
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn("| main_menu | portrait_phone | 720x1280 | review |", stdout.getvalue())
+
+    def test_loads_visual_smoke_plan_viewports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "visual-plan.json"
+            path.write_text(json.dumps(_visual_smoke_plan()), encoding="utf-8")
+
+            viewports = load_visual_smoke_viewports(path)
+
+            self.assertEqual(viewports["portrait_phone"].safe_area.top, 48)
 
     def test_cli_can_fail_on_warnings(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -148,6 +203,27 @@ def _sample_metadata() -> dict[str, object]:
                         "interactive": True,
                     },
                 ],
+            }
+        ],
+    }
+
+
+def _visual_smoke_plan() -> dict[str, object]:
+    return {
+        "metadata": {"report_kind": "visual_smoke_capture_plan"},
+        "commands": [
+            {
+                "name": "main_menu",
+                "scene": "res://scenes/main_menu.tscn",
+                "viewport": {
+                    "name": "portrait_phone",
+                    "width": 720,
+                    "height": 1280,
+                    "safe_area": {"left": 0, "top": 48, "right": 0, "bottom": 24},
+                },
+                "output": "visual-smoke-output/main_menu.png",
+                "command": ["godot"],
+                "shell": "godot",
             }
         ],
     }

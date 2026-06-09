@@ -39,6 +39,13 @@ Build a screen-by-screen readiness matrix:
 godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports\mobile-ui-matrix.md
 ```
 
+Reuse viewport definitions from a visual smoke capture plan:
+
+```powershell
+godot-visual-smoke plan visual-smoke.toml --project . --format json --output reports\visual-plan.json
+godot-mobile-ui-doctor matrix mobile-ui.json --visual-smoke-plan reports\visual-plan.json --format markdown
+```
+
 ## Metadata Shape
 
 ```json
@@ -78,6 +85,11 @@ godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports\
 
 Coordinates are expected to be viewport pixels after layout. The tool does not
 need scene files or a Godot binary for this first metadata-based check.
+
+If the UI metadata omits `viewports`, pass `--visual-smoke-plan` with JSON from
+`godot-visual-smoke plan --format json`. Viewports in `mobile-ui.json` override
+matching visual-smoke viewport names, so project-specific layout exports can
+still take precedence.
 
 ## Checks
 

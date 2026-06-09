@@ -7,13 +7,15 @@ from typing import Any
 from .models import SafeArea, Screen, Thresholds, UiNode, Viewport
 
 
-def load_metadata(path: Path) -> tuple[dict[str, Viewport], list[Screen], Thresholds]:
+def load_metadata(
+    path: Path, *, require_viewports: bool = True
+) -> tuple[dict[str, Viewport], list[Screen], Thresholds]:
     raw = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(raw, dict):
         raise ValueError("UI metadata must be a JSON object.")
 
     thresholds = _load_thresholds(raw.get("thresholds", {}))
-    viewports = _load_viewports(raw)
+    viewports = _load_viewports(raw, required=require_viewports)
     screens = _load_screens(raw)
     return viewports, screens, thresholds
 
@@ -34,8 +36,10 @@ def _load_thresholds(raw: object) -> Thresholds:
     )
 
 
-def _load_viewports(raw: dict[str, Any]) -> dict[str, Viewport]:
+def _load_viewports(raw: dict[str, Any], *, required: bool = True) -> dict[str, Viewport]:
     viewports_raw = raw.get("viewports")
+    if viewports_raw is None and not required:
+        return {}
     if not isinstance(viewports_raw, list) or not viewports_raw:
         raise ValueError("viewports must be a non-empty list.")
 

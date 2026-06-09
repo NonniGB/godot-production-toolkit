@@ -7,6 +7,7 @@ import sys
 from .audit import audit_mobile_ui, build_readiness_matrix
 from .loader import load_metadata
 from .reporting import render_report
+from .visual_smoke import load_visual_smoke_viewports, merge_viewports
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -16,10 +17,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
 
-    try:
-        viewports, screens, thresholds = load_metadata(Path(args.metadata))
-    except (OSError, ValueError) as exc:
-        parser.error(str(exc))
+    viewports, screens, thresholds = _load_inputs(args, parser)
 
     report = audit_mobile_ui(viewports, screens, thresholds)
     _emit(render_report(report, args.format), args.output)
@@ -37,6 +35,10 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action="version", version="godot-mobile-ui-doctor 0.1.1")
     parser.add_argument("metadata", help="JSON file containing exported UI viewport and node metadata.")
+    parser.add_argument(
+        "--visual-smoke-plan",
+        help="Optional JSON output from `godot-visual-smoke plan --format json` used to supply viewport metadata.",
+    )
     parser.add_argument("--format", choices=["text", "json", "markdown"], default="text")
     parser.add_argument("--output", help="Write output to this file instead of stdout.")
     parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
@@ -49,15 +51,16 @@ def _matrix(argv: list[str]) -> int:
         description="Build a screen-by-screen mobile UI readiness matrix.",
     )
     parser.add_argument("metadata", help="JSON file containing exported UI viewport and node metadata.")
+    parser.add_argument(
+        "--visual-smoke-plan",
+        help="Optional JSON output from `godot-visual-smoke plan --format json` used to supply viewport metadata.",
+    )
     parser.add_argument("--format", choices=["text", "json", "markdown"], default="markdown")
     parser.add_argument("--output", help="Write output to this file instead of stdout.")
     parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
     args = parser.parse_args(argv)
 
-    try:
-        viewports, screens, thresholds = load_metadata(Path(args.metadata))
-    except (OSError, ValueError) as exc:
-        parser.error(str(exc))
+    viewports, screens, thresholds = _load_inputs(args, parser)
 
     report = build_readiness_matrix(viewports, screens, thresholds)
     _emit(render_report(report, args.format), args.output)
@@ -71,6 +74,20 @@ def _emit(rendered: str, output: str | None) -> None:
         output_path.write_text(rendered + "\n", encoding="utf-8")
     else:
         print(rendered)
+
+
+def _load_inputs(args: argparse.Namespace, parser: argparse.ArgumentParser):
+    try:
+        visual_smoke_viewports = (
+            load_visual_smoke_viewports(Path(args.visual_smoke_plan)) if args.visual_smoke_plan else {}
+        )
+        viewports, screens, thresholds = load_metadata(
+            Path(args.metadata),
+            require_viewports=not bool(visual_smoke_viewports),
+        )
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
+    return merge_viewports(visual_smoke_viewports, viewports), screens, thresholds
 
 
 def _exit_code(report: dict[str, object], fail_on: str) -> int:

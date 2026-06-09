@@ -7,6 +7,7 @@
     "cli": true,
     "machine_output": ["json"],
     "human_output": ["text", "markdown"],
+    "visual_smoke_plan_input": true,
     "visual_interface": "Markdown mobile UI readiness report"
   },
   "run_behavior": {
@@ -32,6 +33,10 @@
     {
       "purpose": "Create a screen-by-screen mobile readiness matrix",
       "command": "godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports/mobile-ui-matrix.md"
+    },
+    {
+      "purpose": "Create a readiness matrix using visual-smoke viewport definitions",
+      "command": "godot-mobile-ui-doctor matrix mobile-ui.json --visual-smoke-plan reports/visual-plan.json --format markdown --output reports/mobile-ui-matrix.md"
     }
   ]
 }

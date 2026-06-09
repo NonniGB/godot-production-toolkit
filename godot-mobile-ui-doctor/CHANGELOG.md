@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added `--visual-smoke-plan` for reusing viewport metadata from `godot-visual-smoke plan --format json`.
+
 ## 0.1.1 - 2026-06-09
 
 - Added `matrix` command for screen-by-screen mobile UI readiness reports.
