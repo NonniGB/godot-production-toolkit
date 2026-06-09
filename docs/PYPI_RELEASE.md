@@ -10,7 +10,7 @@ These packages are published as standalone PyPI distributions:
 |---|---:|
 | [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.2` |
 | [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.5` |
-| [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.0` |
+| [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.1` |
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.5` |
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.0` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.2` |
@@ -72,7 +72,7 @@ The first-release package workflows for `godot-content-graph-doctor`,
 `godot-mobile-ui-doctor` also accept package-specific tags:
 
 ```powershell
-git tag godot-content-graph-doctor-v0.1.0
+git tag godot-content-graph-doctor-v0.1.1
 git tag godot-scenario-report-kit-v0.1.0
 git tag godot-gdscript-architecture-guard-v0.1.0
 git tag godot-mobile-ui-doctor-v0.1.0

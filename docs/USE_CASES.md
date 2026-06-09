@@ -95,7 +95,7 @@ Use this before merging items, recipes, quests, dialogue, levels, enemies, or
 content-pack files:
 
 ```powershell
-godot-content-graph . --config content-graph.toml --format markdown --output reports\content-graph.md
+godot-content-graph . --preset recipes --format markdown --output reports\content-graph.md --fail-on none
 ```
 
 This helps catch:

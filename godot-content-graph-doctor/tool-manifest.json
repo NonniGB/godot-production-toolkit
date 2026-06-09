@@ -22,6 +22,14 @@
   },
   "recommended_commands": [
     {
+      "purpose": "List built-in content graph presets",
+      "command": "godot-content-graph <project> --list-presets"
+    },
+    {
+      "purpose": "Validate a common item and recipe graph without writing config",
+      "command": "godot-content-graph <project> --preset recipes --format json --output reports/content-graph.json"
+    },
+    {
       "purpose": "Validate content ids and references",
       "command": "godot-content-graph <project> --config content-graph.toml --format json --output reports/content-graph.json"
     },
@@ -31,4 +39,3 @@
     }
   ]
 }
-

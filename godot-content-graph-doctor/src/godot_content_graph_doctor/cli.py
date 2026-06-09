@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 
 from .config import load_config
+from .presets import BUILTIN_PRESETS, load_presets, merge_specs, render_preset_list
 from .reporting import render_report
 from .scanner import render_mermaid, validate_content_graph
 
@@ -13,9 +14,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     project = Path(args.project)
-    config_path = _resolve_config(project, Path(args.config))
     try:
-        specs = load_config(config_path)
+        if args.list_presets:
+            _emit(render_preset_list(), args.output)
+            return 0
+        if not args.config and not args.preset:
+            parser.error("provide --config, --preset, or --list-presets")
+        preset_specs = load_presets(args.preset or [])
+        config_specs = load_config(_resolve_config(project, Path(args.config))) if args.config else ()
+        specs = merge_specs(preset_specs, config_specs)
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
 
@@ -39,9 +46,16 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-content-graph",
         description="Validate data-driven Godot content ids, references, and numeric outliers.",
     )
-    parser.add_argument("--version", action="version", version="godot-content-graph 0.1.0")
+    parser.add_argument("--version", action="version", version="godot-content-graph 0.1.1")
     parser.add_argument("project", help="Godot project/content root.")
-    parser.add_argument("--config", required=True, help="Content graph TOML config.")
+    parser.add_argument("--config", help="Content graph TOML config. Overrides preset collections with the same names.")
+    parser.add_argument(
+        "--preset",
+        action="append",
+        choices=sorted(BUILTIN_PRESETS),
+        help="Use a built-in preset. Repeat to combine presets.",
+    )
+    parser.add_argument("--list-presets", action="store_true", help="List built-in presets and exit.")
     parser.add_argument("--format", choices=["text", "json", "markdown", "mermaid"], default="text")
     parser.add_argument("--output", help="Write output to this file instead of stdout.")
     parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")

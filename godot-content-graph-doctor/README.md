@@ -25,6 +25,19 @@ python -m pip install -e .\godot-content-graph-doctor
 godot-content-graph examples\tiny-content-project --config content-graph.toml
 ```
 
+Use a built-in preset when the project follows common data folder names:
+
+```powershell
+godot-content-graph path\to\godot-project --preset recipes
+godot-content-graph path\to\godot-project --preset quests --preset dialogue --format markdown
+```
+
+See available presets:
+
+```powershell
+godot-content-graph . --list-presets
+```
+
 Write machine-readable output:
 
 ```powershell
@@ -38,6 +51,10 @@ godot-content-graph examples\tiny-content-project --config content-graph.toml --
 ```
 
 ## Config Example
+
+Presets are useful for quick starts. A config file is still best when a project
+uses custom paths, field names, or references. Config collections with the same
+name as a preset collection override the preset.
 
 ```toml
 [collections.items]
@@ -68,6 +85,15 @@ uses the header row. TOML uses `items`, `data`, `rows`, or the collection name.
 Reference fields support simple dotted paths and list traversal with `[]`, such
 as `inputs[].item`.
 
+## Built-In Presets
+
+- `items`: `data/items.json` with common value, price, and weight summaries.
+- `recipes`: `data/items.json` plus `data/recipes.json` input/output item references.
+- `quests`: quest prerequisites and optional item rewards.
+- `dialogue`: dialogue speaker and next-node references.
+- `levels`: level references to item and enemy catalogs.
+- `content-pack`: overlay item packs under `mods/content_pack/items.json`.
+
 ## Checks
 
 - missing or duplicate ids;
@@ -87,4 +113,3 @@ as `inputs[].item`.
 - `0`: no findings at the selected threshold.
 - `1`: findings met the selected threshold.
 - `2`: CLI usage error.
-

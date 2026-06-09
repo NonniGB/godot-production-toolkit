@@ -113,7 +113,54 @@ collection = "items"
             self.assertIn("flowchart LR", stdout.getvalue())
             self.assertIn("recipes -->|output| items", stdout.getvalue())
 
+    def test_recipes_preset_runs_without_config_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "data").mkdir()
+            (root / "data" / "items.json").write_text(
+                json.dumps([{"id": "ore", "value": 2}, {"id": "bar", "value": 8}]),
+                encoding="utf-8",
+            )
+            (root / "data" / "recipes.json").write_text(
+                json.dumps(
+                    [
+                        {
+                            "id": "smelt",
+                            "inputs": [{"item": "ore"}],
+                            "outputs": [{"item": "bar"}],
+                            "craft_time": 4,
+                        },
+                        {
+                            "id": "broken",
+                            "inputs": [{"item": "missing"}],
+                            "outputs": [{"item": "bar"}],
+                            "craft_time": 5,
+                        },
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--preset", "recipes", "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["collections"], 2)
+            self.assertIn("recipes", report["collections"])
+            self.assertIn("missing_reference", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_list_presets_prints_human_readable_preset_names(self) -> None:
+        stdout = StringIO()
+
+        with redirect_stdout(stdout):
+            exit_code = main([".", "--list-presets"])
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("recipes", stdout.getvalue())
+        self.assertIn("content-pack", stdout.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()
-
