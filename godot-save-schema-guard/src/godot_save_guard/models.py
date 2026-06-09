@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .rule_help import explain_rule
+
 
 @dataclass(frozen=True)
 class Finding:
@@ -12,10 +14,13 @@ class Finding:
     message: str
 
     def to_dict(self) -> dict[str, object]:
+        help_text = explain_rule(self.rule_id)
         return {
             "rule_id": self.rule_id,
             "severity": self.severity,
             "json_path": self.json_path,
+            "title": help_text["title"],
+            "explanation": help_text["explanation"],
             "message": self.message,
         }
 

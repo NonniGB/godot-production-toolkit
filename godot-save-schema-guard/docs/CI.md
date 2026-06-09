@@ -9,3 +9,6 @@
 ```
 
 Keep at least one fixture per released save version.
+
+JSON and Markdown reports include readable rule explanations. Keep the report as
+a CI artifact when save compatibility failures need review outside the job log.

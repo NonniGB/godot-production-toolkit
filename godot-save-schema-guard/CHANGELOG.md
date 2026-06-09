@@ -4,6 +4,7 @@
 
 - Added `migrate-chain` for ordered save migration steps defined in TOML.
 - Added dry-run reports for migration chains so CI can review planned version paths before executing project-owned scripts.
+- Added report metadata and plain-language rule explanations to JSON, Markdown, and text output.
 
 ## 0.1.1 - 2026-06-09
 

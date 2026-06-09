@@ -35,6 +35,7 @@ godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir mig
 - Unexpected properties when `additionalProperties` is false.
 - Migration command failures.
 - Ordered migration chains from older save versions to the current format.
+- Report metadata and plain-language rule explanations for compatibility findings.
 
 ## Documentation
 

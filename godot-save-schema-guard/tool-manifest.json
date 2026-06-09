@@ -8,6 +8,8 @@
     "machine_output": ["json"],
     "human_output": ["text", "markdown report"],
     "migration_chain_config": true,
+    "report_metadata": true,
+    "plain_language_rule_help": true,
     "visual_interface": "none"
   },
   "run_behavior": {

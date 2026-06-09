@@ -28,6 +28,21 @@ class ReportingCliTests(unittest.TestCase):
 
         self.assertIn("# Save Compatibility Report", report)
         self.assertIn("| error | missing_version_field | saves/v1/save.json |", report)
+        self.assertIn("top-level version", report)
+
+    def test_markdown_report_escapes_table_cells(self) -> None:
+        report = render_markdown_report(
+            [
+                FixtureResult(
+                    Path("saves/v1/save|demo.json"),
+                    [Finding("unexpected_property", "warning", "$.items|debug", "Field contains | pipe")],
+                )
+            ]
+        )
+
+        self.assertIn("save\\|demo.json", report)
+        self.assertIn("$.items\\|debug", report)
+        self.assertIn("Field contains \\| pipe", report)
 
     def test_cli_validate_writes_json_and_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -44,7 +59,14 @@ class ReportingCliTests(unittest.TestCase):
             exit_code = main(["validate", str(fixture), "--schema", str(schema), "--format", "json", "--output", str(output)])
 
             self.assertEqual(exit_code, 1)
-            self.assertEqual(json.loads(output.read_text(encoding="utf-8"))["summary"]["errors"], 1)
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(report["metadata"]["schema_version"], "1.1")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.1")
+            self.assertEqual(report["summary"]["errors"], 1)
+            self.assertEqual(report["rules"]["numeric_type_drift"]["title"], "Numeric type drift")
+            finding = report["fixtures"][0]["findings"][0]
+            self.assertEqual(finding["title"], "Numeric type drift")
+            self.assertIn("saved as text", finding["explanation"])
 
     def test_cli_validate_reports_empty_fixture_directory(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

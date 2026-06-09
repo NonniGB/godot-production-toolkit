@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 
+from . import __version__
 from .models import FixtureResult
+from .rule_help import catalog_for, explain_rule
 
 
 def render_text_report(results: list[FixtureResult]) -> str:
@@ -14,7 +16,9 @@ def render_text_report(results: list[FixtureResult]) -> str:
     ]
     for result in results:
         for finding in result.findings:
-            lines.append(f"[{finding.severity.upper()}] {result.path} {finding.rule_id}: {finding.message}")
+            help_text = explain_rule(finding.rule_id)
+            lines.append(f"[{finding.severity.upper()}] {result.path} {help_text['title']}: {finding.message}")
+            lines.append(f"  Why it matters: {help_text['explanation']}")
     if not any(result.findings for result in results):
         lines.append("No findings.")
     return "\n".join(lines)
@@ -26,19 +30,22 @@ def render_markdown_report(results: list[FixtureResult]) -> str:
         "",
         f"Fixtures scanned: {len(results)}",
         "",
-        "| Severity | Rule | Fixture | JSON Path | Message |",
-        "|---|---|---|---|---|",
+        "| Severity | Rule | Fixture | JSON Path | Message | Why It Matters |",
+        "|---|---|---|---|---|---|",
     ]
     has_findings = False
     for result in results:
         for finding in result.findings:
             has_findings = True
-            fixture_path = result.path.as_posix()
+            fixture_path = _markdown_cell(result.path.as_posix())
+            help_text = explain_rule(finding.rule_id)
             lines.append(
-                f"| {finding.severity} | {finding.rule_id} | {fixture_path} | {finding.json_path} | {finding.message} |"
+                f"| {_markdown_cell(finding.severity)} | {_markdown_cell(finding.rule_id)} | {fixture_path} | "
+                f"{_markdown_cell(finding.json_path)} | {_markdown_cell(finding.message)} | "
+                f"{_markdown_cell(help_text['explanation'])} |"
             )
     if not has_findings:
-        lines.append("| ok | none |  |  | No findings. |")
+        lines.append("| ok | none |  |  | No findings. |  |")
     lines.append("")
     return "\n".join(lines)
 
@@ -46,12 +53,19 @@ def render_markdown_report(results: list[FixtureResult]) -> str:
 def render_json_report(results: list[FixtureResult]) -> str:
     payload = {
         "tool": "godot-save-schema-guard",
+        "metadata": {
+            "schema_version": "1.1",
+            "tool_version": __version__,
+            "report_kind": "save_schema_compatibility",
+            "formats": ["text", "json", "markdown"],
+        },
         "summary": {
             "fixtures": len(results),
             "findings": sum(len(result.findings) for result in results),
             "errors": _count(results, "error"),
             "warnings": _count(results, "warning"),
         },
+        "rules": catalog_for({finding.rule_id for result in results for finding in result.findings}),
         "fixtures": [result.to_dict() for result in results],
     }
     return json.dumps(payload, indent=2, sort_keys=True)
@@ -59,3 +73,7 @@ def render_json_report(results: list[FixtureResult]) -> str:
 
 def _count(results: list[FixtureResult], severity: str) -> int:
     return sum(1 for result in results for finding in result.findings if finding.severity == severity)
+
+
+def _markdown_cell(value: object) -> str:
+    return str(value).replace("|", "\\|").replace("\n", " ")
