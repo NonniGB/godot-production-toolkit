@@ -26,6 +26,8 @@ class ProjectHealthSnapshotTests(unittest.TestCase):
                 "godot-localization-qa-guard",
                 "godot-mobile-perf-doctor",
                 "godot-save-schema-guard",
+                "godot-scene-signal-auditor",
+                "godot-visual-smoke-test-kit",
             )
         }
         self.assertEqual(expected, snapshot["published_packages"])

@@ -13,6 +13,8 @@ PUBLISHED_PACKAGES = (
     "godot-localization-qa-guard",
     "godot-mobile-perf-doctor",
     "godot-save-schema-guard",
+    "godot-scene-signal-auditor",
+    "godot-visual-smoke-test-kit",
 )
 
 PACKAGE_VERSION_FILES = {
@@ -45,6 +47,16 @@ PACKAGE_VERSION_FILES = {
         "init": "src/godot_save_guard/__init__.py",
         "cli": "src/godot_save_guard/cli.py",
         "cli_name": "godot-save-guard",
+    },
+    "godot-scene-signal-auditor": {
+        "init": "src/godot_signal_auditor/__init__.py",
+        "cli": "src/godot_signal_auditor/cli.py",
+        "cli_name": "godot-signal-audit",
+    },
+    "godot-visual-smoke-test-kit": {
+        "init": "src/godot_visual_smoke/__init__.py",
+        "cli": "src/godot_visual_smoke/cli.py",
+        "cli_name": "godot-visual-smoke",
     },
 }
 

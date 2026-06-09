@@ -48,6 +48,8 @@ Current package URLs:
 - [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/)
 - [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/)
 - [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/)
+- [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/)
+- [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/)
 
 ## Package patch releases
 

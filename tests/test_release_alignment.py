@@ -98,6 +98,18 @@ def _copy_required_files(source: Path, target: Path) -> None:
             "src/godot_save_guard/__init__.py",
             "src/godot_save_guard/cli.py",
         ),
+        "godot-scene-signal-auditor": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_signal_auditor/__init__.py",
+            "src/godot_signal_auditor/cli.py",
+        ),
+        "godot-visual-smoke-test-kit": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_visual_smoke/__init__.py",
+            "src/godot_visual_smoke/cli.py",
+        ),
     }.items():
         for rel_path in paths:
             source_path = source / package / rel_path

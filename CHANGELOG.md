@@ -10,6 +10,7 @@
 - Added a local maintenance snapshot command and aligned root tool-count metadata.
 - Updated release checks to support independent standalone package patch versions.
 - Added PyPI publish workflows and release tracking for input map, localization, and save schema tools.
+- Added PyPI publish workflows and release tracking for scene signal and visual smoke tools.
 
 ## 0.1.1 - 2026-06-08
 
