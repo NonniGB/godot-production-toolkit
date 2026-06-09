@@ -9,6 +9,7 @@ from typing import Any
 from .adb_parser import parse_adb_summary
 from .audit import audit_settings, texture_findings
 from .models import AdbSummary, Finding
+from .profiles import DEFAULT_PROFILE, get_profile, profile_rows
 from .project_settings import parse_project_settings
 from .reporting import render_json_report, render_markdown_report, render_sarif_report, render_text_report
 from .textures import scan_textures
@@ -19,17 +20,36 @@ DEFAULT_CONFIG = ".godot-mobile-perf-doctor.toml"
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
+    if args.list_profiles:
+        print(_render_profiles())
+        return 0
+    if not args.project:
+        parser.error("project is required unless --list-profiles is used")
     project = Path(args.project)
     try:
         config = _load_config(project, Path(args.config) if args.config else None)
     except (OSError, tomllib.TOMLDecodeError) as exc:
         parser.error(f"could not read config: {exc}")
-    profile = _configured_value(args.profile, config, "profile", "portrait-2d")
+    profile = _configured_value(args.profile, config, "profile", DEFAULT_PROFILE)
+    try:
+        profile_settings = get_profile(str(profile))
+    except KeyError:
+        parser.error(f"invalid profile {profile!r}; choose one of {[row.name for row in profile_rows()]}")
     output_format = _configured_value(args.format, config, "format", "text")
     output = _configured_value(args.output, config, "output", None)
     fail_on = _configured_value(args.fail_on, config, "fail_on", "warning")
-    max_texture_dimension = _configured_int(args.max_texture_dimension, config, "max_texture_dimension", 2048)
-    max_viewport_pixels = _configured_int(args.max_viewport_pixels, config, "max_viewport_pixels", 1920 * 1080)
+    max_texture_dimension = _configured_int(
+        args.max_texture_dimension,
+        config,
+        "max_texture_dimension",
+        profile_settings.max_texture_dimension,
+    )
+    max_viewport_pixels = _configured_int(
+        args.max_viewport_pixels,
+        config,
+        "max_viewport_pixels",
+        profile_settings.max_viewport_pixels,
+    )
     adb_summary = _configured_value(args.adb_summary, config, "adb_summary", None)
     _validate_choice(parser, "format", output_format, {"text", "json", "markdown", "sarif"})
     _validate_choice(parser, "fail_on", fail_on, {"none", "warning", "error"})
@@ -39,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
     project_file = project / "project.godot"
     settings = parse_project_settings(project_file.read_text(encoding="utf-8")) if project_file.exists() else {}
     textures = scan_textures(project, max_dimension=max_texture_dimension)
-    findings = audit_settings(settings, profile=profile, max_viewport_pixels=max_viewport_pixels)
+    findings = audit_settings(settings, profile=str(profile), max_viewport_pixels=max_viewport_pixels)
     if not project_file.exists():
         findings.insert(
             0,
@@ -54,13 +74,41 @@ def main(argv: list[str] | None = None) -> int:
     adb = _load_adb(adb_summary)
 
     if output_format == "json":
-        rendered = render_json_report(findings, textures, adb)
+        rendered = render_json_report(
+            findings,
+            textures,
+            adb,
+            profile=str(profile),
+            max_texture_dimension=max_texture_dimension,
+            max_viewport_pixels=max_viewport_pixels,
+        )
     elif output_format == "markdown":
-        rendered = render_markdown_report(findings, textures, adb)
+        rendered = render_markdown_report(
+            findings,
+            textures,
+            adb,
+            profile=str(profile),
+            max_texture_dimension=max_texture_dimension,
+            max_viewport_pixels=max_viewport_pixels,
+        )
     elif output_format == "sarif":
-        rendered = render_sarif_report(findings, textures, adb)
+        rendered = render_sarif_report(
+            findings,
+            textures,
+            adb,
+            profile=str(profile),
+            max_texture_dimension=max_texture_dimension,
+            max_viewport_pixels=max_viewport_pixels,
+        )
     else:
-        rendered = render_text_report(findings, textures, adb)
+        rendered = render_text_report(
+            findings,
+            textures,
+            adb,
+            profile=str(profile),
+            max_texture_dimension=max_texture_dimension,
+            max_viewport_pixels=max_viewport_pixels,
+        )
 
     if output:
         output_path = Path(output)
@@ -81,8 +129,9 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-mobile-perf-doctor",
         description="Static mobile performance diagnostics for Godot projects.",
     )
-    parser.add_argument("--version", action="version", version="godot-mobile-perf-doctor 0.1.4")
-    parser.add_argument("project", help="Godot project directory.")
+    parser.add_argument("--version", action="version", version="godot-mobile-perf-doctor 0.1.5")
+    parser.add_argument("--list-profiles", action="store_true", help="List built-in mobile budget profiles.")
+    parser.add_argument("project", nargs="?", help="Godot project directory.")
     parser.add_argument("--static", action="store_true", help="Run static checks. Present for CLI clarity.")
     parser.add_argument("--config", help=f"TOML config path. Defaults to {DEFAULT_CONFIG}.")
     parser.add_argument("--profile", default=None)
@@ -102,6 +151,17 @@ def _load_adb(path: str | None) -> AdbSummary | None:
     if not summary_path.exists():
         return None
     return parse_adb_summary(summary_path.read_text(encoding="utf-8"))
+
+
+def _render_profiles() -> str:
+    lines = ["Built-in mobile performance profiles:"]
+    for profile in profile_rows():
+        lines.append(
+            "- "
+            f"{profile.name}: {profile.description} "
+            f"Texture limit {profile.max_texture_dimension}px; viewport budget {profile.max_viewport_pixels} px."
+        )
+    return "\n".join(lines)
 
 
 def _load_config(project: Path, explicit_config: Path | None) -> dict[str, Any]:

@@ -7,6 +7,8 @@
     "cli": true,
     "machine_output": ["json", "sarif"],
     "human_output": ["text", "markdown report"],
+    "report_metadata": true,
+    "plain_language_rule_help": true,
     "visual_interface": "none"
   },
   "run_behavior": {
@@ -21,6 +23,10 @@
     }
   },
   "recommended_commands": [
+    {
+      "purpose": "Review built-in mobile budget profiles",
+      "command": "godot-mobile-perf-doctor --list-profiles"
+    },
     {
       "purpose": "Script-friendly static performance report",
       "command": "godot-mobile-perf-doctor <project> --static --format json --output mobile-perf-report.json --fail-on none"

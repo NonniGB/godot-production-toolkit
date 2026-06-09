@@ -26,6 +26,12 @@ godot-mobile-perf-doctor . --profile portrait-2d --format json --output perf-rep
 godot-mobile-perf-doctor . --adb-summary adb-summary.txt --format markdown --output mobile-perf-report.md
 ```
 
+List the built-in mobile profiles:
+
+```powershell
+godot-mobile-perf-doctor --list-profiles
+```
+
 ## Config File
 
 Create `.godot-mobile-perf-doctor.toml` in the project root:
@@ -39,11 +45,21 @@ max_texture_dimension = 2048
 max_viewport_pixels = 2073600
 ```
 
-CLI flags override config values:
+Profiles provide default texture and viewport budgets. CLI flags override config
+values, and config values override profile defaults:
 
 ```powershell
 godot-mobile-perf-doctor . --static --max-viewport-pixels 921600 --format json
 ```
+
+Built-in profiles:
+
+| Profile | Use When |
+|---|---|
+| `portrait-2d` | Phone-first 2D projects with a portrait-oriented base viewport. |
+| `balanced-mobile` | General mobile projects that can tolerate a 1080p-style base viewport. |
+| `low-end-mobile` | Older Android devices or battery-sensitive builds need stricter budgets. |
+| `tablet-2d` | Larger-screen 2D projects intentionally use a bigger base viewport. |
 
 ## Real Workflow: Prepare An Android Test Build
 
@@ -69,10 +85,14 @@ godot-mobile-perf-doctor . --adb-summary reports\adb-summary.txt --format json -
 ## What It Checks
 
 - Renderer setting and mobile risk.
-- Base viewport size.
+- Base viewport size against the selected mobile profile.
 - Stretch mode presence.
 - PNG texture dimensions and estimated RGBA memory.
 - Optional adb summary text for device model and janky frame counts.
+
+JSON reports include report metadata, active budget limits, and a `rules` object
+with plain-language explanations. Text, Markdown, and SARIF output use the same
+rule titles so local and CI reports are easier to compare.
 
 ## Documentation
 

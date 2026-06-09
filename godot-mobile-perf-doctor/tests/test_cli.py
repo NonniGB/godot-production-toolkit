@@ -17,7 +17,17 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-perf-doctor 0.1.4", stdout.getvalue())
+        self.assertIn("godot-mobile-perf-doctor 0.1.5", stdout.getvalue())
+
+    def test_cli_lists_builtin_profiles(self) -> None:
+        stdout = StringIO()
+
+        with redirect_stdout(stdout):
+            exit_code = main(["--list-profiles"])
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("portrait-2d", stdout.getvalue())
+        self.assertIn("low-end-mobile", stdout.getvalue())
 
     def test_cli_writes_json_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -34,7 +44,12 @@ renderer/rendering_method="forward_plus"
             exit_code = main([str(root), "--static", "--format", "json", "--output", str(output)])
 
             self.assertEqual(exit_code, 1)
-            self.assertGreater(json.loads(output.read_text(encoding="utf-8"))["summary"]["warnings"], 0)
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(report["metadata"]["schema_version"], "1.1")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.5")
+            self.assertEqual(report["metadata"]["profile"], "portrait-2d")
+            self.assertIn("forward_plus_renderer_mobile_risk", report["rules"])
+            self.assertGreater(report["summary"]["warnings"], 0)
 
     def test_cli_outputs_sarif_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -56,7 +71,9 @@ renderer/rendering_method="forward_plus"
             self.assertEqual(sarif["version"], "2.1.0")
             driver = sarif["runs"][0]["tool"]["driver"]
             self.assertEqual(driver["name"], "godot-mobile-perf-doctor")
+            self.assertEqual(driver["semanticVersion"], "0.1.5")
             self.assertTrue(driver["rules"])
+            self.assertIn("Forward+ renderer selected", {rule["name"] for rule in driver["rules"]})
             self.assertTrue(sarif["runs"][0]["results"])
 
     def test_cli_uses_config_file_defaults(self) -> None:
@@ -87,6 +104,30 @@ window/size/viewport_height=720
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
+            self.assertEqual(report["metadata"]["limits"]["max_viewport_pixels"], 1000)
+            self.assertIn("large_base_viewport", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_profile_defaults_set_budget_limits(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.godot").write_text(
+                """
+[display]
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/stretch/mode="canvas_items"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--static", "--profile", "low-end-mobile", "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(report["metadata"]["profile"], "low-end-mobile")
+            self.assertEqual(report["metadata"]["limits"]["max_texture_dimension"], 1024)
             self.assertIn("large_base_viewport", {finding["rule_id"] for finding in report["findings"]})
 
     def test_cli_reports_missing_project_file(self) -> None:

@@ -33,6 +33,15 @@ class AuditTests(unittest.TestCase):
 
         self.assertIn("large_base_viewport", {finding.rule_id for finding in findings})
 
+    def test_finding_dict_includes_plain_language_rule_help(self) -> None:
+        finding = audit_settings(
+            {"rendering/renderer/rendering_method": "forward_plus"},
+            profile="portrait-2d",
+        )[0].to_dict()
+
+        self.assertEqual(finding["title"], "Forward+ renderer selected")
+        self.assertIn("target devices", finding["explanation"])
+
 
 if __name__ == "__main__":
     unittest.main()

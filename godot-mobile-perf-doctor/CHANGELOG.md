@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 - 2026-06-09
+
+- Added built-in mobile budget profiles for portrait, balanced, low-end, and tablet-oriented projects.
+- Added `--list-profiles` so teams can see available presets before choosing a config.
+- Added report metadata, active budget limits, rule titles, and rule explanations to JSON, text, Markdown, and SARIF reports.
+
 ## 0.1.4 - 2026-06-09
 
 - Report invalid TOML configuration as a usage error instead of a traceback.

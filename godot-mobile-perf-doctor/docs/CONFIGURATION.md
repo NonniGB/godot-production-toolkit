@@ -20,13 +20,23 @@ godot-mobile-perf-doctor C:\Projects\ArcadePrototype --static --format json
 
 ## Fields
 
-- `profile`: currently `portrait-2d`.
+- `profile`: `portrait-2d`, `balanced-mobile`, `low-end-mobile`, or `tablet-2d`.
 - `format`: `text`, `json`, `markdown`, or `sarif`.
 - `fail_on`: `warning`, `error`, or `none`.
 - `output`: optional report file path.
 - `max_texture_dimension`: PNG width or height threshold for `large_texture_dimension`.
 - `max_viewport_pixels`: base viewport pixel budget for `large_base_viewport`.
 - `adb_summary`: optional path to captured adb summary text.
+
+Run this to see the built-in profile budgets:
+
+```powershell
+godot-mobile-perf-doctor --list-profiles
+```
+
+Profile defaults are intentionally conservative starting points. A project can
+override `max_texture_dimension` or `max_viewport_pixels` in config when device
+testing proves a different budget is appropriate.
 
 For a strict 720p mobile budget, use:
 
