@@ -19,7 +19,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-signal-audit 0.1.1", stdout.getvalue())
+        self.assertIn("godot-signal-audit 0.1.2", stdout.getvalue())
 
     def test_mermaid_graph_contains_signal_edge(self) -> None:
         scene = ParsedScene(
@@ -43,7 +43,7 @@ class ReportingCliTests(unittest.TestCase):
         )
 
         self.assertEqual(report["metadata"]["schema_version"], "1.1")
-        self.assertEqual(report["metadata"]["tool_version"], "0.1.1")
+        self.assertEqual(report["metadata"]["tool_version"], "0.1.2")
         self.assertEqual(report["rules"]["stale_scene_connection"]["title"], "Stale scene connection")
         self.assertIn("resolved target script", report["findings"][0]["explanation"])
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.3 - 2026-06-09
 
 - Added report metadata and readable threshold explanations to JSON and text output.
 - Escaped Markdown API index table cells so generated docs stay valid for unusual names.

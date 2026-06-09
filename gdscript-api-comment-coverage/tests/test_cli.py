@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("gdscript-api-coverage 0.1.2", stdout.getvalue())
+        self.assertIn("gdscript-api-coverage 0.1.3", stdout.getvalue())
 
     def test_cli_writes_docs_and_returns_failure_for_threshold(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

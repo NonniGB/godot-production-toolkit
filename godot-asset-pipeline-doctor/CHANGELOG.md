@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## Unreleased
+## 0.1.7 - 2026-06-09
 
 - Added an `audio-mobile` profile for WAV, OGG, and MP3 budget checks.
 - Added audio file-size, WAV duration, large uncompressed audio, and missing import-metadata warnings.

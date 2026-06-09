@@ -19,7 +19,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-save-guard 0.1.1", stdout.getvalue())
+        self.assertIn("godot-save-guard 0.1.2", stdout.getvalue())
 
     def test_markdown_report_lists_fixture_findings(self) -> None:
         report = render_markdown_report(
@@ -61,7 +61,7 @@ class ReportingCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.1")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.2")
             self.assertEqual(report["summary"]["errors"], 1)
             self.assertEqual(report["rules"]["numeric_type_drift"]["title"], "Numeric type drift")
             finding = report["fixtures"][0]["findings"][0]

@@ -33,7 +33,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-save-guard",
         description="Validate Godot save fixtures and migration compatibility.",
     )
-    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.1")
+    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.2")
     subparsers = parser.add_subparsers(dest="command")
 
     validate = subparsers.add_parser("validate", help="Validate JSON save fixtures.")

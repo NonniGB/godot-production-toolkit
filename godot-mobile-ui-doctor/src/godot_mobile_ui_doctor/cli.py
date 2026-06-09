@@ -33,7 +33,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-mobile-ui-doctor",
         description="Check exported Godot mobile UI metadata for touch and layout risks.",
     )
-    parser.add_argument("--version", action="version", version="godot-mobile-ui-doctor 0.1.1")
+    parser.add_argument("--version", action="version", version="godot-mobile-ui-doctor 0.1.2")
     parser.add_argument("metadata", help="JSON file containing exported UI viewport and node metadata.")
     parser.add_argument(
         "--visual-smoke-plan",

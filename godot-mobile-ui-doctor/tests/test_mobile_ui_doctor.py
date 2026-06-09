@@ -112,7 +112,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.1", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.2", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

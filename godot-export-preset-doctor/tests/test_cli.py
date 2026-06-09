@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-export-doctor 0.1.5", stdout.getvalue())
+        self.assertIn("godot-export-doctor 0.1.6", stdout.getvalue())
 
     def test_cli_reports_findings_as_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

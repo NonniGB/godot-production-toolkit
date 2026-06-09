@@ -145,7 +145,7 @@ CLI flags override config values. Use these thresholds when your project needs s
 
 ```text
 Godot Asset Pipeline Doctor
-Report schema: 1.1 | Tool: 0.1.6
+Report schema: 1.1 | Tool: 0.1.7
 Root: C:\Projects\ArcadePrototype
 Profile: pixel-2d
 Assets: 18 | Issues: 3 | Errors: 0 | Warnings: 3

@@ -36,7 +36,7 @@ class ReportingTests(unittest.TestCase):
         report = json.loads(render_json_report([action], []))
 
         self.assertEqual(report["metadata"]["schema_version"], "1.1")
-        self.assertEqual(report["metadata"]["tool_version"], "0.1.2")
+        self.assertEqual(report["metadata"]["tool_version"], "0.1.3")
         self.assertEqual(report["summary"]["actions"], 1)
         self.assertEqual(report["actions"][0]["devices"], ["touch"])
 

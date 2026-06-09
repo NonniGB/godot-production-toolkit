@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.3 - 2026-06-09
 
 - Added optional TOML policy files for action groups and group-specific device requirements.
 - Added group metadata to JSON reports and generated Markdown input references when a policy is active.

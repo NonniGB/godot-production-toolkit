@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-input-audit 0.1.2", stdout.getvalue())
+        self.assertIn("godot-input-audit 0.1.3", stdout.getvalue())
 
     def test_cli_generates_docs_and_constants(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

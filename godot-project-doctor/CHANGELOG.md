@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.4 - 2026-06-09
 
 - Added `compare` for checking report folders against an earlier run.
 - Added JSON, Markdown, and text comparison output with optional regression-based exit codes.

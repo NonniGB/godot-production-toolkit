@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.2 - 2026-06-09
 
 - Added `--visual-smoke-plan` for reusing viewport metadata from `godot-visual-smoke plan --format json`.
 

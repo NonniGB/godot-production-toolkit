@@ -23,7 +23,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-asset-doctor 0.1.6", stdout.getvalue())
+        self.assertIn("godot-asset-doctor 0.1.7", stdout.getvalue())
 
     def test_cli_outputs_json_report_and_returns_failure_when_warning_threshold_is_used(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -63,7 +63,7 @@ class CliTests(unittest.TestCase):
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 1)
             self.assertEqual(report["metadata"]["schema_version"], "1.2")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.6")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.7")
             self.assertEqual(report["summary"]["asset_count"], 1)
             self.assertGreaterEqual(report["summary"]["warning_count"], 1)
             self.assertIn("transparent_edge_rgb", {issue["code"] for issue in report["issues"]})

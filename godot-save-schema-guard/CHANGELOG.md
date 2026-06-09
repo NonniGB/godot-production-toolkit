@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.2 - 2026-06-09
 
 - Added `migrate-chain` for ordered save migration steps defined in TOML.
 - Added dry-run reports for migration chains so CI can review planned version paths before executing project-owned scripts.

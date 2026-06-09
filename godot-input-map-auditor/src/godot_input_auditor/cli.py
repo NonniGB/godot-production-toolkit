@@ -88,7 +88,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-input-audit",
         description="Audit Godot input actions for device coverage and duplicate bindings.",
     )
-    parser.add_argument("--version", action="version", version="godot-input-audit 0.1.2")
+    parser.add_argument("--version", action="version", version="godot-input-audit 0.1.3")
     parser.add_argument("project", help="Godot project directory or project.godot file.")
     parser.add_argument(
         "--require",

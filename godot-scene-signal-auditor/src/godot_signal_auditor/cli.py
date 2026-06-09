@@ -46,7 +46,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-signal-audit",
         description="Audit Godot scene signal connections and autoload signal usage.",
     )
-    parser.add_argument("--version", action="version", version="godot-signal-audit 0.1.1")
+    parser.add_argument("--version", action="version", version="godot-signal-audit 0.1.2")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--autoload", default="", help="Comma-separated autoload names to flag.")
     parser.add_argument("--strict-stale-connections", action="store_true")

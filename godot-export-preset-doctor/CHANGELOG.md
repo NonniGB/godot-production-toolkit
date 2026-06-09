@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.6 - 2026-06-09
 
 - Added report metadata and plain-language rule explanations to JSON, text, and SARIF output.
 

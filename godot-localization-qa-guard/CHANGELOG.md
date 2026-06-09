@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.3 - 2026-06-09
 
 - Added optional string expansion and glyph allow-list checks.
 - Added pseudo-localized CSV output for quick UI stress testing.

@@ -34,7 +34,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-visual-smoke",
         description="Compare and approve Godot visual smoke screenshots.",
     )
-    parser.add_argument("--version", action="version", version="godot-visual-smoke 0.1.1")
+    parser.add_argument("--version", action="version", version="godot-visual-smoke 0.1.2")
     subparsers = parser.add_subparsers(dest="command")
 
     compare = subparsers.add_parser("compare", help="Compare baseline and current screenshots.")

@@ -65,7 +65,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-l10n-guard",
         description="Audit Godot CSV and PO localization files.",
     )
-    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.2")
+    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.3")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--translations", help="Directory containing CSV and PO translation files.")
     parser.add_argument("--csv", action="append", default=[], help="Godot CSV translation file.")

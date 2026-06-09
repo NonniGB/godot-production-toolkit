@@ -49,7 +49,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="gdscript-api-coverage",
         description="Generate GDScript API indexes and enforce comment coverage thresholds.",
     )
-    parser.add_argument("--version", action="version", version="gdscript-api-coverage 0.1.2")
+    parser.add_argument("--version", action="version", version="gdscript-api-coverage 0.1.3")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--format", choices=["text", "json", "markdown"], default="text")
     parser.add_argument("--output", help="Write report to a file instead of stdout.")
