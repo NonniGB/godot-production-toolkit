@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 - 2026-06-09
+
+- Reported invalid TOML config files as clear CLI usage errors.
+
 ## 0.1.3 - 2026-06-09
 
 - Added CLI flags for required Android ABIs and allowed credential placeholder patterns.

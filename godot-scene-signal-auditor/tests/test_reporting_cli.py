@@ -19,7 +19,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-signal-audit 0.1.0", stdout.getvalue())
+        self.assertIn("godot-signal-audit 0.1.1", stdout.getvalue())
 
     def test_mermaid_graph_contains_signal_edge(self) -> None:
         scene = ParsedScene(
@@ -55,6 +55,7 @@ script = ExtResource("1_menu")
 
             self.assertEqual(exit_code, 1)
             self.assertEqual(json.loads(output.read_text(encoding="utf-8"))["summary"]["errors"], 1)
+            self.assertTrue(output.read_text(encoding="utf-8").endswith("\n"))
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-export-doctor 0.1.3", stdout.getvalue())
+        self.assertIn("godot-export-doctor 0.1.4", stdout.getvalue())
 
     def test_cli_reports_findings_as_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -147,6 +147,17 @@ keystore/release_password="<set-in-ci>"
             self.assertEqual(exit_code, 1)
             self.assertIn("android_required_abi_missing", rule_ids)
             self.assertNotIn("hardcoded_credential_value", rule_ids)
+
+    def test_cli_reports_invalid_config_as_usage_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            config = project / ".godot-export-doctor.toml"
+            config.write_text("format = [", encoding="utf-8")
+
+            with self.assertRaises(SystemExit) as raised:
+                main([str(project), "--config", str(config)])
+
+            self.assertEqual(raised.exception.code, 2)
 
 
 if __name__ == "__main__":

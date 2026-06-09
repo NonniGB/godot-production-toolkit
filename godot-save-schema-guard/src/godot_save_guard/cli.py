@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .fixtures import validate_fixtures
 from .migration import build_migration_command, run_migration_command
-from .models import FixtureResult
+from .models import Finding, FixtureResult
 from .reporting import render_json_report, render_markdown_report, render_text_report
 
 
@@ -31,7 +31,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-save-guard",
         description="Validate Godot save fixtures and migration compatibility.",
     )
-    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.0")
+    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.1")
     subparsers = parser.add_subparsers(dest="command")
 
     validate = subparsers.add_parser("validate", help="Validate JSON save fixtures.")
@@ -55,7 +55,15 @@ def _add_report_args(parser: argparse.ArgumentParser) -> None:
 
 def _validate(args: argparse.Namespace) -> int:
     schema = json.loads(Path(args.schema).read_text(encoding="utf-8"))
-    results = validate_fixtures(Path(args.fixtures), schema)
+    fixtures_path = Path(args.fixtures)
+    results = validate_fixtures(fixtures_path, schema)
+    if not results:
+        results = [
+            FixtureResult(
+                fixtures_path,
+                [Finding("no_fixtures", "error", "$", "No JSON save fixtures were found.")],
+            )
+        ]
     _write_report(args, results)
     return _exit_code(results, args.fail_on)
 
@@ -66,6 +74,13 @@ def _migrate(args: argparse.Namespace) -> int:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     results: list[FixtureResult] = []
+    if not files:
+        results.append(
+            FixtureResult(
+                fixtures_path,
+                [Finding("no_fixtures", "error", "$", "No JSON save fixtures were found.")],
+            )
+        )
     for fixture in files:
         output = output_dir / fixture.name
         command = build_migration_command(args.command, fixture, output)

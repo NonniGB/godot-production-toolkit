@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3 - 2026-06-09
+
+- Reported missing `project.godot` files as explicit audit errors.
+
 ## 0.1.2 - 2026-06-08
 
 - Added TOML config support for profiles, report output, fail thresholds, texture limits, viewport budgets, and adb summary paths.

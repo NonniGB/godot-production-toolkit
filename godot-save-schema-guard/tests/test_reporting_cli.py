@@ -19,7 +19,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-save-guard 0.1.0", stdout.getvalue())
+        self.assertIn("godot-save-guard 0.1.1", stdout.getvalue())
 
     def test_markdown_report_lists_fixture_findings(self) -> None:
         report = render_markdown_report(
@@ -45,6 +45,21 @@ class ReportingCliTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 1)
             self.assertEqual(json.loads(output.read_text(encoding="utf-8"))["summary"]["errors"], 1)
+
+    def test_cli_validate_reports_empty_fixture_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            fixtures = root / "fixtures"
+            fixtures.mkdir()
+            schema = root / "schema.json"
+            schema.write_text(json.dumps({"type": "object"}), encoding="utf-8")
+            output = root / "report.json"
+
+            exit_code = main(["validate", str(fixtures), "--schema", str(schema), "--format", "json", "--output", str(output)])
+
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(exit_code, 1)
+            self.assertIn("no_fixtures", {finding["rule_id"] for fixture in report["fixtures"] for finding in fixture["findings"]})
 
 
 if __name__ == "__main__":

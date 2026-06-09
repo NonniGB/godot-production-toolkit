@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added a visible package-version table to the README.
+- Improved CLI ergonomics across the ten published standalone packages.
+
 ## 0.1.2 - 2026-06-08
 
 - Added project-specific configuration for the three published packages:

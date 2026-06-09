@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## 0.1.3 - 2026-06-09
+
+- Created parent directories automatically when writing report output files.
+
 ## 0.1.2 - 2026-06-08
 
 ### Added

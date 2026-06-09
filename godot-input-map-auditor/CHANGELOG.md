@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-06-09
+
+- Validated required input device family names before auditing.
+
 ## 0.1.0 - 2026-06-08
 
 - Added `[input]` parser for Godot `project.godot`.

@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-input-audit 0.1.0", stdout.getvalue())
+        self.assertIn("godot-input-audit 0.1.1", stdout.getvalue())
 
     def test_cli_generates_docs_and_constants(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -74,6 +74,16 @@ confirm={
             self.assertEqual(driver["name"], "godot-input-map-auditor")
             self.assertTrue(driver["rules"])
             self.assertTrue(sarif["runs"][0]["results"])
+
+    def test_cli_rejects_unknown_required_device_family(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "project.godot").write_text("[input]\n", encoding="utf-8")
+
+            with self.assertRaises(SystemExit) as raised:
+                main([str(project), "--require", "keyboard,steamdeck"])
+
+            self.assertEqual(raised.exception.code, 2)
 
 
 if __name__ == "__main__":

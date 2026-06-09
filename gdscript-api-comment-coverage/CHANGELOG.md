@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-06-09
+
+- Added Markdown report output for direct API index generation.
+
 ## 0.1.0 - 2026-06-08
 
 - Added conservative GDScript API scanner.

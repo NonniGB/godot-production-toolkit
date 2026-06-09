@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-perf-doctor 0.1.2", stdout.getvalue())
+        self.assertIn("godot-mobile-perf-doctor 0.1.3", stdout.getvalue())
 
     def test_cli_writes_json_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -88,6 +88,18 @@ window/size/viewport_height=720
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
             self.assertIn("large_base_viewport", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_cli_reports_missing_project_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--static", "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 1)
+            self.assertIn("missing_project_godot", {finding["rule_id"] for finding in report["findings"]})
 
 
 if __name__ == "__main__":

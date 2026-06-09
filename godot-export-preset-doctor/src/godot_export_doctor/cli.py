@@ -18,7 +18,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     project = Path(args.project)
-    config = _load_config(project, Path(args.config) if args.config else None)
+    try:
+        config = _load_config(project, Path(args.config) if args.config else None)
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        parser.error(f"could not read config: {exc}")
 
     output_format = args.format or str(config.get("format", "text"))
     fail_on = args.fail_on or str(config.get("fail_on", "warning"))
@@ -60,7 +63,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-export-doctor",
         description="Audit Godot export_presets.cfg release readiness.",
     )
-    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.3")
+    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.4")
     parser.add_argument("project", help="Godot project directory or export_presets.cfg path.")
     parser.add_argument("--config", help=f"TOML config path. Defaults to {DEFAULT_CONFIG}.")
     parser.add_argument("--platform", help="Only evaluate presets for a platform, such as Android.")

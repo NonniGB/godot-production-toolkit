@@ -15,6 +15,8 @@ from .reporting import (
     render_text_report,
 )
 
+KNOWN_DEVICE_FAMILIES = {"keyboard", "mouse", "controller", "touch"}
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
@@ -34,7 +36,11 @@ def main(argv: list[str] | None = None) -> int:
         ]
     else:
         actions = parse_input_map(project_file.read_text(encoding="utf-8"))
-        findings = evaluate_actions(actions, required_devices=_parse_required(args.require))
+        required_devices = _parse_required(args.require)
+        unknown_devices = sorted(required_devices - KNOWN_DEVICE_FAMILIES)
+        if unknown_devices:
+            parser.error(f"unknown required device family: {', '.join(unknown_devices)}")
+        findings = evaluate_actions(actions, required_devices=required_devices)
 
     if args.write_docs:
         path = Path(args.write_docs)
@@ -71,7 +77,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-input-audit",
         description="Audit Godot input actions for device coverage and duplicate bindings.",
     )
-    parser.add_argument("--version", action="version", version="godot-input-audit 0.1.0")
+    parser.add_argument("--version", action="version", version="godot-input-audit 0.1.1")
     parser.add_argument("project", help="Godot project directory or project.godot file.")
     parser.add_argument(
         "--require",

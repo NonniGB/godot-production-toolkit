@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-visual-smoke-test-kit"
-version = "0.1.0"
+version = "0.1.1"
 description = "Screenshot diff and baseline helpers for Godot visual smoke tests."
 readme = "README.md"
 requires-python = ">=3.11"

@@ -19,7 +19,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-l10n-guard 0.1.0", stdout.getvalue())
+        self.assertIn("godot-l10n-guard 0.1.1", stdout.getvalue())
 
     def test_markdown_report_lists_findings(self) -> None:
         markdown = render_markdown_report(
@@ -64,6 +64,20 @@ class ReportingCliTests(unittest.TestCase):
             self.assertEqual(driver["name"], "godot-localization-qa-guard")
             self.assertTrue(driver["rules"])
             self.assertTrue(sarif["runs"][0]["results"])
+
+    def test_cli_scan_all_enables_script_key_scan(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "ui.gd").write_text('func _ready():\n    tr("MENU_START")\n', encoding="utf-8")
+            csv_path = project / "strings.csv"
+            csv_path.write_text("keys,en\nMENU_QUIT,Quit\n", encoding="utf-8")
+            output = project / "report.json"
+
+            exit_code = main([str(project), "--csv", str(csv_path), "--scan-all", "--format", "json", "--output", str(output)])
+
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(exit_code, 1)
+            self.assertIn("missing_key", {finding["rule_id"] for finding in report["findings"]})
 
 
 if __name__ == "__main__":

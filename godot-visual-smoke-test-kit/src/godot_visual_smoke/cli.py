@@ -18,8 +18,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "compare":
         return _compare(args)
     if args.command == "approve":
-        approve_baseline(Path(args.current), Path(args.baseline))
-        return 0
+        return _approve(args)
     if args.command == "plan":
         return _plan(args)
     parser.print_help()
@@ -35,7 +34,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-visual-smoke",
         description="Compare and approve Godot visual smoke screenshots.",
     )
-    parser.add_argument("--version", action="version", version="godot-visual-smoke 0.1.0")
+    parser.add_argument("--version", action="version", version="godot-visual-smoke 0.1.1")
     subparsers = parser.add_subparsers(dest="command")
 
     compare = subparsers.add_parser("compare", help="Compare baseline and current screenshots.")
@@ -51,6 +50,8 @@ def _build_parser() -> argparse.ArgumentParser:
     approve = subparsers.add_parser("approve", help="Copy current screenshot to baseline.")
     approve.add_argument("current")
     approve.add_argument("baseline")
+    approve.add_argument("--format", choices=["text", "json"], default="text")
+    approve.add_argument("--output", help="Write approval status to a file instead of stdout.")
 
     plan = subparsers.add_parser("plan", help="Print Godot capture commands from visual-smoke.toml.")
     plan.add_argument("config")
@@ -76,6 +77,26 @@ def _compare(args: argparse.Namespace) -> int:
     else:
         print(rendered)
     return 1 if args.fail_on == "diff" and not result.passed else 0
+
+
+def _approve(args: argparse.Namespace) -> int:
+    current = Path(args.current)
+    baseline = Path(args.baseline)
+    approve_baseline(current, baseline)
+    payload = {
+        "status": "ok",
+        "command": "approve",
+        "current": str(current),
+        "baseline": str(baseline),
+    }
+    rendered = json.dumps(payload, indent=2, sort_keys=True) if args.format == "json" else f"Approved {current} -> {baseline}"
+    if args.output:
+        output = Path(args.output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(rendered + "\n", encoding="utf-8")
+    else:
+        print(rendered)
+    return 0
 
 
 def _plan(args: argparse.Namespace) -> int:

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-06-09
+
+- Reported empty fixture directories as explicit validation errors.
+
 ## 0.1.0 - 2026-06-08
 
 - Added minimal JSON Schema-like validator for save fixtures.

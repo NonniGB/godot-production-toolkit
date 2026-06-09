@@ -18,10 +18,12 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     project = Path(args.project)
+    scan_scripts = args.scan_scripts or args.scan_all
+    scan_scenes = args.scan_scenes or args.scan_all
     catalogs = _load_catalogs(args)
     used_keys = (
-        scan_project_keys(project, scan_scripts=args.scan_scripts, scan_scenes=args.scan_scenes)
-        if args.scan_scripts or args.scan_scenes
+        scan_project_keys(project, scan_scripts=scan_scripts, scan_scenes=scan_scenes)
+        if scan_scripts or scan_scenes
         else None
     )
     findings = audit_catalogs(
@@ -51,7 +53,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-l10n-guard",
         description="Audit Godot CSV and PO localization files.",
     )
-    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.0")
+    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.1")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--translations", help="Directory containing CSV and PO translation files.")
     parser.add_argument("--csv", action="append", default=[], help="Godot CSV translation file.")
@@ -60,6 +62,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--source-lang", default="en", help="Source language column. Default: en.")
     parser.add_argument("--scan-scripts", action="store_true", help="Scan .gd files for tr(\"KEY\").")
     parser.add_argument("--scan-scenes", action="store_true", help="Scan .tscn/.scn text values for key-like strings.")
+    parser.add_argument("--scan-all", action="store_true", help="Scan both scripts and scenes for translation keys.")
     parser.add_argument("--format", choices=["text", "json", "markdown", "sarif"], default="text")
     parser.add_argument("--output", help="Write report to a file instead of stdout.")
     parser.add_argument("--fail-on", choices=["warning", "error", "none"], default="warning")

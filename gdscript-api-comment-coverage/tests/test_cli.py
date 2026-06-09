@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("gdscript-api-coverage 0.1.0", stdout.getvalue())
+        self.assertIn("gdscript-api-coverage 0.1.1", stdout.getvalue())
 
     def test_cli_writes_docs_and_returns_failure_for_threshold(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -56,6 +56,19 @@ class_name Player
 
             self.assertEqual(exit_code, 0)
             self.assertEqual(json.loads(output.read_text(encoding="utf-8"))["summary"]["all"]["total"], 1)
+
+    def test_cli_can_write_markdown_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "player.gd").write_text("class_name Player\n", encoding="utf-8")
+            output = project / "api.md"
+
+            exit_code = main([str(project), "--format", "markdown", "--output", str(output)])
+
+            self.assertEqual(exit_code, 0)
+            markdown = output.read_text(encoding="utf-8")
+            self.assertIn("# GDScript API Index", markdown)
+            self.assertIn("Player", markdown)
 
 
 if __name__ == "__main__":

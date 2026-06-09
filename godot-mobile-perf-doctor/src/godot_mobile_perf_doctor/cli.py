@@ -8,7 +8,7 @@ from typing import Any
 
 from .adb_parser import parse_adb_summary
 from .audit import audit_settings, texture_findings
-from .models import AdbSummary
+from .models import AdbSummary, Finding
 from .project_settings import parse_project_settings
 from .reporting import render_json_report, render_markdown_report, render_sarif_report, render_text_report
 from .textures import scan_textures
@@ -33,6 +33,16 @@ def main(argv: list[str] | None = None) -> int:
     settings = parse_project_settings(project_file.read_text(encoding="utf-8")) if project_file.exists() else {}
     textures = scan_textures(project, max_dimension=max_texture_dimension)
     findings = audit_settings(settings, profile=profile, max_viewport_pixels=max_viewport_pixels)
+    if not project_file.exists():
+        findings.insert(
+            0,
+            Finding(
+                "missing_project_godot",
+                "error",
+                "project.godot was not found, so project settings could not be audited.",
+                project_file.as_posix(),
+            ),
+        )
     findings.extend(texture_findings(textures, max_dimension=max_texture_dimension))
     adb = _load_adb(adb_summary)
 
@@ -64,7 +74,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-mobile-perf-doctor",
         description="Static mobile performance diagnostics for Godot projects.",
     )
-    parser.add_argument("--version", action="version", version="godot-mobile-perf-doctor 0.1.2")
+    parser.add_argument("--version", action="version", version="godot-mobile-perf-doctor 0.1.3")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--static", action="store_true", help="Run static checks. Present for CLI clarity.")
     parser.add_argument("--config", help=f"TOML config path. Defaults to {DEFAULT_CONFIG}.")

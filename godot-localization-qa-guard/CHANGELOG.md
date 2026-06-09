@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-06-09
+
+- Added `--scan-all` to scan scripts and scenes for translation-key usage together.
+
 ## 0.1.0 - 2026-06-08
 
 - Added Godot CSV parser with duplicate-key and BOM detection.

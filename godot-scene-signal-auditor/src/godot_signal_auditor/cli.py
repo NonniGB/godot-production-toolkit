@@ -30,7 +30,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.output:
         output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(rendered, encoding="utf-8")
+        output.write_text(rendered + "\n", encoding="utf-8")
     else:
         print(rendered)
 
@@ -46,7 +46,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-signal-audit",
         description="Audit Godot scene signal connections and autoload signal usage.",
     )
-    parser.add_argument("--version", action="version", version="godot-signal-audit 0.1.0")
+    parser.add_argument("--version", action="version", version="godot-signal-audit 0.1.1")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--autoload", default="", help="Comma-separated autoload names to flag.")
     parser.add_argument("--strict-stale-connections", action="store_true")

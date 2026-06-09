@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("pixel-space-assets 0.1.0", stdout.getvalue())
+        self.assertIn("pixel-space-assets 0.1.1", stdout.getvalue())
 
     def test_starfield_cli_writes_image_and_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -75,6 +75,15 @@ class CliTests(unittest.TestCase):
             self.assertEqual(payload["status"], "ok")
             self.assertEqual(payload["command"], "starfield")
             self.assertTrue(payload["outputs"]["image"].endswith("starfield.png"))
+
+    def test_cli_rejects_non_positive_dimensions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "starfield.png"
+
+            with self.assertRaises(SystemExit) as raised:
+                main(["starfield", "--width", "0", "--height", "16", "--seed", "5", "--output", str(output)])
+
+            self.assertEqual(raised.exception.code, 2)
 
 
 if __name__ == "__main__":

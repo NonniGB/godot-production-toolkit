@@ -16,6 +16,7 @@ from .strip_background import strip_background
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
+    _validate_args(parser, args)
     if args.command == "starfield":
         return _starfield(args)
     if args.command == "asteroid-hex":
@@ -53,7 +54,7 @@ def entrypoint() -> None:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pixel-space-assets", description="Deterministic pixel-space asset tools.")
-    parser.add_argument("--version", action="version", version="pixel-space-assets 0.1.0")
+    parser.add_argument("--version", action="version", version="pixel-space-assets 0.1.1")
     subparsers = parser.add_subparsers(dest="command")
 
     starfield = subparsers.add_parser("starfield")
@@ -86,6 +87,13 @@ def _build_parser() -> argparse.ArgumentParser:
     preview.add_argument("--cell-size", type=int, default=64)
     preview.add_argument("--format", choices=["text", "json"], default="text")
     return parser
+
+
+def _validate_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    for field in ("width", "height", "stars", "count", "size", "columns", "cell_size"):
+        value = getattr(args, field, None)
+        if value is not None and value <= 0:
+            parser.error(f"--{field.replace('_', '-')} must be greater than zero")
 
 
 def _starfield(args: argparse.Namespace) -> int:

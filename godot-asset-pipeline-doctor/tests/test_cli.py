@@ -22,7 +22,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-asset-doctor 0.1.2", stdout.getvalue())
+        self.assertIn("godot-asset-doctor 0.1.3", stdout.getvalue())
 
     def test_cli_outputs_json_report_and_returns_failure_when_warning_threshold_is_used(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -130,6 +130,16 @@ class CliTests(unittest.TestCase):
             self.assertEqual(driver["name"], "godot-asset-pipeline-doctor")
             self.assertTrue(driver["rules"])
             self.assertTrue(sarif["runs"][0]["results"])
+
+    def test_cli_creates_parent_directory_for_output_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project = Path(tmp_dir)
+            output = project / "reports" / "assets" / "report.json"
+
+            exit_code = main([str(project), "--format", "json", "--output", str(output), "--fail-on", "none"])
+
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(output.exists())
 
 
 if __name__ == "__main__":
