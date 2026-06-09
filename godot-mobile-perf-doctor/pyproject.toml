@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-mobile-perf-doctor"
-version = "0.1.5"
+version = "0.1.6"
 description = "Static mobile performance diagnostics for Godot 4 projects."
 readme = "README.md"
 requires-python = ">=3.11"

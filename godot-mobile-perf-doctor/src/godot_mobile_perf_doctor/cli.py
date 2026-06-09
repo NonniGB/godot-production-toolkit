@@ -129,7 +129,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-mobile-perf-doctor",
         description="Static mobile performance diagnostics for Godot projects.",
     )
-    parser.add_argument("--version", action="version", version="godot-mobile-perf-doctor 0.1.5")
+    parser.add_argument("--version", action="version", version="godot-mobile-perf-doctor 0.1.6")
     parser.add_argument("--list-profiles", action="store_true", help="List built-in mobile budget profiles.")
     parser.add_argument("project", nargs="?", help="Godot project directory.")
     parser.add_argument("--static", action="store_true", help="Run static checks. Present for CLI clarity.")

@@ -4,6 +4,7 @@ import json
 
 from . import __version__
 from .models import AdbSummary, Finding, TextureSummary
+from .profiles import get_profile
 from .rule_help import catalog_for, explain_rule
 
 
@@ -160,6 +161,7 @@ def _metadata(profile: str, max_texture_dimension: int, max_viewport_pixels: int
         "tool_version": __version__,
         "report_kind": "mobile_performance_scan",
         "profile": profile,
+        "profile_description": get_profile(profile).description,
         "limits": {
             "max_texture_dimension": max_texture_dimension,
             "max_viewport_pixels": max_viewport_pixels,

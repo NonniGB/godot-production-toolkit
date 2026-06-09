@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6 - 2026-06-09
+
+- Added the active profile description to machine-readable report metadata.
+
 ## 0.1.5 - 2026-06-09
 
 - Added built-in mobile budget profiles for portrait, balanced, low-end, and tablet-oriented projects.

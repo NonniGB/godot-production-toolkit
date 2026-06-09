@@ -2,6 +2,9 @@ name: Publish godot-mobile-perf-doctor
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "godot-mobile-perf-doctor-v*"
 
 permissions:
   contents: read
