@@ -22,7 +22,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-asset-doctor 0.1.4", stdout.getvalue())
+        self.assertIn("godot-asset-doctor 0.1.5", stdout.getvalue())
 
     def test_cli_outputs_json_report_and_returns_failure_when_warning_threshold_is_used(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -167,6 +167,75 @@ class CliTests(unittest.TestCase):
                         main([str(project), *extra_args])
 
                     self.assertEqual(raised.exception.code, 2)
+
+    def test_manifest_check_reports_anchor_and_dimension_errors(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project = Path(tmp_dir)
+            image_path = project / "assets" / "ship.png"
+            image_path.parent.mkdir()
+            Image.new("RGBA", (4, 4), (0, 0, 0, 255)).save(image_path)
+            manifest = project / "sprite-manifest.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "sprites": [
+                            {
+                                "id": "ship",
+                                "source_path": "assets/ship.png",
+                                "width": 5,
+                                "height": 4,
+                                "anchors": {
+                                    "muzzle": {"x": 6, "y": 2},
+                                    "center": {"x": 2, "y": 2},
+                                },
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["manifest", "check", str(manifest), "--project", str(project), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 1)
+            codes = {issue["code"] for issue in report["issues"]}
+            self.assertIn("sprite_width_mismatch", codes)
+            self.assertIn("sprite_anchor_out_of_bounds", codes)
+            self.assertEqual(report["summary"]["anchors_checked"], 2)
+
+    def test_manifest_check_passes_for_valid_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project = Path(tmp_dir)
+            image_path = project / "assets" / "ship.png"
+            image_path.parent.mkdir()
+            Image.new("RGBA", (4, 4), (0, 0, 0, 255)).save(image_path)
+            manifest = project / "sprite-manifest.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "sprites": [
+                            {
+                                "id": "ship",
+                                "source_path": "assets/ship.png",
+                                "width": 4,
+                                "height": 4,
+                                "anchors": [{"name": "center", "x": 2, "y": 2}],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["manifest", "check", str(manifest), "--project", str(project)])
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn("No sprite manifest issues found.", stdout.getvalue())
 
 
 if __name__ == "__main__":

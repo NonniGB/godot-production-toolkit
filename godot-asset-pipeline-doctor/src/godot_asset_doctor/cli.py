@@ -6,12 +6,16 @@ import sys
 import tomllib
 
 from godot_asset_doctor.config import load_config
+from godot_asset_doctor.manifest import check_sprite_manifest, manifest_exit_code, render_manifest_report
 from godot_asset_doctor.models import RuleSettings
 from godot_asset_doctor.reporting import report_to_json, report_to_sarif, report_to_text
 from godot_asset_doctor.scanner import scan_project
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv[:2] == ["manifest", "check"]:
+        return _manifest_check(argv[2:])
     parser = _build_parser()
     args = parser.parse_args(argv)
     project_root = Path(args.path)
@@ -61,7 +65,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-asset-doctor",
         description="Scan Godot PNG assets and .import metadata for pixel-art and mobile release risks.",
     )
-    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.4")
+    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.5")
     parser.add_argument("path", nargs="?", default=".", help="Godot project directory to scan.")
     parser.add_argument(
         "--profile",
@@ -111,6 +115,33 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Accepted for compatibility; suggestions are included in all current reports.",
     )
     return parser
+
+
+def _manifest_check(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="godot-asset-doctor manifest check",
+        description="Validate a sprite manifest against PNG dimensions and anchor bounds.",
+    )
+    parser.add_argument("manifest", help="Sprite manifest JSON file.")
+    parser.add_argument("--project", default=".", help="Project root used to resolve manifest paths.")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--output", help="Write report to a file instead of stdout.")
+    parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
+    args = parser.parse_args(argv)
+
+    try:
+        report = check_sprite_manifest(Path(args.project), Path(args.manifest))
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
+
+    rendered = render_manifest_report(report, args.format)
+    if args.output:
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(rendered + "\n", encoding="utf-8")
+    else:
+        print(rendered)
+    return manifest_exit_code(report, args.fail_on)
 
 
 def _configured_value(cli_value: str | None, config: dict[str, object], key: str, default: str | None) -> str | None:

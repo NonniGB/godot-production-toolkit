@@ -9,7 +9,7 @@ These packages are published as standalone PyPI distributions:
 | Package | Current Version |
 |---|---:|
 | [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.2` |
-| [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.4` |
+| [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.5` |
 | [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.0` |
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.5` |
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.0` |

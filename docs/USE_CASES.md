@@ -27,12 +27,19 @@ Use this when adding or changing sprites, UI textures, tiles, or generated art:
 godot-asset-doctor . --profile pixel-2d --format json --output reports\assets.json
 ```
 
+Use this when sprites have hand-authored sockets, hardpoints, or UI markers:
+
+```powershell
+godot-asset-doctor manifest check sprite-manifest.json --project . --format json --output reports\sprite-manifest.json
+```
+
 This helps catch:
 
 - Mipmaps enabled on crisp pixel-art assets.
 - Alpha-border fixing disabled on transparent assets.
 - Transparent pixels with contaminated RGB values that can create edge fringes.
 - Mobile texture memory risks.
+- Sprite manifest dimension mistakes and anchors outside the source PNG.
 
 ## Input Coverage For Touch And Desktop
 

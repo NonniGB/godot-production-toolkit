@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## 0.1.5 - 2026-06-09
+
+- Added `manifest check` for sprite metadata files.
+- Validates sprite ids, source PNG paths, declared dimensions, and anchor bounds.
+- Added sprite manifest documentation and a tiny example manifest.
+
 ## 0.1.4 - 2026-06-09
 
 - Report invalid TOML configuration as a usage error instead of a traceback.

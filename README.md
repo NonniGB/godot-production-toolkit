@@ -164,7 +164,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | Problem | Start With |
 |---|---|
 | Android export is fragile or hard to review | `godot-export-preset-doctor`, `godot-mobile-perf-doctor` |
-| Imported art looks wrong or uses too much memory | `godot-asset-pipeline-doctor` |
+| Imported art looks wrong, uses too much memory, or has bad sprite anchors | `godot-asset-pipeline-doctor` |
 | Input works on desktop but not touch/gamepad | `godot-input-map-auditor` |
 | Portrait UI needs touch and safe-area review | `godot-mobile-ui-doctor`, `godot-visual-smoke-test-kit` |
 | Data files reference missing items, recipes, quests, or levels | `godot-content-graph-doctor` |
@@ -246,7 +246,7 @@ The repo keeps the tools together, while each standalone CLI is published separa
 | Package | Current Version |
 |---|---:|
 | [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.2` |
-| [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.4` |
+| [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.5` |
 | [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.0` |
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.5` |
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.0` |

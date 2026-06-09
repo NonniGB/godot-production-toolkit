@@ -15,6 +15,7 @@ The tool is designed for generic Godot projects, including private commercial ga
 - Large textures that are risky for Android/mobile memory budgets.
 - Very large texture dimensions that may exceed conservative device limits.
 - Unexpectedly large palettes in pixel-art folders.
+- Sprite manifest dimension mismatches and out-of-bounds anchors.
 
 ## Install
 
@@ -56,6 +57,12 @@ Exclude generated or vendor folders:
 godot-asset-doctor C:\Projects\ArcadePrototype --exclude "addons/vendor/**" --exclude "assets/generated/**"
 ```
 
+Validate a sprite manifest:
+
+```powershell
+godot-asset-doctor manifest check sprite-manifest.json --project C:\Projects\ArcadePrototype --format json --output reports\sprite-manifest.json
+```
+
 Run through Python after installing the package:
 
 ```powershell
@@ -76,6 +83,7 @@ Use the findings to catch:
 - transparent sprite edges that can show colored fringes;
 - missing `.import` files that mean assets have not been opened by Godot yet;
 - unexpectedly large textures before they land in the main branch.
+- sprite anchors that fall outside the source PNG bounds.
 
 For Android-focused review, switch profile:
 
@@ -141,6 +149,7 @@ Assets: 18 | Issues: 3 | Errors: 0 | Warnings: 3
 - [Configuration](docs/CONFIGURATION.md)
 - [Pixel-art workflow](docs/PIXEL_ART.md)
 - [Mobile texture guide](docs/MOBILE_TEXTURES.md)
+- [Sprite manifests](docs/SPRITE_MANIFESTS.md)
 - [CI usage](docs/CI.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 

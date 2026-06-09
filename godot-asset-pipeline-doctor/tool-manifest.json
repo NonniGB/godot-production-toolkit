@@ -32,6 +32,10 @@
     {
       "purpose": "GitHub code scanning SARIF",
       "command": "godot-asset-doctor <project> --profile pixel-2d --format sarif --output asset-report.sarif --fail-on none"
+    },
+    {
+      "purpose": "Validate sprite manifest dimensions and anchors",
+      "command": "godot-asset-doctor manifest check sprite-manifest.json --project <project> --format json --output reports/sprite-manifest.json"
     }
   ]
 }

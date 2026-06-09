@@ -1,0 +1,16 @@
+{
+  "sprites": [
+    {
+      "id": "sample_sprite",
+      "source_path": "assets/sample_sprite.png",
+      "runtime_path": "res://assets/sample_sprite.png",
+      "width": 4,
+      "height": 4,
+      "tags": ["example", "pixel-art"],
+      "anchors": {
+        "center": {"x": 2, "y": 2},
+        "top_left": {"x": 0, "y": 0}
+      }
+    }
+  ]
+}

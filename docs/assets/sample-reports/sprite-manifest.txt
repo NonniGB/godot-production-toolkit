@@ -1,0 +1,5 @@
+Godot Asset Sprite Manifest
+Manifest: sprite-manifest.json
+Sprites: 1 | Checked: 1 | Anchors: 2
+Errors: 0 | Warnings: 0
+No sprite manifest issues found.
