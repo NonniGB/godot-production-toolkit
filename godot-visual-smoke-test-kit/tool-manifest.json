@@ -7,6 +7,7 @@
     "cli": true,
     "machine_output": ["json"],
     "human_output": ["text", "PNG diff images"],
+    "viewport_manifest_config": true,
     "visual_interface": "PNG baselines, current captures, and diff images"
   },
   "run_behavior": {
@@ -24,6 +25,10 @@
     {
       "purpose": "Script-friendly capture plan",
       "command": "godot-visual-smoke plan visual-smoke.toml --project <project> --format json"
+    },
+    {
+      "purpose": "Capture plan with reusable viewport definitions",
+      "command": "godot-visual-smoke plan visual-smoke.toml --project <project> --viewport-manifest viewports.toml --format json"
     },
     {
       "purpose": "Script-friendly screenshot comparison",

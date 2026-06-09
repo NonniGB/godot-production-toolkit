@@ -2,6 +2,9 @@ name: Publish godot-visual-smoke-test-kit
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "godot-visual-smoke-test-kit-v*"
 
 permissions:
   contents: read

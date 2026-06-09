@@ -56,6 +56,7 @@ def _build_parser() -> argparse.ArgumentParser:
     plan = subparsers.add_parser("plan", help="Print Godot capture commands from visual-smoke.toml.")
     plan.add_argument("config")
     plan.add_argument("--project", required=True)
+    plan.add_argument("--viewport-manifest", help="Optional TOML file with reusable viewport definitions.")
     plan.add_argument("--godot", default="godot")
     plan.add_argument("--format", choices=["text", "json"], default="text")
     return parser
@@ -100,7 +101,8 @@ def _approve(args: argparse.Namespace) -> int:
 
 
 def _plan(args: argparse.Namespace) -> int:
-    config = load_config(Path(args.config))
+    viewport_manifest = Path(args.viewport_manifest) if args.viewport_manifest else None
+    config = load_config(Path(args.config), viewport_manifest=viewport_manifest)
     planned_commands = []
     for scene in config.scenes:
         viewport = config.viewports[scene.viewport]
@@ -121,6 +123,7 @@ def _plan(args: argparse.Namespace) -> int:
                     "name": viewport.name,
                     "width": viewport.width,
                     "height": viewport.height,
+                    "safe_area": viewport.safe_area.to_dict(),
                 },
                 "output": str(output),
                 "command": command,

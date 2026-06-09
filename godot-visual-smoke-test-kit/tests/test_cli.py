@@ -60,6 +60,50 @@ class CliTests(unittest.TestCase):
             self.assertTrue(baseline.exists())
             self.assertEqual(payload["status"], "ok")
 
+    def test_plan_cli_includes_viewport_manifest_safe_area(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / "visual-smoke.toml"
+            manifest = root / "viewports.toml"
+            manifest.write_text(
+                """
+[viewports.portrait_phone]
+width = 720
+height = 1280
+safe_area = { top = 48, bottom = 24 }
+""",
+                encoding="utf-8",
+            )
+            config.write_text(
+                """
+[[scenes]]
+name = "menu"
+path = "res://scenes/menu.tscn"
+viewport = "portrait_phone"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "plan",
+                        str(config),
+                        "--project",
+                        str(root),
+                        "--viewport-manifest",
+                        str(manifest),
+                        "--format",
+                        "json",
+                    ]
+                )
+
+            payload = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(payload["commands"][0]["viewport"]["safe_area"]["top"], 48)
+            self.assertEqual(payload["commands"][0]["viewport"]["safe_area"]["bottom"], 24)
+
 
 if __name__ == "__main__":
     unittest.main()

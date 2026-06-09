@@ -21,6 +21,7 @@ python -m pip install godot-visual-smoke-test-kit
 ```powershell
 godot-visual-smoke plan visual-smoke.toml --project . --godot C:\Tools\Godot.exe
 godot-visual-smoke plan visual-smoke.toml --project . --format json
+godot-visual-smoke plan visual-smoke.toml --project . --viewport-manifest viewports.toml --format json
 godot-visual-smoke compare baselines\menu.png current\menu.png --diff diffs\menu.png
 godot-visual-smoke approve current\menu.png baselines\menu.png
 godot-visual-smoke compare baselines\menu.png current\menu.png --format json --output visual-report.json
@@ -30,6 +31,7 @@ godot-visual-smoke compare baselines\menu.png current\menu.png --format json --o
 
 - Parses `visual-smoke.toml`.
 - Supports named viewport presets.
+- Reuses viewport manifests across multiple smoke-test configs.
 - Compares baseline and current PNG screenshots.
 - Applies per-channel pixel tolerance.
 - Fails when changed pixel percentage exceeds the configured threshold.

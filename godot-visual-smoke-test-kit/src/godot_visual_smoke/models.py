@@ -4,10 +4,27 @@ from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
+class SafeArea:
+    left: int = 0
+    top: int = 0
+    right: int = 0
+    bottom: int = 0
+
+    def to_dict(self) -> dict[str, int]:
+        return {
+            "left": self.left,
+            "top": self.top,
+            "right": self.right,
+            "bottom": self.bottom,
+        }
+
+
+@dataclass(frozen=True)
 class Viewport:
     name: str
     width: int
     height: int
+    safe_area: SafeArea = field(default_factory=SafeArea)
 
 
 @dataclass(frozen=True)

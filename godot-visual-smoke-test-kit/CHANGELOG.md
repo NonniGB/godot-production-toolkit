@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added reusable viewport manifests for visual smoke planning.
+- Included optional safe-area metadata in planned JSON output.
+
 ## 0.1.1 - 2026-06-09
 
 - Added text and JSON approval status output for baseline updates.

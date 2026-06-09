@@ -6,6 +6,7 @@ output_dir = "visual-smoke-output"
 [viewports.portrait_phone]
 width = 720
 height = 1280
+safe_area = { top = 48, bottom = 24 }
 
 [viewports.desktop]
 width = 1280
