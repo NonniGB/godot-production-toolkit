@@ -131,6 +131,8 @@ Run from the repository root:
 
 ```powershell
 python verify_tool_manifests.py
+python verify_release_alignment.py
+python project_health_snapshot.py
 python -m unittest discover -s tests -v
 ```
 

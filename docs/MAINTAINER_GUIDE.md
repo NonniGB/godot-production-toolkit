@@ -36,6 +36,8 @@ Prefer JSON output for scripts and Markdown or HTML output for human review.
 
 ```powershell
 python verify_tool_manifests.py
+python verify_release_alignment.py
+python project_health_snapshot.py
 python -m unittest discover -s tests -v
 python -m unittest discover -s godot-project-doctor/tests -v
 python -m unittest discover -s godot-ci-doctor-action/tests -v

@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import tomllib
 import unittest
 
 import verify_tool_manifests
@@ -38,6 +39,12 @@ class ProjectMetadataTests(unittest.TestCase):
         self.assertEqual(set(verify_tool_manifests.TOOLS), metadata_tools)
         self.assertEqual(len(verify_tool_manifests.TOOLS), metadata["tool_count"])
         self.assertIn("python verify_release_alignment.py", metadata["verification_commands"])
+
+        pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        self.assertEqual(
+            len(verify_tool_manifests.TOOLS),
+            pyproject["tool"]["godot-production-toolkit"]["tool_count"],
+        )
 
     def test_project_overview_is_root_visible_and_neutral(self) -> None:
         text = (ROOT / "PROJECT_OVERVIEW.md").read_text(encoding="utf-8")

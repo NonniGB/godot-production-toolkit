@@ -25,6 +25,7 @@ Godot Production Toolkit is a collection of narrow production checks for Godot 4
 
 - `python verify_tool_manifests.py` validates every `tool-manifest.json` manifest.
 - `python verify_release_alignment.py` checks release tags, package versions, changelogs, and action examples stay aligned.
+- `python project_health_snapshot.py` prints a compact local maintenance snapshot for scheduled checks.
 - `python -m unittest discover -s tests -v` validates the root project checks.
 - Each Python package has its own unittest suite under `<tool>/tests/`.
 - `.github/workflows/ci.yml` runs root checks and package suites.
