@@ -49,7 +49,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-content-graph",
         description="Validate data-driven Godot content ids, references, and numeric outliers.",
     )
-    parser.add_argument("--version", action="version", version="godot-content-graph 0.1.2")
+    parser.add_argument("--version", action="version", version="godot-content-graph 0.1.3")
     parser.add_argument("project", help="Godot project/content root.")
     parser.add_argument("--config", help="Content graph TOML config. Overrides preset collections with the same names.")
     parser.add_argument(

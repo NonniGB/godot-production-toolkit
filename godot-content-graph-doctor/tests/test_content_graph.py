@@ -79,10 +79,16 @@ collection = "items"
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
+            self.assertEqual(report["metadata"]["schema_version"], "1.1")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.3")
             self.assertEqual(report["summary"]["collections"], 2)
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("missing_reference", rule_ids)
             self.assertIn("unused_content", rule_ids)
+            missing_reference = next(finding for finding in report["findings"] if finding["rule_id"] == "missing_reference")
+            self.assertEqual(missing_reference["title"], "Missing referenced content")
+            self.assertIn("Fix the referenced id", missing_reference["suggestion"])
+            self.assertIn("missing_reference", report["rules"])
 
     def test_mermaid_output_uses_configured_references_without_loading_godot(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -150,6 +156,27 @@ collection = "items"
             self.assertEqual(report["summary"]["collections"], 2)
             self.assertIn("recipes", report["collections"])
             self.assertIn("missing_reference", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_markdown_report_includes_rule_notes_and_suggestions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "data").mkdir()
+            (root / "data" / "items.json").write_text(json.dumps([{"id": "ore"}]), encoding="utf-8")
+            (root / "data" / "recipes.json").write_text(
+                json.dumps([{"id": "broken", "inputs": [{"item": "missing"}], "outputs": [{"item": "ore"}]}]),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--preset", "recipes", "--format", "markdown", "--fail-on", "none"])
+
+            rendered = stdout.getvalue()
+            self.assertEqual(exit_code, 0)
+            self.assertIn("Tool version: 0.1.3", rendered)
+            self.assertIn("Suggested fix", rendered)
+            self.assertIn("## Rule Notes", rendered)
+            self.assertIn("Missing referenced content", rendered)
 
     def test_list_presets_prints_human_readable_preset_names(self) -> None:
         stdout = StringIO()

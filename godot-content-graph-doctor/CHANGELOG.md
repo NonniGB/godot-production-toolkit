@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 - 2026-06-09
+
+- Added report metadata with schema version, tool version, project path, and supported output formats.
+- Added plain-language rule titles, explanations, and suggested fixes to JSON findings.
+- Added rule notes and suggested fixes to text and Markdown reports.
+
 ## 0.1.2 - 2026-06-09
 
 - Added changed-file impact reports with direct, downstream, and unmatched content files.

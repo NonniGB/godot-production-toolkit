@@ -17,8 +17,10 @@ def render_report(report: dict[str, Any], output_format: str) -> str:
 
 def _text(report: dict[str, Any]) -> str:
     summary = report["summary"]
+    metadata = report.get("metadata", {})
     lines = [
         "Godot Content Graph Doctor",
+        f"Report schema: {metadata.get('schema_version', 'unknown')} | Tool: {metadata.get('tool_version', 'unknown')}",
         (
             f"Scanned {summary['collections']} collection(s), {summary['records']} record(s): "
             f"{summary['errors']} error(s), {summary['warnings']} warning(s)."
@@ -31,7 +33,12 @@ def _text(report: dict[str, Any]) -> str:
             target = finding.get("collection", "content")
             if finding.get("item_id"):
                 target = f"{target}.{finding['item_id']}"
-            lines.append(f"[{finding['severity'].upper()}] {finding['rule_id']} - {target}: {finding['message']}")
+            lines.append(
+                f"[{finding['severity'].upper()}] {finding.get('title', finding['rule_id'])} - "
+                f"{target}: {finding['message']}"
+            )
+            if finding.get("suggestion"):
+                lines.append(f"  Try: {finding['suggestion']}")
     if report.get("impact"):
         impact = report["impact"]
         lines.extend(
@@ -48,9 +55,12 @@ def _text(report: dict[str, Any]) -> str:
 
 def _markdown(report: dict[str, Any]) -> str:
     summary = report["summary"]
+    metadata = report.get("metadata", {})
     lines = [
         "# Godot Content Graph Doctor",
         "",
+        f"- Report schema: {metadata.get('schema_version', 'unknown')}",
+        f"- Tool version: {metadata.get('tool_version', 'unknown')}",
         f"- Collections: {summary['collections']}",
         f"- Records: {summary['records']}",
         f"- Errors: {summary['errors']}",
@@ -64,14 +74,18 @@ def _markdown(report: dict[str, Any]) -> str:
             f"| {escape(str(name))} | {collection['records']} | {collection['unique_ids']} | {len(collection['references'])} |"
         )
     if report["findings"]:
-        lines.extend(["", "## Findings", "", "| Severity | Rule | Target | Message |", "|---|---|---|---|"])
+        lines.extend(["", "## Findings", "", "| Severity | Rule | Target | Message | Suggested fix |", "|---|---|---|---|---|"])
         for finding in report["findings"]:
             target = finding.get("collection", "")
             if finding.get("item_id"):
                 target = f"{target}.{finding['item_id']}"
             lines.append(
-                f"| {finding['severity']} | {finding['rule_id']} | {target} | {finding['message']} |"
+                f"| {finding['severity']} | {finding.get('title', finding['rule_id'])} | {target} | "
+                f"{finding['message']} | {finding.get('suggestion', '')} |"
             )
+        lines.extend(["", "## Rule Notes", "", "| Rule | What it means |", "|---|---|"])
+        for rule_id, rule in report.get("rules", {}).items():
+            lines.append(f"| {rule.get('title', rule_id)} | {rule.get('explanation', '')} |")
     if report.get("impact"):
         impact = report["impact"]
         lines.extend(

@@ -115,6 +115,10 @@ as `inputs[].item`.
 - `markdown`: PR comments and release notes.
 - `mermaid`: graph of configured collection references.
 
+JSON, text, and Markdown reports include report metadata, plain-language rule
+titles, and suggested fixes. JSON reports also include a `rules` object with
+the rule explanations used by the current report.
+
 Changed-file impact reports are included in `text`, `json`, and `markdown`
 output when `--changed-file` or `--changed-files` is provided.
 

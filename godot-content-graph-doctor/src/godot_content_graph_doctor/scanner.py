@@ -7,7 +7,9 @@ from statistics import median
 import tomllib
 from typing import Any
 
+from . import __version__
 from .models import CollectionData, CollectionSpec, Finding
+from .rules import catalog_for, explain_rule
 
 
 def validate_content_graph(project: Path, specs: tuple[CollectionSpec, ...]) -> dict[str, Any]:
@@ -88,8 +90,16 @@ def validate_content_graph(project: Path, specs: tuple[CollectionSpec, ...]) -> 
                     )
 
     numeric_summary = _numeric_summary(collections, findings)
+    finding_dicts = [_finding_dict(finding) for finding in findings]
     return {
         "tool": "godot-content-graph-doctor",
+        "metadata": {
+            "schema_version": "1.1",
+            "tool_version": __version__,
+            "report_kind": "content_graph_validation",
+            "project": str(root),
+            "formats": ["text", "json", "markdown", "mermaid"],
+        },
         "summary": {
             "collections": len(collections),
             "records": sum(len(data.records) for data in collections.values()),
@@ -110,7 +120,8 @@ def validate_content_graph(project: Path, specs: tuple[CollectionSpec, ...]) -> 
             for name, data in collections.items()
         },
         "numeric_summary": numeric_summary,
-        "findings": [finding.to_dict() for finding in findings],
+        "rules": catalog_for({finding.rule_id for finding in findings}),
+        "findings": finding_dicts,
     }
 
 
@@ -181,6 +192,12 @@ def _load_collection(root: Path, spec: CollectionSpec) -> CollectionData:
         raw = []
     records = _records_from_raw(raw, spec.name)
     return CollectionData(spec=spec, records=records, source_path=str(path), ids={})
+
+
+def _finding_dict(finding: Finding) -> dict[str, Any]:
+    item = finding.to_dict()
+    item.update(explain_rule(finding.rule_id))
+    return item
 
 
 def _resolve_changed_path(root: Path, value: str) -> Path:
