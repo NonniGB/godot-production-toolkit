@@ -36,7 +36,7 @@ Godot Production Toolkit is a collection of narrow production checks for Godot 4
 - Visual smoke testing requires a project-owned capture command before image comparison.
 - Static diagnostics can flag risks, but they cannot prove gameplay behavior.
 - Some reports are intentionally conservative and should be tuned with project-specific configuration over time.
-- Package publishing can be staged by demand and maintenance capacity.
+- The umbrella CLI is source-checkout only until a distinct PyPI distribution name is chosen.
 
 ## Privacy And Fixture Policy
 

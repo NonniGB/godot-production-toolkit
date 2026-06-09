@@ -55,4 +55,4 @@ The repository keeps a normal public project structure:
 - The tools are intentionally narrow production checks, not a general Godot framework.
 - Some checks need project-owned fixtures or baselines to provide their best signal.
 - Visual smoke testing still depends on a project-specific capture command before diffing screenshots.
-- Package publishing can be staged; the umbrella CLI and highest-demand diagnostics are the natural first package candidates.
+- The umbrella CLI is source-checkout only until a distinct PyPI distribution name is chosen.

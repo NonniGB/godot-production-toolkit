@@ -2,9 +2,7 @@
 
 [![Suite CI](https://github.com/NonniGB/godot-production-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/NonniGB/godot-production-toolkit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![godot-asset-pipeline-doctor on PyPI](https://img.shields.io/pypi/v/godot-asset-pipeline-doctor?label=asset%20doctor)](https://pypi.org/project/godot-asset-pipeline-doctor/)
-[![godot-export-preset-doctor on PyPI](https://img.shields.io/pypi/v/godot-export-preset-doctor?label=export%20doctor)](https://pypi.org/project/godot-export-preset-doctor/)
-[![godot-mobile-perf-doctor on PyPI](https://img.shields.io/pypi/v/godot-mobile-perf-doctor?label=mobile%20perf)](https://pypi.org/project/godot-mobile-perf-doctor/)
+[![PyPI packages](https://img.shields.io/badge/PyPI-10%20packages-blue)](#package-publication)
 
 CI-friendly production diagnostics for Godot 4 projects.
 
@@ -49,19 +47,33 @@ python -m pip install -e .\godot-export-preset-doctor
 python -m pip install -e .\godot-mobile-perf-doctor
 ```
 
-The three first standalone packages are also available from PyPI:
+The standalone tools are also available from PyPI. Install the package that matches the check you need:
 
 ```powershell
+python -m pip install gdscript-api-comment-coverage
 python -m pip install godot-asset-pipeline-doctor
 python -m pip install godot-export-preset-doctor
+python -m pip install godot-input-map-auditor
+python -m pip install godot-localization-qa-guard
 python -m pip install godot-mobile-perf-doctor
+python -m pip install godot-save-schema-guard
+python -m pip install godot-scene-signal-auditor
+python -m pip install godot-visual-smoke-test-kit
+python -m pip install pixel-space-asset-toolkit
 ```
 
 Pick the package that matches the risk you are trying to reduce:
 
+- `gdscript-api-comment-coverage`: before treating generated API docs or comment coverage as complete.
 - `godot-export-preset-doctor`: before an Android, Windows, Linux, or web export job.
 - `godot-asset-pipeline-doctor`: before merging new sprites, UI art, icons, or large textures.
+- `godot-input-map-auditor`: before merging input, controller, or mobile-touch changes.
+- `godot-localization-qa-guard`: before shipping translated builds or importing new localization files.
 - `godot-mobile-perf-doctor`: before testing a Godot 4 project on Android hardware.
+- `godot-save-schema-guard`: before changing save data, save fixtures, or migration commands.
+- `godot-scene-signal-auditor`: before refactoring scenes, signals, or autoload event wiring.
+- `godot-visual-smoke-test-kit`: before approving UI, scene, or rendering changes with screenshot baselines.
+- `pixel-space-asset-toolkit`: when generating deterministic pixel-art space assets or preview sheets.
 
 Preview checks without writing files:
 
@@ -176,8 +188,9 @@ These root-level files explain how the project is maintained and how contributor
 
 ## Package Publication
 
-The repository is published as one umbrella toolkit. The `godot-project-doctor` command is available from a source checkout, while the highest-demand standalone packages are published on PyPI:
+The repository is published as one umbrella toolkit. The `godot-project-doctor` command is available from a source checkout, while the standalone tools are published on PyPI:
 
+- [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/)
 - [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
 - [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)
 - [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/)
@@ -186,7 +199,6 @@ The repository is published as one umbrella toolkit. The `godot-project-doctor` 
 - [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/)
 - [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/)
 - [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/)
-- [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/)
 - [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/)
 
 The exact `godot-project-doctor` distribution name is already used on PyPI, so the umbrella CLI needs a distinct package name before it can be published there.
