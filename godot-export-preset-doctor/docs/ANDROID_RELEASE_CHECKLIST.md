@@ -16,7 +16,13 @@ Review these areas before uploading a build:
 - Release-like presets do not enable debug export options.
 - Keystore passwords come from environment variables or CI secrets, not committed text.
 
-For CI, pin required ABIs in `.godot-export-doctor.toml`:
+For CI, pin required ABIs with a CLI flag:
+
+```powershell
+godot-export-doctor . --platform Android --required-android-abi arm64-v8a --fail-on warning
+```
+
+Or keep the same rule in `.godot-export-doctor.toml`:
 
 ```toml
 platform = "Android"

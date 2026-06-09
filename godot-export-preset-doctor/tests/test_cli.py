@@ -1,7 +1,5 @@
 from contextlib import redirect_stdout
 from io import StringIO
-from contextlib import redirect_stdout
-from io import StringIO
 import json
 import tempfile
 import unittest
@@ -19,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-export-doctor 0.1.2", stdout.getvalue())
+        self.assertIn("godot-export-doctor 0.1.3", stdout.getvalue())
 
     def test_cli_reports_findings_as_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -104,6 +102,51 @@ keystore/release_password="<set-in-ci>"
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
             self.assertNotIn("hardcoded_credential_value", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_cli_flags_can_require_abis_and_allow_secret_placeholders(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "export_presets.cfg").write_text(
+                """
+[preset.0]
+name="Android Release"
+platform="Android"
+export_path="build/game.apk"
+
+[preset.0.options]
+package/unique_name="com.example.game"
+version/code=1
+version/name="1.0.0"
+architectures/armeabi-v7a=true
+architectures/arm64-v8a=false
+keystore/release_password="<set-in-ci>"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        str(project),
+                        "--platform",
+                        "Android",
+                        "--required-android-abi",
+                        "arm64-v8a",
+                        "--allow-secret-pattern",
+                        "<.+>",
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "warning",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            rule_ids = {finding["rule_id"] for finding in report["findings"]}
+            self.assertEqual(exit_code, 1)
+            self.assertIn("android_required_abi_missing", rule_ids)
+            self.assertNotIn("hardcoded_credential_value", rule_ids)
 
 
 if __name__ == "__main__":

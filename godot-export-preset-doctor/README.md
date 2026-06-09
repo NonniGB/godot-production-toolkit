@@ -23,6 +23,7 @@ python -m pip install godot-export-preset-doctor
 ```powershell
 godot-export-doctor C:\Projects\MyGame
 godot-export-doctor . --platform Android
+godot-export-doctor . --platform Android --required-android-abi arm64-v8a
 godot-export-doctor . --format sarif --output export-doctor.sarif
 ```
 
@@ -53,6 +54,12 @@ For a first pass on an existing project, avoid failing the build while you revie
 godot-export-doctor . --platform Android --fail-on none --format json --output reports\export-doctor.json
 ```
 
+Require a specific Android ABI without creating a config file:
+
+```powershell
+godot-export-doctor . --platform Android --required-android-abi arm64-v8a --fail-on warning
+```
+
 ## What It Checks
 
 - Missing `export_presets.cfg`.
@@ -71,6 +78,7 @@ format = "text"
 fail_on = "warning"
 platform = "Android"
 required_android_abis = ["arm64-v8a"]
+allowed_secret_patterns = ["<.+>"]
 ```
 
 CLI flags override config values.

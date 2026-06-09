@@ -23,8 +23,8 @@ def main(argv: list[str] | None = None) -> int:
     output_format = args.format or str(config.get("format", "text"))
     fail_on = args.fail_on or str(config.get("fail_on", "warning"))
     platform = args.platform or config.get("platform")
-    required_android_abis = config.get("required_android_abis", [])
-    allowed_secret_patterns = _configured_list(config, "allowed_secret_patterns")
+    required_android_abis = _configured_list(args.required_android_abi, config, "required_android_abis")
+    allowed_secret_patterns = _configured_list(args.allow_secret_pattern, config, "allowed_secret_patterns")
 
     presets_file = _resolve_presets_file(project)
     if presets_file.exists():
@@ -60,10 +60,22 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-export-doctor",
         description="Audit Godot export_presets.cfg release readiness.",
     )
-    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.2")
+    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.3")
     parser.add_argument("project", help="Godot project directory or export_presets.cfg path.")
     parser.add_argument("--config", help=f"TOML config path. Defaults to {DEFAULT_CONFIG}.")
     parser.add_argument("--platform", help="Only evaluate presets for a platform, such as Android.")
+    parser.add_argument(
+        "--required-android-abi",
+        action="append",
+        default=None,
+        help="Require an Android ABI option such as arm64-v8a. Can be repeated.",
+    )
+    parser.add_argument(
+        "--allow-secret-pattern",
+        action="append",
+        default=None,
+        help="Allow a deliberate credential placeholder regex such as '<.+>'. Can be repeated.",
+    )
     parser.add_argument("--format", choices=["text", "json", "sarif"], help="Report format.")
     parser.add_argument("--output", help="Write the report to this file instead of stdout.")
     parser.add_argument(
@@ -94,13 +106,16 @@ def _load_config(project: Path, explicit_config: Path | None) -> dict[str, Any]:
     return data
 
 
-def _configured_list(config: dict[str, Any], key: str) -> list[str]:
+def _configured_list(cli_values: list[str] | None, config: dict[str, Any], key: str) -> list[str]:
+    values: list[str] = []
     value = config.get(key, [])
     if isinstance(value, list):
-        return [str(item) for item in value]
-    if isinstance(value, str):
-        return [value]
-    return []
+        values.extend(str(item) for item in value)
+    elif isinstance(value, str):
+        values.append(value)
+    if cli_values:
+        values.extend(cli_values)
+    return values
 
 
 def _filter_presets(presets: list[ExportPreset], platform: object) -> list[ExportPreset]:

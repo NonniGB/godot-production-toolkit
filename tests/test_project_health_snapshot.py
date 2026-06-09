@@ -1,4 +1,5 @@
 from pathlib import Path
+import tomllib
 import unittest
 
 from project_health_snapshot import build_snapshot
@@ -16,14 +17,15 @@ class ProjectHealthSnapshotTests(unittest.TestCase):
         self.assertEqual("0.1.2", snapshot["version"])
         self.assertEqual(12, snapshot["tool_count"])
         self.assertEqual("ok", snapshot["release_alignment"])
-        self.assertEqual(
-            {
-                "godot-asset-pipeline-doctor": "0.1.2",
-                "godot-export-preset-doctor": "0.1.2",
-                "godot-mobile-perf-doctor": "0.1.2",
-            },
-            snapshot["published_packages"],
-        )
+        expected = {
+            package: tomllib.loads((ROOT / package / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+            for package in (
+                "godot-asset-pipeline-doctor",
+                "godot-export-preset-doctor",
+                "godot-mobile-perf-doctor",
+            )
+        }
+        self.assertEqual(expected, snapshot["published_packages"])
 
 
 if __name__ == "__main__":

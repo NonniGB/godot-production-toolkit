@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 - 2026-06-09
+
+- Added CLI flags for required Android ABIs and allowed credential placeholder patterns.
+- Added tests for no-config CI use of ABI and placeholder overrides.
+
 ## 0.1.2 - 2026-06-08
 
 - Added `allowed_secret_patterns` config for deliberate credential placeholders in export presets.

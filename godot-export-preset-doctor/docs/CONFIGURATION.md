@@ -16,6 +16,12 @@ CLI flags override config values:
 godot-export-doctor . --format json --output report.json --fail-on error
 ```
 
+The list-style config values also have repeatable CLI equivalents:
+
+```powershell
+godot-export-doctor . --platform Android --required-android-abi arm64-v8a --allow-secret-pattern "<.+>"
+```
+
 Fields:
 
 - `format`: `text`, `json`, or `sarif`.
