@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 - 2026-06-09
+
+- Added changed-file impact reports with direct, downstream, and unmatched content files.
+- Added `--changed-file` and `--changed-files` for pull request and release-check summaries.
+- Included changed-file impact sections in text, Markdown, and JSON output.
+
 ## 0.1.1 - 2026-06-09
 
 - Added built-in presets for items, recipes, quests, dialogue, levels, and content packs.

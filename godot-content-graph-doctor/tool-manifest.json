@@ -30,6 +30,10 @@
       "command": "godot-content-graph <project> --preset recipes --format json --output reports/content-graph.json"
     },
     {
+      "purpose": "Show PR impact for changed content files",
+      "command": "godot-content-graph <project> --preset recipes --changed-file data/items.json --format markdown"
+    },
+    {
       "purpose": "Validate content ids and references",
       "command": "godot-content-graph <project> --config content-graph.toml --format json --output reports/content-graph.json"
     },

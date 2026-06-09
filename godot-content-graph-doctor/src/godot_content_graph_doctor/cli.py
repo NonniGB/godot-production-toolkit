@@ -7,7 +7,7 @@ import sys
 from .config import load_config
 from .presets import BUILTIN_PRESETS, load_presets, merge_specs, render_preset_list
 from .reporting import render_report
-from .scanner import render_mermaid, validate_content_graph
+from .scanner import changed_file_impact, render_mermaid, validate_content_graph
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -32,6 +32,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     report = validate_content_graph(project, specs)
+    changed_files = _changed_files(args.changed_file, args.changed_files)
+    if changed_files:
+        report["impact"] = changed_file_impact(project, specs, changed_files)
     rendered = render_report(report, args.format)
     _emit(rendered, args.output)
     return _exit_code(report, args.fail_on)
@@ -46,7 +49,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-content-graph",
         description="Validate data-driven Godot content ids, references, and numeric outliers.",
     )
-    parser.add_argument("--version", action="version", version="godot-content-graph 0.1.1")
+    parser.add_argument("--version", action="version", version="godot-content-graph 0.1.2")
     parser.add_argument("project", help="Godot project/content root.")
     parser.add_argument("--config", help="Content graph TOML config. Overrides preset collections with the same names.")
     parser.add_argument(
@@ -59,6 +62,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--format", choices=["text", "json", "markdown", "mermaid"], default="text")
     parser.add_argument("--output", help="Write output to this file instead of stdout.")
     parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
+    parser.add_argument("--changed-file", action="append", help="Changed content file path. Repeat for multiple files.")
+    parser.add_argument("--changed-files", help="Comma-separated changed content file paths.")
     return parser
 
 
@@ -75,6 +80,13 @@ def _resolve_config(project: Path, config: Path) -> Path:
     if config.is_absolute() or config.exists():
         return config
     return project / config
+
+
+def _changed_files(repeated: list[str] | None, comma_separated: str | None) -> list[str]:
+    values = list(repeated or [])
+    if comma_separated:
+        values.extend(item.strip() for item in comma_separated.split(","))
+    return [value for value in values if value]
 
 
 def _exit_code(report: dict[str, object], fail_on: str) -> int:

@@ -96,6 +96,7 @@ content-pack files:
 
 ```powershell
 godot-content-graph . --preset recipes --format markdown --output reports\content-graph.md --fail-on none
+godot-content-graph . --preset recipes --changed-file data/items.json --format markdown --output reports\content-impact.md --fail-on none
 ```
 
 This helps catch:

@@ -161,6 +161,38 @@ collection = "items"
         self.assertIn("recipes", stdout.getvalue())
         self.assertIn("content-pack", stdout.getvalue())
 
+    def test_changed_file_impact_reports_downstream_collections(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "data").mkdir()
+            (root / "data" / "items.json").write_text(json.dumps([{"id": "ore"}, {"id": "bar"}]), encoding="utf-8")
+            (root / "data" / "recipes.json").write_text(
+                json.dumps([{"id": "smelt", "inputs": [{"item": "ore"}], "outputs": [{"item": "bar"}]}]),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        str(root),
+                        "--preset",
+                        "recipes",
+                        "--changed-file",
+                        "data/items.json",
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["impact"]["direct_collections"], ["items"])
+            self.assertEqual(report["impact"]["downstream_collections"], ["recipes"])
+            self.assertEqual(report["impact"]["unmatched_files"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

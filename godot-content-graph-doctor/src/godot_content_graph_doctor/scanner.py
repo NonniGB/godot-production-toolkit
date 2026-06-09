@@ -125,6 +125,47 @@ def render_mermaid(specs: tuple[CollectionSpec, ...]) -> str:
     return "\n".join(lines)
 
 
+def changed_file_impact(project: Path, specs: tuple[CollectionSpec, ...], changed_files: list[str]) -> dict[str, Any]:
+    root = project.resolve()
+    collection_paths = {_resolve_changed_path(root, spec.path): spec.name for spec in specs}
+    downstream: dict[str, set[str]] = {spec.name: set() for spec in specs}
+    for spec in specs:
+        for ref in spec.references:
+            downstream.setdefault(ref.collection, set()).add(spec.name)
+
+    changed: list[dict[str, str]] = []
+    direct: set[str] = set()
+    unknown: list[str] = []
+    for raw_path in changed_files:
+        resolved = _resolve_changed_path(root, raw_path)
+        collection = collection_paths.get(resolved)
+        item = {"path": raw_path}
+        if collection:
+            item["collection"] = collection
+            direct.add(collection)
+        else:
+            item["collection"] = ""
+            unknown.append(raw_path)
+        changed.append(item)
+
+    affected = set(direct)
+    pending = list(direct)
+    while pending:
+        current = pending.pop()
+        for dependent in downstream.get(current, set()):
+            if dependent not in affected:
+                affected.add(dependent)
+                pending.append(dependent)
+
+    return {
+        "changed_files": changed,
+        "direct_collections": sorted(direct),
+        "affected_collections": sorted(affected),
+        "downstream_collections": sorted(affected - direct),
+        "unmatched_files": sorted(unknown),
+    }
+
+
 def _load_collection(root: Path, spec: CollectionSpec) -> CollectionData:
     path = (root / spec.path).resolve()
     if not path.exists():
@@ -140,6 +181,13 @@ def _load_collection(root: Path, spec: CollectionSpec) -> CollectionData:
         raw = []
     records = _records_from_raw(raw, spec.name)
     return CollectionData(spec=spec, records=records, source_path=str(path), ids={})
+
+
+def _resolve_changed_path(root: Path, value: str) -> Path:
+    path = Path(value)
+    if path.is_absolute():
+        return path.resolve()
+    return (root / path).resolve()
 
 
 def _records_from_raw(raw: Any, collection_name: str) -> list[dict[str, Any]]:
@@ -247,4 +295,3 @@ def _numeric_summary(collections: dict[str, CollectionData], findings: list[Find
         if collection_summary:
             summary[name] = collection_summary
     return summary
-

@@ -26,12 +26,23 @@ def _text(report: dict[str, Any]) -> str:
     ]
     if not report["findings"]:
         lines.append("No findings.")
-        return "\n".join(lines)
-    for finding in report["findings"]:
-        target = finding.get("collection", "content")
-        if finding.get("item_id"):
-            target = f"{target}.{finding['item_id']}"
-        lines.append(f"[{finding['severity'].upper()}] {finding['rule_id']} - {target}: {finding['message']}")
+    else:
+        for finding in report["findings"]:
+            target = finding.get("collection", "content")
+            if finding.get("item_id"):
+                target = f"{target}.{finding['item_id']}"
+            lines.append(f"[{finding['severity'].upper()}] {finding['rule_id']} - {target}: {finding['message']}")
+    if report.get("impact"):
+        impact = report["impact"]
+        lines.extend(
+            [
+                "",
+                "Changed-file impact:",
+                f"- Direct collections: {_join_or_none(impact['direct_collections'])}",
+                f"- Downstream collections: {_join_or_none(impact['downstream_collections'])}",
+                f"- Unmatched files: {_join_or_none(impact['unmatched_files'])}",
+            ]
+        )
     return "\n".join(lines)
 
 
@@ -61,5 +72,20 @@ def _markdown(report: dict[str, Any]) -> str:
             lines.append(
                 f"| {finding['severity']} | {finding['rule_id']} | {target} | {finding['message']} |"
             )
+    if report.get("impact"):
+        impact = report["impact"]
+        lines.extend(
+            [
+                "",
+                "## Changed-File Impact",
+                "",
+                f"- Direct collections: {_join_or_none(impact['direct_collections'])}",
+                f"- Downstream collections: {_join_or_none(impact['downstream_collections'])}",
+                f"- Unmatched files: {_join_or_none(impact['unmatched_files'])}",
+            ]
+        )
     return "\n".join(lines)
 
+
+def _join_or_none(values: list[str]) -> str:
+    return ", ".join(values) if values else "none"

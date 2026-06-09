@@ -50,6 +50,13 @@ Create a Mermaid graph:
 godot-content-graph examples\tiny-content-project --config content-graph.toml --format mermaid --fail-on none
 ```
 
+Show the collections touched by changed files and any downstream collections
+that reference them:
+
+```powershell
+godot-content-graph path\to\godot-project --preset recipes --changed-file data/items.json --format markdown
+```
+
 ## Config Example
 
 Presets are useful for quick starts. A config file is still best when a project
@@ -107,6 +114,9 @@ as `inputs[].item`.
 - `json`: CI and scripts.
 - `markdown`: PR comments and release notes.
 - `mermaid`: graph of configured collection references.
+
+Changed-file impact reports are included in `text`, `json`, and `markdown`
+output when `--changed-file` or `--changed-files` is provided.
 
 ## Exit Codes
 
