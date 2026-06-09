@@ -1,0 +1,10 @@
+{
+  "scenario": "trade_flow",
+  "status": "passed",
+  "duration_ms": 1320,
+  "assertions": [
+    {"name": "trade completed", "status": "passed"},
+    {"name": "credits changed", "status": "passed"}
+  ]
+}
+

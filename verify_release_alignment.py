@@ -9,11 +9,14 @@ import tomllib
 PUBLISHED_PACKAGES = (
     "gdscript-api-comment-coverage",
     "godot-asset-pipeline-doctor",
+    "godot-content-graph-doctor",
     "godot-export-preset-doctor",
+    "godot-gdscript-architecture-guard",
     "godot-input-map-auditor",
     "godot-localization-qa-guard",
     "godot-mobile-perf-doctor",
     "godot-save-schema-guard",
+    "godot-scenario-report-kit",
     "godot-scene-signal-auditor",
     "godot-visual-smoke-test-kit",
     "pixel-space-asset-toolkit",
@@ -30,10 +33,20 @@ PACKAGE_VERSION_FILES = {
         "cli": "src/godot_asset_doctor/cli.py",
         "cli_name": "godot-asset-doctor",
     },
+    "godot-content-graph-doctor": {
+        "init": "src/godot_content_graph_doctor/__init__.py",
+        "cli": "src/godot_content_graph_doctor/cli.py",
+        "cli_name": "godot-content-graph",
+    },
     "godot-export-preset-doctor": {
         "init": "src/godot_export_doctor/__init__.py",
         "cli": "src/godot_export_doctor/cli.py",
         "cli_name": "godot-export-doctor",
+    },
+    "godot-gdscript-architecture-guard": {
+        "init": "src/godot_architecture_guard/__init__.py",
+        "cli": "src/godot_architecture_guard/cli.py",
+        "cli_name": "godot-architecture-guard",
     },
     "godot-input-map-auditor": {
         "init": "src/godot_input_auditor/__init__.py",
@@ -54,6 +67,11 @@ PACKAGE_VERSION_FILES = {
         "init": "src/godot_save_guard/__init__.py",
         "cli": "src/godot_save_guard/cli.py",
         "cli_name": "godot-save-guard",
+    },
+    "godot-scenario-report-kit": {
+        "init": "src/godot_scenario_report_kit/__init__.py",
+        "cli": "src/godot_scenario_report_kit/cli.py",
+        "cli_name": "godot-scenario-report",
     },
     "godot-scene-signal-auditor": {
         "init": "src/godot_signal_auditor/__init__.py",

@@ -43,11 +43,14 @@ Record:
 Current package URLs:
 
 - [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
+- [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/)
 - [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)
+- [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/)
 - [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/)
 - [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/)
 - [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/)
 - [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/)
+- [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/)
 - [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/)
 - [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/)
 - [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/)

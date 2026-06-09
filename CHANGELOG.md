@@ -2,8 +2,13 @@
 
 ## Unreleased
 
+- Added `godot-content-graph-doctor` for data-driven content id, reference, unused-content, numeric outlier, and Mermaid graph checks.
+- Added `godot-scenario-report-kit` for scenario evidence summaries and baseline comparisons.
+- Added `godot-gdscript-architecture-guard` for module boundary, autoload access, dependency graph, and SARIF checks.
+- Added `inspect`, `recommend`, `init`, and `explain` commands to `godot-project-doctor`.
+- Expanded README guidance with a choose-by-problem table, new package examples, and report screenshots.
 - Added a visible package-version table to the README.
-- Improved CLI ergonomics across the ten published standalone packages.
+- Improved CLI ergonomics across the standalone packages.
 - Tightened validation and error handling across six standalone package CLIs.
 
 ## 0.1.2 - 2026-06-08

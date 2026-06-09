@@ -17,7 +17,7 @@
     "testing",
     "qa"
   ],
-  "tool_count": 12,
+  "tool_count": 15,
   "tools": [
     {
       "name": "godot-project-doctor",
@@ -35,6 +35,11 @@
       "interfaces": ["cli", "json", "sarif", "text"]
     },
     {
+      "name": "godot-content-graph-doctor",
+      "role": "Data-driven content id, reference, and numeric outlier validation.",
+      "interfaces": ["cli", "json", "markdown", "mermaid"]
+    },
+    {
       "name": "godot-export-preset-doctor",
       "role": "Release-readiness checks for export_presets.cfg.",
       "interfaces": ["cli", "json", "sarif", "text"]
@@ -43,6 +48,11 @@
       "name": "gdscript-api-comment-coverage",
       "role": "Public GDScript API documentation and coverage gate.",
       "interfaces": ["cli", "json", "markdown"]
+    },
+    {
+      "name": "godot-gdscript-architecture-guard",
+      "role": "GDScript module boundary, autoload access, dependency graph, and architecture policy checks.",
+      "interfaces": ["cli", "json", "sarif", "markdown", "mermaid"]
     },
     {
       "name": "godot-input-map-auditor",
@@ -58,6 +68,11 @@
       "name": "godot-save-schema-guard",
       "role": "Save fixture schema validation and migration command checks.",
       "interfaces": ["cli", "json", "markdown"]
+    },
+    {
+      "name": "godot-scenario-report-kit",
+      "role": "Scenario run evidence validation, summary, and baseline comparison.",
+      "interfaces": ["cli", "json", "markdown", "html"]
     },
     {
       "name": "godot-scene-signal-auditor",
@@ -119,8 +134,14 @@
     "docs/USE_CASES.md",
     "examples/release-readiness-demo/README.md",
     "docs/assets/sample-reports/release-readiness-summary.html",
+    "docs/assets/sample-reports/content-graph-summary.md",
+    "docs/assets/sample-reports/scenario-compare.md",
+    "docs/assets/sample-reports/architecture-guard.md",
     "docs/assets/screenshots/project-doctor-html-report.png",
-    "docs/assets/screenshots/project-doctor-terminal.png"
+    "docs/assets/screenshots/project-doctor-terminal.png",
+    "docs/assets/screenshots/content-graph-terminal.svg",
+    "docs/assets/screenshots/scenario-report-terminal.svg",
+    "docs/assets/screenshots/architecture-guard-terminal.svg"
   ],
   "verification_commands": [
     "python verify_tool_manifests.py",
@@ -130,7 +151,11 @@
     "python -m unittest discover -s godot-project-doctor/tests -v",
     "python -m unittest discover -s godot-ci-doctor-action/tests -v",
     "python -m unittest discover -s godot-asset-pipeline-doctor/tests -v",
+    "python -m unittest discover -s godot-content-graph-doctor/tests -v",
+    "python -m unittest discover -s godot-gdscript-architecture-guard/tests -v",
     "python -m unittest discover -s godot-mobile-perf-doctor/tests -v"
+    ,
+    "python -m unittest discover -s godot-scenario-report-kit/tests -v"
   ],
   "current_limitations": [
     "Some specialized tools require project-specific fixtures or visual smoke capture scripts to be fully useful.",
@@ -140,7 +165,7 @@
   "release_priorities": [
     "Maintain one public umbrella repository with all tools and the GitHub Action.",
     "Keep tagged releases tied to passing CI runs.",
-    "Maintain the published packages first: godot-asset-pipeline-doctor, godot-export-preset-doctor, and godot-mobile-perf-doctor.",
+    "Maintain the published packages first: godot-asset-pipeline-doctor, godot-export-preset-doctor, godot-mobile-perf-doctor, godot-content-graph-doctor, godot-scenario-report-kit, and godot-gdscript-architecture-guard.",
     "Use concise examples and minimal fixtures when discussing issues or improvements."
   ]
 }

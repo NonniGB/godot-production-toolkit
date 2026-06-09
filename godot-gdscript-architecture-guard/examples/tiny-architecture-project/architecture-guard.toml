@@ -1,0 +1,18 @@
+[modules.ui]
+paths = ["scripts/ui/**"]
+may_depend_on = ["shared"]
+allowed_autoloads = ["Settings"]
+
+[modules.gameplay]
+paths = ["scripts/gameplay/**"]
+may_depend_on = ["shared"]
+allowed_autoloads = ["GameState"]
+
+[modules.shared]
+paths = ["scripts/shared/**"]
+may_depend_on = []
+allowed_autoloads = []
+
+[autoloads]
+names = ["GameState", "Settings"]
+

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="420" role="img" aria-label="Godot Content Graph Doctor terminal report">
+  <rect width="980" height="420" rx="12" fill="#101722"/>
+  <rect x="18" y="18" width="944" height="384" rx="8" fill="#0b1220" stroke="#263244"/>
+  <text x="40" y="58" fill="#9cc8ff" font-family="Consolas, Menlo, monospace" font-size="20">godot-content-graph examples\tiny-content-project --config content-graph.toml --format markdown</text>
+  <text x="40" y="104" fill="#f7fafc" font-family="Consolas, Menlo, monospace" font-size="22" font-weight="700"># Godot Content Graph Doctor</text>
+  <text x="40" y="148" fill="#d7e2f0" font-family="Consolas, Menlo, monospace" font-size="18">Collections: 2    Records: 5    Errors: 1    Warnings: 1</text>
+  <text x="40" y="196" fill="#b6c7dc" font-family="Consolas, Menlo, monospace" font-size="17">items     records 3    unique ids 3    references 0</text>
+  <text x="40" y="228" fill="#b6c7dc" font-family="Consolas, Menlo, monospace" font-size="17">recipes   records 2    unique ids 2    references 2</text>
+  <text x="40" y="286" fill="#ffb4a8" font-family="Consolas, Menlo, monospace" font-size="17">error   missing_reference   recipes.repair_kit references items.missing_gel</text>
+  <text x="40" y="320" fill="#ffd38a" font-family="Consolas, Menlo, monospace" font-size="17">warning numeric_outlier     items.repair_kit value is at least 8x median</text>
+  <text x="40" y="366" fill="#7dd3fc" font-family="Consolas, Menlo, monospace" font-size="16">Mermaid output is also available for content dependency diagrams.</text>
+</svg>
+

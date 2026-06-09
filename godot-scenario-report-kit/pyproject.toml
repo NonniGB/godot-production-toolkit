@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "godot-scenario-report-kit"
+version = "0.1.0"
+description = "Validate, summarize, and compare Godot scenario run evidence."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Godot Scenario Report Kit contributors" }]
+keywords = ["godot", "testing", "scenario", "qa", "regression", "gamedev", "ci"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Utilities"
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-scenario-report-kit"
+Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
+
+[project.scripts]
+godot-scenario-report = "godot_scenario_report_kit.cli:entrypoint"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+

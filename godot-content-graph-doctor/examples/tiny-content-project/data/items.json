@@ -1,0 +1,6 @@
+[
+  {"id": "copper_ore", "name": "Copper Ore", "value": 3},
+  {"id": "copper_bar", "name": "Copper Bar", "value": 12},
+  {"id": "repair_kit", "name": "Repair Kit", "value": 120}
+]
+

@@ -28,8 +28,8 @@ class ProjectMetadataTests(unittest.TestCase):
         ):
             self.assertIn(key, metadata)
 
-        self.assertEqual(metadata["tool_count"], 12)
-        self.assertEqual(len(metadata["tools"]), 12)
+        self.assertEqual(metadata["tool_count"], len(verify_tool_manifests.TOOLS))
+        self.assertEqual(len(metadata["tools"]), len(verify_tool_manifests.TOOLS))
         self.assertGreaterEqual(len(metadata["verification_commands"]), 4)
 
     def test_project_metadata_matches_manifest_list(self) -> None:

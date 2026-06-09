@@ -2,11 +2,11 @@
 
 Godot Production Toolkit is a suite of CI-friendly production diagnostics for Godot 4 projects.
 
-The tools focus on repeated production risks that are easy to miss late in development: export preset mistakes, texture and import hygiene, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, visual regressions, and pixel asset workflow checks.
+The tools focus on repeated production risks that are easy to miss late in development: export preset mistakes, texture and import hygiene, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, visual regressions, data-content reference errors, scenario evidence drift, GDScript architecture coupling, and pixel asset workflow checks.
 
 ## What Ships
 
-- Ten standalone Python CLI packages.
+- Thirteen standalone Python CLI packages.
 - One umbrella CLI: `godot-project-doctor`.
 - One composite GitHub Action: `godot-ci-doctor-action`.
 - JSON output for scripts and CI.

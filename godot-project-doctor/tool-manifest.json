@@ -22,6 +22,14 @@
   },
   "recommended_commands": [
     {
+      "purpose": "Inspect a project and recommend checks",
+      "command": "godot-project-doctor recommend <project>"
+    },
+    {
+      "purpose": "Preview starter config and workflow",
+      "command": "godot-project-doctor init <project> --dry-run --include-workflow"
+    },
+    {
       "purpose": "Script-friendly dry run",
       "command": "godot-project-doctor run --project <project> --checks assets,export,mobile_perf --dry-run --format json"
     },

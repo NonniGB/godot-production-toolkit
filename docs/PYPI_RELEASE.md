@@ -10,11 +10,14 @@ These packages are published as standalone PyPI distributions:
 |---|---:|
 | [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.2` |
 | [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.4` |
+| [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.0` |
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.5` |
+| [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.0` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.2` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.2` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.4` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.1` |
+| [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.0` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.1` |
 | [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.1` |
 | [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/) | `0.1.1` |
@@ -41,11 +44,14 @@ Use the manual package workflow for the package being released:
 |---|---|
 | `gdscript-api-comment-coverage` | `publish-gdscript-api-comment-coverage.yml` |
 | `godot-asset-pipeline-doctor` | `publish-pypi.yml` |
+| `godot-content-graph-doctor` | `publish-content-graph-doctor.yml` |
 | `godot-export-preset-doctor` | `publish-export-preset-doctor.yml` |
+| `godot-gdscript-architecture-guard` | `publish-gdscript-architecture-guard.yml` |
 | `godot-input-map-auditor` | `publish-input-map-auditor.yml` |
 | `godot-localization-qa-guard` | `publish-localization-qa-guard.yml` |
 | `godot-mobile-perf-doctor` | `publish-mobile-perf-doctor.yml` |
 | `godot-save-schema-guard` | `publish-save-schema-guard.yml` |
+| `godot-scenario-report-kit` | `publish-scenario-report-kit.yml` |
 | `godot-scene-signal-auditor` | `publish-scene-signal-auditor.yml` |
 | `godot-visual-smoke-test-kit` | `publish-visual-smoke-test-kit.yml` |
 | `pixel-space-asset-toolkit` | `publish-pixel-space-asset-toolkit.yml` |

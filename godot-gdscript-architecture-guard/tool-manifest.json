@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-gdscript-architecture-guard",
+  "entrypoint": "godot-architecture-guard",
+  "module": "python -m godot_architecture_guard",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json", "sarif"],
+    "human_output": ["text", "markdown", "mermaid"],
+    "visual_interface": "Mermaid dependency graph"
+  },
+  "run_behavior": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Check module boundary policy",
+      "command": "godot-architecture-guard . --config architecture-guard.toml --format json --output reports/architecture.json"
+    },
+    {
+      "purpose": "Generate a dependency graph",
+      "command": "godot-architecture-guard . --config architecture-guard.toml --format mermaid --output reports/architecture.mmd --fail-on none"
+    }
+  ]
+}
+

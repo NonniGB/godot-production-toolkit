@@ -1,0 +1,10 @@
+{
+  "scenario": "trade_flow",
+  "status": "failed",
+  "duration_ms": 2400,
+  "assertions": [
+    {"name": "trade completed", "status": "failed", "message": "Buy button stayed disabled."},
+    {"name": "credits changed", "status": "skipped"}
+  ]
+}
+

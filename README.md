@@ -2,13 +2,13 @@
 
 [![Suite CI](https://github.com/NonniGB/godot-production-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/NonniGB/godot-production-toolkit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![PyPI packages](https://img.shields.io/badge/PyPI-10%20packages-blue)](#package-publication)
+[![PyPI packages](https://img.shields.io/badge/PyPI-13%20packages-blue)](#package-publication)
 
 CI-friendly production diagnostics for Godot 4 projects.
 
 Godot Production Toolkit helps solo developers and small teams catch release risks before they become late-stage debugging work: export preset mistakes, texture/import problems, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, and visual regressions.
 
-It is built as ten standalone command-line tools, one umbrella CLI, and one GitHub Action. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
+It is built as thirteen standalone command-line tools, one umbrella CLI, and one GitHub Action. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
 
 **Fastest path:** install one of the PyPI packages below if you need a single check today, or use the GitHub Action if you want release-readiness reports on every pull request. Use the source checkout when you want the umbrella `godot-project-doctor` command to run several tools together.
 
@@ -52,11 +52,14 @@ The standalone tools are also available from PyPI. Install the package that matc
 ```powershell
 python -m pip install gdscript-api-comment-coverage
 python -m pip install godot-asset-pipeline-doctor
+python -m pip install godot-content-graph-doctor
 python -m pip install godot-export-preset-doctor
+python -m pip install godot-gdscript-architecture-guard
 python -m pip install godot-input-map-auditor
 python -m pip install godot-localization-qa-guard
 python -m pip install godot-mobile-perf-doctor
 python -m pip install godot-save-schema-guard
+python -m pip install godot-scenario-report-kit
 python -m pip install godot-scene-signal-auditor
 python -m pip install godot-visual-smoke-test-kit
 python -m pip install pixel-space-asset-toolkit
@@ -67,10 +70,13 @@ Pick the package that matches the risk you are trying to reduce:
 - `gdscript-api-comment-coverage`: before treating generated API docs or comment coverage as complete.
 - `godot-export-preset-doctor`: before an Android, Windows, Linux, or web export job.
 - `godot-asset-pipeline-doctor`: before merging new sprites, UI art, icons, or large textures.
+- `godot-content-graph-doctor`: before merging data-driven items, recipes, quests, levels, or content packs.
+- `godot-gdscript-architecture-guard`: before refactoring modules, autoloads, or shared GDScript code.
 - `godot-input-map-auditor`: before merging input, controller, or mobile-touch changes.
 - `godot-localization-qa-guard`: before shipping translated builds or importing new localization files.
 - `godot-mobile-perf-doctor`: before testing a Godot 4 project on Android hardware.
 - `godot-save-schema-guard`: before changing save data, save fixtures, or migration commands.
+- `godot-scenario-report-kit`: after scenario, smoke, or regression runs produce JSON evidence.
 - `godot-scene-signal-auditor`: before refactoring scenes, signals, or autoload event wiring.
 - `godot-visual-smoke-test-kit`: before approving UI, scene, or rendering changes with screenshot baselines.
 - `pixel-space-asset-toolkit`: when generating deterministic pixel-art space assets or preview sheets.
@@ -79,6 +85,14 @@ Preview checks without writing files:
 
 ```powershell
 godot-project-doctor run --project path\to\godot-project --checks assets,export,mobile_perf --dry-run --format json
+```
+
+Ask the umbrella CLI what it would run for a project:
+
+```powershell
+godot-project-doctor inspect path\to\godot-project
+godot-project-doctor recommend path\to\godot-project
+godot-project-doctor init path\to\godot-project --dry-run --include-workflow
 ```
 
 Run checks and summarize the generated reports:
@@ -101,6 +115,20 @@ godot-project-doctor summarize docs\assets\sample-reports --format html --output
 
 The demo shows how the toolkit reports incomplete Android export settings, risky pixel-art import settings, missing input-device coverage, and mobile performance warnings.
 
+## New Data And Runtime Tools
+
+The newest packages cover content-heavy projects and runtime evidence:
+
+```powershell
+godot-content-graph godot-content-graph-doctor\examples\tiny-content-project --config content-graph.toml --format markdown
+godot-scenario-report compare godot-scenario-report-kit\examples\tiny-scenario-runs\baseline godot-scenario-report-kit\examples\tiny-scenario-runs\current --format markdown
+godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-architecture-project --config architecture-guard.toml --format markdown
+```
+
+![Content graph terminal report](docs/assets/screenshots/content-graph-terminal.svg)
+![Scenario comparison report](docs/assets/screenshots/scenario-report-terminal.svg)
+![Architecture guard report](docs/assets/screenshots/architecture-guard-terminal.svg)
+
 A separate public demo repository shows the GitHub Action in a clean fixture project:
 
 - [godot-production-toolkit-demo](https://github.com/NonniGB/godot-production-toolkit-demo)
@@ -112,15 +140,33 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-project-doctor` | Umbrella CLI for planning, running, and summarizing the suite. | JSON, Markdown, HTML |
 | `godot-ci-doctor-action` | GitHub composite action wrapper. | JSON, Markdown, HTML artifacts |
 | `godot-asset-pipeline-doctor` | PNG and `.import` checks for pixel art and mobile memory risks. | JSON, SARIF |
+| `godot-content-graph-doctor` | Data-driven content id, reference, and numeric outlier checks. | JSON, Markdown, Mermaid |
 | `godot-export-preset-doctor` | Release-readiness checks for `export_presets.cfg`. | JSON, SARIF |
 | `gdscript-api-comment-coverage` | Public GDScript API docs and comment coverage gate. | JSON, Markdown |
+| `godot-gdscript-architecture-guard` | GDScript module boundaries, autoload access, and dependency policy checks. | JSON, SARIF, Markdown, Mermaid |
 | `godot-input-map-auditor` | Input device coverage and duplicate binding checks. | JSON, SARIF, Markdown |
 | `godot-localization-qa-guard` | CSV/PO localization QA and translation-key usage scan. | JSON, SARIF, Markdown |
 | `godot-save-schema-guard` | Save fixture schema validation and migration command checks. | JSON, Markdown |
+| `godot-scenario-report-kit` | Scenario run evidence summary and baseline comparison. | JSON, Markdown, HTML |
 | `godot-scene-signal-auditor` | Scene signal connection and autoload coupling analysis. | JSON, Mermaid |
 | `godot-visual-smoke-test-kit` | Screenshot diffing, approval, and Godot capture command planning. | JSON, PNG diffs |
 | `godot-mobile-perf-doctor` | Static mobile performance diagnostics. | JSON, SARIF, Markdown |
 | `pixel-space-asset-toolkit` | Deterministic pixel sci-fi asset utilities and galleries. | JSON, PNG, HTML |
+
+## Choose By Problem
+
+| Problem | Start With |
+|---|---|
+| Android export is fragile or hard to review | `godot-export-preset-doctor`, `godot-mobile-perf-doctor` |
+| Imported art looks wrong or uses too much memory | `godot-asset-pipeline-doctor` |
+| Input works on desktop but not touch/gamepad | `godot-input-map-auditor` |
+| Data files reference missing items, recipes, quests, or levels | `godot-content-graph-doctor` |
+| Runtime scenario runs need reviewable evidence | `godot-scenario-report-kit` |
+| GDScript modules or autoloads are becoming tangled | `godot-gdscript-architecture-guard` |
+| Translation imports keep breaking placeholders or keys | `godot-localization-qa-guard` |
+| Save data changes need fixture coverage | `godot-save-schema-guard` |
+| Scene refactors break signal wiring | `godot-scene-signal-auditor` |
+| UI or rendering changes need screenshot evidence | `godot-visual-smoke-test-kit` |
 
 ## GitHub Action
 
@@ -194,11 +240,14 @@ The repo keeps the tools together, while each standalone CLI is published separa
 |---|---:|
 | [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.2` |
 | [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.4` |
+| [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.0` |
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.5` |
+| [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.0` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.2` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.2` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.4` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.1` |
+| [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.0` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.1` |
 | [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.1` |
 | [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/) | `0.1.1` |

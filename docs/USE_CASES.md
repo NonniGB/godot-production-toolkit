@@ -65,6 +65,23 @@ This helps catch:
 - Keys used by scripts but absent from translation files.
 - Translation keys that are no longer used.
 
+## Data-Driven Content Graphs
+
+Use this before merging items, recipes, quests, dialogue, levels, enemies, or
+content-pack files:
+
+```powershell
+godot-content-graph . --config content-graph.toml --format markdown --output reports\content-graph.md
+```
+
+This helps catch:
+
+- Duplicate ids in content collections.
+- References to ids that do not exist.
+- Content that is no longer reachable from configured roots.
+- Numeric outliers such as unusually high prices, cooldowns, weights, or build times.
+- A Mermaid graph of configured content dependencies for review notes.
+
 ## Save Compatibility Checks
 
 Use this when changing save-game data:
@@ -93,6 +110,38 @@ This helps catch:
 - Scene connections that target missing methods.
 - Signal wiring that is hard to inspect manually.
 - Autoload coupling that should be documented before it spreads.
+
+## GDScript Architecture Checks
+
+Use this when a project has feature folders, shared scripts, and autoloads that
+need clear dependency direction:
+
+```powershell
+godot-architecture-guard . --config architecture-guard.toml --format sarif --output reports\architecture.sarif
+```
+
+This helps catch:
+
+- Feature modules depending on folders they should not reach into.
+- Scripts that use autoloads outside the module policy.
+- `preload()` or `load()` paths that no longer exist.
+- Dependency graphs that are useful during refactors.
+
+## Scenario Evidence Reports
+
+Use this after a scenario runner, smoke test, or custom harness emits JSON:
+
+```powershell
+godot-scenario-report summarize reports\scenarios --format html --output reports\scenarios\index.html
+godot-scenario-report compare reports\baseline reports\current --format markdown --output reports\scenario-compare.md
+```
+
+This helps catch:
+
+- Failed scenarios and assertions.
+- Missing listed artifacts such as screenshots.
+- New failures compared with a baseline run.
+- Duration regressions that make test runs or gameplay flows slower.
 
 ## Visual Smoke Checks
 

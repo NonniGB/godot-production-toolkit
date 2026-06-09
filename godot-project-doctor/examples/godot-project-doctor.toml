@@ -18,3 +18,15 @@ config = "visual-smoke.toml"
 enabled = false
 fixtures = "tests/fixtures/saves"
 schema = "schemas/save.schema.json"
+
+[tools.content_graph]
+enabled = false
+config = "content-graph.toml"
+
+[tools.scenario_report]
+enabled = false
+path = "reports/scenarios"
+
+[tools.architecture]
+enabled = false
+config = "architecture-guard.toml"

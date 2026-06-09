@@ -1,0 +1,15 @@
+[
+  {
+    "id": "smelt_copper",
+    "craft_time": 4,
+    "inputs": [{"item": "copper_ore", "quantity": 3}],
+    "outputs": [{"item": "copper_bar", "quantity": 1}]
+  },
+  {
+    "id": "repair_kit",
+    "craft_time": 30,
+    "inputs": [{"item": "copper_bar", "quantity": 2}, {"item": "missing_gel", "quantity": 1}],
+    "outputs": [{"item": "repair_kit", "quantity": 1}]
+  }
+]
+

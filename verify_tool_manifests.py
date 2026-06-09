@@ -5,11 +5,14 @@ from pathlib import Path
 
 TOOLS = [
     "godot-asset-pipeline-doctor",
+    "godot-content-graph-doctor",
     "godot-export-preset-doctor",
     "gdscript-api-comment-coverage",
+    "godot-gdscript-architecture-guard",
     "godot-input-map-auditor",
     "godot-localization-qa-guard",
     "godot-save-schema-guard",
+    "godot-scenario-report-kit",
     "godot-scene-signal-auditor",
     "godot-visual-smoke-test-kit",
     "godot-mobile-perf-doctor",

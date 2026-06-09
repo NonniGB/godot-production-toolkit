@@ -6,7 +6,16 @@ from pathlib import Path
 import sys
 
 from .reports import render_json, render_summary
-from .runner import build_plan, exit_code_for_summary, run_plan, summarize_reports
+from .runner import (
+    build_plan,
+    exit_code_for_summary,
+    explain_check,
+    inspect_project,
+    render_github_action_example,
+    render_starter_config,
+    run_plan,
+    summarize_reports,
+)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -14,6 +23,14 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "plan":
         return _plan(args)
+    if args.command == "inspect":
+        return _inspect(args)
+    if args.command == "recommend":
+        return _recommend(args)
+    if args.command == "init":
+        return _init(args)
+    if args.command == "explain":
+        return _explain(args)
     if args.command == "run":
         return _run(args)
     if args.command == "summarize":
@@ -31,7 +48,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-project-doctor",
         description="Plan, run, and summarize the Godot production toolkit.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.0")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.1")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")
@@ -42,6 +59,29 @@ def _build_parser() -> argparse.ArgumentParser:
     plan.add_argument("--fail-on", choices=["none", "warning", "error"])
     plan.add_argument("--format", choices=["text", "json"], default="text")
     plan.add_argument("--output", help="Write output to a file.")
+
+    inspect = subparsers.add_parser("inspect", help="Inspect a project and show detected production-check signals.")
+    inspect.add_argument("project", help="Godot project directory.")
+    inspect.add_argument("--format", choices=["text", "json"], default="text")
+    inspect.add_argument("--output", help="Write output to a file.")
+
+    recommend = subparsers.add_parser("recommend", help="Recommend a short check set for a project.")
+    recommend.add_argument("project", help="Godot project directory.")
+    recommend.add_argument("--format", choices=["text", "json"], default="text")
+    recommend.add_argument("--output", help="Write output to a file.")
+
+    init = subparsers.add_parser("init", help="Create or preview a starter godot-project-doctor config.")
+    init.add_argument("project", nargs="?", default=".", help="Godot project directory.")
+    init.add_argument("--config", default="godot-project-doctor.toml", help="Config path to write inside the project.")
+    init.add_argument("--reports-dir", default="reports/godot-project-doctor", help="Default report directory.")
+    init.add_argument("--dry-run", action="store_true", help="Print files that would be written without writing them.")
+    init.add_argument("--include-workflow", action="store_true", help="Also preview/write a GitHub Actions workflow.")
+    init.add_argument("--output", help="Write dry-run preview to a file.")
+
+    explain = subparsers.add_parser("explain", help="Explain a check id such as assets, export, or content_graph.")
+    explain.add_argument("check_id", help="Check id to explain.")
+    explain.add_argument("--format", choices=["text", "json"], default="text")
+    explain.add_argument("--output", help="Write output to a file.")
 
     run = subparsers.add_parser("run", help="Run enabled checks and summarize their JSON reports.")
     run.add_argument("config", nargs="?", help="Optional godot-project-doctor.toml path.")
@@ -65,6 +105,59 @@ def _build_parser() -> argparse.ArgumentParser:
 def _plan(args: argparse.Namespace) -> int:
     plan = _build_plan_from_args(args)
     rendered = render_json(plan) if args.format == "json" else _render_plan_text(plan)
+    _emit(rendered, args.output)
+    return 0
+
+
+def _inspect(args: argparse.Namespace) -> int:
+    inspected = inspect_project(Path(args.project))
+    rendered = render_json(inspected) if args.format == "json" else _render_inspect_text(inspected)
+    _emit(rendered, args.output)
+    return 0
+
+
+def _recommend(args: argparse.Namespace) -> int:
+    inspected = inspect_project(Path(args.project))
+    payload = {
+        "tool": "godot-project-doctor",
+        "project": inspected["project"],
+        "recommendations": inspected["recommendations"],
+    }
+    rendered = render_json(payload) if args.format == "json" else _render_recommend_text(payload)
+    _emit(rendered, args.output)
+    return 0
+
+
+def _init(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    config_text = render_starter_config(project, args.reports_dir)
+    inspected = inspect_project(project)
+    checks = [item["id"] for item in inspected["recommendations"][:6]]
+    workflow_text = render_github_action_example(checks)
+    config_path = project / args.config
+    workflow_path = project / ".github" / "workflows" / "godot-production-checks.yml"
+
+    if args.dry_run:
+        rendered = _render_init_preview(config_path, config_text, workflow_path if args.include_workflow else None, workflow_text)
+        _emit(rendered, args.output)
+        return 0
+
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(config_text + "\n", encoding="utf-8")
+    (project / args.reports_dir).mkdir(parents=True, exist_ok=True)
+    if args.include_workflow:
+        workflow_path.parent.mkdir(parents=True, exist_ok=True)
+        workflow_path.write_text(workflow_text + "\n", encoding="utf-8")
+    return 0
+
+
+def _explain(args: argparse.Namespace) -> int:
+    try:
+        payload = explain_check(args.check_id)
+    except KeyError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    rendered = render_json(payload) if args.format == "json" else _render_explain_text(payload)
     _emit(rendered, args.output)
     return 0
 
@@ -114,6 +207,62 @@ def _render_plan_text(plan: dict[str, object]) -> str:
         else:
             lines.append(f"- {check['id']}: disabled ({check['reason']})")
     return "\n".join(lines)
+
+
+def _render_inspect_text(inspected: dict[str, object]) -> str:
+    lines = [
+        "Godot Project Doctor Inspect",
+        f"Project: {inspected['project']}",
+        "",
+        "Detected signals:",
+    ]
+    features = inspected["features"]
+    for key, value in sorted(features.items()):
+        label = "yes" if value else "no"
+        lines.append(f"- {key.replace('_', ' ')}: {label}")
+    lines.extend(["", "Recommended checks:"])
+    for item in inspected["recommendations"]:
+        lines.append(f"- {item['id']}: {item['reason']}")
+    return "\n".join(lines)
+
+
+def _render_recommend_text(payload: dict[str, object]) -> str:
+    lines = [
+        "Godot Project Doctor Recommendations",
+        f"Project: {payload['project']}",
+    ]
+    for item in payload["recommendations"]:
+        lines.extend(
+            [
+                "",
+                f"- {item['id']} ({item['title']})",
+                f"  Reason: {item['reason']}",
+                f"  Why it helps: {item['why']}",
+                f"  Use it: {item['when']}",
+            ]
+        )
+    return "\n".join(lines)
+
+
+def _render_init_preview(config_path: Path, config_text: str, workflow_path: Path | None, workflow_text: str) -> str:
+    lines = [
+        f"Would write {config_path}:",
+        "",
+        config_text,
+    ]
+    if workflow_path:
+        lines.extend(["", f"Would write {workflow_path}:", "", workflow_text])
+    return "\n".join(lines)
+
+
+def _render_explain_text(payload: dict[str, str]) -> str:
+    return "\n".join(
+        [
+            f"{payload['id']} - {payload['title']}",
+            f"Why it helps: {payload['why']}",
+            f"Use it: {payload['when']}",
+        ]
+    )
 
 
 def _emit(rendered: str, output: str | None) -> None:

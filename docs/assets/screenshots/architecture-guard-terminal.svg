@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="360" role="img" aria-label="Godot GDScript Architecture Guard report">
+  <rect width="980" height="360" rx="12" fill="#111827"/>
+  <rect x="18" y="18" width="944" height="324" rx="8" fill="#0b1220" stroke="#263244"/>
+  <text x="40" y="58" fill="#9cc8ff" font-family="Consolas, Menlo, monospace" font-size="19">godot-architecture-guard examples\tiny-architecture-project --config architecture-guard.toml</text>
+  <text x="40" y="104" fill="#f7fafc" font-family="Consolas, Menlo, monospace" font-size="22" font-weight="700">Godot GDScript Architecture Guard</text>
+  <text x="40" y="148" fill="#d7e2f0" font-family="Consolas, Menlo, monospace" font-size="18">Scripts: 3    Modules: 3    Dependencies: 1    Errors: 1    Warnings: 0</text>
+  <text x="40" y="202" fill="#ffb4a8" font-family="Consolas, Menlo, monospace" font-size="17">error module_boundary_violation scripts/ui/menu.gd</text>
+  <text x="40" y="236" fill="#d7e2f0" font-family="Consolas, Menlo, monospace" font-size="17">ui depends on gameplay, which is not allowed by policy</text>
+  <text x="40" y="292" fill="#7dd3fc" font-family="Consolas, Menlo, monospace" font-size="16">SARIF and Mermaid outputs are available for code scanning and dependency graphs.</text>
+</svg>

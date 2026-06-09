@@ -77,6 +77,72 @@ config = "visual-smoke.toml"
             self.assertEqual([item["id"] for item in payload["checks"] if item["enabled"]], ["assets", "export"])
             self.assertFalse((root / "reports").exists())
 
+    def test_inspect_and_recommend_detect_common_project_signals(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.godot").write_text(
+                """
+[application]
+config/name="Tiny Project"
+
+[input]
+jump={
+"deadzone": 0.5,
+"events": []
+}
+
+[display]
+window/size/viewport_width=720
+window/handheld/orientation=1
+""",
+                encoding="utf-8",
+            )
+            (root / "export_presets.cfg").write_text("[preset.0]\nplatform=\"Android\"\n", encoding="utf-8")
+            (root / "assets").mkdir()
+            (root / "assets" / "icon.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+            (root / "data").mkdir()
+            (root / "data" / "items.json").write_text("[]", encoding="utf-8")
+
+            inspect_stdout = StringIO()
+            with redirect_stdout(inspect_stdout):
+                self.assertEqual(main(["inspect", str(root), "--format", "json"]), 0)
+            inspected = json.loads(inspect_stdout.getvalue())
+            self.assertTrue(inspected["features"]["export_presets"])
+            self.assertTrue(inspected["features"]["png_assets"])
+            self.assertTrue(inspected["features"]["content_data_likely"])
+
+            recommend_stdout = StringIO()
+            with redirect_stdout(recommend_stdout):
+                self.assertEqual(main(["recommend", str(root), "--format", "json"]), 0)
+            recommended = {item["id"] for item in json.loads(recommend_stdout.getvalue())["recommendations"]}
+            self.assertIn("export", recommended)
+            self.assertIn("assets", recommended)
+            self.assertIn("content_graph", recommended)
+
+    def test_init_dry_run_prints_config_without_writing_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.godot").write_text("[application]\nconfig/name=\"Tiny\"\n", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                self.assertEqual(main(["init", str(root), "--dry-run", "--include-workflow"]), 0)
+
+            rendered = stdout.getvalue()
+            self.assertIn("godot-project-doctor.toml", rendered)
+            self.assertIn("[project]", rendered)
+            self.assertIn("Godot production checks", rendered)
+            self.assertFalse((root / "godot-project-doctor.toml").exists())
+
+    def test_explain_outputs_check_guidance(self) -> None:
+        stdout = StringIO()
+
+        with redirect_stdout(stdout):
+            self.assertEqual(main(["explain", "content_graph"]), 0)
+
+        self.assertIn("Content Graph Doctor", stdout.getvalue())
+        self.assertIn("data-driven content", stdout.getvalue())
+
     def test_summarize_outputs_json_markdown_and_html(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             reports = Path(tmp)
@@ -145,7 +211,7 @@ config = "visual-smoke.toml"
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.1.0", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.1.1", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -160,7 +226,7 @@ config = "visual-smoke.toml"
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.1.0", completed.stdout)
+        self.assertIn("godot-project-doctor 0.1.1", completed.stdout)
 
 
 if __name__ == "__main__":

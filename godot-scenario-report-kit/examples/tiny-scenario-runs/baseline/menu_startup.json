@@ -1,0 +1,10 @@
+{
+  "scenario": "menu_startup",
+  "status": "passed",
+  "duration_ms": 820,
+  "assertions": [
+    {"name": "main menu visible", "status": "passed"}
+  ],
+  "artifacts": ["screenshots/menu.png"]
+}
+

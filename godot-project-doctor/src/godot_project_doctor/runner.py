@@ -32,7 +32,65 @@ TOOL_REGISTRY: tuple[ToolSpec, ...] = (
     ToolSpec("visual_smoke", "Visual Smoke Test Kit", "godot-visual-smoke", "visual-smoke-plan.json", False, required_config=("config",)),
     ToolSpec("mobile_perf", "Mobile Perf Doctor", "godot-mobile-perf-doctor", "mobile-perf.json", True, base_args=("--static",)),
     ToolSpec("pixel_assets", "Pixel Space Asset Toolkit", "pixel-space-assets", "pixel-assets.json", False, required_config=("command",)),
+    ToolSpec("content_graph", "Content Graph Doctor", "godot-content-graph", "content-graph.json", False, required_config=("config",)),
+    ToolSpec("scenario_report", "Scenario Report Kit", "godot-scenario-report", "scenario-report.json", False, required_config=("path",), project_arg=False),
+    ToolSpec("architecture", "GDScript Architecture Guard", "godot-architecture-guard", "architecture.json", False, required_config=("config",)),
 )
+
+CHECK_GUIDANCE: dict[str, dict[str, str]] = {
+    "assets": {
+        "why": "Catches texture/import settings that often break pixel art, memory budgets, and mobile exports.",
+        "when": "Run before merging new sprites, icons, UI art, or imported textures.",
+    },
+    "export": {
+        "why": "Finds incomplete export preset settings before a release job fails or ships a debug build.",
+        "when": "Run before any desktop, web, or Android export.",
+    },
+    "api_comments": {
+        "why": "Keeps public GDScript APIs understandable when generated docs or code review depend on comments.",
+        "when": "Run before treating scripts as stable integration points.",
+    },
+    "input": {
+        "why": "Checks input actions for duplicate bindings and missing keyboard, gamepad, mouse, or touch coverage.",
+        "when": "Run before merging control, UI, or mobile-touch changes.",
+    },
+    "localization": {
+        "why": "Catches missing translations, placeholder mismatches, stale keys, and unused localization entries.",
+        "when": "Run before importing translations or shipping localized builds.",
+    },
+    "save_schema": {
+        "why": "Validates save fixtures and migration commands against the schema a project promises to support.",
+        "when": "Run before changing save formats or migration code.",
+    },
+    "signals": {
+        "why": "Highlights scene signal wiring and autoload coupling that can drift during refactors.",
+        "when": "Run before refactoring scenes, singletons, or event wiring.",
+    },
+    "visual_smoke": {
+        "why": "Turns screenshot capture and comparison into repeatable review evidence.",
+        "when": "Run before approving UI, scene, or rendering changes.",
+    },
+    "mobile_perf": {
+        "why": "Flags static Godot settings that create avoidable Android performance and battery risk.",
+        "when": "Run before testing on Android hardware or preparing a mobile build.",
+    },
+    "pixel_assets": {
+        "why": "Generates and checks deterministic pixel asset previews for repeatable asset review.",
+        "when": "Run when preparing sprite sheets, preview sheets, or generated pixel assets.",
+    },
+    "content_graph": {
+        "why": "Validates ids, references, and numeric outliers across data-driven content files.",
+        "when": "Run before merging item, recipe, quest, level, dialogue, or content-pack data.",
+    },
+    "scenario_report": {
+        "why": "Summarizes and compares runtime scenario evidence from a project's own runner.",
+        "when": "Run after scenario, smoke, or regression runs have produced JSON evidence.",
+    },
+    "architecture": {
+        "why": "Checks module dependency direction, autoload access, and unresolved GDScript resource links.",
+        "when": "Run before refactors or when a codebase starts accumulating cross-module coupling.",
+    },
+}
 
 
 def load_config(config_path: Path | None) -> tuple[dict[str, Any], Path]:
@@ -91,6 +149,156 @@ def build_plan(
             for item in check_plans
             if item["enabled"]
         ],
+    }
+
+
+def inspect_project(project: Path) -> dict[str, Any]:
+    root = project.resolve()
+    files = _project_files(root)
+    suffixes = {path.suffix.lower() for path in files}
+    names = {path.name.lower() for path in files}
+    rel_paths = {path.relative_to(root).as_posix() for path in files if path.is_relative_to(root)}
+    features = {
+        "project_file": (root / "project.godot").exists(),
+        "export_presets": (root / "export_presets.cfg").exists(),
+        "gdscript_files": any(path.suffix.lower() == ".gd" for path in files),
+        "png_assets": ".png" in suffixes,
+        "import_files": ".import" in suffixes,
+        "localization_files": bool({".csv", ".po", ".pot", ".mo"} & suffixes),
+        "input_map_likely": _file_contains(root / "project.godot", "[input]"),
+        "mobile_settings_likely": _file_contains(root / "project.godot", "handheld/orientation")
+        or _file_contains(root / "project.godot", "display/window"),
+        "save_fixtures_likely": any("save" in path.lower() and path.endswith((".json", ".toml")) for path in rel_paths),
+        "visual_smoke_likely": any("screenshot" in path.lower() or "visual" in path.lower() for path in rel_paths),
+        "scenario_results_likely": any(
+            ("scenario" in path.lower() or "smoke" in path.lower()) and path.endswith(".json")
+            for path in rel_paths
+        ),
+        "content_data_likely": any(
+            path.startswith(("data/", "content/", "resources/")) and path.endswith((".json", ".csv", ".toml"))
+            for path in rel_paths
+        ),
+        "test_framework_likely": bool({"gut", "gdunit4"} & names)
+        or any("addons/gut" in path.lower() or "addons/gdunit4" in path.lower() for path in rel_paths),
+    }
+    recommendations = recommend_checks_from_features(features)
+    return {
+        "tool": "godot-project-doctor",
+        "project": str(root),
+        "features": features,
+        "recommendations": recommendations,
+    }
+
+
+def recommend_checks_from_features(features: dict[str, Any]) -> list[dict[str, str]]:
+    recommended: list[dict[str, str]] = []
+    rules = [
+        ("export", bool(features.get("export_presets")), "export_presets.cfg is present."),
+        ("assets", bool(features.get("png_assets") or features.get("import_files")), "PNG or .import files were found."),
+        ("input", bool(features.get("input_map_likely")), "project.godot appears to define input actions."),
+        ("localization", bool(features.get("localization_files")), "CSV/gettext localization files were found."),
+        ("signals", bool(features.get("gdscript_files")), "GDScript files were found."),
+        ("api_comments", bool(features.get("gdscript_files")), "GDScript files were found."),
+        ("mobile_perf", bool(features.get("mobile_settings_likely")), "Mobile/display settings were found in project.godot."),
+        ("save_schema", bool(features.get("save_fixtures_likely")), "Save-like JSON/TOML fixtures were found."),
+        ("visual_smoke", bool(features.get("visual_smoke_likely")), "Visual/screenshot files or folders were found."),
+        ("content_graph", bool(features.get("content_data_likely")), "Data/content JSON, CSV, or TOML files were found."),
+        ("scenario_report", bool(features.get("scenario_results_likely")), "Scenario result JSON files were found."),
+        ("architecture", bool(features.get("gdscript_files")), "GDScript files were found."),
+    ]
+    for check_id, enabled, reason in rules:
+        if enabled:
+            guidance = CHECK_GUIDANCE[check_id]
+            recommended.append(
+                {
+                    "id": check_id,
+                    "title": _title_for_check(check_id),
+                    "reason": reason,
+                    "why": guidance["why"],
+                    "when": guidance["when"],
+                }
+            )
+    if not recommended:
+        for check_id in ("export", "assets", "input", "mobile_perf"):
+            guidance = CHECK_GUIDANCE[check_id]
+            recommended.append(
+                {
+                    "id": check_id,
+                    "title": _title_for_check(check_id),
+                    "reason": "Good first check for a Godot project.",
+                    "why": guidance["why"],
+                    "when": guidance["when"],
+                }
+            )
+    return recommended
+
+
+def render_starter_config(project: Path, reports_dir: str = "reports/godot-project-doctor") -> str:
+    inspected = inspect_project(project)
+    checks = [item["id"] for item in inspected["recommendations"][:6]]
+    quoted_checks = ", ".join(f'"{check}"' for check in checks)
+    lines = [
+        "[project]",
+        'path = "."',
+        f'reports_dir = "{reports_dir}"',
+        'fail_on = "error"',
+        f"checks = [{quoted_checks}]",
+        "",
+        "# Enable specialized checks when their config files exist.",
+        "# [tools.visual_smoke]",
+        '# config = "visual-smoke.toml"',
+        "",
+        "# [tools.save_schema]",
+        '# fixtures = "tests/fixtures/saves"',
+        '# schema = "schemas/save.schema.json"',
+        "",
+        "# [tools.content_graph]",
+        '# config = "content-graph.toml"',
+        "",
+        "# [tools.scenario_report]",
+        '# path = "reports/scenarios"',
+        "",
+        "# [tools.architecture]",
+        '# config = "architecture-guard.toml"',
+    ]
+    return "\n".join(lines)
+
+
+def render_github_action_example(checks: list[str] | None = None) -> str:
+    check_text = ",".join(checks or ["assets", "export", "input", "localization", "signals", "mobile_perf"])
+    return "\n".join(
+        [
+            "name: Godot production checks",
+            "",
+            "on:",
+            "  pull_request:",
+            "  workflow_dispatch:",
+            "",
+            "jobs:",
+            "  godot-production-checks:",
+            "    runs-on: ubuntu-latest",
+            "    steps:",
+            "      - uses: actions/checkout@v4",
+            "      - uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2",
+            "        with:",
+            "          project: .",
+            f"          checks: {check_text}",
+            "          fail-on: error",
+            "          reports-dir: reports/godot-project-doctor",
+        ]
+    )
+
+
+def explain_check(check_id: str) -> dict[str, str]:
+    if check_id not in CHECK_GUIDANCE:
+        known = ", ".join(sorted(CHECK_GUIDANCE))
+        raise KeyError(f"unknown check id {check_id!r}; known ids: {known}")
+    guidance = CHECK_GUIDANCE[check_id]
+    return {
+        "id": check_id,
+        "title": _title_for_check(check_id),
+        "why": guidance["why"],
+        "when": guidance["when"],
     }
 
 
@@ -209,6 +417,41 @@ def _build_tool_argv(spec: ToolSpec, project: Path, report_path: Path, config: d
     if spec.id == "pixel_assets":
         command = str(config.get("command", "preview"))
         return [spec.command, command, *args, "--format", "json"]
+    if spec.id == "content_graph":
+        return [
+            spec.command,
+            str(project),
+            "--config",
+            str(_resolve_path(project, str(config.get("config", "content-graph.toml")))),
+            "--format",
+            "json",
+            "--output",
+            str(report_path),
+            *args,
+        ]
+    if spec.id == "scenario_report":
+        return [
+            spec.command,
+            "summarize",
+            str(_resolve_path(project, str(config.get("path", "reports/scenarios")))),
+            "--format",
+            "json",
+            "--output",
+            str(report_path),
+            *args,
+        ]
+    if spec.id == "architecture":
+        return [
+            spec.command,
+            str(project),
+            "--config",
+            str(_resolve_path(project, str(config.get("config", "architecture-guard.toml")))),
+            "--format",
+            "json",
+            "--output",
+            str(report_path),
+            *args,
+        ]
 
     return [
         spec.command,
@@ -227,6 +470,37 @@ def _resolve_path(base: Path, value: str) -> Path:
     if path.is_absolute():
         return path.resolve()
     return (base / path).resolve()
+
+
+def _project_files(root: Path) -> list[Path]:
+    if root.is_file():
+        return [root]
+    if not root.exists():
+        return []
+    ignored = {".git", ".godot", ".import", "__pycache__", "dist", "build"}
+    files: list[Path] = []
+    for path in root.rglob("*"):
+        if any(part in ignored for part in path.parts):
+            continue
+        if path.is_file():
+            files.append(path)
+    return files
+
+
+def _file_contains(path: Path, needle: str) -> bool:
+    if not path.exists():
+        return False
+    try:
+        return needle in path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return False
+
+
+def _title_for_check(check_id: str) -> str:
+    for spec in TOOL_REGISTRY:
+        if spec.id == check_id:
+            return spec.title
+    return check_id.replace("_", " ").title()
 
 
 def _tool_name(data: dict[str, Any], path: Path) -> str:

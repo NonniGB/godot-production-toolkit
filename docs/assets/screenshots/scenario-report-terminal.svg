@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="360" role="img" aria-label="Godot Scenario Report Kit comparison report">
+  <rect width="980" height="360" rx="12" fill="#111827"/>
+  <rect x="18" y="18" width="944" height="324" rx="8" fill="#0b1220" stroke="#263244"/>
+  <text x="40" y="58" fill="#9cc8ff" font-family="Consolas, Menlo, monospace" font-size="19">godot-scenario-report compare baseline current --format markdown</text>
+  <text x="40" y="104" fill="#f7fafc" font-family="Consolas, Menlo, monospace" font-size="22" font-weight="700"># Godot Scenario Report</text>
+  <text x="40" y="148" fill="#d7e2f0" font-family="Consolas, Menlo, monospace" font-size="18">Scenarios: 2    Passed: 1    Failed: 1    Errors: 3    Warnings: 2</text>
+  <text x="40" y="202" fill="#ffb4a8" font-family="Consolas, Menlo, monospace" font-size="17">error   new_scenario_failure   trade_flow passed in baseline but is now failed</text>
+  <text x="40" y="236" fill="#ffb4a8" font-family="Consolas, Menlo, monospace" font-size="17">error   assertion_failed       trade completed: Buy button stayed disabled</text>
+  <text x="40" y="270" fill="#ffd38a" font-family="Consolas, Menlo, monospace" font-size="17">warning duration_regression    trade_flow took 2400 ms, up from 1320 ms</text>
+  <text x="40" y="316" fill="#7dd3fc" font-family="Consolas, Menlo, monospace" font-size="16">HTML and JSON outputs are available for CI artifacts.</text>
+</svg>

@@ -74,11 +74,23 @@ def _copy_required_files(source: Path, target: Path) -> None:
             "src/godot_asset_doctor/__init__.py",
             "src/godot_asset_doctor/cli.py",
         ),
+        "godot-content-graph-doctor": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_content_graph_doctor/__init__.py",
+            "src/godot_content_graph_doctor/cli.py",
+        ),
         "godot-export-preset-doctor": (
             "pyproject.toml",
             "CHANGELOG.md",
             "src/godot_export_doctor/__init__.py",
             "src/godot_export_doctor/cli.py",
+        ),
+        "godot-gdscript-architecture-guard": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_architecture_guard/__init__.py",
+            "src/godot_architecture_guard/cli.py",
         ),
         "godot-input-map-auditor": (
             "pyproject.toml",
@@ -103,6 +115,12 @@ def _copy_required_files(source: Path, target: Path) -> None:
             "CHANGELOG.md",
             "src/godot_save_guard/__init__.py",
             "src/godot_save_guard/cli.py",
+        ),
+        "godot-scenario-report-kit": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_scenario_report_kit/__init__.py",
+            "src/godot_scenario_report_kit/cli.py",
         ),
         "godot-scene-signal-auditor": (
             "pyproject.toml",

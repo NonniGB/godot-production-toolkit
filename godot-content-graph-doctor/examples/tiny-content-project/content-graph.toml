@@ -1,0 +1,20 @@
+[collections.items]
+path = "data/items.json"
+id = "id"
+roots = ["copper_ore"]
+warn_unused = true
+numeric_fields = ["value"]
+
+[collections.recipes]
+path = "data/recipes.json"
+id = "id"
+numeric_fields = ["craft_time"]
+
+[[collections.recipes.references]]
+field = "inputs[].item"
+collection = "items"
+
+[[collections.recipes.references]]
+field = "outputs[].item"
+collection = "items"
+

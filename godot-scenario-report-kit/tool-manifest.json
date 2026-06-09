@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-scenario-report-kit",
+  "entrypoint": "godot-scenario-report",
+  "module": "python -m godot_scenario_report_kit",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json"],
+    "human_output": ["text", "markdown", "html"],
+    "visual_interface": "static html report"
+  },
+  "run_behavior": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Summarize scenario run evidence",
+      "command": "godot-scenario-report summarize reports/scenarios --format html --output reports/scenarios/index.html"
+    },
+    {
+      "purpose": "Compare current scenario evidence against a baseline",
+      "command": "godot-scenario-report compare reports/baseline reports/current --format markdown --output reports/scenarios/compare.md"
+    }
+  ]
+}
+
