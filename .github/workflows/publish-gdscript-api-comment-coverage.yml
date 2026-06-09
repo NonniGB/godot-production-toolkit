@@ -2,6 +2,9 @@ name: Publish gdscript-api-comment-coverage
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "gdscript-api-comment-coverage-v*"
 
 permissions:
   contents: read

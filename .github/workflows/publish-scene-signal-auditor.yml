@@ -2,6 +2,9 @@ name: Publish godot-scene-signal-auditor
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "godot-scene-signal-auditor-v*"
 
 permissions:
   contents: read

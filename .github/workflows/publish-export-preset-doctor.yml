@@ -2,6 +2,9 @@ name: Publish godot-export-preset-doctor
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "godot-export-preset-doctor-v*"
 
 permissions:
   contents: read
