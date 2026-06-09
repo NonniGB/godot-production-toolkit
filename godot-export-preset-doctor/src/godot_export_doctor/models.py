@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from .rule_help import explain_rule
+
 
 @dataclass(frozen=True)
 class ExportPreset:
@@ -39,11 +41,14 @@ class Finding:
     option: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        help_text = explain_rule(self.rule_id)
         return {
             "rule_id": self.rule_id,
             "severity": self.severity,
             "preset_index": self.preset_index,
             "preset_name": self.preset_name,
+            "title": help_text["title"],
+            "explanation": help_text["explanation"],
             "message": self.message,
             "option": self.option,
         }

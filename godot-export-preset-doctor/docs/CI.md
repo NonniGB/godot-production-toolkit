@@ -19,3 +19,7 @@ If your project keeps harmless placeholders in `export_presets.cfg` and injects 
 ```
 
 The tool is a companion to Godot export actions. It does not build the game; it checks that the export preset is ready before another step invokes `godot --headless --export-release`.
+
+JSON and SARIF reports include readable rule names and explanations. Keep the
+report as a CI artifact when a failed export check needs review outside the job
+log.

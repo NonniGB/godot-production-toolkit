@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 
+from . import __version__
 from .models import ExportPreset, Finding
+from .rule_help import catalog_for, explain_rule
 
 
 def render_text_report(presets: list[ExportPreset], findings: list[Finding]) -> str:
@@ -21,13 +23,21 @@ def render_text_report(presets: list[ExportPreset], findings: list[Finding]) -> 
         target = finding.preset_name
         if finding.preset_index is not None:
             target = f"preset.{finding.preset_index} ({finding.preset_name})"
-        lines.append(f"[{finding.severity.upper()}] {finding.rule_id} - {target}: {finding.message}")
+        help_text = explain_rule(finding.rule_id)
+        lines.append(f"[{finding.severity.upper()}] {help_text['title']} - {target}: {finding.message}")
+        lines.append(f"  Why it matters: {help_text['explanation']}")
     return "\n".join(lines)
 
 
 def render_json_report(presets: list[ExportPreset], findings: list[Finding]) -> str:
     payload = {
         "tool": "godot-export-preset-doctor",
+        "metadata": {
+            "schema_version": "1.1",
+            "tool_version": __version__,
+            "report_kind": "export_preset_audit",
+            "formats": ["text", "json", "sarif"],
+        },
         "summary": {
             "presets": len(presets),
             "findings": len(findings),
@@ -35,13 +45,14 @@ def render_json_report(presets: list[ExportPreset], findings: list[Finding]) -> 
             "warnings": sum(1 for finding in findings if finding.severity == "warning"),
         },
         "presets": [preset.to_dict() for preset in presets],
+        "rules": catalog_for({finding.rule_id for finding in findings}),
         "findings": [finding.to_dict() for finding in findings],
     }
     return json.dumps(payload, indent=2, sort_keys=True)
 
 
 def render_sarif_report(findings: list[Finding]) -> str:
-    rules = sorted({finding.rule_id for finding in findings})
+    rule_ids = sorted({finding.rule_id for finding in findings})
     payload = {
         "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
         "version": "2.1.0",
@@ -53,11 +64,11 @@ def render_sarif_report(findings: list[Finding]) -> str:
                         "informationUri": "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-export-preset-doctor",
                         "rules": [
                             {
-                                "id": rule,
-                                "name": rule,
-                                "shortDescription": {"text": rule.replace("_", " ")},
+                                "id": rule_id,
+                                "name": explain_rule(rule_id)["title"],
+                                "shortDescription": {"text": explain_rule(rule_id)["explanation"]},
                             }
-                            for rule in rules
+                            for rule_id in rule_ids
                         ],
                     }
                 },

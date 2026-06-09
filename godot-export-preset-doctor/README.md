@@ -67,7 +67,7 @@ godot-export-doctor . --platform Android --required-android-abi arm64-v8a --fail
 - Android package id, version code/name, enabled ABI, and launcher icon readiness.
 - Release-like presets with debug options enabled.
 - Hard-coded password, token, secret, or keystore-like values.
-- JSON and SARIF output for scripts and CI.
+- JSON and SARIF output for scripts and CI, with plain-language rule explanations.
 
 ## Configuration
 
@@ -96,6 +96,10 @@ JSON:
 ```powershell
 godot-export-doctor . --format json --output export-report.json
 ```
+
+JSON reports include report metadata, a rule catalog, and findings with readable
+titles and explanations. This makes CI artifacts easier to review without
+looking up every rule id.
 
 SARIF:
 

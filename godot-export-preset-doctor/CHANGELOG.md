@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added report metadata and plain-language rule explanations to JSON, text, and SARIF output.
+
 ## 0.1.5 - 2026-06-09
 
 - Validate `format` and `fail_on` values loaded from TOML config files.
