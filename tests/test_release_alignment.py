@@ -74,11 +74,29 @@ def _copy_required_files(source: Path, target: Path) -> None:
             "src/godot_export_doctor/__init__.py",
             "src/godot_export_doctor/cli.py",
         ),
+        "godot-input-map-auditor": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_input_auditor/__init__.py",
+            "src/godot_input_auditor/cli.py",
+        ),
+        "godot-localization-qa-guard": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_l10n_guard/__init__.py",
+            "src/godot_l10n_guard/cli.py",
+        ),
         "godot-mobile-perf-doctor": (
             "pyproject.toml",
             "CHANGELOG.md",
             "src/godot_mobile_perf_doctor/__init__.py",
             "src/godot_mobile_perf_doctor/cli.py",
+        ),
+        "godot-save-schema-guard": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_save_guard/__init__.py",
+            "src/godot_save_guard/cli.py",
         ),
     }.items():
         for rel_path in paths:

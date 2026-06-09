@@ -9,6 +9,7 @@
 - Added a release-alignment verifier for CI and pre-release checks.
 - Added a local maintenance snapshot command and aligned root tool-count metadata.
 - Updated release checks to support independent standalone package patch versions.
+- Added PyPI publish workflows and release tracking for input map, localization, and save schema tools.
 
 ## 0.1.1 - 2026-06-08
 

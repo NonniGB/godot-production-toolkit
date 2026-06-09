@@ -180,7 +180,10 @@ The repository is published as one umbrella toolkit. The `godot-project-doctor` 
 
 - [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
 - [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)
+- [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/)
+- [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/)
 - [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/)
+- [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/)
 
 The exact `godot-project-doctor` distribution name is already used on PyPI, so the umbrella CLI needs a distinct package name before it can be published there.
 

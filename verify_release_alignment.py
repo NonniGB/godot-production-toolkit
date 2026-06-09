@@ -9,7 +9,10 @@ import tomllib
 PUBLISHED_PACKAGES = (
     "godot-asset-pipeline-doctor",
     "godot-export-preset-doctor",
+    "godot-input-map-auditor",
+    "godot-localization-qa-guard",
     "godot-mobile-perf-doctor",
+    "godot-save-schema-guard",
 )
 
 PACKAGE_VERSION_FILES = {
@@ -23,10 +26,25 @@ PACKAGE_VERSION_FILES = {
         "cli": "src/godot_export_doctor/cli.py",
         "cli_name": "godot-export-doctor",
     },
+    "godot-input-map-auditor": {
+        "init": "src/godot_input_auditor/__init__.py",
+        "cli": "src/godot_input_auditor/cli.py",
+        "cli_name": "godot-input-audit",
+    },
+    "godot-localization-qa-guard": {
+        "init": "src/godot_l10n_guard/__init__.py",
+        "cli": "src/godot_l10n_guard/cli.py",
+        "cli_name": "godot-l10n-guard",
+    },
     "godot-mobile-perf-doctor": {
         "init": "src/godot_mobile_perf_doctor/__init__.py",
         "cli": "src/godot_mobile_perf_doctor/cli.py",
         "cli_name": "godot-mobile-perf-doctor",
+    },
+    "godot-save-schema-guard": {
+        "init": "src/godot_save_guard/__init__.py",
+        "cli": "src/godot_save_guard/cli.py",
+        "cli_name": "godot-save-guard",
     },
 }
 

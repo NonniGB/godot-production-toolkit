@@ -45,6 +45,9 @@ Current package URLs:
 - [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
 - [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)
 - [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/)
+- [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/)
+- [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/)
+- [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/)
 
 ## Package patch releases
 

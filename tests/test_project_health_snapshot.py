@@ -22,7 +22,10 @@ class ProjectHealthSnapshotTests(unittest.TestCase):
             for package in (
                 "godot-asset-pipeline-doctor",
                 "godot-export-preset-doctor",
+                "godot-input-map-auditor",
+                "godot-localization-qa-guard",
                 "godot-mobile-perf-doctor",
+                "godot-save-schema-guard",
             )
         }
         self.assertEqual(expected, snapshot["published_packages"])
