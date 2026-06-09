@@ -249,6 +249,66 @@ metadata = "reports/mobile-ui.json"
             self.assertIn("Top Findings", html_stdout.getvalue())
             self.assertIn("Texture is large.", html_stdout.getvalue())
 
+    def test_compare_reports_shows_deltas_and_can_fail_on_regressions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline"
+            current = root / "current"
+            baseline.mkdir()
+            current.mkdir()
+            (baseline / "assets.json").write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-asset-pipeline-doctor",
+                        "summary": {"errors": 0, "warnings": 1},
+                        "findings": [
+                            {
+                                "severity": "warning",
+                                "message": "Texture could be smaller.",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (current / "assets.json").write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-asset-pipeline-doctor",
+                        "summary": {"errors": 1, "warnings": 2},
+                        "findings": [
+                            {
+                                "severity": "error",
+                                "message": "Texture import is missing.",
+                            },
+                            {
+                                "severity": "warning",
+                                "message": "Texture could be smaller.",
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            json_stdout = StringIO()
+            with redirect_stdout(json_stdout):
+                self.assertEqual(main(["compare", str(baseline), str(current), "--format", "json"]), 0)
+            payload = json.loads(json_stdout.getvalue())
+            self.assertEqual(payload["summary"]["regressions"], 1)
+            self.assertEqual(payload["summary"]["error_delta"], 1)
+            self.assertEqual(payload["summary"]["warning_delta"], 1)
+            self.assertEqual(payload["comparisons"][0]["status"], "regressed")
+
+            markdown_stdout = StringIO()
+            with redirect_stdout(markdown_stdout):
+                self.assertEqual(main(["compare", str(baseline), str(current), "--format", "markdown"]), 0)
+            self.assertIn("# Godot Project Doctor Compare", markdown_stdout.getvalue())
+            self.assertIn("| godot-asset-pipeline-doctor | regressed | +1 | +1 | +1 |", markdown_stdout.getvalue())
+
+            with redirect_stdout(StringIO()):
+                self.assertEqual(main(["compare", str(baseline), str(current), "--fail-on", "error"]), 1)
+
     def test_collect_writes_evidence_folder_from_existing_reports(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

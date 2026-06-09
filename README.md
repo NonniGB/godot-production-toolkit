@@ -100,11 +100,12 @@ godot-project-doctor init path\to\godot-project --dry-run --include-workflow
 frameworks, and the checks the toolkit would start with. `recommend` turns that
 scan into prioritized checks with setup notes and dry-run commands.
 
-Run checks and summarize the generated reports:
+Run checks, summarize the generated reports, and compare two runs:
 
 ```powershell
 godot-project-doctor run --project path\to\godot-project --checks assets,export,mobile_perf --reports-dir reports\godot-project-doctor --format json --output reports\godot-project-doctor\summary.json
 godot-project-doctor summarize reports\godot-project-doctor --format html --output reports\godot-project-doctor\summary.html
+godot-project-doctor compare reports\baseline reports\current --format markdown --fail-on warning
 godot-project-doctor collect --project path\to\godot-project --checks assets,export,mobile_perf --reports-dir reports\godot-project-doctor --evidence-dir reports\godot-project-doctor\evidence --skip-run
 ```
 
@@ -145,7 +146,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 
 | Tool | Purpose | Script/CI Outputs |
 |---|---|---|
-| `godot-project-doctor` | Umbrella CLI for planning, running, and summarizing the suite. | JSON, Markdown, HTML |
+| `godot-project-doctor` | Umbrella CLI for planning, running, summarizing, and comparing the suite. | JSON, Markdown, HTML |
 | `godot-ci-doctor-action` | GitHub composite action wrapper. | JSON, Markdown, HTML artifacts |
 | `godot-asset-pipeline-doctor` | PNG and `.import` checks for pixel art and mobile memory risks. | JSON, SARIF |
 | `godot-content-graph-doctor` | Data-driven content id, reference, and numeric outlier checks. | JSON, Markdown, Mermaid |

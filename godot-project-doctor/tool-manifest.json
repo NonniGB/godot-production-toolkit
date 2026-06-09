@@ -42,6 +42,10 @@
       "command": "godot-project-doctor summarize reports/godot-project-doctor --format html --output reports/index.html"
     },
     {
+      "purpose": "Compare two report folders",
+      "command": "godot-project-doctor compare reports/baseline reports/current --format markdown --fail-on warning"
+    },
+    {
       "purpose": "Collect reports into one evidence folder",
       "command": "godot-project-doctor collect godot-project-doctor.toml --evidence-dir reports/godot-project-doctor/evidence"
     }

@@ -8,7 +8,9 @@ import sys
 from .reports import render_json, render_summary
 from .runner import (
     build_plan,
+    compare_report_dirs,
     collect_evidence,
+    exit_code_for_compare,
     exit_code_for_summary,
     explain_check,
     inspect_project,
@@ -38,6 +40,8 @@ def main(argv: list[str] | None = None) -> int:
         return _collect(args)
     if args.command == "summarize":
         return _summarize(args)
+    if args.command == "compare":
+        return _compare(args)
     parser.print_help()
     return 2
 
@@ -114,6 +118,13 @@ def _build_parser() -> argparse.ArgumentParser:
     summarize.add_argument("--format", choices=["text", "json", "markdown", "html"], default="text")
     summarize.add_argument("--output", help="Write output to a file.")
     summarize.add_argument("--fail-on", choices=["none", "warning", "error"], default="none")
+
+    compare = subparsers.add_parser("compare", help="Compare two directories of JSON reports.")
+    compare.add_argument("baseline_reports_dir", help="Earlier report directory.")
+    compare.add_argument("current_reports_dir", help="Current report directory.")
+    compare.add_argument("--format", choices=["text", "json", "markdown"], default="text")
+    compare.add_argument("--output", help="Write output to a file.")
+    compare.add_argument("--fail-on", choices=["none", "warning", "error"], default="none")
     return parser
 
 
@@ -207,6 +218,18 @@ def _summarize(args: argparse.Namespace) -> int:
     summary = summarize_reports(Path(args.reports_dir))
     _emit(render_summary(summary, args.format), args.output)
     return exit_code_for_summary(summary, args.fail_on)
+
+
+def _compare(args: argparse.Namespace) -> int:
+    comparison = compare_report_dirs(Path(args.baseline_reports_dir), Path(args.current_reports_dir))
+    if args.format == "json":
+        rendered = render_json(comparison)
+    elif args.format == "markdown":
+        rendered = _render_compare_markdown(comparison)
+    else:
+        rendered = _render_compare_text(comparison)
+    _emit(rendered, args.output)
+    return exit_code_for_compare(comparison, args.fail_on)
 
 
 def _build_plan_from_args(args: argparse.Namespace) -> dict[str, object]:
@@ -341,6 +364,51 @@ def _render_collect_text(manifest: dict[str, object]) -> str:
         "- summary.html",
         "- artifacts.json",
     ]
+    return "\n".join(lines)
+
+
+def _render_compare_text(comparison: dict[str, object]) -> str:
+    summary = comparison["summary"]
+    lines = [
+        "Godot Project Doctor Compare",
+        f"Baseline: {comparison['baseline_reports_dir']}",
+        f"Current: {comparison['current_reports_dir']}",
+        f"Tools: {summary['tools']}",
+        f"Regressions: {summary['regressions']}",
+        f"Improvements: {summary['improvements']}",
+        f"Delta: {summary['error_delta']} error(s), {summary['warning_delta']} warning(s), {summary['finding_delta']} finding(s)",
+        "",
+        "Changes:",
+    ]
+    for item in comparison["comparisons"]:
+        delta = item["delta"]
+        lines.append(
+            f"- {item['tool']}: {item['status']} "
+            f"({delta['errors']:+} errors, {delta['warnings']:+} warnings, {delta['findings']:+} findings)"
+        )
+    return "\n".join(lines)
+
+
+def _render_compare_markdown(comparison: dict[str, object]) -> str:
+    summary = comparison["summary"]
+    lines = [
+        "# Godot Project Doctor Compare",
+        "",
+        f"- Baseline: `{comparison['baseline_reports_dir']}`",
+        f"- Current: `{comparison['current_reports_dir']}`",
+        f"- Tools: {summary['tools']}",
+        f"- Regressions: {summary['regressions']}",
+        f"- Improvements: {summary['improvements']}",
+        f"- Delta: {summary['error_delta']} error(s), {summary['warning_delta']} warning(s), {summary['finding_delta']} finding(s)",
+        "",
+        "| Tool | Status | Errors | Warnings | Findings |",
+        "|---|---|---:|---:|---:|",
+    ]
+    for item in comparison["comparisons"]:
+        delta = item["delta"]
+        lines.append(
+            f"| {item['tool']} | {item['status']} | {delta['errors']:+} | {delta['warnings']:+} | {delta['findings']:+} |"
+        )
     return "\n".join(lines)
 
 

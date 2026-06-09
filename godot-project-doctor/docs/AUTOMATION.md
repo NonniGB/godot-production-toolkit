@@ -14,3 +14,11 @@ godot-project-doctor run godot-project-doctor.toml --format markdown --output re
 ```
 
 Use JSON for planning and HTML or Markdown when someone needs to read the report.
+
+Compare report folders when a job keeps a previous run as an artifact:
+
+```powershell
+godot-project-doctor compare reports\baseline reports\current --format markdown --fail-on warning
+```
+
+Use `--fail-on error` when only new errors should fail the job.

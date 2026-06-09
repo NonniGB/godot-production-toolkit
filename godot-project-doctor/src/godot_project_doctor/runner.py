@@ -428,6 +428,66 @@ def summarize_reports(reports_dir: Path) -> dict[str, Any]:
     }
 
 
+def compare_report_dirs(baseline_dir: Path, current_dir: Path) -> dict[str, Any]:
+    baseline = summarize_reports(baseline_dir)
+    current = summarize_reports(current_dir)
+    baseline_by_tool = {str(report["tool"]): report for report in baseline["reports"]}
+    current_by_tool = {str(report["tool"]): report for report in current["reports"]}
+    tool_names = sorted(set(baseline_by_tool) | set(current_by_tool))
+
+    comparisons: list[dict[str, Any]] = []
+    for tool_name in tool_names:
+        baseline_report = baseline_by_tool.get(tool_name)
+        current_report = current_by_tool.get(tool_name)
+        before = _comparison_counts(baseline_report)
+        after = _comparison_counts(current_report)
+        delta = {
+            "errors": after["errors"] - before["errors"],
+            "warnings": after["warnings"] - before["warnings"],
+            "findings": after["findings"] - before["findings"],
+        }
+        comparisons.append(
+            {
+                "tool": tool_name,
+                "status": _comparison_status(baseline_report, current_report, delta),
+                "baseline": before,
+                "current": after,
+                "delta": delta,
+                "baseline_path": baseline_report["path"] if baseline_report else None,
+                "current_path": current_report["path"] if current_report else None,
+            }
+        )
+
+    return {
+        "tool": "godot-project-doctor",
+        "baseline_reports_dir": str(baseline_dir),
+        "current_reports_dir": str(current_dir),
+        "summary": {
+            "tools": len(comparisons),
+            "regressions": sum(1 for item in comparisons if item["status"] == "regressed"),
+            "improvements": sum(1 for item in comparisons if item["status"] == "improved"),
+            "new_tools": sum(1 for item in comparisons if item["status"] == "new"),
+            "removed_tools": sum(1 for item in comparisons if item["status"] == "removed"),
+            "error_delta": sum(int(item["delta"]["errors"]) for item in comparisons),
+            "warning_delta": sum(int(item["delta"]["warnings"]) for item in comparisons),
+            "finding_delta": sum(int(item["delta"]["findings"]) for item in comparisons),
+        },
+        "comparisons": comparisons,
+    }
+
+
+def exit_code_for_compare(comparison: dict[str, Any], fail_on: str) -> int:
+    if fail_on == "none":
+        return 0
+    for item in comparison["comparisons"]:
+        delta = item["delta"]
+        if fail_on == "error" and int(delta["errors"]) > 0:
+            return 1
+        if fail_on == "warning" and (int(delta["errors"]) > 0 or int(delta["warnings"]) > 0):
+            return 1
+    return 0
+
+
 def exit_code_for_summary(summary: dict[str, Any], fail_on: str) -> int:
     totals = summary["summary"] if "summary" in summary else summary
     if fail_on == "none":
@@ -437,6 +497,35 @@ def exit_code_for_summary(summary: dict[str, Any], fail_on: str) -> int:
     if fail_on == "error" and int(totals["errors"]) > 0:
         return 1
     return 0
+
+
+def _comparison_counts(report: dict[str, Any] | None) -> dict[str, int]:
+    if not report:
+        return {"errors": 0, "warnings": 0, "findings": 0}
+    summary = report["summary"]
+    return {
+        "errors": int(summary["errors"]),
+        "warnings": int(summary["warnings"]),
+        "findings": int(report.get("finding_count", 0)),
+    }
+
+
+def _comparison_status(
+    baseline_report: dict[str, Any] | None,
+    current_report: dict[str, Any] | None,
+    delta: dict[str, int],
+) -> str:
+    if baseline_report is None:
+        return "new"
+    if current_report is None:
+        return "removed"
+    if delta["errors"] > 0 or delta["warnings"] > 0:
+        return "regressed"
+    if delta["errors"] < 0 or delta["warnings"] < 0 or delta["findings"] < 0:
+        return "improved"
+    if delta["findings"] > 0:
+        return "changed"
+    return "unchanged"
 
 
 def _selected_checks(project_config: dict[str, Any], cli_checks: list[str] | None) -> set[str] | None:

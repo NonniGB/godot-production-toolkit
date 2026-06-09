@@ -1,6 +1,6 @@
 # Godot Project Doctor
 
-`godot-project-doctor` is an umbrella CLI for the Godot production toolkit. It plans, runs, and summarizes the standalone tools without hiding their individual commands.
+`godot-project-doctor` is an umbrella CLI for the Godot production toolkit. It plans, runs, summarizes, and compares the standalone tools without hiding their individual commands.
 
 ## Install
 
@@ -41,6 +41,12 @@ Summarize existing reports:
 godot-project-doctor summarize reports\godot-project-doctor --format html --output reports\index.html
 ```
 
+Compare two report folders:
+
+```powershell
+godot-project-doctor compare reports\baseline reports\current --format markdown --fail-on warning
+```
+
 Collect reports into one evidence folder:
 
 ```powershell
@@ -63,6 +69,10 @@ suggests a short check set with reasons.
 - `summary.json`: machine-readable combined summary.
 - `summary.md`: Markdown report for release notes and PR comments.
 - `summary.html`: static report for local review or CI artifacts.
+
+`compare` reads two folders of JSON reports and shows which checks improved,
+regressed, appeared, or disappeared. Use `--fail-on error` or `--fail-on warning`
+when a CI job should fail only if the current run gets worse than the baseline.
 
 ## Explain A Check
 
