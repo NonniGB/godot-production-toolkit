@@ -38,6 +38,7 @@ godot-signal-audit examples\tiny-godot-project --format mermaid --fail-on none
 - GDScript `signal` declarations and method names.
 - Configured autoload signal connect usage.
 - Mermaid signal graph output.
+- Report metadata and readable rule explanations in text and JSON output.
 
 ## Documentation
 

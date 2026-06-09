@@ -6,8 +6,8 @@ import unittest
 from pathlib import Path
 
 from godot_signal_auditor.cli import main
-from godot_signal_auditor.models import ParsedScene, SceneConnection
-from godot_signal_auditor.reporting import render_mermaid_graph
+from godot_signal_auditor.models import Finding, ParsedScene, ParsedScript, SceneConnection
+from godot_signal_auditor.reporting import render_json_report, render_mermaid_graph, render_text_report
 
 
 class ReportingCliTests(unittest.TestCase):
@@ -33,6 +33,30 @@ class ReportingCliTests(unittest.TestCase):
         self.assertIn("flowchart LR", graph)
         self.assertIn('"StartButton" -->|"pressed / _on_start_pressed"| "."', graph)
 
+    def test_json_report_includes_metadata_and_rule_help(self) -> None:
+        report = json.loads(
+            render_json_report(
+                [],
+                {},
+                [Finding("stale_scene_connection", "error", Path("scenes/menu.tscn"), "Missing target method.")],
+            )
+        )
+
+        self.assertEqual(report["metadata"]["schema_version"], "1.1")
+        self.assertEqual(report["metadata"]["tool_version"], "0.1.1")
+        self.assertEqual(report["rules"]["stale_scene_connection"]["title"], "Stale scene connection")
+        self.assertIn("resolved target script", report["findings"][0]["explanation"])
+
+    def test_text_report_includes_plain_language_rule_help(self) -> None:
+        report = render_text_report(
+            [],
+            {"res://scripts/menu.gd": ParsedScript(Path("scripts/menu.gd"), set(), set())},
+            [Finding("autoload_signal_usage", "warning", Path("scripts/menu.gd"), "Signal bus usage.")],
+        )
+
+        self.assertIn("[WARNING] Autoload signal connection: Signal bus usage.", report)
+        self.assertIn("Why it matters:", report)
+
     def test_cli_writes_json_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -54,7 +78,9 @@ script = ExtResource("1_menu")
             exit_code = main([str(root), "--strict-stale-connections", "--format", "json", "--output", str(output)])
 
             self.assertEqual(exit_code, 1)
-            self.assertEqual(json.loads(output.read_text(encoding="utf-8"))["summary"]["errors"], 1)
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(report["summary"]["errors"], 1)
+            self.assertEqual(report["metadata"]["report_kind"], "scene_signal_audit")
             self.assertTrue(output.read_text(encoding="utf-8").endswith("\n"))
 
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added report metadata and plain-language rule explanations to JSON and text output.
+
 ## 0.1.1 - 2026-06-09
 
 - Ensured file output reports end with a trailing newline.

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 
+from . import __version__
 from .models import Finding, ParsedScene, ParsedScript
+from .rule_help import catalog_for, explain_rule
 
 
 def render_text_report(
@@ -18,7 +20,9 @@ def render_text_report(
         f"Scanned {len(scenes)} scene(s), {len(scripts)} script(s), {connection_count} connection(s): {errors} error(s), {warnings} warning(s).",
     ]
     for finding in findings:
-        lines.append(f"[{finding.severity.upper()}] {finding.rule_id}: {finding.message}")
+        help_text = explain_rule(finding.rule_id)
+        lines.append(f"[{finding.severity.upper()}] {help_text['title']}: {finding.message}")
+        lines.append(f"  Why it matters: {help_text['explanation']}")
     if not findings:
         lines.append("No findings.")
     return "\n".join(lines)
@@ -31,6 +35,12 @@ def render_json_report(
 ) -> str:
     payload = {
         "tool": "godot-scene-signal-auditor",
+        "metadata": {
+            "schema_version": "1.1",
+            "tool_version": __version__,
+            "report_kind": "scene_signal_audit",
+            "formats": ["text", "json", "mermaid"],
+        },
         "summary": {
             "scenes": len(scenes),
             "scripts": len(scripts),
@@ -39,6 +49,7 @@ def render_json_report(
             "errors": sum(1 for finding in findings if finding.severity == "error"),
             "warnings": sum(1 for finding in findings if finding.severity == "warning"),
         },
+        "rules": catalog_for({finding.rule_id for finding in findings}),
         "scenes": [scene.to_dict() for scene in scenes],
         "scripts": {path: script.to_dict() for path, script in sorted(scripts.items())},
         "findings": [finding.to_dict() for finding in findings],

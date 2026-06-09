@@ -7,6 +7,8 @@
     "cli": true,
     "machine_output": ["json"],
     "human_output": ["text", "mermaid graph"],
+    "report_metadata": true,
+    "plain_language_rule_help": true,
     "visual_interface": "Mermaid graph output"
   },
   "run_behavior": {
