@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-project-doctor"
-version = "0.1.1"
+version = "0.1.2"
 description = "Umbrella CLI that plans, runs, and summarizes CI-friendly Godot production checks."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Godot Project Doctor contributors" }]
-keywords = ["godot", "ci", "gamedev", "qa", "automation"]
+keywords = ["godot", "ci", "gamedev", "qa", "reports"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

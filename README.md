@@ -102,6 +102,7 @@ Run checks and summarize the generated reports:
 ```powershell
 godot-project-doctor run --project path\to\godot-project --checks assets,export,mobile_perf --reports-dir reports\godot-project-doctor --format json --output reports\godot-project-doctor\summary.json
 godot-project-doctor summarize reports\godot-project-doctor --format html --output reports\godot-project-doctor\summary.html
+godot-project-doctor collect --project path\to\godot-project --checks assets,export,mobile_perf --reports-dir reports\godot-project-doctor --evidence-dir reports\godot-project-doctor\evidence --skip-run
 ```
 
 ## Try The Included Demo

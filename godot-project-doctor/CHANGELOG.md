@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 - 2026-06-09
+
+- Added `collect` to write a compact evidence folder with manifest and summary reports.
+- Added `mobile_ui` check planning for `godot-mobile-ui-doctor` metadata reports.
+- Updated project inspection and recommendations to detect mobile UI metadata files.
+
 ## 0.1.1 - 2026-06-09
 
 - Added `inspect` and `recommend` commands for project-aware check selection.

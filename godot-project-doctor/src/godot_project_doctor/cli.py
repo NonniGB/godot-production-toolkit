@@ -8,6 +8,7 @@ import sys
 from .reports import render_json, render_summary
 from .runner import (
     build_plan,
+    collect_evidence,
     exit_code_for_summary,
     explain_check,
     inspect_project,
@@ -33,6 +34,8 @@ def main(argv: list[str] | None = None) -> int:
         return _explain(args)
     if args.command == "run":
         return _run(args)
+    if args.command == "collect":
+        return _collect(args)
     if args.command == "summarize":
         return _summarize(args)
     parser.print_help()
@@ -48,7 +51,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-project-doctor",
         description="Plan, run, and summarize the Godot production toolkit.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.1")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.2")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")
@@ -93,6 +96,18 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--timeout", type=int, default=120, help="Per-tool timeout in seconds.")
     run.add_argument("--format", choices=["text", "json", "markdown", "html"], default="text")
     run.add_argument("--output", help="Write output to a file.")
+
+    collect = subparsers.add_parser("collect", help="Create an evidence folder from configured checks and reports.")
+    collect.add_argument("config", nargs="?", help="Optional godot-project-doctor.toml path.")
+    collect.add_argument("--project", help="Override project path.")
+    collect.add_argument("--checks", help="Comma-separated check ids to include.")
+    collect.add_argument("--reports-dir", help="Override report directory.")
+    collect.add_argument("--evidence-dir", default="reports/godot-project-doctor/evidence", help="Folder for manifest and summary files.")
+    collect.add_argument("--fail-on", choices=["none", "warning", "error"])
+    collect.add_argument("--skip-run", action="store_true", help="Collect existing reports without running tools first.")
+    collect.add_argument("--timeout", type=int, default=120, help="Per-tool timeout in seconds.")
+    collect.add_argument("--format", choices=["text", "json"], default="text")
+    collect.add_argument("--output", help="Write command output to a file.")
 
     summarize = subparsers.add_parser("summarize", help="Summarize a directory of JSON reports.")
     summarize.add_argument("reports_dir", help="Directory containing per-tool JSON reports.")
@@ -173,6 +188,19 @@ def _run(args: argparse.Namespace) -> int:
     rendered = render_summary(result, args.format)
     _emit(rendered, args.output)
     return exit_code_for_summary(result, plan["fail_on"])
+
+
+def _collect(args: argparse.Namespace) -> int:
+    plan = _build_plan_from_args(args)
+    manifest = collect_evidence(
+        plan,
+        evidence_dir=Path(args.evidence_dir),
+        skip_run=args.skip_run,
+        timeout=args.timeout,
+    )
+    rendered = render_json(manifest) if args.format == "json" else _render_collect_text(manifest)
+    _emit(rendered, args.output)
+    return exit_code_for_summary(manifest, plan["fail_on"])
 
 
 def _summarize(args: argparse.Namespace) -> int:
@@ -263,6 +291,26 @@ def _render_explain_text(payload: dict[str, str]) -> str:
             f"Use it: {payload['when']}",
         ]
     )
+
+
+def _render_collect_text(manifest: dict[str, object]) -> str:
+    summary = manifest["summary"]
+    lines = [
+        "Godot Project Doctor Evidence",
+        f"Evidence: {manifest['evidence_dir']}",
+        f"Reports: {manifest['reports_dir']}",
+        f"Tools: {summary['tools']}",
+        f"Errors: {summary['errors']}",
+        f"Warnings: {summary['warnings']}",
+        "",
+        "Files:",
+        "- manifest.json",
+        "- summary.json",
+        "- summary.md",
+        "- summary.html",
+        "- artifacts.json",
+    ]
+    return "\n".join(lines)
 
 
 def _emit(rendered: str, output: str | None) -> None:

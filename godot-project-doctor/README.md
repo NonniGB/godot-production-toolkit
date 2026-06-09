@@ -37,14 +37,28 @@ Summarize existing reports:
 godot-project-doctor summarize reports\godot-project-doctor --format html --output reports\index.html
 ```
 
+Collect reports into one evidence folder:
+
+```powershell
+godot-project-doctor collect godot-project-doctor.toml --evidence-dir reports\godot-project-doctor\evidence
+```
+
 ## Config
 
 Use `examples/godot-project-doctor.toml` as a starting point. Project-audit tools are enabled by default; specialized tools such as save-schema validation, visual smoke plans, and pixel asset commands stay disabled until their required config is supplied.
 
 `recommend` is intentionally conservative. It looks for common project signals
 such as `export_presets.cfg`, GDScript files, PNG/import files, localization
-files, input-map settings, and data/content folders, then suggests a short check
-set with reasons.
+files, input-map settings, mobile UI metadata, and data/content folders, then
+suggests a short check set with reasons.
+
+`collect` writes:
+
+- `manifest.json`: commands, tool versions, run results, and report index.
+- `artifacts.json`: artifact paths listed by reports, such as screenshots or diffs.
+- `summary.json`: machine-readable combined summary.
+- `summary.md`: Markdown report for release notes and PR comments.
+- `summary.html`: static report for local review or CI artifacts.
 
 ## Explain A Check
 

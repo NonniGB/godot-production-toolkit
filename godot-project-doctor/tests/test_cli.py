@@ -102,6 +102,8 @@ window/handheld/orientation=1
             (root / "assets" / "icon.png").write_bytes(b"\x89PNG\r\n\x1a\n")
             (root / "data").mkdir()
             (root / "data" / "items.json").write_text("[]", encoding="utf-8")
+            (root / "reports").mkdir()
+            (root / "reports" / "mobile-ui.json").write_text("{}", encoding="utf-8")
 
             inspect_stdout = StringIO()
             with redirect_stdout(inspect_stdout):
@@ -118,6 +120,33 @@ window/handheld/orientation=1
             self.assertIn("export", recommended)
             self.assertIn("assets", recommended)
             self.assertIn("content_graph", recommended)
+            self.assertIn("mobile_ui", recommended)
+
+    def test_plan_includes_mobile_ui_when_metadata_is_configured(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / "godot-project-doctor.toml"
+            config.write_text(
+                """
+[project]
+path = "demo"
+checks = ["mobile_ui"]
+
+[tools.mobile_ui]
+metadata = "reports/mobile-ui.json"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                self.assertEqual(main(["plan", str(config), "--format", "json"]), 0)
+
+            payload = json.loads(stdout.getvalue())
+            command = payload["commands"][0]
+            self.assertEqual(command["id"], "mobile_ui")
+            self.assertIn("godot-mobile-ui-doctor", command["argv"][0])
+            self.assertIn("mobile-ui.json", " ".join(command["argv"]))
 
     def test_init_dry_run_prints_config_without_writing_files(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -203,6 +232,56 @@ window/handheld/orientation=1
             self.assertIn("Top Findings", html_stdout.getvalue())
             self.assertIn("Texture is large.", html_stdout.getvalue())
 
+    def test_collect_writes_evidence_folder_from_existing_reports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            (reports / "mobile-ui.json").write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-mobile-ui-doctor",
+                        "summary": {"errors": 0, "warnings": 1},
+                        "findings": [
+                            {
+                                "rule_id": "touch_target_too_small",
+                                "severity": "warning",
+                                "message": "Button is small.",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            evidence = root / "evidence"
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "collect",
+                        "--project",
+                        str(root),
+                        "--checks",
+                        "mobile_ui",
+                        "--reports-dir",
+                        str(reports),
+                        "--evidence-dir",
+                        str(evidence),
+                        "--skip-run",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            self.assertTrue((evidence / "manifest.json").exists())
+            self.assertTrue((evidence / "summary.md").exists())
+            self.assertTrue((evidence / "artifacts.json").exists())
+            manifest = json.loads((evidence / "manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["summary"]["warnings"], 1)
+            self.assertIn("summary.html", {path.name for path in evidence.iterdir()})
+
     def test_version_flag_prints_package_version(self) -> None:
         stdout = StringIO()
 
@@ -211,7 +290,7 @@ window/handheld/orientation=1
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.1.1", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.1.2", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -226,7 +305,7 @@ window/handheld/orientation=1
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.1.1", completed.stdout)
+        self.assertIn("godot-project-doctor 0.1.2", completed.stdout)
 
 
 if __name__ == "__main__":

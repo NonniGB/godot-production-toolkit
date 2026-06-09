@@ -36,6 +36,10 @@
     {
       "purpose": "Static HTML report from existing JSON reports",
       "command": "godot-project-doctor summarize reports/godot-project-doctor --format html --output reports/index.html"
+    },
+    {
+      "purpose": "Collect reports into one evidence folder",
+      "command": "godot-project-doctor collect godot-project-doctor.toml --evidence-dir reports/godot-project-doctor/evidence"
     }
   ]
 }

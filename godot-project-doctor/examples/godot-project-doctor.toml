@@ -30,3 +30,7 @@ path = "reports/scenarios"
 [tools.architecture]
 enabled = false
 config = "architecture-guard.toml"
+
+[tools.mobile_ui]
+enabled = false
+metadata = "reports/mobile-ui.json"

@@ -185,3 +185,12 @@ godot-project-doctor summarize reports\godot-project-doctor --format html --outp
 ```
 
 The individual tool commands remain visible in the plan output, so a maintainer can reproduce a failure without reverse-engineering the umbrella CLI.
+
+To keep one folder with the combined report index:
+
+```powershell
+godot-project-doctor collect godot-project-doctor.toml --evidence-dir reports\godot-project-doctor\evidence
+```
+
+This writes a manifest, Markdown/HTML summaries, and an artifact index for
+screenshots, diffs, or scenario files listed by the individual reports.

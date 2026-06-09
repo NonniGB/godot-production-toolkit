@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import subprocess
@@ -31,6 +32,7 @@ TOOL_REGISTRY: tuple[ToolSpec, ...] = (
     ToolSpec("signals", "Scene Signal Auditor", "godot-signal-audit", "signals.json", True),
     ToolSpec("visual_smoke", "Visual Smoke Test Kit", "godot-visual-smoke", "visual-smoke-plan.json", False, required_config=("config",)),
     ToolSpec("mobile_perf", "Mobile Perf Doctor", "godot-mobile-perf-doctor", "mobile-perf.json", True, base_args=("--static",)),
+    ToolSpec("mobile_ui", "Mobile UI Doctor", "godot-mobile-ui-doctor", "mobile-ui.json", False, required_config=("metadata",), project_arg=False),
     ToolSpec("pixel_assets", "Pixel Space Asset Toolkit", "pixel-space-assets", "pixel-assets.json", False, required_config=("command",)),
     ToolSpec("content_graph", "Content Graph Doctor", "godot-content-graph", "content-graph.json", False, required_config=("config",)),
     ToolSpec("scenario_report", "Scenario Report Kit", "godot-scenario-report", "scenario-report.json", False, required_config=("path",), project_arg=False),
@@ -73,6 +75,10 @@ CHECK_GUIDANCE: dict[str, dict[str, str]] = {
     "mobile_perf": {
         "why": "Flags static Godot settings that create avoidable Android performance and battery risk.",
         "when": "Run before testing on Android hardware or preparing a mobile build.",
+    },
+    "mobile_ui": {
+        "why": "Checks exported UI rectangles for safe-area overlap, touch target size, spacing, and text overflow risk.",
+        "when": "Run after a UI smoke test, debug exporter, or editor script writes mobile UI metadata.",
     },
     "pixel_assets": {
         "why": "Generates and checks deterministic pixel asset previews for repeatable asset review.",
@@ -168,6 +174,11 @@ def inspect_project(project: Path) -> dict[str, Any]:
         "input_map_likely": _file_contains(root / "project.godot", "[input]"),
         "mobile_settings_likely": _file_contains(root / "project.godot", "handheld/orientation")
         or _file_contains(root / "project.godot", "display/window"),
+        "mobile_ui_metadata_likely": any(
+            path.lower().endswith((".json", ".toml"))
+            and ("mobile-ui" in path.lower() or "mobile_ui" in path.lower() or "ui-metadata" in path.lower())
+            for path in rel_paths
+        ),
         "save_fixtures_likely": any("save" in path.lower() and path.endswith((".json", ".toml")) for path in rel_paths),
         "visual_smoke_likely": any("screenshot" in path.lower() or "visual" in path.lower() for path in rel_paths),
         "scenario_results_likely": any(
@@ -204,6 +215,7 @@ def recommend_checks_from_features(features: dict[str, Any]) -> list[dict[str, s
         ("visual_smoke", bool(features.get("visual_smoke_likely")), "Visual/screenshot files or folders were found."),
         ("content_graph", bool(features.get("content_data_likely")), "Data/content JSON, CSV, or TOML files were found."),
         ("scenario_report", bool(features.get("scenario_results_likely")), "Scenario result JSON files were found."),
+        ("mobile_ui", bool(features.get("mobile_ui_metadata_likely")), "Mobile UI metadata files were found."),
         ("architecture", bool(features.get("gdscript_files")), "GDScript files were found."),
     ]
     for check_id, enabled, reason in rules:
@@ -260,6 +272,9 @@ def render_starter_config(project: Path, reports_dir: str = "reports/godot-proje
         "",
         "# [tools.architecture]",
         '# config = "architecture-guard.toml"',
+        "",
+        "# [tools.mobile_ui]",
+        '# metadata = "reports/mobile-ui.json"',
     ]
     return "\n".join(lines)
 
@@ -324,6 +339,47 @@ def run_plan(plan: dict[str, Any], dry_run: bool = False, timeout: int = 120) ->
     return {"status": "completed", "plan": plan, "results": results, "summary": summary["summary"], "reports": summary["reports"]}
 
 
+def collect_evidence(
+    plan: dict[str, Any],
+    evidence_dir: Path,
+    skip_run: bool = False,
+    timeout: int = 120,
+) -> dict[str, Any]:
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    run_result: dict[str, Any] | None = None
+    if not skip_run:
+        run_result = run_plan(plan, timeout=timeout)
+
+    summary = summarize_reports(Path(str(plan["reports_dir"])))
+    manifest = {
+        "tool": "godot-project-doctor",
+        "schema_version": "1.0",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "project": plan["project"],
+        "reports_dir": plan["reports_dir"],
+        "evidence_dir": str(evidence_dir),
+        "fail_on": plan["fail_on"],
+        "commands": plan["commands"],
+        "tool_versions": _tool_versions(plan),
+        "run_results": run_result["results"] if run_result else [],
+        "summary": summary["summary"],
+        "reports": summary["reports"],
+        "artifacts": _all_artifacts(summary["reports"]),
+    }
+    (evidence_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    from .reports import render_summary
+
+    (evidence_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (evidence_dir / "summary.md").write_text(render_summary(summary, "markdown") + "\n", encoding="utf-8")
+    (evidence_dir / "summary.html").write_text(render_summary(summary, "html") + "\n", encoding="utf-8")
+    (evidence_dir / "artifacts.json").write_text(
+        json.dumps(manifest["artifacts"], indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return manifest
+
+
 def summarize_reports(reports_dir: Path) -> dict[str, Any]:
     reports: list[dict[str, Any]] = []
     for path in sorted(reports_dir.glob("*.json")):
@@ -336,6 +392,7 @@ def summarize_reports(reports_dir: Path) -> dict[str, Any]:
                 "summary": {"errors": errors, "warnings": warnings},
                 "finding_count": _finding_count(data),
                 "findings": _findings(data),
+                "artifacts": _artifact_paths(data),
             }
         )
     return {
@@ -440,6 +497,16 @@ def _build_tool_argv(spec: ToolSpec, project: Path, report_path: Path, config: d
             str(report_path),
             *args,
         ]
+    if spec.id == "mobile_ui":
+        return [
+            spec.command,
+            str(_resolve_path(project, str(config.get("metadata", "mobile-ui.json")))),
+            "--format",
+            "json",
+            "--output",
+            str(report_path),
+            *args,
+        ]
     if spec.id == "architecture":
         return [
             spec.command,
@@ -535,3 +602,53 @@ def _findings(data: dict[str, Any]) -> list[dict[str, Any]]:
         if isinstance(value, list):
             return [item for item in value if isinstance(item, dict)]
     return []
+
+
+def _artifact_paths(data: Any) -> list[str]:
+    values: list[str] = []
+
+    def walk(value: Any, key: str = "") -> None:
+        if isinstance(value, dict):
+            for child_key, child_value in value.items():
+                walk(child_value, str(child_key))
+            return
+        if isinstance(value, list):
+            for item in value:
+                walk(item, key)
+            return
+        if isinstance(value, str) and key in {"artifact", "artifacts", "screenshot", "screenshots", "diff"}:
+            values.append(value)
+
+    walk(data)
+    return sorted(set(values))
+
+
+def _all_artifacts(reports: list[dict[str, Any]]) -> list[dict[str, str]]:
+    indexed: list[dict[str, str]] = []
+    for report in reports:
+        for artifact in report.get("artifacts", []):
+            indexed.append({"tool": str(report["tool"]), "path": str(artifact)})
+    return indexed
+
+
+def _tool_versions(plan: dict[str, Any]) -> dict[str, str]:
+    versions: dict[str, str] = {}
+    for command in plan["commands"]:
+        argv = command.get("argv", [])
+        if not argv:
+            continue
+        executable = str(argv[0])
+        try:
+            completed = subprocess.run(
+                [executable, "--version"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError):
+            versions[str(command["id"])] = "unavailable"
+            continue
+        version_text = (completed.stdout or completed.stderr).strip()
+        versions[str(command["id"])] = version_text or f"{executable} exited {completed.returncode}"
+    return versions
