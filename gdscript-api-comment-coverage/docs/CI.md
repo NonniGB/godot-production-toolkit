@@ -13,3 +13,7 @@ For early adoption, generate docs without failing:
 ```powershell
 gdscript-api-coverage . --write-docs docs\API_INDEX.md --fail-on none
 ```
+
+JSON reports include summary counts, tool metadata, and threshold explanations.
+Keep the report as a CI artifact when teams need to review API documentation
+coverage outside the job log.

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added report metadata and readable threshold explanations to JSON and text output.
+- Escaped Markdown API index table cells so generated docs stay valid for unusual names.
+
 ## 0.1.2 - 2026-06-09
 
 - Added percent-range validation for coverage thresholds.

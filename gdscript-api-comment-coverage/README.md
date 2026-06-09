@@ -39,6 +39,7 @@ gdscript-api-coverage examples\tiny-godot-project --write-docs API_INDEX.md --fa
 - Public `func` declarations that do not start with `_`.
 - Public constants.
 - Whether each item has an immediately preceding comment.
+- Report metadata and readable threshold explanations in text and JSON output.
 
 ## Comment Style
 

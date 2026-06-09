@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .rule_help import explain_threshold, threshold_rule_id
+
 
 @dataclass(frozen=True)
 class ApiItem:
@@ -32,9 +34,13 @@ class ThresholdFinding:
     expected: float
 
     def to_dict(self) -> dict[str, object]:
+        help_text = explain_threshold(self.kind)
         return {
+            "rule_id": threshold_rule_id(self.kind),
             "kind": self.kind,
             "severity": self.severity,
+            "title": help_text["title"],
+            "explanation": help_text["explanation"],
             "message": self.message,
             "actual": self.actual,
             "expected": self.expected,
