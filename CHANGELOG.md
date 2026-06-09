@@ -8,6 +8,7 @@
 - Updated GitHub Action examples to pin the current `v0.1.2` release.
 - Added a release-alignment verifier for CI and pre-release checks.
 - Added a local maintenance snapshot command and aligned root tool-count metadata.
+- Updated release checks to support independent standalone package patch versions.
 
 ## 0.1.1 - 2026-06-08
 

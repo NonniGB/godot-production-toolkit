@@ -32,7 +32,7 @@ For new projects, create pending publishers in PyPI before the first workflow ru
 | `godot-export-preset-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-export-preset-doctor.yml` | `pypi` |
 | `godot-mobile-perf-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-mobile-perf-doctor.yml` | `pypi` |
 
-Release package updates one at a time so failures are easy to isolate.
+Release package updates one at a time so failures are easy to isolate. Package patch versions can move independently from the root suite version when only one standalone tool changes.
 
 ## Godot community outreach
 

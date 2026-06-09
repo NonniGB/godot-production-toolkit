@@ -20,6 +20,7 @@ Use small releases:
 - Patch release for bug fixes and docs corrections.
 - Minor release for new output formats, rule groups, or config options.
 - Keep changelogs per tool because every tool remains standalone.
+- Bump and publish a standalone package only when that package has a real user-facing change.
 
 ## CI and tooling maintenance
 

@@ -12,6 +12,24 @@ PUBLISHED_PACKAGES = (
     "godot-mobile-perf-doctor",
 )
 
+PACKAGE_VERSION_FILES = {
+    "godot-asset-pipeline-doctor": {
+        "init": "src/godot_asset_doctor/__init__.py",
+        "cli": "src/godot_asset_doctor/cli.py",
+        "cli_name": "godot-asset-doctor",
+    },
+    "godot-export-preset-doctor": {
+        "init": "src/godot_export_doctor/__init__.py",
+        "cli": "src/godot_export_doctor/cli.py",
+        "cli_name": "godot-export-doctor",
+    },
+    "godot-mobile-perf-doctor": {
+        "init": "src/godot_mobile_perf_doctor/__init__.py",
+        "cli": "src/godot_mobile_perf_doctor/cli.py",
+        "cli_name": "godot-mobile-perf-doctor",
+    },
+}
+
 ACTION_REF_FILES = (
     "README.md",
     "godot-ci-doctor-action/README.md",
@@ -54,9 +72,13 @@ def check_release_alignment(root: Path) -> list[str]:
     for package in PUBLISHED_PACKAGES:
         package_root = root / package
         package_version = _project_version(package_root / "pyproject.toml")
-        if package_version != version:
-            errors.append(f"{package}/pyproject.toml is {package_version}, expected {version}")
-        _expect_text(package_root / "CHANGELOG.md", f"## {version}", errors)
+        _expect_text(package_root / "CHANGELOG.md", f"## {package_version}", errors)
+        _expect_text(package_root / str(PACKAGE_VERSION_FILES[package]["init"]), f'__version__ = "{package_version}"', errors)
+        _expect_text(
+            package_root / str(PACKAGE_VERSION_FILES[package]["cli"]),
+            f'{PACKAGE_VERSION_FILES[package]["cli_name"]} {package_version}',
+            errors,
+        )
 
     return errors
 

@@ -45,3 +45,13 @@ Current package URLs:
 - [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
 - [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)
 - [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/)
+
+## Package patch releases
+
+Standalone package versions can move independently from the root suite version. When a tool changes:
+
+- bump that tool's `pyproject.toml`, `__version__`, CLI `--version`, and changelog;
+- update docs or examples that describe the changed behavior;
+- run the affected package tests plus root release-alignment checks;
+- publish the changed package to PyPI after `main` CI is green;
+- verify PyPI shows the new package version.
