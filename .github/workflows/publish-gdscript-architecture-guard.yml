@@ -2,6 +2,9 @@ name: Publish godot-gdscript-architecture-guard
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "godot-gdscript-architecture-guard-v*"
 
 permissions:
   contents: read

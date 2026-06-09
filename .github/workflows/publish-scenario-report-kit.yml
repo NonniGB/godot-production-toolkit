@@ -2,6 +2,9 @@ name: Publish godot-scenario-report-kit
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "godot-scenario-report-kit-v*"
 
 permissions:
   contents: read

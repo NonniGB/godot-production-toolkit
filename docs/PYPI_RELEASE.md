@@ -64,3 +64,14 @@ Each workflow expects PyPI Trusted Publishing with:
 - Environment: `pypi`
 
 PyPI supports pending publishers for new projects, so the first trusted workflow run can create the project after the pending publisher is configured in the PyPI account.
+
+The first-release package workflows for `godot-content-graph-doctor`,
+`godot-scenario-report-kit`, and `godot-gdscript-architecture-guard` also accept
+package-specific tags:
+
+```powershell
+git tag godot-content-graph-doctor-v0.1.0
+git tag godot-scenario-report-kit-v0.1.0
+git tag godot-gdscript-architecture-guard-v0.1.0
+git push origin godot-content-graph-doctor-v0.1.0 godot-scenario-report-kit-v0.1.0 godot-gdscript-architecture-guard-v0.1.0
+```

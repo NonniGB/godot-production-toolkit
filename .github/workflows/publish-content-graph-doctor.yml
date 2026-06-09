@@ -2,6 +2,9 @@ name: Publish godot-content-graph-doctor
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "godot-content-graph-doctor-v*"
 
 permissions:
   contents: read
