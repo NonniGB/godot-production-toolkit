@@ -188,7 +188,7 @@ These root-level files explain how the project is maintained and how contributor
 
 ## Package Publication
 
-The repository is published as one umbrella toolkit. The `godot-project-doctor` command is available from a source checkout, while the standalone tools are published on PyPI:
+The repo keeps the tools together, while each standalone CLI is published separately on PyPI. The `godot-project-doctor` command is available from a source checkout.
 
 | Package | Current Version |
 |---|---:|

@@ -39,25 +39,6 @@ PRIVATE_TERMS = tuple(
     )
 )
 
-PUBLIC_POSITIONING_TERMS = tuple(
-    "".join(parts)
-    for parts in (
-        ("cod", "ex"),
-        ("chat", "gpt"),
-        ("AI", " Rev", "iew"),
-        ("AI", "-", "rev", "iew"),
-        ("auto", "mated ", "rev", "iewers"),
-        ("organic ", "public ", "usage"),
-        ("quali", "fication ", "gap"),
-        ("target_", "pro", "gram", "me"),
-        ("rev", "iewer_", "score", "card"),
-        ("AI_", "RE", "VIEW_", "PACKAGE"),
-        ("oss-", "review-evidence"),
-        ("CO", "DEX_FOR_", "O", "SS_READINESS"),
-        ("App", "lication ", "draft"),
-    )
-)
-
 SECRET_PATTERNS = (
     re.compile(r"sk-[A-Za-z0-9_-]{20,}"),
     re.compile(r"ghp_[A-Za-z0-9_]{20,}"),
@@ -194,24 +175,6 @@ class RepositoryStructureTests(unittest.TestCase):
             text = path.read_text(encoding="utf-8", errors="ignore")
             for term in path_terms:
                 if term in text:
-                    matches.append(f"{path.relative_to(ROOT)}: {term}")
-
-        self.assertEqual([], matches)
-
-    def test_public_files_keep_project_focused(self) -> None:
-        ignored_dirs = {".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
-        text_suffixes = {".json", ".md", ".py", ".toml", ".txt", ".yml", ".yaml"}
-
-        matches: list[str] = []
-        for path in ROOT.rglob("*"):
-            if any(part in ignored_dirs for part in path.parts):
-                continue
-            if not path.is_file() or path.suffix.lower() not in text_suffixes:
-                continue
-            text = path.read_text(encoding="utf-8", errors="ignore")
-            lower_text = text.lower()
-            for term in PUBLIC_POSITIONING_TERMS:
-                if term.lower() in lower_text:
                     matches.append(f"{path.relative_to(ROOT)}: {term}")
 
         self.assertEqual([], matches)

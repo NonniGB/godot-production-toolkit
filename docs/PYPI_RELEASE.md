@@ -6,16 +6,18 @@ Package publishing uses PyPI Trusted Publishing rather than local API tokens.
 
 These packages are published as standalone PyPI distributions:
 
-- [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/)
-- [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
-- [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)
-- [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/)
-- [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/)
-- [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/)
-- [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/)
-- [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/)
-- [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/)
-- [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/)
+| Package | Current Version |
+|---|---:|
+| [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.1` |
+| [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.3` |
+| [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.4` |
+| [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.1` |
+| [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.1` |
+| [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.3` |
+| [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.1` |
+| [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.1` |
+| [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.1` |
+| [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/) | `0.1.1` |
 
 The exact `godot-project-doctor` distribution name is already used on PyPI, so do not configure or publish that package name from this repository. If the umbrella CLI is published later, choose a distinct distribution name and update `godot-project-doctor/pyproject.toml` first.
 
