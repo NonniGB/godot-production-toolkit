@@ -20,6 +20,7 @@ class ProjectHealthSnapshotTests(unittest.TestCase):
         expected = {
             package: tomllib.loads((ROOT / package / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
             for package in (
+                "gdscript-api-comment-coverage",
                 "godot-asset-pipeline-doctor",
                 "godot-export-preset-doctor",
                 "godot-input-map-auditor",
@@ -28,6 +29,7 @@ class ProjectHealthSnapshotTests(unittest.TestCase):
                 "godot-save-schema-guard",
                 "godot-scene-signal-auditor",
                 "godot-visual-smoke-test-kit",
+                "pixel-space-asset-toolkit",
             )
         }
         self.assertEqual(expected, snapshot["published_packages"])

@@ -50,6 +50,8 @@ Current package URLs:
 - [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/)
 - [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/)
 - [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/)
+- [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/)
+- [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/)
 
 ## Package patch releases
 

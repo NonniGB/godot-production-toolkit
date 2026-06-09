@@ -62,6 +62,12 @@ def _copy_required_files(source: Path, target: Path) -> None:
         target_path.write_text(source_path.read_text(encoding="utf-8"), encoding="utf-8")
 
     for package, paths in {
+        "gdscript-api-comment-coverage": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/gdscript_api_coverage/__init__.py",
+            "src/gdscript_api_coverage/cli.py",
+        ),
         "godot-asset-pipeline-doctor": (
             "pyproject.toml",
             "CHANGELOG.md",
@@ -109,6 +115,12 @@ def _copy_required_files(source: Path, target: Path) -> None:
             "CHANGELOG.md",
             "src/godot_visual_smoke/__init__.py",
             "src/godot_visual_smoke/cli.py",
+        ),
+        "pixel-space-asset-toolkit": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/pixel_space_assets/__init__.py",
+            "src/pixel_space_assets/cli.py",
         ),
     }.items():
         for rel_path in paths:

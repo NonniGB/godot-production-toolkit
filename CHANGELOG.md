@@ -11,6 +11,7 @@
 - Updated release checks to support independent standalone package patch versions.
 - Added PyPI publish workflows and release tracking for input map, localization, and save schema tools.
 - Added PyPI publish workflows and release tracking for scene signal and visual smoke tools.
+- Added PyPI publish workflows and release tracking for API coverage and pixel asset tools.
 
 ## 0.1.1 - 2026-06-08
 

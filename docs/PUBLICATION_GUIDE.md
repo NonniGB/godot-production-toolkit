@@ -36,6 +36,8 @@ For new projects, create pending publishers in PyPI before the first workflow ru
 | `godot-save-schema-guard` | `NonniGB` | `godot-production-toolkit` | `publish-save-schema-guard.yml` | `pypi` |
 | `godot-scene-signal-auditor` | `NonniGB` | `godot-production-toolkit` | `publish-scene-signal-auditor.yml` | `pypi` |
 | `godot-visual-smoke-test-kit` | `NonniGB` | `godot-production-toolkit` | `publish-visual-smoke-test-kit.yml` | `pypi` |
+| `gdscript-api-comment-coverage` | `NonniGB` | `godot-production-toolkit` | `publish-gdscript-api-comment-coverage.yml` | `pypi` |
+| `pixel-space-asset-toolkit` | `NonniGB` | `godot-production-toolkit` | `publish-pixel-space-asset-toolkit.yml` | `pypi` |
 
 Release package updates one at a time so failures are easy to isolate. Package patch versions can move independently from the root suite version when only one standalone tool changes.
 

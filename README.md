@@ -186,6 +186,8 @@ The repository is published as one umbrella toolkit. The `godot-project-doctor` 
 - [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/)
 - [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/)
 - [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/)
+- [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/)
+- [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/)
 
 The exact `godot-project-doctor` distribution name is already used on PyPI, so the umbrella CLI needs a distinct package name before it can be published there.
 

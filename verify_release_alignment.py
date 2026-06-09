@@ -7,6 +7,7 @@ import tomllib
 
 
 PUBLISHED_PACKAGES = (
+    "gdscript-api-comment-coverage",
     "godot-asset-pipeline-doctor",
     "godot-export-preset-doctor",
     "godot-input-map-auditor",
@@ -15,9 +16,15 @@ PUBLISHED_PACKAGES = (
     "godot-save-schema-guard",
     "godot-scene-signal-auditor",
     "godot-visual-smoke-test-kit",
+    "pixel-space-asset-toolkit",
 )
 
 PACKAGE_VERSION_FILES = {
+    "gdscript-api-comment-coverage": {
+        "init": "src/gdscript_api_coverage/__init__.py",
+        "cli": "src/gdscript_api_coverage/cli.py",
+        "cli_name": "gdscript-api-coverage",
+    },
     "godot-asset-pipeline-doctor": {
         "init": "src/godot_asset_doctor/__init__.py",
         "cli": "src/godot_asset_doctor/cli.py",
@@ -57,6 +64,11 @@ PACKAGE_VERSION_FILES = {
         "init": "src/godot_visual_smoke/__init__.py",
         "cli": "src/godot_visual_smoke/cli.py",
         "cli_name": "godot-visual-smoke",
+    },
+    "pixel-space-asset-toolkit": {
+        "init": "src/pixel_space_assets/__init__.py",
+        "cli": "src/pixel_space_assets/cli.py",
+        "cli_name": "pixel-space-assets",
     },
 }
 
