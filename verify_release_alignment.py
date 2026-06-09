@@ -15,6 +15,7 @@ PUBLISHED_PACKAGES = (
     "godot-input-map-auditor",
     "godot-localization-qa-guard",
     "godot-mobile-perf-doctor",
+    "godot-mobile-ui-doctor",
     "godot-save-schema-guard",
     "godot-scenario-report-kit",
     "godot-scene-signal-auditor",
@@ -62,6 +63,11 @@ PACKAGE_VERSION_FILES = {
         "init": "src/godot_mobile_perf_doctor/__init__.py",
         "cli": "src/godot_mobile_perf_doctor/cli.py",
         "cli_name": "godot-mobile-perf-doctor",
+    },
+    "godot-mobile-ui-doctor": {
+        "init": "src/godot_mobile_ui_doctor/__init__.py",
+        "cli": "src/godot_mobile_ui_doctor/cli.py",
+        "cli_name": "godot-mobile-ui-doctor",
     },
     "godot-save-schema-guard": {
         "init": "src/godot_save_guard/__init__.py",

@@ -11,6 +11,7 @@ TOOLS = [
     "godot-gdscript-architecture-guard",
     "godot-input-map-auditor",
     "godot-localization-qa-guard",
+    "godot-mobile-ui-doctor",
     "godot-save-schema-guard",
     "godot-scenario-report-kit",
     "godot-scene-signal-auditor",

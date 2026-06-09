@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="320" viewBox="0 0 920 320" role="img" aria-label="Godot Mobile UI Doctor terminal report">
+  <rect width="920" height="320" rx="8" fill="#101820"/>
+  <rect x="0" y="0" width="920" height="38" rx="8" fill="#1c2730"/>
+  <circle cx="22" cy="19" r="6" fill="#ff6b6b"/>
+  <circle cx="44" cy="19" r="6" fill="#ffd166"/>
+  <circle cx="66" cy="19" r="6" fill="#4dd599"/>
+  <text x="92" y="25" fill="#d6e2ea" font-family="Consolas, Menlo, monospace" font-size="15">godot-mobile-ui-doctor mobile-ui.json --format text</text>
+  <text x="28" y="72" fill="#8ad7ff" font-family="Consolas, Menlo, monospace" font-size="17">Godot Mobile UI Doctor</text>
+  <text x="28" y="105" fill="#d6e2ea" font-family="Consolas, Menlo, monospace" font-size="16">Screens: 1 | Viewports: 1 | Nodes: 3 | Interactive: 2</text>
+  <text x="28" y="132" fill="#d6e2ea" font-family="Consolas, Menlo, monospace" font-size="16">Errors: 0 | Warnings: 4</text>
+  <text x="28" y="175" fill="#ffd38a" font-family="Consolas, Menlo, monospace" font-size="15">- WARNING safe_area_overlap [main_menu / portrait_phone / title]</text>
+  <text x="52" y="200" fill="#d6e2ea" font-family="Consolas, Menlo, monospace" font-size="15">Node 'title' overlaps the safe-area inset for viewport 'portrait_phone'.</text>
+  <text x="28" y="232" fill="#ffd38a" font-family="Consolas, Menlo, monospace" font-size="15">- WARNING touch_target_too_small [main_menu / portrait_phone / play]</text>
+  <text x="52" y="257" fill="#d6e2ea" font-family="Consolas, Menlo, monospace" font-size="15">Interactive node 'play' is 40x40; target size is 44px.</text>
+  <text x="28" y="289" fill="#ffd38a" font-family="Consolas, Menlo, monospace" font-size="15">- WARNING text_overflow_risk [main_menu / portrait_phone / title]</text>
+</svg>

@@ -1,0 +1,57 @@
+{
+  "thresholds": {
+    "min_touch_size": 44,
+    "min_touch_spacing": 8
+  },
+  "viewports": [
+    {
+      "name": "portrait_phone",
+      "width": 720,
+      "height": 1280,
+      "safe_area": {
+        "left": 0,
+        "top": 48,
+        "right": 0,
+        "bottom": 24
+      }
+    }
+  ],
+  "screens": [
+    {
+      "name": "main_menu",
+      "viewport": "portrait_phone",
+      "nodes": [
+        {
+          "id": "title",
+          "kind": "label",
+          "x": 24,
+          "y": 16,
+          "width": 180,
+          "height": 24,
+          "text": "A long localized title",
+          "font_size": 22
+        },
+        {
+          "id": "play",
+          "kind": "button",
+          "x": 24,
+          "y": 96,
+          "width": 40,
+          "height": 40,
+          "text": "Play",
+          "interactive": true
+        },
+        {
+          "id": "options",
+          "kind": "button",
+          "x": 66,
+          "y": 96,
+          "width": 80,
+          "height": 44,
+          "text": "Options",
+          "interactive": true
+        }
+      ]
+    }
+  ]
+}

@@ -49,6 +49,23 @@ This helps catch:
 - Duplicate bindings that make UI prompts ambiguous.
 - Missing generated input reference docs.
 
+## Mobile UI Readiness
+
+Use this after a project exports resolved UI rectangles from its menus, HUDs, or
+touch screens:
+
+```powershell
+godot-mobile-ui-doctor mobile-ui.json --format markdown --output reports\mobile-ui.md
+```
+
+This helps catch:
+
+- Touch targets that are too small.
+- Controls placed too close together.
+- Labels or buttons that overlap phone safe areas.
+- Text that is likely to overflow after localization.
+- UI rectangles that are partly off-screen.
+
 ## Localization QA
 
 Use this before exporting a localized build:

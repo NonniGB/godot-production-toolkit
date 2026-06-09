@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-mobile-ui-doctor",
+  "entrypoint": "godot-mobile-ui-doctor",
+  "module": "python -m godot_mobile_ui_doctor",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json"],
+    "human_output": ["text", "markdown"],
+    "visual_interface": "Markdown mobile UI readiness report"
+  },
+  "run_behavior": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Check exported mobile UI metadata",
+      "command": "godot-mobile-ui-doctor mobile-ui.json --format json --output reports/mobile-ui.json"
+    },
+    {
+      "purpose": "Create a Markdown mobile UI report",
+      "command": "godot-mobile-ui-doctor mobile-ui.json --format markdown --output reports/mobile-ui.md --fail-on none"
+    }
+  ]
+}

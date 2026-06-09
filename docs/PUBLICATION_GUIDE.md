@@ -18,11 +18,15 @@ The standalone tools are published on PyPI:
 
 - [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/)
 - [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/)
+- [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/)
 - [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/)
+- [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/)
 - [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/)
 - [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/)
 - [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/)
+- [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/)
 - [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/)
+- [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/)
 - [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/)
 - [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/)
 - [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/)
@@ -37,11 +41,15 @@ For new projects, create pending publishers in PyPI before the first workflow ru
 |---|---|---|---|---|
 | `gdscript-api-comment-coverage` | `NonniGB` | `godot-production-toolkit` | `publish-gdscript-api-comment-coverage.yml` | `pypi` |
 | `godot-asset-pipeline-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-pypi.yml` | `pypi` |
+| `godot-content-graph-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-content-graph-doctor.yml` | `pypi` |
 | `godot-export-preset-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-export-preset-doctor.yml` | `pypi` |
+| `godot-gdscript-architecture-guard` | `NonniGB` | `godot-production-toolkit` | `publish-gdscript-architecture-guard.yml` | `pypi` |
 | `godot-mobile-perf-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-mobile-perf-doctor.yml` | `pypi` |
+| `godot-mobile-ui-doctor` | `NonniGB` | `godot-production-toolkit` | `publish-mobile-ui-doctor.yml` | `pypi` |
 | `godot-input-map-auditor` | `NonniGB` | `godot-production-toolkit` | `publish-input-map-auditor.yml` | `pypi` |
 | `godot-localization-qa-guard` | `NonniGB` | `godot-production-toolkit` | `publish-localization-qa-guard.yml` | `pypi` |
 | `godot-save-schema-guard` | `NonniGB` | `godot-production-toolkit` | `publish-save-schema-guard.yml` | `pypi` |
+| `godot-scenario-report-kit` | `NonniGB` | `godot-production-toolkit` | `publish-scenario-report-kit.yml` | `pypi` |
 | `godot-scene-signal-auditor` | `NonniGB` | `godot-production-toolkit` | `publish-scene-signal-auditor.yml` | `pypi` |
 | `godot-visual-smoke-test-kit` | `NonniGB` | `godot-production-toolkit` | `publish-visual-smoke-test-kit.yml` | `pypi` |
 | `pixel-space-asset-toolkit` | `NonniGB` | `godot-production-toolkit` | `publish-pixel-space-asset-toolkit.yml` | `pypi` |

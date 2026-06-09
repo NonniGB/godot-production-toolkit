@@ -110,6 +110,12 @@ def _copy_required_files(source: Path, target: Path) -> None:
             "src/godot_mobile_perf_doctor/__init__.py",
             "src/godot_mobile_perf_doctor/cli.py",
         ),
+        "godot-mobile-ui-doctor": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_mobile_ui_doctor/__init__.py",
+            "src/godot_mobile_ui_doctor/cli.py",
+        ),
         "godot-save-schema-guard": (
             "pyproject.toml",
             "CHANGELOG.md",

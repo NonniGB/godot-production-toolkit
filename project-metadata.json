@@ -17,7 +17,7 @@
     "testing",
     "qa"
   ],
-  "tool_count": 15,
+  "tool_count": 16,
   "tools": [
     {
       "name": "godot-project-doctor",
@@ -90,6 +90,11 @@
       "interfaces": ["cli", "json", "sarif", "markdown"]
     },
     {
+      "name": "godot-mobile-ui-doctor",
+      "role": "Mobile UI metadata checks for safe areas, touch targets, spacing, and text overflow risk.",
+      "interfaces": ["cli", "json", "markdown", "text"]
+    },
+    {
       "name": "pixel-space-asset-toolkit",
       "role": "Deterministic pixel sci-fi asset generation and cleanup utilities.",
       "interfaces": ["cli", "json", "png", "html-gallery"]
@@ -137,6 +142,7 @@
     "docs/assets/sample-reports/content-graph-summary.md",
     "docs/assets/sample-reports/scenario-compare.md",
     "docs/assets/sample-reports/architecture-guard.md",
+    "docs/assets/sample-reports/mobile-ui.md",
     "docs/assets/screenshots/project-doctor-html-report.png",
     "docs/assets/screenshots/project-doctor-terminal.png",
     "docs/assets/screenshots/content-graph-terminal.svg",
@@ -155,6 +161,7 @@
     "python -m unittest discover -s godot-gdscript-architecture-guard/tests -v",
     "python -m unittest discover -s godot-mobile-perf-doctor/tests -v"
     ,
+    "python -m unittest discover -s godot-mobile-ui-doctor/tests -v",
     "python -m unittest discover -s godot-scenario-report-kit/tests -v"
   ],
   "current_limitations": [

@@ -1,0 +1,20 @@
+name: godot-mobile-ui-doctor CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install package
+        run: python -m pip install -e godot-mobile-ui-doctor
+      - name: Run tests
+        run: python -m unittest discover -s godot-mobile-ui-doctor/tests -v

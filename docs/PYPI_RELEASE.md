@@ -16,6 +16,7 @@ These packages are published as standalone PyPI distributions:
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.2` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.2` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.4` |
+| [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.0` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.1` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.0` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.1` |
@@ -50,6 +51,7 @@ Use the manual package workflow for the package being released:
 | `godot-input-map-auditor` | `publish-input-map-auditor.yml` |
 | `godot-localization-qa-guard` | `publish-localization-qa-guard.yml` |
 | `godot-mobile-perf-doctor` | `publish-mobile-perf-doctor.yml` |
+| `godot-mobile-ui-doctor` | `publish-mobile-ui-doctor.yml` |
 | `godot-save-schema-guard` | `publish-save-schema-guard.yml` |
 | `godot-scenario-report-kit` | `publish-scenario-report-kit.yml` |
 | `godot-scene-signal-auditor` | `publish-scene-signal-auditor.yml` |
@@ -66,12 +68,13 @@ Each workflow expects PyPI Trusted Publishing with:
 PyPI supports pending publishers for new projects, so the first trusted workflow run can create the project after the pending publisher is configured in the PyPI account.
 
 The first-release package workflows for `godot-content-graph-doctor`,
-`godot-scenario-report-kit`, and `godot-gdscript-architecture-guard` also accept
-package-specific tags:
+`godot-scenario-report-kit`, `godot-gdscript-architecture-guard`, and
+`godot-mobile-ui-doctor` also accept package-specific tags:
 
 ```powershell
 git tag godot-content-graph-doctor-v0.1.0
 git tag godot-scenario-report-kit-v0.1.0
 git tag godot-gdscript-architecture-guard-v0.1.0
-git push origin godot-content-graph-doctor-v0.1.0 godot-scenario-report-kit-v0.1.0 godot-gdscript-architecture-guard-v0.1.0
+git tag godot-mobile-ui-doctor-v0.1.0
+git push origin godot-content-graph-doctor-v0.1.0 godot-scenario-report-kit-v0.1.0 godot-gdscript-architecture-guard-v0.1.0 godot-mobile-ui-doctor-v0.1.0
 ```
