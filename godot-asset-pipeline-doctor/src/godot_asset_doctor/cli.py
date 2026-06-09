@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 import sys
+import tomllib
 
 from godot_asset_doctor.config import load_config
 from godot_asset_doctor.models import RuleSettings
@@ -14,7 +15,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     project_root = Path(args.path)
-    config = load_config(project_root, args.config)
+    try:
+        config = load_config(project_root, args.config)
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        parser.error(f"could not read config: {exc}")
 
     profile = _configured_value(args.profile, config, "profile", "default")
     output_format = _configured_value(args.format, config, "format", "text")
@@ -30,6 +34,9 @@ def main(argv: list[str] | None = None) -> int:
     _validate_choice(parser, "profile", profile, {"default", "pixel-2d", "android-mobile"})
     _validate_choice(parser, "format", output_format, {"text", "json", "sarif"})
     _validate_choice(parser, "fail_on", fail_on, {"none", "warning", "error"})
+    _validate_positive(parser, "max-texture-dimension", rule_settings.max_texture_dimension)
+    _validate_positive(parser, "large-texture-mb", rule_settings.large_texture_bytes)
+    _validate_positive(parser, "max-palette-colors", rule_settings.max_palette_colors)
 
     report = scan_project(project_root, profile=profile, exclude_globs=exclude_globs, rule_settings=rule_settings)
     if output_format == "json":
@@ -54,7 +61,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-asset-doctor",
         description="Scan Godot PNG assets and .import metadata for pixel-art and mobile release risks.",
     )
-    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.3")
+    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.4")
     parser.add_argument("path", nargs="?", default=".", help="Godot project directory to scan.")
     parser.add_argument(
         "--profile",
@@ -150,6 +157,11 @@ def _configured_mib(cli_value: float | None, config: dict[str, object], key: str
 def _validate_choice(parser: argparse.ArgumentParser, name: str, value: str | None, choices: set[str]) -> None:
     if value not in choices:
         parser.error(f"invalid {name} value {value!r}; choose one of {sorted(choices)}")
+
+
+def _validate_positive(parser: argparse.ArgumentParser, name: str, value: int) -> None:
+    if value <= 0:
+        parser.error(f"--{name} must be greater than zero")
 
 
 def _exit_code(summary: dict[str, int | str], fail_on: str) -> int:

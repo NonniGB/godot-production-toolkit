@@ -19,7 +19,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-l10n-guard 0.1.1", stdout.getvalue())
+        self.assertIn("godot-l10n-guard 0.1.2", stdout.getvalue())
 
     def test_markdown_report_lists_findings(self) -> None:
         markdown = render_markdown_report(
@@ -78,6 +78,22 @@ class ReportingCliTests(unittest.TestCase):
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 1)
             self.assertIn("missing_key", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_cli_rejects_missing_explicit_catalog_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            cases = [
+                ["--csv", str(project / "missing.csv")],
+                ["--po", str(project / "missing.po")],
+                ["--translations", str(project / "missing-translations")],
+            ]
+
+            for extra_args in cases:
+                with self.subTest(extra_args=extra_args):
+                    with self.assertRaises(SystemExit) as raised:
+                        main([str(project), *extra_args])
+
+                    self.assertEqual(raised.exception.code, 2)
 
 
 if __name__ == "__main__":

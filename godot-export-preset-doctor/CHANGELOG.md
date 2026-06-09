@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5 - 2026-06-09
+
+- Validate `format` and `fail_on` values loaded from TOML config files.
+
 ## 0.1.4 - 2026-06-09
 
 - Reported invalid TOML config files as clear CLI usage errors.

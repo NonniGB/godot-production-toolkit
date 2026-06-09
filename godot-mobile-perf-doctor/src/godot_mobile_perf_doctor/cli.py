@@ -20,7 +20,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     project = Path(args.project)
-    config = _load_config(project, Path(args.config) if args.config else None)
+    try:
+        config = _load_config(project, Path(args.config) if args.config else None)
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        parser.error(f"could not read config: {exc}")
     profile = _configured_value(args.profile, config, "profile", "portrait-2d")
     output_format = _configured_value(args.format, config, "format", "text")
     output = _configured_value(args.output, config, "output", None)
@@ -28,6 +31,10 @@ def main(argv: list[str] | None = None) -> int:
     max_texture_dimension = _configured_int(args.max_texture_dimension, config, "max_texture_dimension", 2048)
     max_viewport_pixels = _configured_int(args.max_viewport_pixels, config, "max_viewport_pixels", 1920 * 1080)
     adb_summary = _configured_value(args.adb_summary, config, "adb_summary", None)
+    _validate_choice(parser, "format", output_format, {"text", "json", "markdown", "sarif"})
+    _validate_choice(parser, "fail_on", fail_on, {"none", "warning", "error"})
+    _validate_positive(parser, "max-texture-dimension", max_texture_dimension)
+    _validate_positive(parser, "max-viewport-pixels", max_viewport_pixels)
 
     project_file = project / "project.godot"
     settings = parse_project_settings(project_file.read_text(encoding="utf-8")) if project_file.exists() else {}
@@ -74,7 +81,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-mobile-perf-doctor",
         description="Static mobile performance diagnostics for Godot projects.",
     )
-    parser.add_argument("--version", action="version", version="godot-mobile-perf-doctor 0.1.3")
+    parser.add_argument("--version", action="version", version="godot-mobile-perf-doctor 0.1.4")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--static", action="store_true", help="Run static checks. Present for CLI clarity.")
     parser.add_argument("--config", help=f"TOML config path. Defaults to {DEFAULT_CONFIG}.")
@@ -126,6 +133,16 @@ def _configured_int(cli_value: int | None, config: dict[str, Any], key: str, def
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+def _validate_choice(parser: argparse.ArgumentParser, name: str, value: str | None, choices: set[str]) -> None:
+    if value not in choices:
+        parser.error(f"invalid {name} value {value!r}; choose one of {sorted(choices)}")
+
+
+def _validate_positive(parser: argparse.ArgumentParser, name: str, value: int) -> None:
+    if value <= 0:
+        parser.error(f"--{name} must be greater than zero")
 
 
 def _exit_code(findings: object, fail_on: str) -> int:

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 - 2026-06-09
+
+- Added percent-range validation for coverage thresholds.
+- Ensured generated Markdown API docs end with a trailing newline.
+
 ## 0.1.1 - 2026-06-09
 
 - Added Markdown report output for direct API index generation.

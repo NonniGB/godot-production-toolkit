@@ -22,7 +22,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-asset-doctor 0.1.3", stdout.getvalue())
+        self.assertIn("godot-asset-doctor 0.1.4", stdout.getvalue())
 
     def test_cli_outputs_json_report_and_returns_failure_when_warning_threshold_is_used(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -140,6 +140,33 @@ class CliTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertTrue(output.exists())
+
+    def test_cli_reports_invalid_config_as_usage_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project = Path(tmp_dir)
+            config = project / ".godot-asset-doctor.toml"
+            config.write_text("format = [", encoding="utf-8")
+
+            with self.assertRaises(SystemExit) as raised:
+                main([str(project), "--config", str(config)])
+
+            self.assertEqual(raised.exception.code, 2)
+
+    def test_cli_rejects_non_positive_numeric_limits(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project = Path(tmp_dir)
+            cases = [
+                ["--max-texture-dimension", "0"],
+                ["--large-texture-mb", "0"],
+                ["--max-palette-colors", "0"],
+            ]
+
+            for extra_args in cases:
+                with self.subTest(extra_args=extra_args):
+                    with self.assertRaises(SystemExit) as raised:
+                        main([str(project), *extra_args])
+
+                    self.assertEqual(raised.exception.code, 2)
 
 
 if __name__ == "__main__":

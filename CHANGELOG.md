@@ -4,6 +4,7 @@
 
 - Added a visible package-version table to the README.
 - Improved CLI ergonomics across the ten published standalone packages.
+- Tightened validation and error handling across six standalone package CLIs.
 
 ## 0.1.2 - 2026-06-08
 

@@ -13,6 +13,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     project = Path(args.project)
+    _validate_thresholds(parser, args)
 
     items = scan_project(project, excludes=args.exclude)
     thresholds = _thresholds_from_args(args)
@@ -21,7 +22,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.write_docs:
         docs_path = Path(args.write_docs)
         docs_path.parent.mkdir(parents=True, exist_ok=True)
-        docs_path.write_text(render_markdown_index(items), encoding="utf-8")
+        docs_path.write_text(_with_trailing_newline(render_markdown_index(items)), encoding="utf-8")
 
     if args.format == "json":
         rendered = render_json_report(items, findings)
@@ -48,7 +49,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="gdscript-api-coverage",
         description="Generate GDScript API indexes and enforce comment coverage thresholds.",
     )
-    parser.add_argument("--version", action="version", version="gdscript-api-coverage 0.1.1")
+    parser.add_argument("--version", action="version", version="gdscript-api-coverage 0.1.2")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--format", choices=["text", "json", "markdown"], default="text")
     parser.add_argument("--output", help="Write report to a file instead of stdout.")
@@ -73,6 +74,24 @@ def _thresholds_from_args(args: argparse.Namespace) -> dict[str, float]:
         "public_func": args.min_public_func,
         "constant": args.min_constant,
     }
+
+
+def _validate_thresholds(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    for name in (
+        "min_all",
+        "min_class",
+        "min_signal",
+        "min_exported_property",
+        "min_public_func",
+        "min_constant",
+    ):
+        value = getattr(args, name)
+        if value < 0 or value > 100:
+            parser.error(f"--{name.replace('_', '-')} must be between 0 and 100")
+
+
+def _with_trailing_newline(text: str) -> str:
+    return text if text.endswith("\n") else text + "\n"
 
 
 def _exit_code(findings: object, fail_on: str) -> int:

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 - 2026-06-09
+
+- Report missing explicit CSV, PO, and translations-directory paths as usage errors.
+
 ## 0.1.1 - 2026-06-09
 
 - Added `--scan-all` to scan scripts and scenes for translation-key usage together.

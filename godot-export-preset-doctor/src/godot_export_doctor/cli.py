@@ -28,6 +28,8 @@ def main(argv: list[str] | None = None) -> int:
     platform = args.platform or config.get("platform")
     required_android_abis = _configured_list(args.required_android_abi, config, "required_android_abis")
     allowed_secret_patterns = _configured_list(args.allow_secret_pattern, config, "allowed_secret_patterns")
+    _validate_choice(parser, "format", output_format, {"text", "json", "sarif"})
+    _validate_choice(parser, "fail_on", fail_on, {"none", "warning", "error"})
 
     presets_file = _resolve_presets_file(project)
     if presets_file.exists():
@@ -63,7 +65,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-export-doctor",
         description="Audit Godot export_presets.cfg release readiness.",
     )
-    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.4")
+    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.5")
     parser.add_argument("project", help="Godot project directory or export_presets.cfg path.")
     parser.add_argument("--config", help=f"TOML config path. Defaults to {DEFAULT_CONFIG}.")
     parser.add_argument("--platform", help="Only evaluate presets for a platform, such as Android.")
@@ -134,6 +136,11 @@ def _render(output_format: str, presets: list[ExportPreset], findings: list[Find
     if output_format == "sarif":
         return render_sarif_report(findings)
     return render_text_report(presets, findings)
+
+
+def _validate_choice(parser: argparse.ArgumentParser, name: str, value: str, choices: set[str]) -> None:
+    if value not in choices:
+        parser.error(f"invalid {name} value {value!r}; choose one of {sorted(choices)}")
 
 
 def _exit_code(findings: list[Finding], fail_on: str) -> int:

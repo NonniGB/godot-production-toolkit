@@ -20,7 +20,7 @@ def main(argv: list[str] | None = None) -> int:
     project = Path(args.project)
     scan_scripts = args.scan_scripts or args.scan_all
     scan_scenes = args.scan_scenes or args.scan_all
-    catalogs = _load_catalogs(args)
+    catalogs = _load_catalogs(parser, args)
     used_keys = (
         scan_project_keys(project, scan_scripts=scan_scripts, scan_scenes=scan_scenes)
         if scan_scripts or scan_scenes
@@ -53,7 +53,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-l10n-guard",
         description="Audit Godot CSV and PO localization files.",
     )
-    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.1")
+    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.2")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--translations", help="Directory containing CSV and PO translation files.")
     parser.add_argument("--csv", action="append", default=[], help="Godot CSV translation file.")
@@ -69,18 +69,24 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _load_catalogs(args: argparse.Namespace) -> list[Catalog]:
+def _load_catalogs(parser: argparse.ArgumentParser, args: argparse.Namespace) -> list[Catalog]:
     catalogs: list[Catalog] = []
     paths: list[Path] = []
     for raw in args.csv:
-        paths.append(Path(raw))
+        path = Path(raw)
+        if not path.exists():
+            parser.error(f"CSV catalog was not found: {path}")
+        paths.append(path)
     if args.translations:
         root = Path(args.translations)
-        if root.exists():
-            paths.extend(sorted(root.glob("*.csv")))
-            paths.extend(sorted(root.glob("*.po")))
+        if not root.exists():
+            parser.error(f"translations directory was not found: {root}")
+        paths.extend(sorted(root.glob("*.csv")))
+        paths.extend(sorted(root.glob("*.po")))
     for raw in args.po:
         path = Path(raw)
+        if not path.exists():
+            parser.error(f"PO catalog was not found: {path}")
         if path.is_dir():
             paths.extend(sorted(path.glob("*.po")))
         else:

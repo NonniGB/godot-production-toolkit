@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 - 2026-06-09
+
+- Report invalid TOML configuration as a usage error instead of a traceback.
+- Validate config-loaded `format` and `fail_on` values.
+- Reject non-positive texture dimension and viewport-pixel limits.
+
 ## 0.1.3 - 2026-06-09
 
 - Reported missing `project.godot` files as explicit audit errors.

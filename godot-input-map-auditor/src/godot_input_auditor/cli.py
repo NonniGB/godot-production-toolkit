@@ -45,12 +45,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.write_docs:
         path = Path(args.write_docs)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(render_markdown_reference(actions), encoding="utf-8")
+        path.write_text(_with_trailing_newline(render_markdown_reference(actions)), encoding="utf-8")
 
     if args.generate_gd:
         path = Path(args.generate_gd)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(render_gdscript_constants(actions), encoding="utf-8")
+        path.write_text(_with_trailing_newline(render_gdscript_constants(actions)), encoding="utf-8")
 
     if args.format == "json":
         rendered = render_json_report(actions, findings)
@@ -77,7 +77,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-input-audit",
         description="Audit Godot input actions for device coverage and duplicate bindings.",
     )
-    parser.add_argument("--version", action="version", version="godot-input-audit 0.1.1")
+    parser.add_argument("--version", action="version", version="godot-input-audit 0.1.2")
     parser.add_argument("project", help="Godot project directory or project.godot file.")
     parser.add_argument(
         "--require",
@@ -93,7 +93,11 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _parse_required(raw: str) -> set[str]:
-    return {part.strip() for part in raw.split(",") if part.strip()}
+    return {part.strip().lower() for part in raw.split(",") if part.strip()}
+
+
+def _with_trailing_newline(text: str) -> str:
+    return text if text.endswith("\n") else text + "\n"
 
 
 def _exit_code(findings: list[Finding], fail_on: str) -> int:

@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-perf-doctor 0.1.3", stdout.getvalue())
+        self.assertIn("godot-mobile-perf-doctor 0.1.4", stdout.getvalue())
 
     def test_cli_writes_json_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -100,6 +100,50 @@ window/size/viewport_height=720
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 1)
             self.assertIn("missing_project_godot", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_cli_reports_invalid_config_as_usage_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / ".godot-mobile-perf-doctor.toml"
+            config.write_text("format = [", encoding="utf-8")
+
+            with self.assertRaises(SystemExit) as raised:
+                main([str(root), "--config", str(config)])
+
+            self.assertEqual(raised.exception.code, 2)
+
+    def test_cli_rejects_invalid_config_choices(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cases = [
+                'format = "xml"\n',
+                'fail_on = "notice"\n',
+            ]
+
+            for contents in cases:
+                with self.subTest(contents=contents):
+                    config = root / ".godot-mobile-perf-doctor.toml"
+                    config.write_text(contents, encoding="utf-8")
+
+                    with self.assertRaises(SystemExit) as raised:
+                        main([str(root), "--config", str(config)])
+
+                    self.assertEqual(raised.exception.code, 2)
+
+    def test_cli_rejects_non_positive_numeric_limits(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cases = [
+                ["--max-texture-dimension", "0"],
+                ["--max-viewport-pixels", "0"],
+            ]
+
+            for extra_args in cases:
+                with self.subTest(extra_args=extra_args):
+                    with self.assertRaises(SystemExit) as raised:
+                        main([str(root), *extra_args])
+
+                    self.assertEqual(raised.exception.code, 2)
 
 
 if __name__ == "__main__":

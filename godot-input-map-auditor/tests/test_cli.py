@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-input-audit 0.1.1", stdout.getvalue())
+        self.assertIn("godot-input-audit 0.1.2", stdout.getvalue())
 
     def test_cli_generates_docs_and_constants(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -47,8 +47,12 @@ confirm={
             )
 
             self.assertEqual(exit_code, 1)
-            self.assertIn("confirm", docs.read_text(encoding="utf-8"))
-            self.assertIn('CONFIRM = "confirm"', constants.read_text(encoding="utf-8"))
+            docs_text = docs.read_text(encoding="utf-8")
+            constants_text = constants.read_text(encoding="utf-8")
+            self.assertIn("confirm", docs_text)
+            self.assertIn('CONFIRM = "confirm"', constants_text)
+            self.assertTrue(docs_text.endswith("\n"))
+            self.assertTrue(constants_text.endswith("\n"))
 
     def test_cli_outputs_sarif_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -84,6 +88,23 @@ confirm={
                 main([str(project), "--require", "keyboard,steamdeck"])
 
             self.assertEqual(raised.exception.code, 2)
+
+    def test_cli_accepts_case_insensitive_required_device_families(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "project.godot").write_text(
+                """
+[input]
+confirm={
+"events": [Object(InputEventKey,"physical_keycode":13)]
+}
+""",
+                encoding="utf-8",
+            )
+
+            exit_code = main([str(project), "--require", "Keyboard", "--fail-on", "none"])
+
+            self.assertEqual(exit_code, 0)
 
 
 if __name__ == "__main__":

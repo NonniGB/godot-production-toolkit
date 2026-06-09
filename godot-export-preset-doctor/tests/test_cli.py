@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-export-doctor 0.1.4", stdout.getvalue())
+        self.assertIn("godot-export-doctor 0.1.5", stdout.getvalue())
 
     def test_cli_reports_findings_as_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -158,6 +158,24 @@ keystore/release_password="<set-in-ci>"
                 main([str(project), "--config", str(config)])
 
             self.assertEqual(raised.exception.code, 2)
+
+    def test_cli_rejects_invalid_config_choices(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            cases = [
+                'format = "xml"\n',
+                'fail_on = "notice"\n',
+            ]
+
+            for contents in cases:
+                with self.subTest(contents=contents):
+                    config = project / ".godot-export-doctor.toml"
+                    config.write_text(contents, encoding="utf-8")
+
+                    with self.assertRaises(SystemExit) as raised:
+                        main([str(project), "--config", str(config)])
+
+                    self.assertEqual(raised.exception.code, 2)
 
 
 if __name__ == "__main__":

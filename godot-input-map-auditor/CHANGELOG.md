@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 - 2026-06-09
+
+- Accept case-insensitive required device family names.
+- Ensure generated Markdown and GDScript files end with a trailing newline.
+
 ## 0.1.1 - 2026-06-09
 
 - Validated required input device family names before auditing.
