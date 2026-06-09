@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## 0.1.6 - 2026-06-09
+
+- Added report metadata with schema version, tool version, root, profile, and supported output formats.
+- Added plain-language rule titles and explanations to JSON issues.
+- Updated text and SARIF output to use clearer rule names.
+
 ## 0.1.5 - 2026-06-09
 
 - Added `manifest check` for sprite metadata files.

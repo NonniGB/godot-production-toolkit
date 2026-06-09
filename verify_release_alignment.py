@@ -100,7 +100,6 @@ ACTION_REF_FILES = (
     "README.md",
     "godot-ci-doctor-action/README.md",
     "godot-ci-doctor-action/tool-manifest.json",
-    "docs/PUBLICATION_GUIDE.md",
 )
 
 
@@ -130,7 +129,6 @@ def check_release_alignment(root: Path) -> list[str]:
     errors: list[str] = []
 
     _expect_text(root / "CHANGELOG.md", f"## {version}", errors)
-    _expect_text(root / "docs" / "RELEASE_CHECKLIST.md", f"git tag {tag}", errors)
 
     for rel_path in ACTION_REF_FILES:
         _expect_text(root / rel_path, action_ref, errors)

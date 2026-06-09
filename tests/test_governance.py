@@ -17,7 +17,6 @@ class GovernanceTests(unittest.TestCase):
             "SUPPORT.md": ("# Support", "Before opening an issue", "Where to ask", "What to include"),
             "CODE_OF_CONDUCT.md": ("# Code of Conduct", "Expected behavior", "Unacceptable behavior", "Enforcement"),
             "CHANGELOG.md": ("# Changelog", ROOT_VERSION, "Godot Production Toolkit"),
-            "docs/RELEASE_CHECKLIST.md": ("# Release Checklist", "Pre-release verification", "Tagging", "Post-release notes"),
             "docs/PROJECT_HEALTH.md": ("# Project Health", "Tool Coverage", "Privacy And Fixture Policy"),
         }
 

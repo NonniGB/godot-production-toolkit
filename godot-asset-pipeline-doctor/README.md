@@ -134,14 +134,20 @@ CLI flags override config values. Use these thresholds when your project needs s
 
 ```text
 Godot Asset Pipeline Doctor
+Report schema: 1.1 | Tool: 0.1.6
 Root: C:\Projects\ArcadePrototype
 Profile: pixel-2d
 Assets: 18 | Issues: 3 | Errors: 0 | Warnings: 3
 
-[WARNING] transparent_edge_rgb: C:\Projects\ArcadePrototype\assets\player.png
+[WARNING] Transparent edge RGB data: C:\Projects\ArcadePrototype\assets\player.png
   4 fully transparent edge pixel(s) carry non-black RGB values.
+  Why it matters: Fully transparent edge pixels carry RGB data that can bleed into visible edges after filtering.
   Suggestion: Clean transparent RGB data or enable alpha-border fixing to reduce fringe artifacts.
 ```
+
+JSON reports include report metadata plus a `rules` object with plain-language
+rule titles and explanations. Text and SARIF output use the same rule names so
+local and CI reports are easier to compare.
 
 ## Documentation
 

@@ -61,7 +61,7 @@ class ProjectMetadataTests(unittest.TestCase):
         ):
             self.assertIn(phrase, text)
 
-    def test_project_health_and_publication_docs_exist_with_required_sections(self) -> None:
+    def test_project_health_and_use_case_docs_exist_with_required_sections(self) -> None:
         required_sections = {
             "docs/PROJECT_HEALTH.md": (
                 "# Project Health",
@@ -70,19 +70,12 @@ class ProjectMetadataTests(unittest.TestCase):
                 "Known Limitations",
                 "Privacy And Fixture Policy",
             ),
-            "docs/PUBLICATION_GUIDE.md": (
-                "# Publication Guide",
-                "GitHub release",
-                "PyPI release",
-                "Godot community outreach",
-                "Feedback loop",
-            ),
-            "docs/MAINTAINER_GUIDE.md": (
-                "# Maintainer Guide",
-                "Issue triage",
-                "Release cadence",
-                "CI and tooling maintenance",
-                "Validation commands",
+            "docs/USE_CASES.md": (
+                "# Use Cases",
+                "Android Release Readiness",
+                "Pixel-Art Asset Hygiene",
+                "Input Coverage For Touch And Desktop",
+                "Script And CI Workflows",
             ),
         }
 

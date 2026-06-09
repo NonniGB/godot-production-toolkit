@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from godot_asset_doctor.models import ScanReport
+from godot_asset_doctor.rule_help import explain_issue_code
 
 
 def report_to_json(report: ScanReport) -> str:
@@ -13,12 +14,13 @@ def report_to_sarif(report: ScanReport) -> str:
     rules = {}
     results = []
     for issue in report.issues:
+        help_text = explain_issue_code(issue.code)
         rules.setdefault(
             issue.code,
             {
                 "id": issue.code,
-                "name": issue.code,
-                "shortDescription": {"text": issue.message},
+                "name": help_text["title"],
+                "shortDescription": {"text": help_text["explanation"]},
                 "help": {"text": issue.suggestion},
             },
         )
@@ -56,8 +58,11 @@ def report_to_sarif(report: ScanReport) -> str:
 
 def report_to_text(report: ScanReport) -> str:
     summary = report.summary()
+    payload = report.to_dict()
+    metadata = payload["metadata"]
     lines = [
         "Godot Asset Pipeline Doctor",
+        f"Report schema: {metadata['schema_version']} | Tool: {metadata['tool_version']}",
         f"Root: {summary['root']}",
         f"Profile: {summary['profile']}",
         (
@@ -72,8 +77,10 @@ def report_to_text(report: ScanReport) -> str:
 
     lines.append("")
     for issue in report.issues:
-        lines.append(f"[{issue.severity.upper()}] {issue.code}: {issue.path}")
+        help_text = explain_issue_code(issue.code)
+        lines.append(f"[{issue.severity.upper()}] {help_text['title']}: {issue.path}")
         lines.append(f"  {issue.message}")
+        lines.append(f"  Why it matters: {help_text['explanation']}")
         lines.append(f"  Suggestion: {issue.suggestion}")
 
     return "\n".join(lines)

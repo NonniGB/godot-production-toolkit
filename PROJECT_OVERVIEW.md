@@ -47,8 +47,6 @@ The repository keeps a normal public project structure:
 - `.github/ISSUE_TEMPLATE/`
 - `.github/pull_request_template.md`
 - `.github/dependabot.yml`
-- `docs/RELEASE_CHECKLIST.md`
-- `docs/MAINTAINER_GUIDE.md`
 
 ## Current Limitations
 

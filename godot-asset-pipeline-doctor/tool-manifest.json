@@ -7,6 +7,8 @@
     "cli": true,
     "machine_output": ["json", "sarif"],
     "human_output": ["text", "markdown docs"],
+    "report_metadata": true,
+    "plain_language_rule_help": true,
     "visual_interface": "none"
   },
   "run_behavior": {

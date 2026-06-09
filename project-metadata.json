@@ -131,9 +131,7 @@
     "CHANGELOG.md",
     ".github/CODEOWNERS",
     ".github/dependabot.yml",
-    "docs/RELEASE_CHECKLIST.md",
-    "docs/PROJECT_HEALTH.md",
-    "docs/MAINTAINER_GUIDE.md"
+    "docs/PROJECT_HEALTH.md"
   ],
   "public_examples": [
     "docs/USE_CASES.md",

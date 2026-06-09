@@ -4,6 +4,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from godot_asset_doctor import __version__
+from godot_asset_doctor.rule_help import catalog_for, explain_issue_code
+
 
 @dataclass(frozen=True)
 class RuleSettings:
@@ -77,10 +80,13 @@ class Issue:
     suggestion: str
 
     def to_dict(self) -> dict[str, str]:
+        help_text = explain_issue_code(self.code)
         return {
             "path": str(self.path),
             "severity": self.severity,
             "code": self.code,
+            "title": help_text["title"],
+            "explanation": help_text["explanation"],
             "message": self.message,
             "suggestion": self.suggestion,
         }
@@ -109,7 +115,17 @@ class ScanReport:
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "tool": "godot-asset-pipeline-doctor",
+            "metadata": {
+                "schema_version": "1.1",
+                "tool_version": __version__,
+                "report_kind": "asset_pipeline_scan",
+                "root": str(self.root),
+                "profile": self.profile,
+                "formats": ["text", "json", "sarif"],
+            },
             "summary": self.summary(),
             "assets": [asset.to_dict() for asset in self.assets],
+            "rules": catalog_for({issue.code for issue in self.issues}),
             "issues": [issue.to_dict() for issue in self.issues],
         }

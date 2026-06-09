@@ -22,7 +22,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-asset-doctor 0.1.5", stdout.getvalue())
+        self.assertIn("godot-asset-doctor 0.1.6", stdout.getvalue())
 
     def test_cli_outputs_json_report_and_returns_failure_when_warning_threshold_is_used(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -61,9 +61,15 @@ class CliTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 1)
+            self.assertEqual(report["metadata"]["schema_version"], "1.1")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.6")
             self.assertEqual(report["summary"]["asset_count"], 1)
             self.assertGreaterEqual(report["summary"]["warning_count"], 1)
             self.assertIn("transparent_edge_rgb", {issue["code"] for issue in report["issues"]})
+            transparent_edge = next(issue for issue in report["issues"] if issue["code"] == "transparent_edge_rgb")
+            self.assertEqual(transparent_edge["title"], "Transparent edge RGB data")
+            self.assertIn("bleed into visible edges", transparent_edge["explanation"])
+            self.assertIn("transparent_edge_rgb", report["rules"])
 
     def test_cli_uses_toml_config_defaults_when_arguments_are_not_provided(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -129,6 +135,8 @@ class CliTests(unittest.TestCase):
             driver = sarif["runs"][0]["tool"]["driver"]
             self.assertEqual(driver["name"], "godot-asset-pipeline-doctor")
             self.assertTrue(driver["rules"])
+            rule_names = {rule["name"] for rule in driver["rules"]}
+            self.assertIn("Mipmaps enabled for pixel art", rule_names)
             self.assertTrue(sarif["runs"][0]["results"])
 
     def test_cli_creates_parent_directory_for_output_file(self) -> None:

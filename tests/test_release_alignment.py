@@ -51,8 +51,6 @@ def _copy_required_files(source: Path, target: Path) -> None:
         "pyproject.toml",
         "CHANGELOG.md",
         "README.md",
-        "docs/RELEASE_CHECKLIST.md",
-        "docs/PUBLICATION_GUIDE.md",
         "godot-ci-doctor-action/README.md",
         "godot-ci-doctor-action/tool-manifest.json",
     ):

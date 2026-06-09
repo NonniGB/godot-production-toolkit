@@ -33,7 +33,6 @@ Start with these files when evaluating or extending the suite:
 - `docs/USE_CASES.md`
 - `examples/release-readiness-demo/README.md`
 - `docs/PROJECT_HEALTH.md`
-- `docs/MAINTAINER_GUIDE.md`
 - `verify_tool_manifests.py`
 
 ## Quick Start
@@ -240,17 +239,15 @@ These root-level files explain how the project is maintained and how contributor
 - `CHANGELOG.md`
 - `.github/CODEOWNERS`
 - `.github/dependabot.yml`
-- `docs/RELEASE_CHECKLIST.md`
-- `docs/MAINTAINER_GUIDE.md`
 
-## Package Publication
+## Install Packages
 
-The repo keeps the tools together, while each standalone CLI is published separately on PyPI. The `godot-project-doctor` command is available from a source checkout.
+The repo keeps the tools together. Most standalone CLIs can also be installed from PyPI, while `godot-project-doctor` is available from a source checkout.
 
 | Package | Current Version |
 |---|---:|
 | [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.2` |
-| [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.5` |
+| [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.6` |
 | [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.3` |
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.5` |
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.0` |
@@ -263,7 +260,3 @@ The repo keeps the tools together, while each standalone CLI is published separa
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.1` |
 | [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.1` |
 | [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/) | `0.1.1` |
-
-The exact `godot-project-doctor` distribution name is already used on PyPI, so the umbrella CLI needs a distinct package name before it can be published there.
-
-See [docs/PYPI_RELEASE.md](docs/PYPI_RELEASE.md) for release commands and Trusted Publishing notes.
