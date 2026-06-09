@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 from .fixtures import validate_fixtures
-from .migration import build_migration_command, run_migration_command
+from .migration import build_chain_commands, build_migration_command, load_migration_chain, run_migration_command
 from .models import Finding, FixtureResult
 from .reporting import render_json_report, render_markdown_report, render_text_report
 
@@ -18,6 +18,8 @@ def main(argv: list[str] | None = None) -> int:
         return _validate(args)
     if args.command == "migrate":
         return _migrate(args)
+    if args.command == "migrate-chain":
+        return _migrate_chain(args)
     parser.print_help()
     return 2
 
@@ -44,6 +46,13 @@ def _build_parser() -> argparse.ArgumentParser:
     migrate.add_argument("--command", required=True, help="Command template using {input} and {output}.")
     migrate.add_argument("--output-dir", required=True, help="Directory for migrated fixtures.")
     _add_report_args(migrate)
+
+    migrate_chain = subparsers.add_parser("migrate-chain", help="Run an ordered migration chain for fixtures.")
+    migrate_chain.add_argument("fixtures", help="JSON fixture file or directory.")
+    migrate_chain.add_argument("--chain", required=True, help="TOML file containing ordered migration steps.")
+    migrate_chain.add_argument("--output-dir", required=True, help="Directory for migrated fixtures.")
+    migrate_chain.add_argument("--dry-run", action="store_true", help="Plan commands without executing them.")
+    _add_report_args(migrate_chain)
     return parser
 
 
@@ -86,6 +95,58 @@ def _migrate(args: argparse.Namespace) -> int:
         command = build_migration_command(args.command, fixture, output)
         finding = run_migration_command(command)
         results.append(FixtureResult(fixture, [finding] if finding else []))
+    _write_report(args, results)
+    return _exit_code(results, args.fail_on)
+
+
+def _migrate_chain(args: argparse.Namespace) -> int:
+    fixtures_path = Path(args.fixtures)
+    files = [fixtures_path] if fixtures_path.is_file() else sorted(fixtures_path.rglob("*.json"))
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    steps = load_migration_chain(Path(args.chain))
+    results: list[FixtureResult] = []
+    if not files:
+        results.append(
+            FixtureResult(
+                fixtures_path,
+                [Finding("no_fixtures", "error", "$", "No JSON save fixtures were found.")],
+            )
+        )
+    if not steps:
+        results.append(
+            FixtureResult(
+                Path(args.chain),
+                [Finding("migration_chain_empty", "error", "$", "No valid migration steps were found.")],
+            )
+        )
+    for fixture in files:
+        findings: list[Finding] = []
+        commands = build_chain_commands(steps, fixture, output_dir)
+        if args.dry_run:
+            labels = ", ".join(step.label for step, _, _, _ in commands) or "none"
+            findings.append(
+                Finding(
+                    "migration_chain_planned",
+                    "info",
+                    "$",
+                    f"Planned {len(commands)} migration step(s): {labels}.",
+                )
+            )
+        else:
+            for step, _, _, command in commands:
+                finding = run_migration_command(command)
+                if finding:
+                    findings.append(
+                        Finding(
+                            finding.rule_id,
+                            finding.severity,
+                            finding.json_path,
+                            f"Migration step {step.label} failed. {finding.message}",
+                        )
+                    )
+                    break
+        results.append(FixtureResult(fixture, findings))
     _write_report(args, results)
     return _exit_code(results, args.fail_on)
 

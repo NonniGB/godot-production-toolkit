@@ -7,6 +7,7 @@
     "cli": true,
     "machine_output": ["json"],
     "human_output": ["text", "markdown report"],
+    "migration_chain_config": true,
     "visual_interface": "none"
   },
   "run_behavior": {
@@ -28,6 +29,10 @@
     {
       "purpose": "Release compatibility report",
       "command": "godot-save-guard validate <fixtures> --schema <schema.json> --format markdown --output docs/SAVE_COMPATIBILITY.md"
+    },
+    {
+      "purpose": "Review an ordered migration chain",
+      "command": "godot-save-guard migrate-chain <fixtures> --chain migrations.toml --output-dir migrated --dry-run --format json --output migration-chain.json"
     }
   ]
 }

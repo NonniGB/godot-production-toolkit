@@ -61,6 +61,52 @@ class ReportingCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             self.assertIn("no_fixtures", {finding["rule_id"] for fixture in report["fixtures"] for finding in fixture["findings"]})
 
+    def test_cli_migrate_chain_dry_run_reports_planned_steps(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            fixture = root / "save.json"
+            chain = root / "chain.toml"
+            output = root / "report.json"
+            fixture.write_text(json.dumps({"version": 1}), encoding="utf-8")
+            chain.write_text(
+                "\n".join(
+                    [
+                        "[[steps]]",
+                        'from = "1"',
+                        'to = "2"',
+                        'command = "migrate-v1-v2 {input} {output}"',
+                        "",
+                        "[[steps]]",
+                        'from = "2"',
+                        'to = "3"',
+                        'command = "migrate-v2-v3 {input} {output}"',
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            exit_code = main(
+                [
+                    "migrate-chain",
+                    str(fixture),
+                    "--chain",
+                    str(chain),
+                    "--output-dir",
+                    str(root / "migrated"),
+                    "--dry-run",
+                    "--format",
+                    "json",
+                    "--output",
+                    str(output),
+                ]
+            )
+
+            report = json.loads(output.read_text(encoding="utf-8"))
+            findings = report["fixtures"][0]["findings"]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(findings[0]["rule_id"], "migration_chain_planned")
+            self.assertIn("1->2, 2->3", findings[0]["message"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -22,6 +22,7 @@ python -m pip install godot-save-schema-guard
 godot-save-guard validate saves\fixtures --schema schemas\save.schema.json
 godot-save-guard validate examples\fixtures --schema examples\schema\save.schema.json --format markdown --output SAVE_COMPATIBILITY.md
 godot-save-guard migrate saves\v1 --output-dir migrated\v2 --command "godot --headless --script tools/migrate_save.gd --input {input} --output {output}"
+godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir migrated --dry-run
 ```
 
 ## What It Checks
@@ -33,6 +34,7 @@ godot-save-guard migrate saves\v1 --output-dir migrated\v2 --command "godot --he
 - Type mismatches.
 - Unexpected properties when `additionalProperties` is false.
 - Migration command failures.
+- Ordered migration chains from older save versions to the current format.
 
 ## Documentation
 
