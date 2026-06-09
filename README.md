@@ -33,7 +33,6 @@ Start with these files when evaluating or extending the suite:
 - `docs/USE_CASES.md`
 - `examples/release-readiness-demo/README.md`
 - `docs/PROJECT_HEALTH.md`
-- `docs/TOOLKIT_EXPANSION_PLAN.md`
 - `docs/MAINTAINER_GUIDE.md`
 - `verify_tool_manifests.py`
 
