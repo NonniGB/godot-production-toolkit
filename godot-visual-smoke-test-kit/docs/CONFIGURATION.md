@@ -55,3 +55,7 @@ godot-visual-smoke plan visual-smoke.toml --project . --viewport-manifest viewpo
 Inline viewport definitions override manifest entries with the same name. The
 planned JSON output includes `safe_area` so other tools can combine screenshot
 evidence with mobile UI checks.
+
+The `plan`, `compare`, and `approve` JSON outputs include report metadata. Diff
+reports also include readable failure explanations when a screenshot comparison
+does not pass.

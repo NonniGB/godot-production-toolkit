@@ -38,6 +38,7 @@ godot-visual-smoke compare baselines\menu.png current\menu.png --format json --o
 - Writes red diff images.
 - Copies approved screenshots into baseline paths.
 - Prints Godot capture commands for a project-owned helper script.
+- Adds report metadata and readable failure explanations to JSON and text output.
 
 ## Documentation
 

@@ -5,6 +5,7 @@ from pathlib import Path
 from PIL import Image
 
 from godot_visual_smoke.diff import compare_images
+from godot_visual_smoke.reporting import render_json_result, render_text_result
 
 
 class DiffTests(unittest.TestCase):
@@ -25,6 +26,9 @@ class DiffTests(unittest.TestCase):
             self.assertEqual(result.changed_pixels, 1)
             self.assertAlmostEqual(result.changed_percent, 25.0)
             self.assertTrue(diff.exists())
+
+            self.assertIn("Why it matters:", render_text_result(result))
+            self.assertIn("visual_diff_threshold_exceeded", render_json_result(result))
 
     def test_compare_images_passes_with_pixel_tolerance(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

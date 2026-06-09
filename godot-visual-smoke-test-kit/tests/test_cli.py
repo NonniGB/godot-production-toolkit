@@ -43,7 +43,11 @@ class CliTests(unittest.TestCase):
             )
 
             self.assertEqual(exit_code, 1)
-            self.assertEqual(json.loads(output.read_text(encoding="utf-8"))["changed_pixels"], 1)
+            payload = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(payload["changed_pixels"], 1)
+            self.assertEqual(payload["metadata"]["report_kind"], "visual_smoke_compare")
+            self.assertEqual(payload["findings"][0]["rule_id"], "visual_diff_threshold_exceeded")
+            self.assertIn("changed more pixels", payload["findings"][0]["explanation"])
 
     def test_approve_cli_can_write_json_status(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -59,6 +63,7 @@ class CliTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertTrue(baseline.exists())
             self.assertEqual(payload["status"], "ok")
+            self.assertEqual(payload["metadata"]["report_kind"], "visual_smoke_approval")
 
     def test_plan_cli_includes_viewport_manifest_safe_area(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -101,6 +106,7 @@ viewport = "portrait_phone"
 
             payload = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
+            self.assertEqual(payload["metadata"]["report_kind"], "visual_smoke_capture_plan")
             self.assertEqual(payload["commands"][0]["viewport"]["safe_area"]["top"], 48)
             self.assertEqual(payload["commands"][0]["viewport"]["safe_area"]["bottom"], 24)
 

@@ -8,7 +8,7 @@ from pathlib import Path
 from .approve import approve_baseline
 from .config import load_config
 from .diff import compare_images
-from .reporting import render_json_result, render_text_result
+from .reporting import render_json_result, render_text_result, report_metadata
 from .runner import build_godot_command
 
 
@@ -85,6 +85,7 @@ def _approve(args: argparse.Namespace) -> int:
     baseline = Path(args.baseline)
     approve_baseline(current, baseline)
     payload = {
+        "metadata": report_metadata("visual_smoke_approval", ["text", "json"]),
         "status": "ok",
         "command": "approve",
         "current": str(current),
@@ -131,7 +132,16 @@ def _plan(args: argparse.Namespace) -> int:
             }
         )
     if args.format == "json":
-        print(json.dumps({"commands": planned_commands}, indent=2, sort_keys=True))
+        print(
+            json.dumps(
+                {
+                    "metadata": report_metadata("visual_smoke_capture_plan", ["text", "json"]),
+                    "commands": planned_commands,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
     else:
         for planned in planned_commands:
             print(planned["shell"])

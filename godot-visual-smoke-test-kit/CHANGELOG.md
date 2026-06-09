@@ -4,6 +4,7 @@
 
 - Added reusable viewport manifests for visual smoke planning.
 - Included optional safe-area metadata in planned JSON output.
+- Added report metadata and readable diff failure explanations to JSON and text output.
 
 ## 0.1.1 - 2026-06-09
 
