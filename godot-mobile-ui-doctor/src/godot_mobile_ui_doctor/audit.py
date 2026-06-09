@@ -38,9 +38,54 @@ def audit_mobile_ui(
     }
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "summary": summary,
         "findings": [finding.as_dict() for finding in findings],
+    }
+
+
+def build_readiness_matrix(
+    viewports: dict[str, Viewport], screens: list[Screen], thresholds: Thresholds
+) -> dict[str, Any]:
+    report = audit_mobile_ui(viewports, screens, thresholds)
+    findings = report["findings"]
+    rows: list[dict[str, Any]] = []
+
+    for screen in screens:
+        screen_findings = [finding for finding in findings if finding.get("screen") == screen.name]
+        viewport = viewports.get(screen.viewport)
+        rows.append(
+            {
+                "screen": screen.name,
+                "viewport": screen.viewport,
+                "viewport_size": f"{viewport.width}x{viewport.height}" if viewport else "missing",
+                "nodes": len(screen.nodes),
+                "interactive_nodes": sum(1 for node in screen.nodes if node.interactive),
+                "status": _screen_status(screen_findings),
+                "errors": sum(1 for finding in screen_findings if finding["severity"] == "error"),
+                "warnings": sum(1 for finding in screen_findings if finding["severity"] == "warning"),
+                "safe_area": _rule_status(screen_findings, "safe_area_overlap"),
+                "touch_targets": _rule_status(screen_findings, "touch_target_too_small"),
+                "spacing": _rule_status(screen_findings, "touch_targets_too_close"),
+                "text_fit": _rule_status(screen_findings, "text_overflow_risk"),
+                "viewport_bounds": _rule_status(screen_findings, "node_outside_viewport"),
+            }
+        )
+
+    return {
+        "tool": "godot-mobile-ui-doctor",
+        "version": "0.1.1",
+        "kind": "mobile_readiness_matrix",
+        "summary": {
+            "screens": len(rows),
+            "ready": sum(1 for row in rows if row["status"] == "pass"),
+            "review": sum(1 for row in rows if row["status"] == "review"),
+            "action": sum(1 for row in rows if row["status"] == "action"),
+            "errors": report["summary"]["errors"],
+            "warnings": report["summary"]["warnings"],
+        },
+        "matrix": rows,
+        "findings": findings,
     }
 
 
@@ -207,3 +252,16 @@ def _rect_gap(left: UiNode, right: UiNode) -> float:
     dx = max(right.x - left_x2, left.x - right_x2, 0)
     dy = max(right.y - left_y2, left.y - right_y2, 0)
     return hypot(dx, dy)
+
+
+def _screen_status(findings: list[dict[str, Any]]) -> str:
+    if any(finding["severity"] == "error" for finding in findings):
+        return "action"
+    if any(finding["severity"] == "warning" for finding in findings):
+        return "review"
+    return "pass"
+
+
+def _rule_status(findings: list[dict[str, Any]], rule_id: str) -> str:
+    count = sum(1 for finding in findings if finding["rule_id"] == rule_id)
+    return "pass" if count == 0 else f"review ({count})"

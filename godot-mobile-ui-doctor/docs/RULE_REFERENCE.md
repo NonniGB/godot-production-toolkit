@@ -13,3 +13,6 @@
 
 These rules are intentionally conservative. They flag layout risks that deserve
 review; they do not try to judge whether a screen is well designed.
+
+The `matrix` command groups these rules by screen and viewport so a reviewer can
+quickly see which screens pass and which need a closer look.

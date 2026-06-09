@@ -7,6 +7,8 @@ from typing import Any
 def render_report(report: dict[str, Any], fmt: str) -> str:
     if fmt == "json":
         return json.dumps(report, indent=2, sort_keys=True)
+    if report.get("kind") == "mobile_readiness_matrix":
+        return _matrix_markdown(report) if fmt == "markdown" else _matrix_text(report)
     if fmt == "markdown":
         return _markdown(report)
     return _text(report)
@@ -75,3 +77,49 @@ def _location_text(finding: dict[str, Any]) -> str:
         if finding.get(key):
             parts.append(str(finding[key]))
     return " / ".join(parts)
+
+
+def _matrix_text(report: dict[str, Any]) -> str:
+    summary = report["summary"]
+    lines = [
+        "Godot Mobile UI Readiness Matrix",
+        (
+            f"Screens: {summary['screens']} | Pass: {summary['ready']} | "
+            f"Review: {summary['review']} | Action: {summary['action']}"
+        ),
+        f"Errors: {summary['errors']} | Warnings: {summary['warnings']}",
+        "",
+    ]
+    for row in report["matrix"]:
+        lines.append(
+            f"- {row['screen']} / {row['viewport']} ({row['viewport_size']}): "
+            f"{row['status']} | safe area {row['safe_area']} | "
+            f"touch {row['touch_targets']} | spacing {row['spacing']} | text {row['text_fit']}"
+        )
+    return "\n".join(lines)
+
+
+def _matrix_markdown(report: dict[str, Any]) -> str:
+    summary = report["summary"]
+    lines = [
+        "# Godot Mobile UI Readiness Matrix",
+        "",
+        "| Metric | Value |",
+        "|---|---:|",
+        f"| Screens | {summary['screens']} |",
+        f"| Pass | {summary['ready']} |",
+        f"| Review | {summary['review']} |",
+        f"| Action needed | {summary['action']} |",
+        f"| Errors | {summary['errors']} |",
+        f"| Warnings | {summary['warnings']} |",
+        "",
+        "| Screen | Viewport | Size | Status | Safe Area | Touch Targets | Spacing | Text Fit | Bounds |",
+        "|---|---|---:|---|---|---|---|---|---|",
+    ]
+    for row in report["matrix"]:
+        lines.append(
+            f"| {row['screen']} | {row['viewport']} | {row['viewport_size']} | "
+            f"{row['status']} | {row['safe_area']} | {row['touch_targets']} | "
+            f"{row['spacing']} | {row['text_fit']} | {row['viewport_bounds']} |"
+        )
+    return "\n".join(lines)

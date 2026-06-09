@@ -33,6 +33,12 @@ Fail CI when warnings are present:
 godot-mobile-ui-doctor mobile-ui.json --fail-on warning --format json --output reports\mobile-ui.json
 ```
 
+Build a screen-by-screen readiness matrix:
+
+```powershell
+godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports\mobile-ui-matrix.md
+```
+
 ## Metadata Shape
 
 ```json
@@ -89,6 +95,15 @@ need scene files or a Godot binary for this first metadata-based check.
 - `text`: readable terminal report.
 - `json`: CI and scripts.
 - `markdown`: PR comments, release notes, and report artifacts.
+
+## Mobile Readiness Matrix
+
+The `matrix` command groups findings by screen and viewport. It is useful when a
+project has several phone and tablet captures and you want a quick table showing
+which screens are clean, which need review, and which need action.
+
+The matrix includes safe-area, touch-target, spacing, text-fit, and viewport
+bounds status for each screen.
 
 ## How To Export Metadata
 

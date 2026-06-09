@@ -126,13 +126,13 @@ The newest packages cover content-heavy projects and runtime evidence:
 godot-content-graph godot-content-graph-doctor\examples\tiny-content-project --config content-graph.toml --format markdown
 godot-scenario-report compare godot-scenario-report-kit\examples\tiny-scenario-runs\baseline godot-scenario-report-kit\examples\tiny-scenario-runs\current --format markdown
 godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-architecture-project --config architecture-guard.toml --format markdown
-godot-mobile-ui-doctor godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown
+godot-mobile-ui-doctor matrix godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown
 ```
 
 ![Content graph terminal report](docs/assets/screenshots/content-graph-terminal.svg)
 ![Scenario comparison report](docs/assets/screenshots/scenario-report-terminal.svg)
 ![Architecture guard report](docs/assets/screenshots/architecture-guard-terminal.svg)
-![Mobile UI report](docs/assets/screenshots/mobile-ui-terminal.svg)
+![Mobile UI readiness matrix](docs/assets/screenshots/mobile-ui-matrix.svg)
 
 A separate public demo repository shows the GitHub Action in a clean fixture project:
 
@@ -253,7 +253,7 @@ The repo keeps the tools together, while each standalone CLI is published separa
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.2` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.2` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.4` |
-| [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.0` |
+| [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.1` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.1` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.0` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.1` |

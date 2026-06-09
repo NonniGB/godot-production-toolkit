@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img" aria-label="Godot Mobile UI readiness matrix">
+  <rect width="960" height="300" rx="8" fill="#101820"/>
+  <rect x="0" y="0" width="960" height="38" rx="8" fill="#1c2730"/>
+  <circle cx="22" cy="19" r="6" fill="#ff6b6b"/>
+  <circle cx="44" cy="19" r="6" fill="#ffd166"/>
+  <circle cx="66" cy="19" r="6" fill="#4dd599"/>
+  <text x="92" y="25" fill="#d6e2ea" font-family="Consolas, Menlo, monospace" font-size="15">godot-mobile-ui-doctor matrix mobile-ui.json --format markdown</text>
+  <text x="32" y="74" fill="#8ad7ff" font-family="Consolas, Menlo, monospace" font-size="18">Godot Mobile UI Readiness Matrix</text>
+  <text x="32" y="108" fill="#d6e2ea" font-family="Consolas, Menlo, monospace" font-size="16">Screens: 1 | Pass: 0 | Review: 1 | Action: 0</text>
+  <text x="32" y="134" fill="#d6e2ea" font-family="Consolas, Menlo, monospace" font-size="16">Errors: 0 | Warnings: 4</text>
+  <rect x="32" y="164" width="896" height="90" rx="6" fill="#16232d" stroke="#334552"/>
+  <text x="54" y="194" fill="#9fb5c5" font-family="Consolas, Menlo, monospace" font-size="14">Screen</text>
+  <text x="190" y="194" fill="#9fb5c5" font-family="Consolas, Menlo, monospace" font-size="14">Viewport</text>
+  <text x="350" y="194" fill="#9fb5c5" font-family="Consolas, Menlo, monospace" font-size="14">Status</text>
+  <text x="480" y="194" fill="#9fb5c5" font-family="Consolas, Menlo, monospace" font-size="14">Safe Area</text>
+  <text x="632" y="194" fill="#9fb5c5" font-family="Consolas, Menlo, monospace" font-size="14">Touch</text>
+  <text x="760" y="194" fill="#9fb5c5" font-family="Consolas, Menlo, monospace" font-size="14">Text Fit</text>
+  <line x1="32" y1="210" x2="928" y2="210" stroke="#334552"/>
+  <text x="54" y="238" fill="#d6e2ea" font-family="Consolas, Menlo, monospace" font-size="15">main_menu</text>
+  <text x="190" y="238" fill="#d6e2ea" font-family="Consolas, Menlo, monospace" font-size="15">portrait_phone</text>
+  <text x="350" y="238" fill="#ffd38a" font-family="Consolas, Menlo, monospace" font-size="15">review</text>
+  <text x="480" y="238" fill="#ffd38a" font-family="Consolas, Menlo, monospace" font-size="15">review (1)</text>
+  <text x="632" y="238" fill="#ffd38a" font-family="Consolas, Menlo, monospace" font-size="15">review (1)</text>
+  <text x="760" y="238" fill="#ffd38a" font-family="Consolas, Menlo, monospace" font-size="15">review (1)</text>
+</svg>

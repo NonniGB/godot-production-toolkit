@@ -143,11 +143,13 @@
     "docs/assets/sample-reports/scenario-compare.md",
     "docs/assets/sample-reports/architecture-guard.md",
     "docs/assets/sample-reports/mobile-ui.md",
+    "docs/assets/sample-reports/mobile-ui-matrix.md",
     "docs/assets/screenshots/project-doctor-html-report.png",
     "docs/assets/screenshots/project-doctor-terminal.png",
     "docs/assets/screenshots/content-graph-terminal.svg",
     "docs/assets/screenshots/scenario-report-terminal.svg",
-    "docs/assets/screenshots/architecture-guard-terminal.svg"
+    "docs/assets/screenshots/architecture-guard-terminal.svg",
+    "docs/assets/screenshots/mobile-ui-matrix.svg"
   ],
   "verification_commands": [
     "python verify_tool_manifests.py",

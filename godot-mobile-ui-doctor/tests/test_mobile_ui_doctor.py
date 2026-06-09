@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from godot_mobile_ui_doctor.audit import audit_mobile_ui
+from godot_mobile_ui_doctor.audit import audit_mobile_ui, build_readiness_matrix
 from godot_mobile_ui_doctor.cli import main
 from godot_mobile_ui_doctor.loader import load_metadata
 
@@ -57,7 +57,35 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.0", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.1", stdout.getvalue())
+
+    def test_builds_mobile_readiness_matrix(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "ui.json"
+            path.write_text(json.dumps(_sample_metadata()), encoding="utf-8")
+
+            viewports, screens, thresholds = load_metadata(path)
+            matrix = build_readiness_matrix(viewports, screens, thresholds)
+
+            self.assertEqual(matrix["kind"], "mobile_readiness_matrix")
+            self.assertEqual(matrix["summary"]["review"], 1)
+            self.assertEqual(matrix["matrix"][0]["screen"], "main_menu")
+            self.assertEqual(matrix["matrix"][0]["safe_area"], "review (1)")
+            self.assertEqual(matrix["matrix"][0]["touch_targets"], "review (1)")
+
+    def test_cli_outputs_markdown_matrix(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            metadata = Path(tmp) / "ui.json"
+            metadata.write_text(json.dumps(_sample_metadata()), encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["matrix", str(metadata), "--fail-on", "none"])
+
+            self.assertEqual(exit_code, 0)
+            rendered = stdout.getvalue()
+            self.assertIn("# Godot Mobile UI Readiness Matrix", rendered)
+            self.assertIn("| main_menu | portrait_phone | 720x1280 | review |", rendered)
 
     def test_missing_viewport_is_error(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

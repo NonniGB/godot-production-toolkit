@@ -9,6 +9,12 @@ godot-mobile-ui-doctor mobile-ui.json --format json --output reports\mobile-ui.j
 Use `--fail-on warning` when touch-target or layout risks should block a pull
 request. Use `--fail-on error` when adopting the tool gradually.
 
+For a compact review artifact:
+
+```powershell
+godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports\mobile-ui-matrix.md
+```
+
 The command exits with:
 
 - `0` when no findings meet the selected fail threshold;

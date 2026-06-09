@@ -28,6 +28,10 @@
     {
       "purpose": "Create a Markdown mobile UI report",
       "command": "godot-mobile-ui-doctor mobile-ui.json --format markdown --output reports/mobile-ui.md --fail-on none"
+    },
+    {
+      "purpose": "Create a screen-by-screen mobile readiness matrix",
+      "command": "godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports/mobile-ui-matrix.md"
     }
   ]
 }

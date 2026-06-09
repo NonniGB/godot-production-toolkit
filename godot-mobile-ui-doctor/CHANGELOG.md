@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 - 2026-06-09
+
+- Added `matrix` command for screen-by-screen mobile UI readiness reports.
+- Added per-screen status columns for safe area, touch targets, spacing, text fit, and viewport bounds.
+- Updated documentation with a matrix workflow.
+
 ## 0.1.0 - 2026-06-09
 
 - Initial mobile UI metadata checker.
