@@ -9,5 +9,7 @@
 - `fuzzy_translation`: PO entry is marked fuzzy.
 - `unchanged_translation`: target string matches the source string.
 - `placeholder_mismatch`: source and target placeholder sets differ.
+- `string_expansion`: target string is longer than the configured expansion ratio.
+- `glyph_not_allowed`: target string uses characters outside the configured allow-list.
 - `missing_key`: scanned project text references a key not present in catalogs.
 - `unused_key`: catalog key was not seen in scanned project text.

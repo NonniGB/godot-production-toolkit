@@ -17,6 +17,8 @@ def audit_catalogs(
     required_languages: set[str],
     source_language: str,
     used_keys: set[str] | None = None,
+    max_expansion: float | None = None,
+    allowed_glyphs: set[str] | None = None,
 ) -> list[Finding]:
     findings: list[Finding] = []
     if not catalogs:
@@ -27,7 +29,15 @@ def audit_catalogs(
         all_keys.update(catalog.keys())
         findings.extend(_catalog_metadata_findings(catalog, required_languages))
         for entry in catalog.entries:
-            findings.extend(_entry_findings(entry, required_languages, source_language))
+            findings.extend(
+                _entry_findings(
+                    entry,
+                    required_languages,
+                    source_language,
+                    max_expansion=max_expansion,
+                    allowed_glyphs=allowed_glyphs,
+                )
+            )
 
     if used_keys is not None:
         for key in sorted(used_keys - all_keys):
@@ -60,6 +70,9 @@ def _entry_findings(
     entry: TranslationEntry,
     required_languages: set[str],
     source_language: str,
+    *,
+    max_expansion: float | None = None,
+    allowed_glyphs: set[str] | None = None,
 ) -> list[Finding]:
     findings: list[Finding] = []
     target_languages = required_languages or set(entry.translations)
@@ -77,6 +90,31 @@ def _entry_findings(
             findings.append(Finding("unchanged_translation", "warning", entry.key, f"Translation for '{language}' matches the source string.", entry.path, entry.line))
         if _placeholders(entry.source) != _placeholders(value):
             findings.append(Finding("placeholder_mismatch", "error", entry.key, f"Placeholder set differs for '{language}'.", entry.path, entry.line))
+        if max_expansion and len(entry.source) > 0 and len(value) / len(entry.source) > max_expansion:
+            findings.append(
+                Finding(
+                    "string_expansion",
+                    "warning",
+                    entry.key,
+                    f"Translation for '{language}' is longer than the {max_expansion:.2f} expansion limit.",
+                    entry.path,
+                    entry.line,
+                )
+            )
+        if allowed_glyphs is not None:
+            missing_glyphs = sorted({character for character in value if character not in allowed_glyphs})
+            if missing_glyphs:
+                preview = "".join(missing_glyphs[:12])
+                findings.append(
+                    Finding(
+                        "glyph_not_allowed",
+                        "warning",
+                        entry.key,
+                        f"Translation for '{language}' uses glyphs outside the configured allow-list: {preview}",
+                        entry.path,
+                        entry.line,
+                    )
+                )
 
     return findings
 

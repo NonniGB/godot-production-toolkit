@@ -23,6 +23,8 @@ godot-l10n-guard C:\Projects\MyGame --translations translations --require fr,es
 godot-l10n-guard . --csv assets\i18n\strings.csv --scan-scripts --scan-scenes
 godot-l10n-guard . --po locale --format markdown --output docs\LOCALIZATION_QA.md
 godot-l10n-guard . --format json --output localization-report.json
+godot-l10n-guard . --translations translations --max-expansion 1.35 --allowed-glyphs-file fonts\ui-glyphs.txt
+godot-l10n-guard . --translations translations --pseudo-output reports\pseudo-localized.csv --fail-on none
 ```
 
 Run the sample:
@@ -40,15 +42,19 @@ godot-l10n-guard examples\tiny-godot-project --translations examples\tiny-godot-
 - PO fuzzy and untranslated entries.
 - Placeholder sets match across source and target text.
 - Target strings that are unchanged from source.
+- Target strings that exceed an optional expansion ratio.
+- Characters outside an optional UI-font glyph allow-list.
 - `tr("KEY")` and `TranslationServer.translate("KEY")` usage.
 - Uppercase key-like scene text values.
 - Missing and unused keys when scanning is enabled.
+- Pseudo-localized CSV previews for UI stress testing.
 
 ## Documentation
 
 - [Godot CSV guide](docs/CSV_GUIDE.md)
 - [PO guide](docs/PO_GUIDE.md)
 - [Placeholder checks](docs/PLACEHOLDERS.md)
+- [Pseudo-localization and layout checks](docs/PSEUDO_LOCALIZATION.md)
 - [Key usage scanning](docs/SCANNING.md)
 - [Rule reference](docs/RULE_REFERENCE.md)
 - [CI usage](docs/CI.md)

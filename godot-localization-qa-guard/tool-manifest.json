@@ -7,7 +7,9 @@
     "cli": true,
     "machine_output": ["json", "sarif"],
     "human_output": ["text", "markdown report"],
-    "visual_interface": "none"
+    "pseudo_localization_output": true,
+    "layout_risk_checks": ["string_expansion", "glyph_allow_list"],
+    "visual_interface": "pseudo-localized CSV preview"
   },
   "run_behavior": {
     "noninteractive": true,
@@ -32,6 +34,14 @@
     {
       "purpose": "GitHub code scanning SARIF",
       "command": "godot-l10n-guard <project> --translations translations --scan-scripts --scan-scenes --format sarif --output localization-report.sarif --fail-on none"
+    },
+    {
+      "purpose": "Layout-risk and glyph coverage report",
+      "command": "godot-l10n-guard <project> --translations translations --max-expansion 1.35 --allowed-glyphs-file fonts/ui-glyphs.txt --format json --output localization-layout.json"
+    },
+    {
+      "purpose": "Pseudo-localized CSV preview",
+      "command": "godot-l10n-guard <project> --translations translations --pseudo-output reports/pseudo-localized.csv --fail-on none"
     }
   ]
 }

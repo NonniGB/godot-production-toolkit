@@ -62,6 +62,27 @@ class AuditTests(unittest.TestCase):
         self.assertIn("missing_key", rule_ids)
         self.assertIn("unused_key", rule_ids)
 
+    def test_optional_expansion_and_glyph_checks(self) -> None:
+        table = CsvTable(
+            path="strings.csv",
+            languages=["en", "fr"],
+            entries=[
+                TranslationEntry("MENU_GO", "Go", {"en": "Go", "fr": "Aller tres loin!"}, "strings.csv", 2),
+            ],
+        )
+
+        findings = audit_catalogs(
+            [table],
+            required_languages={"fr"},
+            source_language="en",
+            max_expansion=2.0,
+            allowed_glyphs=set("Aler tsion"),
+        )
+        rule_ids = {finding.rule_id for finding in findings}
+
+        self.assertIn("string_expansion", rule_ids)
+        self.assertIn("glyph_not_allowed", rule_ids)
+
 
 if __name__ == "__main__":
     unittest.main()

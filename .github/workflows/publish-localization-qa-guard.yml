@@ -2,6 +2,9 @@ name: Publish godot-localization-qa-guard
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "godot-localization-qa-guard-v*"
 
 permissions:
   contents: read

@@ -79,6 +79,44 @@ class ReportingCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             self.assertIn("missing_key", {finding["rule_id"] for finding in report["findings"]})
 
+    def test_cli_writes_pseudo_catalog_and_optional_layout_findings(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            csv_path = project / "strings.csv"
+            csv_path.write_text("keys,en,fr\nMENU_START,Start,Commencer maintenant!\n", encoding="utf-8")
+            output = project / "report.json"
+            pseudo_output = project / "pseudo.csv"
+
+            exit_code = main(
+                [
+                    str(project),
+                    "--csv",
+                    str(csv_path),
+                    "--require",
+                    "fr",
+                    "--max-expansion",
+                    "1.5",
+                    "--allowed-glyphs",
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ",
+                    "--pseudo-output",
+                    str(pseudo_output),
+                    "--format",
+                    "json",
+                    "--output",
+                    str(output),
+                    "--fail-on",
+                    "none",
+                ]
+            )
+
+            report = json.loads(output.read_text(encoding="utf-8"))
+            rule_ids = {finding["rule_id"] for finding in report["findings"]}
+            self.assertEqual(exit_code, 0)
+            self.assertIn("string_expansion", rule_ids)
+            self.assertIn("glyph_not_allowed", rule_ids)
+            self.assertTrue(pseudo_output.exists())
+            self.assertIn("qps-ploc", pseudo_output.read_text(encoding="utf-8"))
+
     def test_cli_rejects_missing_explicit_catalog_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)

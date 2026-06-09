@@ -8,6 +8,7 @@ from .audit import audit_catalogs
 from .csv_parser import parse_csv_file
 from .models import CsvTable, PoCatalog
 from .po_parser import parse_po_file
+from .pseudo import write_pseudo_csv
 from .reporting import render_json_report, render_markdown_report, render_sarif_report, render_text_report
 from .usage_scanner import scan_project_keys
 
@@ -31,6 +32,8 @@ def main(argv: list[str] | None = None) -> int:
         required_languages=_parse_languages(args.require),
         source_language=args.source_lang,
         used_keys=used_keys,
+        max_expansion=args.max_expansion,
+        allowed_glyphs=_load_allowed_glyphs(parser, args),
     )
 
     rendered = _render(args.format, catalogs, findings)
@@ -40,6 +43,15 @@ def main(argv: list[str] | None = None) -> int:
         output.write_text(rendered + "\n", encoding="utf-8")
     else:
         print(rendered)
+
+    if args.pseudo_output:
+        write_pseudo_csv(
+            catalogs,
+            Path(args.pseudo_output),
+            source_language=args.source_lang,
+            pseudo_language=args.pseudo_locale,
+            expansion=args.pseudo_expansion,
+        )
 
     return _exit_code(findings, args.fail_on)
 
@@ -63,6 +75,12 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--scan-scripts", action="store_true", help="Scan .gd files for tr(\"KEY\").")
     parser.add_argument("--scan-scenes", action="store_true", help="Scan .tscn/.scn text values for key-like strings.")
     parser.add_argument("--scan-all", action="store_true", help="Scan both scripts and scenes for translation keys.")
+    parser.add_argument("--max-expansion", type=float, help="Warn when a target string exceeds this source-length ratio.")
+    parser.add_argument("--allowed-glyphs", help="Characters expected to be available in the project's UI font.")
+    parser.add_argument("--allowed-glyphs-file", help="Text file containing glyphs expected to be available in the UI font.")
+    parser.add_argument("--pseudo-output", help="Write a pseudo-localized CSV preview catalog.")
+    parser.add_argument("--pseudo-locale", default="qps-ploc", help="Locale column name for --pseudo-output.")
+    parser.add_argument("--pseudo-expansion", type=float, default=0.3, help="Extra padding ratio for pseudo-localized strings.")
     parser.add_argument("--format", choices=["text", "json", "markdown", "sarif"], default="text")
     parser.add_argument("--output", help="Write report to a file instead of stdout.")
     parser.add_argument("--fail-on", choices=["warning", "error", "none"], default="warning")
@@ -107,6 +125,19 @@ def _load_catalogs(parser: argparse.ArgumentParser, args: argparse.Namespace) ->
 
 def _parse_languages(raw: str) -> set[str]:
     return {part.strip() for part in raw.split(",") if part.strip()}
+
+
+def _load_allowed_glyphs(parser: argparse.ArgumentParser, args: argparse.Namespace) -> set[str] | None:
+    if not args.allowed_glyphs and not args.allowed_glyphs_file:
+        return None
+    glyphs = set(args.allowed_glyphs or "")
+    glyphs.update({" ", "\t", "\r", "\n"})
+    if args.allowed_glyphs_file:
+        glyph_path = Path(args.allowed_glyphs_file)
+        if not glyph_path.exists():
+            parser.error(f"allowed glyphs file was not found: {glyph_path}")
+        glyphs.update(glyph_path.read_text(encoding="utf-8"))
+    return glyphs
 
 
 def _render(format_name: str, catalogs: list[Catalog], findings: object) -> str:
