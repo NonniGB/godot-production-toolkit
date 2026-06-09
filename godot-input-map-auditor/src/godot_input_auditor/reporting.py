@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 import re
 
+from . import __version__
 from .models import Finding, InputAction
 from .policy import InputPolicy
+from .rule_help import catalog_for, explain_rule
 
 
 def render_text_report(
@@ -21,7 +23,9 @@ def render_text_report(
         lines.append(f"- {action.name}{group_text}: {devices} ({len(action.events)} event(s))")
     if findings:
         for finding in findings:
-            lines.append(f"[{finding.severity.upper()}] {finding.rule_id}: {finding.message}")
+            help_text = explain_rule(finding.rule_id)
+            lines.append(f"[{finding.severity.upper()}] {help_text['title']}: {finding.message}")
+            lines.append(f"  Why it matters: {help_text['explanation']}")
     else:
         lines.append("No findings.")
     return "\n".join(lines)
@@ -32,6 +36,12 @@ def render_json_report(
 ) -> str:
     payload = {
         "tool": "godot-input-map-auditor",
+        "metadata": {
+            "schema_version": "1.1",
+            "tool_version": __version__,
+            "report_kind": "input_map_audit",
+            "formats": ["text", "json", "sarif"],
+        },
         "summary": {
             "actions": len(actions),
             "groups": len(policy.action_groups) if policy else 0,
@@ -41,6 +51,7 @@ def render_json_report(
         },
         "policy": policy.to_dict() if policy else None,
         "actions": [_action_to_dict(action, policy) for action in actions],
+        "rules": catalog_for({finding.rule_id for finding in findings}),
         "findings": [finding.to_dict() for finding in findings],
     }
     return json.dumps(payload, indent=2, sort_keys=True)
@@ -52,12 +63,13 @@ def render_sarif_report(
     rules = {}
     results = []
     for finding in findings:
+        help_text = explain_rule(finding.rule_id)
         rules.setdefault(
             finding.rule_id,
             {
                 "id": finding.rule_id,
-                "name": finding.rule_id,
-                "shortDescription": {"text": finding.message},
+                "name": help_text["title"],
+                "shortDescription": {"text": help_text["explanation"]},
             },
         )
         results.append(

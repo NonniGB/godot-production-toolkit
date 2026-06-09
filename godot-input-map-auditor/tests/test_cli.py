@@ -77,6 +77,7 @@ confirm={
             driver = sarif["runs"][0]["tool"]["driver"]
             self.assertEqual(driver["name"], "godot-input-map-auditor")
             self.assertTrue(driver["rules"])
+            self.assertIn("Required device missing", {rule["name"] for rule in driver["rules"]})
             self.assertTrue(sarif["runs"][0]["results"])
 
     def test_cli_rejects_unknown_required_device_family(self) -> None:

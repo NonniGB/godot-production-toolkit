@@ -15,3 +15,7 @@ godot-input-audit . --require keyboard,mouse
 ```
 
 For mobile-first projects, `touch` should usually be required for player-facing actions.
+
+JSON reports include a `metadata` block, a `rules` catalog, and findings with
+plain-language titles and explanations. Keep the JSON report as a CI artifact
+when a failed input check needs review outside the terminal log.

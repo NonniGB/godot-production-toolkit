@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from godot_input_auditor.models import InputAction, InputEvent
+from godot_input_auditor.models import Finding, InputAction, InputEvent
 from godot_input_auditor.policy import InputPolicy
 from godot_input_auditor.reporting import (
     render_gdscript_constants,
@@ -35,8 +35,19 @@ class ReportingTests(unittest.TestCase):
 
         report = json.loads(render_json_report([action], []))
 
+        self.assertEqual(report["metadata"]["schema_version"], "1.1")
+        self.assertEqual(report["metadata"]["tool_version"], "0.1.2")
         self.assertEqual(report["summary"]["actions"], 1)
         self.assertEqual(report["actions"][0]["devices"], ["touch"])
+
+    def test_json_report_includes_rule_explanations(self) -> None:
+        finding = Finding("missing_required_device", "error", "tap", "Input action 'tap' is missing touch.")
+
+        report = json.loads(render_json_report([], [finding]))
+
+        self.assertEqual(report["rules"]["missing_required_device"]["title"], "Required device missing")
+        self.assertEqual(report["findings"][0]["title"], "Required device missing")
+        self.assertIn("configured device families", report["findings"][0]["explanation"])
 
     def test_json_report_includes_policy_groups_when_provided(self) -> None:
         action = InputAction(name="move_left", events=[InputEvent("InputEventKey", "keyboard", "key:65")])

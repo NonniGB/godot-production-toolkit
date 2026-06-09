@@ -39,6 +39,7 @@ godot-input-audit examples\tiny-godot-project --fail-on none
 - Reports actions missing required device families.
 - Supports optional action groups and per-group device requirements.
 - Reports duplicate normalized bindings across actions.
+- Includes report metadata and plain-language rule explanations in JSON, text, and SARIF output.
 - Generates `INPUT_REFERENCE.md`.
 - Generates optional `InputActions` GDScript constants.
 

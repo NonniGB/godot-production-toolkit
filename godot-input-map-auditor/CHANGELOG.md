@@ -4,6 +4,7 @@
 
 - Added optional TOML policy files for action groups and group-specific device requirements.
 - Added group metadata to JSON reports and generated Markdown input references when a policy is active.
+- Added report metadata and plain-language rule explanations to JSON, text, and SARIF output.
 
 ## 0.1.2 - 2026-06-09
 
