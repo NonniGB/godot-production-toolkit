@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from .rule_help import explain_rule
+
 
 @dataclass(frozen=True)
 class TranslationEntry:
@@ -77,10 +79,13 @@ class Finding:
     line: int | None = None
 
     def to_dict(self) -> dict[str, object]:
+        help_text = explain_rule(self.rule_id)
         return {
             "rule_id": self.rule_id,
             "severity": self.severity,
             "key": self.key,
+            "title": help_text["title"],
+            "explanation": help_text["explanation"],
             "message": self.message,
             "path": self.path,
             "line": self.line,

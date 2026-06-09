@@ -9,6 +9,8 @@
     "human_output": ["text", "markdown report"],
     "pseudo_localization_output": true,
     "layout_risk_checks": ["string_expansion", "glyph_allow_list"],
+    "report_metadata": true,
+    "plain_language_rule_help": true,
     "visual_interface": "pseudo-localized CSV preview"
   },
   "run_behavior": {

@@ -4,6 +4,7 @@
 
 - Added optional string expansion and glyph allow-list checks.
 - Added pseudo-localized CSV output for quick UI stress testing.
+- Added report metadata and plain-language rule explanations to JSON, Markdown, text, and SARIF output.
 
 ## 0.1.2 - 2026-06-09
 

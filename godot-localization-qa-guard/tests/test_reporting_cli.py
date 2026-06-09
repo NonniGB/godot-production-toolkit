@@ -29,6 +29,7 @@ class ReportingCliTests(unittest.TestCase):
 
         self.assertIn("# Localization QA Report", markdown)
         self.assertIn("| error | empty_translation | MENU_EXIT |", markdown)
+        self.assertIn("required target language", markdown)
 
     def test_cli_writes_json_report_and_fails_on_error(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -43,7 +44,11 @@ class ReportingCliTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 1)
             report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(report["metadata"]["schema_version"], "1.1")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.2")
             self.assertEqual(report["summary"]["errors"], 1)
+            self.assertEqual(report["rules"]["empty_translation"]["title"], "Empty translation")
+            self.assertEqual(report["findings"][0]["title"], "Empty translation")
 
     def test_cli_outputs_sarif_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -63,6 +68,7 @@ class ReportingCliTests(unittest.TestCase):
             driver = sarif["runs"][0]["tool"]["driver"]
             self.assertEqual(driver["name"], "godot-localization-qa-guard")
             self.assertTrue(driver["rules"])
+            self.assertIn("Empty translation", {rule["name"] for rule in driver["rules"]})
             self.assertTrue(sarif["runs"][0]["results"])
 
     def test_cli_scan_all_enables_script_key_scan(self) -> None:

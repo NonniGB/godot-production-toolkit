@@ -48,6 +48,7 @@ godot-l10n-guard examples\tiny-godot-project --translations examples\tiny-godot-
 - Uppercase key-like scene text values.
 - Missing and unused keys when scanning is enabled.
 - Pseudo-localized CSV previews for UI stress testing.
+- Report metadata and plain-language rule explanations for easier CI review.
 
 ## Documentation
 

@@ -10,6 +10,10 @@
 
 Use `--fail-on error` during early adoption if unchanged-string and unused-key warnings are too noisy.
 
+JSON, Markdown, and SARIF reports include readable rule names and explanations.
+Keep the report as a CI artifact when localization failures need review outside
+the job log.
+
 Add layout-oriented checks when translations are close to release:
 
 ```yaml
