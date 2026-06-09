@@ -106,6 +106,60 @@ confirm={
 
             self.assertEqual(exit_code, 0)
 
+    def test_cli_uses_policy_file_for_action_groups(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "project.godot").write_text(
+                """
+[input]
+move_left={
+"events": [Object(InputEventKey,"physical_keycode":65)]
+}
+debug_toggle={
+"events": [Object(InputEventKey,"physical_keycode":96)]
+}
+""",
+                encoding="utf-8",
+            )
+            (project / ".godot-input-map-auditor.toml").write_text(
+                "\n".join(
+                    [
+                        "[action_groups]",
+                        'movement = ["move_*"]',
+                        'debug = ["debug_*"]',
+                        "",
+                        "[group_requirements]",
+                        'movement = ["keyboard", "touch"]',
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(project), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(report["summary"]["groups"], 2)
+            self.assertIn("movement", {action["group"] for action in report["actions"]})
+            self.assertIn("touch", report["findings"][0]["message"])
+
+    def test_cli_rejects_unknown_policy_device_family(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "project.godot").write_text("[input]\n", encoding="utf-8")
+            policy = project / "input-policy.toml"
+            policy.write_text(
+                "\n".join(["[group_requirements]", 'menu = ["keyboard", "gesture"]']),
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(SystemExit) as raised:
+                main([str(project), "--policy", str(policy)])
+
+            self.assertEqual(raised.exception.code, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

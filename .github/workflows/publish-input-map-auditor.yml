@@ -2,6 +2,9 @@ name: Publish godot-input-map-auditor
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "godot-input-map-auditor-v*"
 
 permissions:
   contents: read

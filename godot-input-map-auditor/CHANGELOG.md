@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added optional TOML policy files for action groups and group-specific device requirements.
+- Added group metadata to JSON reports and generated Markdown input references when a policy is active.
+
 ## 0.1.2 - 2026-06-09
 
 - Accept case-insensitive required device family names.

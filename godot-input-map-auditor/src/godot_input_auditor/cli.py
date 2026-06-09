@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import argparse
 import sys
+import tomllib
 from pathlib import Path
 
 from .audit import evaluate_actions
 from .input_parser import parse_input_map
 from .models import Finding
+from .policy import InputPolicy, load_policy
 from .reporting import (
     render_gdscript_constants,
     render_json_report,
@@ -16,6 +18,7 @@ from .reporting import (
 )
 
 KNOWN_DEVICE_FAMILIES = {"keyboard", "mouse", "controller", "touch"}
+DEFAULT_POLICY = ".godot-input-map-auditor.toml"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -23,6 +26,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     project = Path(args.project)
     project_file = project if project.name == "project.godot" else project / "project.godot"
+    try:
+        policy = _load_policy(project_file, Path(args.policy) if args.policy else None)
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        parser.error(f"could not read policy: {exc}")
+    _validate_policy_devices(parser, policy)
 
     if not project_file.exists():
         actions = []
@@ -40,12 +48,15 @@ def main(argv: list[str] | None = None) -> int:
         unknown_devices = sorted(required_devices - KNOWN_DEVICE_FAMILIES)
         if unknown_devices:
             parser.error(f"unknown required device family: {', '.join(unknown_devices)}")
-        findings = evaluate_actions(actions, required_devices=required_devices)
+        findings = evaluate_actions(actions, required_devices=required_devices, policy=policy)
 
     if args.write_docs:
         path = Path(args.write_docs)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(_with_trailing_newline(render_markdown_reference(actions)), encoding="utf-8")
+        path.write_text(
+            _with_trailing_newline(render_markdown_reference(actions, policy=policy)),
+            encoding="utf-8",
+        )
 
     if args.generate_gd:
         path = Path(args.generate_gd)
@@ -53,11 +64,11 @@ def main(argv: list[str] | None = None) -> int:
         path.write_text(_with_trailing_newline(render_gdscript_constants(actions)), encoding="utf-8")
 
     if args.format == "json":
-        rendered = render_json_report(actions, findings)
+        rendered = render_json_report(actions, findings, policy=policy)
     elif args.format == "sarif":
-        rendered = render_sarif_report(actions, findings)
+        rendered = render_sarif_report(actions, findings, policy=policy)
     else:
-        rendered = render_text_report(actions, findings)
+        rendered = render_text_report(actions, findings, policy=policy)
     if args.output:
         output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -84,6 +95,10 @@ def _build_parser() -> argparse.ArgumentParser:
         default="",
         help="Comma-separated device families every action should support, e.g. keyboard,touch.",
     )
+    parser.add_argument(
+        "--policy",
+        help=f"TOML policy file. Defaults to {DEFAULT_POLICY} beside project.godot when present.",
+    )
     parser.add_argument("--format", choices=["text", "json", "sarif"], default="text")
     parser.add_argument("--output", help="Write report to a file instead of stdout.")
     parser.add_argument("--write-docs", help="Write Markdown input reference.")
@@ -94,6 +109,28 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def _parse_required(raw: str) -> set[str]:
     return {part.strip().lower() for part in raw.split(",") if part.strip()}
+
+
+def _load_policy(project_file: Path, explicit_policy: Path | None) -> InputPolicy | None:
+    policy_path = explicit_policy or project_file.parent / DEFAULT_POLICY
+    if not policy_path.exists():
+        return None
+    return load_policy(policy_path)
+
+
+def _validate_policy_devices(parser: argparse.ArgumentParser, policy: InputPolicy | None) -> None:
+    if not policy:
+        return
+    unknown_devices = sorted(
+        {
+            device
+            for devices in policy.group_requirements.values()
+            for device in devices
+            if device not in KNOWN_DEVICE_FAMILIES
+        }
+    )
+    if unknown_devices:
+        parser.error(f"unknown policy device family: {', '.join(unknown_devices)}")
 
 
 def _with_trailing_newline(text: str) -> str:

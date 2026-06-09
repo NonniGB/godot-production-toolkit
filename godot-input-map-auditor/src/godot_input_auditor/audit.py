@@ -3,9 +3,14 @@ from __future__ import annotations
 from collections import defaultdict
 
 from .models import Finding, InputAction
+from .policy import InputPolicy
 
 
-def evaluate_actions(actions: list[InputAction], required_devices: set[str]) -> list[Finding]:
+def evaluate_actions(
+    actions: list[InputAction],
+    required_devices: set[str],
+    policy: InputPolicy | None = None,
+) -> list[Finding]:
     findings: list[Finding] = []
     if not actions:
         return [
@@ -27,14 +32,22 @@ def evaluate_actions(actions: list[InputAction], required_devices: set[str]) -> 
                     message=f"Input action '{action.name}' has no bound events.",
                 )
             )
-        missing = sorted(required_devices - action.devices)
+        effective_required = set(required_devices)
+        if policy:
+            effective_required.update(policy.required_devices_for_action(action.name))
+        missing = sorted(effective_required - action.devices)
         if missing:
+            group = policy.group_for_action(action.name) if policy else None
+            group_text = f" in group '{group}'" if group else ""
             findings.append(
                 Finding(
                     rule_id="missing_required_device",
                     severity="error",
                     action=action.name,
-                    message=f"Input action '{action.name}' is missing required device(s): {', '.join(missing)}.",
+                    message=(
+                        f"Input action '{action.name}'{group_text} is missing required "
+                        f"device(s): {', '.join(missing)}."
+                    ),
                 )
             )
 

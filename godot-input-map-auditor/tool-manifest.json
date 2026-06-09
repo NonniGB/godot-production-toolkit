@@ -7,6 +7,7 @@
     "cli": true,
     "machine_output": ["json", "sarif"],
     "human_output": ["text", "markdown input reference", "GDScript constants"],
+    "policy_config": true,
     "visual_interface": "none"
   },
   "run_behavior": {
@@ -21,6 +22,10 @@
     }
   },
   "recommended_commands": [
+    {
+      "purpose": "Audit with action group policy",
+      "command": "godot-input-audit <project> --policy input-policy.toml --format json --output input-report.json"
+    },
     {
       "purpose": "Script-friendly input report",
       "command": "godot-input-audit <project> --require keyboard,touch --format json --output input-report.json --fail-on none"

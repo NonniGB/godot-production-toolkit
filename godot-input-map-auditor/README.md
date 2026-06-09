@@ -23,6 +23,7 @@ godot-input-audit C:\Projects\MyGame --require keyboard,touch
 godot-input-audit . --write-docs docs\INPUT_REFERENCE.md
 godot-input-audit . --generate-gd scripts\generated\input_actions.gd
 godot-input-audit . --format json --output input-report.json
+godot-input-audit . --policy input-policy.toml --format json
 ```
 
 Run against the sample project:
@@ -36,6 +37,7 @@ godot-input-audit examples\tiny-godot-project --fail-on none
 - Parses the `[input]` section in `project.godot`.
 - Classifies `InputEventKey`, mouse, joypad, and screen-touch event classes.
 - Reports actions missing required device families.
+- Supports optional action groups and per-group device requirements.
 - Reports duplicate normalized bindings across actions.
 - Generates `INPUT_REFERENCE.md`.
 - Generates optional `InputActions` GDScript constants.
@@ -43,6 +45,7 @@ godot-input-audit examples\tiny-godot-project --fail-on none
 ## Documentation
 
 - [Device classification](docs/DEVICE_RULES.md)
+- [Policy files](docs/POLICY_FILES.md)
 - [Rule reference](docs/RULE_REFERENCE.md)
 - [Generated output](docs/GENERATED_OUTPUT.md)
 - [Touch readiness](docs/TOUCH_READINESS.md)

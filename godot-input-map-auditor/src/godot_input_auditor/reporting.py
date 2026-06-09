@@ -4,16 +4,21 @@ import json
 import re
 
 from .models import Finding, InputAction
+from .policy import InputPolicy
 
 
-def render_text_report(actions: list[InputAction], findings: list[Finding]) -> str:
+def render_text_report(
+    actions: list[InputAction], findings: list[Finding], policy: InputPolicy | None = None
+) -> str:
     lines = [
         "Godot Input Map Auditor",
         f"Scanned {len(actions)} action(s): {len(findings)} finding(s).",
     ]
     for action in actions:
         devices = ", ".join(sorted(action.devices)) or "none"
-        lines.append(f"- {action.name}: {devices} ({len(action.events)} event(s))")
+        group = policy.group_for_action(action.name) if policy else None
+        group_text = f" [{group}]" if group else ""
+        lines.append(f"- {action.name}{group_text}: {devices} ({len(action.events)} event(s))")
     if findings:
         for finding in findings:
             lines.append(f"[{finding.severity.upper()}] {finding.rule_id}: {finding.message}")
@@ -22,22 +27,28 @@ def render_text_report(actions: list[InputAction], findings: list[Finding]) -> s
     return "\n".join(lines)
 
 
-def render_json_report(actions: list[InputAction], findings: list[Finding]) -> str:
+def render_json_report(
+    actions: list[InputAction], findings: list[Finding], policy: InputPolicy | None = None
+) -> str:
     payload = {
         "tool": "godot-input-map-auditor",
         "summary": {
             "actions": len(actions),
+            "groups": len(policy.action_groups) if policy else 0,
             "findings": len(findings),
             "errors": sum(1 for finding in findings if finding.severity == "error"),
             "warnings": sum(1 for finding in findings if finding.severity == "warning"),
         },
-        "actions": [action.to_dict() for action in actions],
+        "policy": policy.to_dict() if policy else None,
+        "actions": [_action_to_dict(action, policy) for action in actions],
         "findings": [finding.to_dict() for finding in findings],
     }
     return json.dumps(payload, indent=2, sort_keys=True)
 
 
-def render_sarif_report(actions: list[InputAction], findings: list[Finding]) -> str:
+def render_sarif_report(
+    actions: list[InputAction], findings: list[Finding], policy: InputPolicy | None = None
+) -> str:
     rules = {}
     results = []
     for finding in findings:
@@ -80,18 +91,21 @@ def render_sarif_report(actions: list[InputAction], findings: list[Finding]) -> 
     return json.dumps(payload, indent=2, sort_keys=True)
 
 
-def render_markdown_reference(actions: list[InputAction]) -> str:
-    lines = [
-        "# Input Reference",
-        "",
-        "| Action | Devices | Events |",
-        "|---|---|---:|",
-    ]
+def render_markdown_reference(actions: list[InputAction], policy: InputPolicy | None = None) -> str:
+    lines = ["# Input Reference", ""]
+    if policy:
+        lines.extend(["| Action | Group | Devices | Events |", "|---|---|---|---:|"])
+    else:
+        lines.extend(["| Action | Devices | Events |", "|---|---|---:|"])
     for action in sorted(actions, key=lambda item: item.name):
         devices = ", ".join(sorted(action.devices)) or "none"
-        lines.append(f"| {action.name} | {devices} | {len(action.events)} |")
+        if policy:
+            group = policy.group_for_action(action.name) or ""
+            lines.append(f"| {action.name} | {group} | {devices} | {len(action.events)} |")
+        else:
+            lines.append(f"| {action.name} | {devices} | {len(action.events)} |")
     if not actions:
-        lines.append("| none | none | 0 |")
+        lines.append("| none | none | none | 0 |" if policy else "| none | none | 0 |")
     lines.append("")
     return "\n".join(lines)
 
@@ -115,6 +129,14 @@ def _constant_name(action: str) -> str:
     if value[0].isdigit():
         return f"ACTION_{value}"
     return value
+
+
+def _action_to_dict(action: InputAction, policy: InputPolicy | None) -> dict[str, object]:
+    payload = action.to_dict()
+    if policy:
+        payload["group"] = policy.group_for_action(action.name)
+        payload["required_devices"] = sorted(policy.required_devices_for_action(action.name))
+    return payload
 
 
 def _sarif_level(severity: str) -> str:
