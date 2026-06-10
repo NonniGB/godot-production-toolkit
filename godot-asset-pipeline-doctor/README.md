@@ -77,9 +77,19 @@ Create a sprite contact sheet with anchor markers:
 godot-asset-doctor manifest contact-sheet sprite-manifest.json --project C:\Projects\ArcadePrototype --output reports\sprite-contact-sheet.png
 ```
 
+Create per-sprite overlay PNGs for closer anchor review:
+
+```powershell
+godot-asset-doctor manifest overlays sprite-manifest.json --project C:\Projects\ArcadePrototype --output-dir reports\sprite-overlays
+```
+
 Example contact sheet:
 
 ![Sprite contact sheet with anchor markers](docs/images/sprite-contact-sheet.png)
+
+Example per-sprite overlay:
+
+![Sprite overlay with anchor markers](docs/images/sprite-overlays/sample_sprite.png)
 
 Run through Python after installing the package:
 
@@ -156,7 +166,7 @@ CLI flags override config values. Use these thresholds when your project needs s
 
 ```text
 Godot Asset Pipeline Doctor
-Report schema: 1.1 | Tool: 0.1.8
+Report schema: 1.1 | Tool: 0.1.9
 Root: C:\Projects\ArcadePrototype
 Profile: pixel-2d
 Assets: 18 | Issues: 3 | Errors: 0 | Warnings: 3

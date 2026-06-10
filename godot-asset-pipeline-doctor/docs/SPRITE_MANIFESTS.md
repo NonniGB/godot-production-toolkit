@@ -17,6 +17,12 @@ Render a contact sheet for visual review:
 godot-asset-doctor manifest contact-sheet sprite-manifest.json --project . --output reports\sprite-contact-sheet.png
 ```
 
+Render one overlay PNG per sprite:
+
+```powershell
+godot-asset-doctor manifest overlays sprite-manifest.json --project . --output-dir reports\sprite-overlays
+```
+
 ## Manifest Shape
 
 ```json
@@ -71,3 +77,23 @@ Example output:
 
 The command only writes the requested output file. It does not modify source
 images or manifest data.
+
+## Overlay Images
+
+`manifest overlays` writes one PNG per renderable sprite. Each output image uses
+nearest-neighbor scaling, a checkerboard background for transparency, and anchor
+markers drawn at the manifest coordinates.
+
+Use this when a contact sheet is too dense or when a reviewer needs to inspect a
+single sprite:
+
+```powershell
+godot-asset-doctor manifest overlays sprite-manifest.json --project . --output-dir reports\sprite-overlays --scale 6 --show-anchor-labels
+```
+
+Output filenames are derived from sprite ids with unsafe filename characters
+replaced by underscores.
+
+Example output:
+
+![Sprite overlay with anchor markers](images/sprite-overlays/sample_sprite.png)

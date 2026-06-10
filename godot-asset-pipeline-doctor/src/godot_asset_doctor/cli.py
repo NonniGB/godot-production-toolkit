@@ -12,6 +12,7 @@ from godot_asset_doctor.manifest import (
     manifest_exit_code,
     render_contact_sheet,
     render_manifest_report,
+    render_overlay_images,
 )
 from godot_asset_doctor.models import RuleSettings
 from godot_asset_doctor.reporting import report_to_json, report_to_sarif, report_to_text
@@ -24,6 +25,8 @@ def main(argv: list[str] | None = None) -> int:
         return _manifest_check(argv[2:])
     if argv[:2] == ["manifest", "contact-sheet"]:
         return _manifest_contact_sheet(argv[2:])
+    if argv[:2] == ["manifest", "overlays"]:
+        return _manifest_overlays(argv[2:])
     parser = _build_parser()
     args = parser.parse_args(argv)
     project_root = Path(args.path)
@@ -82,7 +85,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-asset-doctor",
         description="Scan Godot image/audio assets and .import metadata for release risks.",
     )
-    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.8")
+    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.9")
     parser.add_argument("path", nargs="?", default=".", help="Godot project directory to scan.")
     parser.add_argument(
         "--profile",
@@ -206,6 +209,44 @@ def _manifest_contact_sheet(argv: list[str]) -> int:
         print("Godot Asset Sprite Contact Sheet")
         print(f"Manifest: {summary['manifest']}")
         print(f"Output: {summary['output']}")
+        print(
+            f"Sprites rendered: {summary['sprites_rendered']} / {summary['sprites']} | "
+            f"Anchors: {summary['anchors_rendered']} | Warnings: {summary['warnings']}"
+        )
+    return 0
+
+
+def _manifest_overlays(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="godot-asset-doctor manifest overlays",
+        description="Render one PNG overlay per sprite, including anchor markers.",
+    )
+    parser.add_argument("manifest", help="Sprite manifest JSON file.")
+    parser.add_argument("--project", default=".", help="Project root used to resolve manifest paths.")
+    parser.add_argument("--output-dir", required=True, help="Directory for generated PNG overlays.")
+    parser.add_argument("--scale", type=int, default=4, help="Nearest-neighbor scale factor for small pixel sprites.")
+    parser.add_argument("--show-anchor-labels", action="store_true", help="Draw anchor names next to marker dots.")
+    parser.add_argument("--format", choices=["text", "json"], default="text", help="Summary output format.")
+    args = parser.parse_args(argv)
+
+    try:
+        report = render_overlay_images(
+            Path(args.project),
+            Path(args.manifest),
+            Path(args.output_dir),
+            scale=args.scale,
+            show_anchor_labels=args.show_anchor_labels,
+        )
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
+
+    if args.format == "json":
+        print(_render_json(report))
+    else:
+        summary = report["summary"]
+        print("Godot Asset Sprite Overlays")
+        print(f"Manifest: {summary['manifest']}")
+        print(f"Output directory: {summary['output_dir']}")
         print(
             f"Sprites rendered: {summary['sprites_rendered']} / {summary['sprites']} | "
             f"Anchors: {summary['anchors_rendered']} | Warnings: {summary['warnings']}"

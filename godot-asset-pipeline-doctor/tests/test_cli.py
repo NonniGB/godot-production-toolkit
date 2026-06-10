@@ -23,7 +23,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-asset-doctor 0.1.8", stdout.getvalue())
+        self.assertIn("godot-asset-doctor 0.1.9", stdout.getvalue())
 
     def test_cli_outputs_json_report_and_returns_failure_when_warning_threshold_is_used(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -63,7 +63,7 @@ class CliTests(unittest.TestCase):
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 1)
             self.assertEqual(report["metadata"]["schema_version"], "1.2")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.8")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.9")
             self.assertEqual(report["summary"]["asset_count"], 1)
             self.assertGreaterEqual(report["summary"]["warning_count"], 1)
             self.assertIn("transparent_edge_rgb", {issue["code"] for issue in report["issues"]})
@@ -337,6 +337,58 @@ class CliTests(unittest.TestCase):
             with Image.open(output) as sheet:
                 self.assertGreater(sheet.width, 0)
                 self.assertGreater(sheet.height, 0)
+
+    def test_manifest_overlays_write_one_png_per_sprite(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project = Path(tmp_dir)
+            image_path = project / "assets" / "ship.png"
+            image_path.parent.mkdir()
+            Image.new("RGBA", (8, 8), (0, 0, 0, 0)).save(image_path)
+            manifest = project / "sprite-manifest.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "sprites": [
+                            {
+                                "id": "ship/main",
+                                "source_path": "assets/ship.png",
+                                "width": 8,
+                                "height": 8,
+                                "anchors": {"muzzle": {"x": 6, "y": 4}},
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            output_dir = project / "reports" / "overlays"
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "manifest",
+                        "overlays",
+                        str(manifest),
+                        "--project",
+                        str(project),
+                        "--output-dir",
+                        str(output_dir),
+                        "--scale",
+                        "3",
+                        "--format",
+                        "json",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            overlay = output_dir / "ship_main.png"
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(overlay.exists())
+            self.assertEqual(report["summary"]["sprites_rendered"], 1)
+            self.assertEqual(report["summary"]["anchors_rendered"], 1)
+            with Image.open(overlay) as image:
+                self.assertEqual(image.size, (24, 24))
 
 
 if __name__ == "__main__":

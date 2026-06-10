@@ -228,6 +228,83 @@ def render_contact_sheet(
     }
 
 
+def render_overlay_images(
+    project_root: Path,
+    manifest_path: Path,
+    output_dir: Path,
+    *,
+    scale: int = 4,
+    show_anchor_labels: bool = False,
+) -> dict[str, Any]:
+    project_root = project_root.resolve()
+    manifest_path = _resolve(project_root, manifest_path)
+    data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError("sprite manifest must be a JSON object.")
+    sprites = data.get("sprites")
+    if not isinstance(sprites, list):
+        raise ValueError("sprite manifest must contain a sprites list.")
+    if scale <= 0:
+        raise ValueError("scale must be greater than zero.")
+
+    output_dir = output_dir.resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    outputs: list[dict[str, str | int]] = []
+    issues: list[dict[str, str]] = []
+    anchors_rendered = 0
+
+    for index, sprite in enumerate(sprites):
+        if not isinstance(sprite, dict):
+            issues.append(_issue(manifest_path, "warning", "sprite_entry_invalid", f"sprites[{index}] must be an object."))
+            continue
+        sprite_id = _string(sprite.get("id")) or f"sprites[{index}]"
+        source_path = _string(sprite.get("source_path") or sprite.get("path"))
+        if not source_path:
+            issues.append(_issue(manifest_path, "warning", "sprite_missing_source", f"{sprite_id} is missing source_path."))
+            continue
+        image_path = _resolve(project_root, Path(source_path))
+        if not image_path.exists() or image_path.suffix.lower() != ".png":
+            issues.append(_issue(image_path, "warning", "sprite_source_unavailable", f"{sprite_id} source PNG is unavailable."))
+            continue
+
+        image = Image.open(image_path).convert("RGBA")
+        overlay = _scaled_checkerboard(image.width * scale, image.height * scale)
+        preview = image.resize((image.width * scale, image.height * scale), Image.Resampling.NEAREST)
+        overlay.alpha_composite(preview, (0, 0))
+        draw = ImageDraw.Draw(overlay)
+        anchor_count = 0
+        for anchor_name, anchor_x, anchor_y in _anchors(sprite.get("anchors")):
+            _draw_anchor_marker(
+                draw,
+                int(round(anchor_x * scale)),
+                int(round(anchor_y * scale)),
+                anchor_name if show_anchor_labels else "",
+            )
+            anchor_count += 1
+        anchors_rendered += anchor_count
+        output_path = output_dir / f"{_safe_filename(sprite_id)}.png"
+        overlay.save(output_path)
+        outputs.append({"id": sprite_id, "path": str(output_path), "anchors": anchor_count})
+
+    if not outputs:
+        raise ValueError("sprite manifest did not contain any renderable PNG sprites.")
+
+    return {
+        "tool": "godot-asset-pipeline-doctor",
+        "kind": "sprite_manifest_overlays",
+        "summary": {
+            "manifest": str(manifest_path),
+            "output_dir": str(output_dir),
+            "sprites": len(sprites),
+            "sprites_rendered": len(outputs),
+            "anchors_rendered": anchors_rendered,
+            "warnings": len(issues),
+        },
+        "outputs": outputs,
+        "issues": issues,
+    }
+
+
 def manifest_exit_code(report: dict[str, Any], fail_on: str) -> int:
     summary = report["summary"]
     if fail_on == "none":
@@ -249,6 +326,11 @@ def _checkerboard(width: int, height: int, size: int = 8) -> Image.Image:
     return image
 
 
+def _scaled_checkerboard(width: int, height: int) -> Image.Image:
+    size = max(4, min(width, height) // 8)
+    return _checkerboard(width, height, size=size)
+
+
 def _draw_anchor_marker(draw: ImageDraw.ImageDraw, x: int, y: int, name: str) -> None:
     color = (255, 77, 109, 255)
     outline = (20, 22, 28, 255)
@@ -257,6 +339,11 @@ def _draw_anchor_marker(draw: ImageDraw.ImageDraw, x: int, y: int, name: str) ->
     draw.line([x, y - 7, x, y + 7], fill=outline)
     if name:
         draw.text((x + 6, y - 9), name[:18], fill=color)
+
+
+def _safe_filename(value: str) -> str:
+    cleaned = "".join(char if char.isalnum() or char in {"-", "_"} else "_" for char in value.strip())
+    return cleaned or "sprite"
 
 
 def _anchors(raw: object) -> list[tuple[str, float, float]]:

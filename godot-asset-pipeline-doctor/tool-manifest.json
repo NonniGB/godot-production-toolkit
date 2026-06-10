@@ -48,6 +48,10 @@
     {
       "purpose": "Render sprite manifest contact sheet",
       "command": "godot-asset-doctor manifest contact-sheet sprite-manifest.json --project <project> --output reports/sprite-contact-sheet.png"
+    },
+    {
+      "purpose": "Render per-sprite anchor overlays",
+      "command": "godot-asset-doctor manifest overlays sprite-manifest.json --project <project> --output-dir reports/sprite-overlays"
     }
   ]
 }

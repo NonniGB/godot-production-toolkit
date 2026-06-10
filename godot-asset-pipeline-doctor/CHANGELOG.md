@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## 0.1.9 - 2026-06-10
+
+- Added `manifest overlays` to render one anchor-overlay PNG per sprite.
+- Added overlay image documentation and CLI tests.
+
 ## 0.1.8 - 2026-06-10
 
 - Added `manifest contact-sheet` to render sprite manifest thumbnails with anchor markers.
