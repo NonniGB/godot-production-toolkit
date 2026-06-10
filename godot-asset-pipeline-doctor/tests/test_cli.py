@@ -23,7 +23,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-asset-doctor 0.1.7", stdout.getvalue())
+        self.assertIn("godot-asset-doctor 0.1.8", stdout.getvalue())
 
     def test_cli_outputs_json_report_and_returns_failure_when_warning_threshold_is_used(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -63,7 +63,7 @@ class CliTests(unittest.TestCase):
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 1)
             self.assertEqual(report["metadata"]["schema_version"], "1.2")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.7")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.8")
             self.assertEqual(report["summary"]["asset_count"], 1)
             self.assertGreaterEqual(report["summary"]["warning_count"], 1)
             self.assertIn("transparent_edge_rgb", {issue["code"] for issue in report["issues"]})
@@ -285,6 +285,58 @@ class CliTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertIn("No sprite manifest issues found.", stdout.getvalue())
+
+    def test_manifest_contact_sheet_writes_png_with_anchor_markers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            project = Path(tmp_dir)
+            image_path = project / "assets" / "ship.png"
+            image_path.parent.mkdir()
+            Image.new("RGBA", (8, 8), (0, 0, 0, 0)).save(image_path)
+            manifest = project / "sprite-manifest.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "sprites": [
+                            {
+                                "id": "ship",
+                                "source_path": "assets/ship.png",
+                                "width": 8,
+                                "height": 8,
+                                "anchors": {"muzzle": {"x": 6, "y": 4}},
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            output = project / "reports" / "sprites.png"
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "manifest",
+                        "contact-sheet",
+                        str(manifest),
+                        "--project",
+                        str(project),
+                        "--output",
+                        str(output),
+                        "--thumb-size",
+                        "32",
+                        "--format",
+                        "json",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(output.exists())
+            self.assertEqual(report["summary"]["sprites_rendered"], 1)
+            self.assertEqual(report["summary"]["anchors_rendered"], 1)
+            with Image.open(output) as sheet:
+                self.assertGreater(sheet.width, 0)
+                self.assertGreater(sheet.height, 0)
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@
     "plain_language_rule_help": true,
     "asset_types": ["png", "wav", "ogg", "mp3"],
     "profiles": ["default", "pixel-2d", "android-mobile", "audio-mobile"],
-    "visual_interface": "none"
+    "visual_interface": "sprite manifest contact sheets"
   },
   "run_behavior": {
     "noninteractive": true,
@@ -44,6 +44,10 @@
     {
       "purpose": "Validate sprite manifest dimensions and anchors",
       "command": "godot-asset-doctor manifest check sprite-manifest.json --project <project> --format json --output reports/sprite-manifest.json"
+    },
+    {
+      "purpose": "Render sprite manifest contact sheet",
+      "command": "godot-asset-doctor manifest contact-sheet sprite-manifest.json --project <project> --output reports/sprite-contact-sheet.png"
     }
   ]
 }

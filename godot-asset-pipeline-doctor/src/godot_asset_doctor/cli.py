@@ -1,12 +1,18 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import sys
 import tomllib
 
 from godot_asset_doctor.config import load_config
-from godot_asset_doctor.manifest import check_sprite_manifest, manifest_exit_code, render_manifest_report
+from godot_asset_doctor.manifest import (
+    check_sprite_manifest,
+    manifest_exit_code,
+    render_contact_sheet,
+    render_manifest_report,
+)
 from godot_asset_doctor.models import RuleSettings
 from godot_asset_doctor.reporting import report_to_json, report_to_sarif, report_to_text
 from godot_asset_doctor.scanner import scan_project
@@ -16,6 +22,8 @@ def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     if argv[:2] == ["manifest", "check"]:
         return _manifest_check(argv[2:])
+    if argv[:2] == ["manifest", "contact-sheet"]:
+        return _manifest_contact_sheet(argv[2:])
     parser = _build_parser()
     args = parser.parse_args(argv)
     project_root = Path(args.path)
@@ -74,7 +82,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-asset-doctor",
         description="Scan Godot image/audio assets and .import metadata for release risks.",
     )
-    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.7")
+    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.8")
     parser.add_argument("path", nargs="?", default=".", help="Godot project directory to scan.")
     parser.add_argument(
         "--profile",
@@ -163,6 +171,50 @@ def _manifest_check(argv: list[str]) -> int:
     else:
         print(rendered)
     return manifest_exit_code(report, args.fail_on)
+
+
+def _manifest_contact_sheet(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="godot-asset-doctor manifest contact-sheet",
+        description="Render a PNG contact sheet from a sprite manifest, including anchor markers.",
+    )
+    parser.add_argument("manifest", help="Sprite manifest JSON file.")
+    parser.add_argument("--project", default=".", help="Project root used to resolve manifest paths.")
+    parser.add_argument("--output", required=True, help="PNG file to write.")
+    parser.add_argument("--thumb-size", type=int, default=96, help="Maximum thumbnail size in pixels.")
+    parser.add_argument("--columns", type=int, default=4, help="Number of sprite columns in the sheet.")
+    parser.add_argument("--show-anchor-labels", action="store_true", help="Draw anchor names next to marker dots.")
+    parser.add_argument("--format", choices=["text", "json"], default="text", help="Summary output format.")
+    args = parser.parse_args(argv)
+
+    try:
+        report = render_contact_sheet(
+            Path(args.project),
+            Path(args.manifest),
+            Path(args.output),
+            thumb_size=args.thumb_size,
+            columns=args.columns,
+            show_anchor_labels=args.show_anchor_labels,
+        )
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
+
+    if args.format == "json":
+        print(_render_json(report))
+    else:
+        summary = report["summary"]
+        print("Godot Asset Sprite Contact Sheet")
+        print(f"Manifest: {summary['manifest']}")
+        print(f"Output: {summary['output']}")
+        print(
+            f"Sprites rendered: {summary['sprites_rendered']} / {summary['sprites']} | "
+            f"Anchors: {summary['anchors_rendered']} | Warnings: {summary['warnings']}"
+        )
+    return 0
+
+
+def _render_json(report: dict[str, object]) -> str:
+    return json.dumps(report, indent=2, sort_keys=True)
 
 
 def _configured_value(cli_value: str | None, config: dict[str, object], key: str, default: str | None) -> str | None:

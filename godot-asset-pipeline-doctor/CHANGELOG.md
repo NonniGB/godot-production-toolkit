@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## 0.1.8 - 2026-06-10
+
+- Added `manifest contact-sheet` to render sprite manifest thumbnails with anchor markers.
+- Added contact sheet documentation and tests for generated PNG output.
+
 ## 0.1.7 - 2026-06-09
 
 - Added an `audio-mobile` profile for WAV, OGG, and MP3 budget checks.

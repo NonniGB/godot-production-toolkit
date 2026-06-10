@@ -71,6 +71,16 @@ Validate a sprite manifest:
 godot-asset-doctor manifest check sprite-manifest.json --project C:\Projects\ArcadePrototype --format json --output reports\sprite-manifest.json
 ```
 
+Create a sprite contact sheet with anchor markers:
+
+```powershell
+godot-asset-doctor manifest contact-sheet sprite-manifest.json --project C:\Projects\ArcadePrototype --output reports\sprite-contact-sheet.png
+```
+
+Example contact sheet:
+
+![Sprite contact sheet with anchor markers](docs/images/sprite-contact-sheet.png)
+
 Run through Python after installing the package:
 
 ```powershell
@@ -92,6 +102,7 @@ Use the findings to catch:
 - missing `.import` files that mean assets have not been opened by Godot yet;
 - unexpectedly large textures before they land in the main branch.
 - sprite anchors that fall outside the source PNG bounds.
+- sprite contact sheets that make anchor placement easier to review.
 
 For Android-focused review, switch profile:
 
@@ -145,7 +156,7 @@ CLI flags override config values. Use these thresholds when your project needs s
 
 ```text
 Godot Asset Pipeline Doctor
-Report schema: 1.1 | Tool: 0.1.7
+Report schema: 1.1 | Tool: 0.1.8
 Root: C:\Projects\ArcadePrototype
 Profile: pixel-2d
 Assets: 18 | Issues: 3 | Errors: 0 | Warnings: 3
