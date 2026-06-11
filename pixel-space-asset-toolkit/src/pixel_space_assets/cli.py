@@ -8,6 +8,7 @@ from pathlib import Path
 from PIL import Image
 
 from .asteroids import generate_asteroid_tiles
+from .compare import compare_images
 from .preview import build_contact_sheet
 from .starfield import generate_starfield
 from .strip_background import strip_background
@@ -44,6 +45,8 @@ def main(argv: list[str] | None = None) -> int:
         return _strip_background(args)
     if args.command == "preview":
         return _preview(args)
+    if args.command == "compare":
+        return _compare(args)
     parser.print_help()
     return 2
 
@@ -54,7 +57,7 @@ def entrypoint() -> None:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pixel-space-assets", description="Deterministic pixel-space asset tools.")
-    parser.add_argument("--version", action="version", version="pixel-space-assets 0.1.1")
+    parser.add_argument("--version", action="version", version="pixel-space-assets 0.1.2")
     subparsers = parser.add_subparsers(dest="command")
 
     starfield = subparsers.add_parser("starfield")
@@ -86,6 +89,14 @@ def _build_parser() -> argparse.ArgumentParser:
     preview.add_argument("--columns", type=int, default=4)
     preview.add_argument("--cell-size", type=int, default=64)
     preview.add_argument("--format", choices=["text", "json"], default="text")
+
+    compare = subparsers.add_parser("compare")
+    compare.add_argument("baseline")
+    compare.add_argument("current")
+    compare.add_argument("--diff-output", required=True)
+    compare.add_argument("--tolerance", type=int, default=0)
+    compare.add_argument("--fail-on-diff", action="store_true")
+    compare.add_argument("--format", choices=["text", "json"], default="text")
     return parser
 
 
@@ -94,6 +105,8 @@ def _validate_args(parser: argparse.ArgumentParser, args: argparse.Namespace) ->
         value = getattr(args, field, None)
         if value is not None and value <= 0:
             parser.error(f"--{field.replace('_', '-')} must be greater than zero")
+    if getattr(args, "tolerance", 0) < 0:
+        parser.error("--tolerance must be zero or greater")
 
 
 def _starfield(args: argparse.Namespace) -> int:
@@ -173,6 +186,34 @@ def _preview(args: argparse.Namespace) -> int:
         },
     )
     return 0
+
+
+def _compare(args: argparse.Namespace) -> int:
+    result = compare_images(
+        Path(args.baseline),
+        Path(args.current),
+        Path(args.diff_output),
+        tolerance=args.tolerance,
+    )
+    payload = {
+        "status": "ok",
+        "command": "compare",
+        "outputs": {"diff": str(Path(args.diff_output))},
+        "parameters": {
+            "baseline": args.baseline,
+            "current": args.current,
+            "tolerance": args.tolerance,
+        },
+        "comparison": result.as_dict(),
+    }
+    _emit_status(args, payload)
+    if getattr(args, "format", "text") == "text":
+        print(
+            "Pixel asset comparison: "
+            f"{result.different_pixels}/{result.total_pixels} pixels changed "
+            f"({result.percent_different:.2f}%). Diff: {args.diff_output}"
+        )
+    return 1 if args.fail_on_diff and result.different_pixels > 0 else 0
 
 
 def _emit_status(args: argparse.Namespace, payload: dict[str, object]) -> None:

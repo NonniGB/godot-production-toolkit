@@ -24,6 +24,7 @@ checks.
 - Check screenshot regressions: use `godot-visual-smoke-test-kit`.
 - Check Godot localization files: use `godot-localization-qa-guard`.
 - Check asset imports and pixel-art textures: use `godot-asset-pipeline-doctor`.
+- Compare generated pixel-art PNGs: use `pixel-space-asset-toolkit`.
 - Check data-driven content references: use `godot-content-graph-doctor`.
 - Summarize runtime scenario evidence: use `godot-scenario-report-kit`.
 

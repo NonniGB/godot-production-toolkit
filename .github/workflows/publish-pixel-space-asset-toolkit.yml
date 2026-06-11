@@ -2,6 +2,9 @@ name: Publish pixel-space-asset-toolkit
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "pixel-space-asset-toolkit-v*"
 
 permissions:
   contents: read

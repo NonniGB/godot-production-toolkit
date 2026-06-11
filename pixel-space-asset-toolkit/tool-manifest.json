@@ -6,7 +6,7 @@
   "interfaces": {
     "cli": true,
     "machine_output": ["json status", "manifest.json"],
-    "human_output": ["PNG assets", "preview sheets", "static gallery"],
+    "human_output": ["PNG assets", "preview sheets", "diff images", "static gallery"],
     "visual_interface": "examples/gallery/index.html and generated PNG previews"
   },
   "run_behavior": {
@@ -15,7 +15,8 @@
     "network_required": false,
     "writes_only_when_requested": true,
     "exit_codes": {
-      "0": "asset generation succeeded",
+      "0": "asset generation or comparison succeeded",
+      "1": "comparison found changed pixels when --fail-on-diff was used",
       "2": "CLI or argument error"
     }
   },
@@ -27,6 +28,10 @@
     {
       "purpose": "Script-friendly asteroid tile generation",
       "command": "pixel-space-assets asteroid-hex --material ferric --count 32 --size 64 --seed 7 --output generated/ferric --format json"
+    },
+    {
+      "purpose": "Compare two generated PNGs and write a diff image",
+      "command": "pixel-space-assets compare baseline.png current.png --diff-output reports/pixel-diff.png --format json"
     }
   ]
 }

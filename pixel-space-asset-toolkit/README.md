@@ -23,6 +23,7 @@ pixel-space-assets starfield --width 1080 --height 1920 --seed 42 --stars 900 --
 pixel-space-assets asteroid-hex --material ferric --count 32 --size 64 --seed 7 --output generated\ferric
 pixel-space-assets strip-background input.png --output cleaned.png --tolerance 4
 pixel-space-assets preview generated\ferric --columns 8 --cell-size 64 --output generated\ferric_preview.png
+pixel-space-assets compare baseline.png current.png --diff-output generated\diff.png --format json
 pixel-space-assets starfield --width 1080 --height 1920 --seed 42 --stars 900 --output generated\starfield.png --format json
 ```
 
@@ -32,6 +33,7 @@ pixel-space-assets starfield --width 1080 --height 1920 --seed 42 --stars 900 --
 - `asteroid-hex`: deterministic transparent hex asteroid tiles.
 - `strip-background`: converts a flat corner-color background to alpha.
 - `preview`: builds contact sheets for review.
+- `compare`: compares two PNGs and writes a red-highlight diff image.
 
 ## Sample Gallery
 
@@ -49,6 +51,7 @@ Open `examples/gallery/index.html` for a simple static gallery view.
 - [Asteroids](docs/ASTEROIDS.md)
 - [Background stripping](docs/BACKGROUND_STRIPPING.md)
 - [Preview sheets](docs/PREVIEWS.md)
+- [PNG comparison](docs/PREVIEWS.md#png-comparison)
 - [Godot import guide](docs/GODOT_IMPORT.md)
 - [CI usage](docs/CI.md)
 

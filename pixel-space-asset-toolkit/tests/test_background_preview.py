@@ -4,6 +4,7 @@ from pathlib import Path
 
 from PIL import Image
 
+from pixel_space_assets.compare import compare_images
 from pixel_space_assets.preview import build_contact_sheet
 from pixel_space_assets.strip_background import strip_background
 
@@ -27,6 +28,24 @@ class BackgroundPreviewTests(unittest.TestCase):
             sheet = build_contact_sheet(sorted(root.glob("*.png")), columns=2, cell_size=8)
 
             self.assertEqual(sheet.size, (16, 16))
+
+    def test_compare_images_marks_changed_pixels(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline.png"
+            current = root / "current.png"
+            diff = root / "diff.png"
+            Image.new("RGBA", (3, 3), (1, 1, 1, 255)).save(baseline)
+            changed = Image.new("RGBA", (3, 3), (1, 1, 1, 255))
+            changed.putpixel((2, 2), (100, 100, 100, 255))
+            changed.save(current)
+
+            result = compare_images(baseline, current, diff)
+
+            self.assertEqual(result.different_pixels, 1)
+            self.assertFalse(result.size_mismatch)
+            with Image.open(diff) as diff_image:
+                self.assertEqual(diff_image.getpixel((2, 2)), (255, 74, 92, 255))
 
 
 if __name__ == "__main__":

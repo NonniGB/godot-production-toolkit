@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("pixel-space-assets 0.1.1", stdout.getvalue())
+        self.assertIn("pixel-space-assets 0.1.2", stdout.getvalue())
 
     def test_starfield_cli_writes_image_and_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -84,6 +84,65 @@ class CliTests(unittest.TestCase):
                 main(["starfield", "--width", "0", "--height", "16", "--seed", "5", "--output", str(output)])
 
             self.assertEqual(raised.exception.code, 2)
+
+    def test_compare_cli_writes_diff_and_json_summary(self) -> None:
+        from PIL import Image
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline.png"
+            current = root / "current.png"
+            diff = root / "diff.png"
+            Image.new("RGBA", (4, 4), (10, 10, 10, 255)).save(baseline)
+            changed = Image.new("RGBA", (4, 4), (10, 10, 10, 255))
+            changed.putpixel((1, 1), (255, 0, 0, 255))
+            changed.save(current)
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "compare",
+                        str(baseline),
+                        str(current),
+                        "--diff-output",
+                        str(diff),
+                        "--format",
+                        "json",
+                    ]
+                )
+
+            payload = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(diff.exists())
+            self.assertEqual(payload["command"], "compare")
+            self.assertEqual(payload["comparison"]["different_pixels"], 1)
+
+    def test_compare_cli_can_fail_when_pixels_change(self) -> None:
+        from PIL import Image
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline.png"
+            current = root / "current.png"
+            diff = root / "diff.png"
+            Image.new("RGBA", (2, 2), (0, 0, 0, 255)).save(baseline)
+            Image.new("RGBA", (2, 2), (255, 0, 0, 255)).save(current)
+
+            with redirect_stdout(StringIO()):
+                exit_code = main(
+                    [
+                        "compare",
+                        str(baseline),
+                        str(current),
+                        "--diff-output",
+                        str(diff),
+                        "--fail-on-diff",
+                    ]
+                )
+
+            self.assertEqual(exit_code, 1)
+            self.assertTrue(diff.exists())
 
 
 if __name__ == "__main__":
