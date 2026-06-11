@@ -1,0 +1,45 @@
+# Godot Production Toolkit
+
+Godot Production Toolkit is a set of CI-friendly command-line diagnostics for
+Godot 4 projects. It focuses on release checks, mobile readiness, visual smoke
+testing, localization QA, asset/import hygiene, save compatibility, scene signal
+audits, scenario evidence, content graph validation, and GDScript architecture
+checks.
+
+## Best Entry Points
+
+- README: `README.md`
+- Tool index: `docs/TOOL_INDEX.md`
+- Use cases: `docs/USE_CASES.md`
+- Project overview: `PROJECT_OVERVIEW.md`
+- Demo project: `examples/release-readiness-demo/README.md`
+- Package manifests: `*/tool-manifest.json`
+
+## Common Tasks
+
+- Find the right tool for a production problem: read `docs/TOOL_INDEX.md`.
+- Run several checks together: use `godot-project-doctor`.
+- Check Android exports: use `godot-export-preset-doctor` and `godot-mobile-perf-doctor`.
+- Check mobile UI safe areas and touch targets: use `godot-mobile-ui-doctor`.
+- Check screenshot regressions: use `godot-visual-smoke-test-kit`.
+- Check Godot localization files: use `godot-localization-qa-guard`.
+- Check asset imports and pixel-art textures: use `godot-asset-pipeline-doctor`.
+- Check data-driven content references: use `godot-content-graph-doctor`.
+- Summarize runtime scenario evidence: use `godot-scenario-report-kit`.
+
+## Command Examples
+
+```powershell
+godot-project-doctor inspect path\to\godot-project
+godot-project-doctor recommend path\to\godot-project
+godot-project-doctor summarize reports\godot-project-doctor --format html
+godot-mobile-ui-doctor readiness mobile-ui.json --format markdown
+godot-visual-smoke compare baseline current --format json
+```
+
+## Notes
+
+- Tools are standalone and noninteractive by default.
+- JSON output is intended for scripts and CI.
+- Markdown, HTML, Mermaid, SARIF, PNG, and text outputs are intended for review.
+- Public examples are synthetic and not tied to a private game project.

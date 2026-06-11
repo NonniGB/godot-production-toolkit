@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "gdscript-api-comment-coverage"
 version = "0.1.3"
-description = "Generate GDScript API indexes and enforce public API comment coverage."
+description = "Generate Godot GDScript API indexes and check public function, signal, and class comment coverage."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

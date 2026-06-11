@@ -25,12 +25,18 @@ Use the toolkit when you want repeatable checks around practical Godot release w
 - **Before shipping visual changes:** compare screenshots against approved baselines.
 - **Before reviewing a PR:** produce JSON, Markdown, HTML, and SARIF reports that make failures easier to reproduce.
 
+In practice, that means checks for Godot Android exports, mobile UI safe areas,
+touch targets, screenshot regressions, localization QA, asset imports, GDScript
+architecture, and CI reports for Godot projects.
+
 ## Project Map
 
 Start with these files when evaluating or extending the suite:
 
 - `PROJECT_OVERVIEW.md`
+- `docs/TOOL_INDEX.md`
 - `docs/USE_CASES.md`
+- `llms.txt`
 - `examples/release-readiness-demo/README.md`
 - `docs/PROJECT_HEALTH.md`
 - `verify_tool_manifests.py`
@@ -181,6 +187,9 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | Save data changes need fixture coverage | `godot-save-schema-guard` |
 | Scene refactors break signal wiring | `godot-scene-signal-auditor` |
 | UI or rendering changes need screenshot evidence | `godot-visual-smoke-test-kit` |
+
+For a more complete problem-to-tool map with commands and package names, see
+[`docs/TOOL_INDEX.md`](docs/TOOL_INDEX.md).
 
 ## GitHub Action
 

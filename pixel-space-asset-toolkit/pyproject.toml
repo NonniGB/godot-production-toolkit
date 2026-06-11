@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pixel-space-asset-toolkit"
 version = "0.1.1"
-description = "Deterministic pixel-art sci-fi asset utilities for starfields, asteroid tiles, cleanup, and previews."
+description = "Deterministic pixel-art space asset utilities for starfields, asteroid tiles, sprite cleanup, galleries, and previews."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

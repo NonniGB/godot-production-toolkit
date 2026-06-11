@@ -32,7 +32,9 @@ python -m pip install -e .\godot-project-doctor
 godot-project-doctor plan --project path\to\godot-project --format json
 ```
 
-For workflow examples, see `docs/USE_CASES.md`. For a runnable synthetic fixture with sample reports and screenshots, see `examples/release-readiness-demo/README.md`.
+For a problem-to-tool map, see `docs/TOOL_INDEX.md`. For workflow examples, see
+`docs/USE_CASES.md`. For a runnable synthetic fixture with sample reports and
+screenshots, see `examples/release-readiness-demo/README.md`.
 
 ## Maintenance Model
 

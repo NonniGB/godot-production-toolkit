@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "godot-project-doctor"
 version = "0.1.4"
-description = "Umbrella CLI that plans, runs, and summarizes CI-friendly Godot production checks."
+description = "Umbrella CLI that recommends, runs, summarizes, compares, and collects CI-friendly Godot production checks."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

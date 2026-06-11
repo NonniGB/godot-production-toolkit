@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "godot-gdscript-architecture-guard"
 version = "0.1.0"
-description = "Check GDScript module boundaries, autoload access, and dependency drift."
+description = "Check Godot GDScript module boundaries, autoload access, dependency direction, and architecture drift."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -35,4 +35,3 @@ where = ["src"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-
