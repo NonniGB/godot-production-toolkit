@@ -21,6 +21,12 @@ For visual PR artifacts, render PNG overlays from the same metadata:
 godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
 ```
 
+To bring related mobile checks into one review artifact:
+
+```powershell
+godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports\input-map.json --export-report reports\export.json --localization-report reports\localization.json --mobile-perf-report reports\mobile-perf.json --format markdown --output reports\mobile-readiness.md
+```
+
 When a project already uses `godot-visual-smoke-test-kit`, reuse its viewport
 plan instead of duplicating phone and tablet sizes:
 
@@ -28,6 +34,7 @@ plan instead of duplicating phone and tablet sizes:
 godot-visual-smoke plan visual-smoke.toml --project . --format json --output reports\visual-plan.json
 godot-mobile-ui-doctor matrix mobile-ui.json --visual-smoke-plan reports\visual-plan.json --format markdown --output reports\mobile-ui-matrix.md
 godot-mobile-ui-doctor overlays mobile-ui.json --visual-smoke-plan reports\visual-plan.json --output-dir reports\mobile-ui-overlays
+godot-mobile-ui-doctor readiness mobile-ui.json --visual-smoke-plan reports\visual-plan.json --visual-smoke-report reports\visual-plan.json --format markdown --output reports\mobile-readiness.md
 ```
 
 The command exits with:

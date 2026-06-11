@@ -112,7 +112,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.3", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.4", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -219,6 +219,88 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertIn("Godot Mobile UI Overlay Previews", stdout.getvalue())
             self.assertTrue((output_dir / "main_menu__portrait_phone.png").exists())
+
+    def test_readiness_combines_ui_matrix_with_linked_reports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            input_report = root / "input.json"
+            export_report = root / "export.json"
+            output = root / "readiness.json"
+            metadata.write_text(json.dumps(_sample_metadata()), encoding="utf-8")
+            input_report.write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-input-map-auditor",
+                        "summary": {"errors": 0, "warnings": 1},
+                        "findings": [{"severity": "warning", "message": "Touch action missing."}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            export_report.write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-export-preset-doctor",
+                        "summary": {"errors": 1, "warnings": 0},
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            exit_code = main(
+                [
+                    "readiness",
+                    str(metadata),
+                    "--input-report",
+                    str(input_report),
+                    "--export-report",
+                    str(export_report),
+                    "--format",
+                    "json",
+                    "--output",
+                    str(output),
+                ]
+            )
+
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(report["kind"], "combined_mobile_readiness")
+            self.assertEqual(report["summary"]["linked_reports"], 2)
+            self.assertEqual(report["summary"]["linked_report_errors"], 1)
+            self.assertEqual(report["summary"]["linked_report_warnings"], 1)
+            self.assertEqual({item["slot"] for item in report["linked_reports"]}, {"input", "export"})
+
+    def test_readiness_markdown_can_use_visual_smoke_plan_viewports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            plan = root / "visual-plan.json"
+            data = _sample_metadata()
+            data.pop("viewports")
+            metadata.write_text(json.dumps(data), encoding="utf-8")
+            plan.write_text(json.dumps(_visual_smoke_plan()), encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "readiness",
+                        str(metadata),
+                        "--visual-smoke-plan",
+                        str(plan),
+                        "--visual-smoke-report",
+                        str(plan),
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            rendered = stdout.getvalue()
+            self.assertEqual(exit_code, 0)
+            self.assertIn("# Godot Mobile Readiness", rendered)
+            self.assertIn("| main_menu | portrait_phone | review |", rendered)
+            self.assertIn("| Visual smoke | pass | 0 | 0 |", rendered)
 
 
 def _sample_metadata() -> dict[str, object]:

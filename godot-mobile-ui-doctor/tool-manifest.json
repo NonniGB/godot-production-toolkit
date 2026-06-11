@@ -41,6 +41,10 @@
     {
       "purpose": "Render mobile UI overlay previews",
       "command": "godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports/mobile-ui-overlays --fail-on none"
+    },
+    {
+      "purpose": "Combine mobile UI and related mobile release reports",
+      "command": "godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports/input-map.json --export-report reports/export.json --mobile-perf-report reports/mobile-perf.json --format markdown --output reports/mobile-readiness.md"
     }
   ]
 }

@@ -38,7 +38,7 @@ def audit_mobile_ui(
     }
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.3",
+        "version": "0.1.4",
         "summary": summary,
         "findings": [finding.as_dict() for finding in findings],
     }
@@ -74,7 +74,7 @@ def build_readiness_matrix(
 
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.3",
+        "version": "0.1.4",
         "kind": "mobile_readiness_matrix",
         "summary": {
             "screens": len(rows),

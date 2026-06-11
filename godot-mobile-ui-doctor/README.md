@@ -45,12 +45,19 @@ Render PNG overlays for quick visual review:
 godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
 ```
 
+Combine the UI matrix with nearby mobile release reports:
+
+```powershell
+godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports\input-map.json --export-report reports\export.json --mobile-perf-report reports\mobile-perf.json --format markdown --output reports\mobile-readiness.md
+```
+
 Reuse viewport definitions from a visual smoke capture plan:
 
 ```powershell
 godot-visual-smoke plan visual-smoke.toml --project . --format json --output reports\visual-plan.json
 godot-mobile-ui-doctor matrix mobile-ui.json --visual-smoke-plan reports\visual-plan.json --format markdown
 godot-mobile-ui-doctor overlays mobile-ui.json --visual-smoke-plan reports\visual-plan.json --output-dir reports\mobile-ui-overlays
+godot-mobile-ui-doctor readiness mobile-ui.json --visual-smoke-plan reports\visual-plan.json --visual-smoke-report reports\visual-plan.json --format markdown
 ```
 
 ## Metadata Shape
@@ -137,6 +144,21 @@ godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports\mobile-ui-ov
 ```
 
 ![Mobile UI overlay preview](docs/images/mobile-ui-overlays/main_menu__portrait_phone.png)
+
+## Combined Readiness
+
+The `readiness` command builds on the screen matrix and can include JSON reports
+from related toolkit checks:
+
+- `--input-report` from `godot-input-audit`
+- `--export-report` from `godot-export-doctor`
+- `--localization-report` from `godot-l10n-guard`
+- `--mobile-perf-report` from `godot-mobile-perf-doctor`
+- `--visual-smoke-report` from `godot-visual-smoke`
+
+This gives a compact mobile release review: portrait UI risks, touch/input
+coverage, export settings, localization expansion risk, static mobile
+performance warnings, and screenshot-plan status in one report.
 
 ## How To Export Metadata
 

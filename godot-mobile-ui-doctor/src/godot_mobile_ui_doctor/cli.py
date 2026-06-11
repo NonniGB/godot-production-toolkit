@@ -7,6 +7,7 @@ import sys
 from .audit import audit_mobile_ui, build_readiness_matrix
 from .loader import load_metadata
 from .overlays import OverlayOptions, render_overlays
+from .readiness import build_combined_readiness, render_combined_readiness
 from .reporting import render_report
 from .visual_smoke import load_visual_smoke_viewports, merge_viewports
 
@@ -17,6 +18,8 @@ def main(argv: list[str] | None = None) -> int:
         return _matrix(argv[1:])
     if argv and argv[0] == "overlays":
         return _overlays(argv[1:])
+    if argv and argv[0] == "readiness":
+        return _readiness(argv[1:])
     parser = _build_parser()
     args = parser.parse_args(argv)
 
@@ -36,7 +39,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-mobile-ui-doctor",
         description="Check exported Godot mobile UI metadata for touch and layout risks.",
     )
-    parser.add_argument("--version", action="version", version="godot-mobile-ui-doctor 0.1.3")
+    parser.add_argument("--version", action="version", version="godot-mobile-ui-doctor 0.1.4")
     parser.add_argument("metadata", help="JSON file containing exported UI viewport and node metadata.")
     parser.add_argument(
         "--visual-smoke-plan",
@@ -107,6 +110,33 @@ def _overlays(argv: list[str]) -> int:
     return _exit_code(report, args.fail_on)
 
 
+def _readiness(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="godot-mobile-ui-doctor readiness",
+        description="Combine mobile UI metadata with related toolkit reports.",
+    )
+    parser.add_argument("metadata", help="JSON file containing exported UI viewport and node metadata.")
+    parser.add_argument(
+        "--visual-smoke-plan",
+        help="Optional JSON output from `godot-visual-smoke plan --format json` used to supply viewport metadata.",
+    )
+    parser.add_argument("--input-report", help="JSON report from godot-input-audit.")
+    parser.add_argument("--export-report", help="JSON report from godot-export-doctor.")
+    parser.add_argument("--localization-report", help="JSON report from godot-l10n-guard.")
+    parser.add_argument("--mobile-perf-report", help="JSON report from godot-mobile-perf-doctor.")
+    parser.add_argument("--visual-smoke-report", help="JSON report or plan from godot-visual-smoke.")
+    parser.add_argument("--format", choices=["text", "json", "markdown"], default="markdown")
+    parser.add_argument("--output", help="Write output to this file instead of stdout.")
+    parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
+    args = parser.parse_args(argv)
+
+    viewports, screens, thresholds = _load_inputs(args, parser)
+    linked = _linked_report_paths(args)
+    report = build_combined_readiness(viewports, screens, thresholds, linked)
+    _emit(render_combined_readiness(report, args.format), args.output)
+    return _exit_code(report, args.fail_on)
+
+
 def _emit(rendered: str, output: str | None) -> None:
     if output:
         output_path = Path(output)
@@ -128,6 +158,17 @@ def _load_inputs(args: argparse.Namespace, parser: argparse.ArgumentParser):
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
     return merge_viewports(visual_smoke_viewports, viewports), screens, thresholds
+
+
+def _linked_report_paths(args: argparse.Namespace) -> dict[str, Path]:
+    pairs = {
+        "input": args.input_report,
+        "export": args.export_report,
+        "localization": args.localization_report,
+        "mobile_perf": args.mobile_perf_report,
+        "visual_smoke": args.visual_smoke_report,
+    }
+    return {key: Path(value) for key, value in pairs.items() if value}
 
 
 def _exit_code(report: dict[str, object], fail_on: str) -> int:

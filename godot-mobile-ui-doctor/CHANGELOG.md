@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 - 2026-06-11
+
+- Added `readiness` command for combining mobile UI metadata with optional input, export, localization, mobile performance, and visual-smoke JSON reports.
+- Added Markdown, JSON, and text output for cross-tool mobile readiness summaries.
+
 ## 0.1.3 - 2026-06-11
 
 - Added `overlays` command for PNG safe-area, control-bound, and touch-target previews.
