@@ -39,11 +39,18 @@ Build a screen-by-screen readiness matrix:
 godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports\mobile-ui-matrix.md
 ```
 
+Render PNG overlays for quick visual review:
+
+```powershell
+godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
+```
+
 Reuse viewport definitions from a visual smoke capture plan:
 
 ```powershell
 godot-visual-smoke plan visual-smoke.toml --project . --format json --output reports\visual-plan.json
 godot-mobile-ui-doctor matrix mobile-ui.json --visual-smoke-plan reports\visual-plan.json --format markdown
+godot-mobile-ui-doctor overlays mobile-ui.json --visual-smoke-plan reports\visual-plan.json --output-dir reports\mobile-ui-overlays
 ```
 
 ## Metadata Shape
@@ -107,6 +114,7 @@ still take precedence.
 - `text`: readable terminal report.
 - `json`: CI and scripts.
 - `markdown`: PR comments, release notes, and report artifacts.
+- `png`: optional overlay previews from the `overlays` command.
 
 ## Mobile Readiness Matrix
 
@@ -116,6 +124,19 @@ which screens are clean, which need review, and which need action.
 
 The matrix includes safe-area, touch-target, spacing, text-fit, and viewport
 bounds status for each screen.
+
+## Overlay Previews
+
+The `overlays` command writes one PNG per screen and viewport. It draws the
+safe-area rectangle, exported control bounds, interactive touch targets, and any
+rule ids attached to a control. The output is useful for PR artifacts because a
+reviewer can see the risky rectangles without opening the Godot project.
+
+```powershell
+godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports\mobile-ui-overlays --scale 0.5 --fail-on none
+```
+
+![Mobile UI overlay preview](docs/images/mobile-ui-overlays/main_menu__portrait_phone.png)
 
 ## How To Export Metadata
 

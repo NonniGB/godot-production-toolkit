@@ -6,9 +6,9 @@
   "interfaces": {
     "cli": true,
     "machine_output": ["json"],
-    "human_output": ["text", "markdown"],
+    "human_output": ["text", "markdown", "png"],
     "visual_smoke_plan_input": true,
-    "visual_interface": "Markdown mobile UI readiness report"
+    "visual_interface": "Markdown mobile UI readiness report and PNG overlay previews"
   },
   "run_behavior": {
     "noninteractive": true,
@@ -37,6 +37,10 @@
     {
       "purpose": "Create a readiness matrix using visual-smoke viewport definitions",
       "command": "godot-mobile-ui-doctor matrix mobile-ui.json --visual-smoke-plan reports/visual-plan.json --format markdown --output reports/mobile-ui-matrix.md"
+    },
+    {
+      "purpose": "Render mobile UI overlay previews",
+      "command": "godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports/mobile-ui-overlays --fail-on none"
     }
   ]
 }

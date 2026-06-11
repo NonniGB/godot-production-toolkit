@@ -112,7 +112,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.2", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.3", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -154,6 +154,71 @@ class MobileUiDoctorTests(unittest.TestCase):
                 exit_code = main([str(metadata), "--format", "json"])
 
             self.assertEqual(exit_code, 1)
+
+    def test_cli_renders_overlay_pngs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            output_dir = root / "overlays"
+            summary = root / "overlay-summary.json"
+            metadata.write_text(json.dumps(_sample_metadata()), encoding="utf-8")
+
+            exit_code = main(
+                [
+                    "overlays",
+                    str(metadata),
+                    "--output-dir",
+                    str(output_dir),
+                    "--output",
+                    str(summary),
+                    "--format",
+                    "json",
+                    "--scale",
+                    "0.25",
+                    "--fail-on",
+                    "none",
+                ]
+            )
+
+            report = json.loads(summary.read_text(encoding="utf-8"))
+            overlay = output_dir / "main_menu__portrait_phone.png"
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(overlay.exists())
+            self.assertGreater(overlay.stat().st_size, 500)
+            self.assertEqual(report["kind"], "mobile_ui_overlay_previews")
+            self.assertEqual(report["summary"]["files"], 1)
+
+    def test_overlay_command_can_use_visual_smoke_plan_viewports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            plan = root / "visual-plan.json"
+            output_dir = root / "overlays"
+            data = _sample_metadata()
+            data.pop("viewports")
+            metadata.write_text(json.dumps(data), encoding="utf-8")
+            plan.write_text(json.dumps(_visual_smoke_plan()), encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "overlays",
+                        str(metadata),
+                        "--visual-smoke-plan",
+                        str(plan),
+                        "--output-dir",
+                        str(output_dir),
+                        "--scale",
+                        "0.2",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn("Godot Mobile UI Overlay Previews", stdout.getvalue())
+            self.assertTrue((output_dir / "main_menu__portrait_phone.png").exists())
 
 
 def _sample_metadata() -> dict[str, object]:

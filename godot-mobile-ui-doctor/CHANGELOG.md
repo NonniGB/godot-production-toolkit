@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 - 2026-06-11
+
+- Added `overlays` command for PNG safe-area, control-bound, and touch-target previews.
+- Added visual-smoke viewport support to overlay generation.
+- Documented overlay workflows for local review and CI artifacts.
+
 ## 0.1.2 - 2026-06-09
 
 - Added `--visual-smoke-plan` for reusing viewport metadata from `godot-visual-smoke plan --format json`.
