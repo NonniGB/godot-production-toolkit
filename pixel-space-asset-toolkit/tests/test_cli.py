@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("pixel-space-assets 0.1.2", stdout.getvalue())
+        self.assertIn("pixel-space-assets 0.1.3", stdout.getvalue())
 
     def test_starfield_cli_writes_image_and_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -143,6 +143,48 @@ class CliTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 1)
             self.assertTrue(diff.exists())
+
+    def test_compare_dir_cli_reports_changed_added_and_removed_files(self) -> None:
+        from PIL import Image
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline"
+            current = root / "current"
+            diff_dir = root / "diffs"
+            baseline.mkdir()
+            current.mkdir()
+            Image.new("RGBA", (2, 2), (10, 10, 10, 255)).save(baseline / "same.png")
+            Image.new("RGBA", (2, 2), (10, 10, 10, 255)).save(current / "same.png")
+            Image.new("RGBA", (2, 2), (10, 10, 10, 255)).save(baseline / "changed.png")
+            Image.new("RGBA", (2, 2), (20, 20, 20, 255)).save(current / "changed.png")
+            Image.new("RGBA", (2, 2), (1, 1, 1, 255)).save(baseline / "removed.png")
+            Image.new("RGBA", (2, 2), (2, 2, 2, 255)).save(current / "added.png")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "compare-dir",
+                        str(baseline),
+                        str(current),
+                        "--diff-output-dir",
+                        str(diff_dir),
+                        "--format",
+                        "json",
+                    ]
+                )
+
+            payload = json.loads(stdout.getvalue())
+            comparison = payload["comparison"]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(comparison["changed_files"], 1)
+            self.assertEqual(comparison["added_files"], 1)
+            self.assertEqual(comparison["removed_files"], 1)
+            self.assertEqual(comparison["unchanged_files"], 1)
+            self.assertTrue((diff_dir / "changed.png").exists())
+            self.assertTrue((diff_dir / "added.png").exists())
+            self.assertTrue((diff_dir / "removed.png").exists())
 
 
 if __name__ == "__main__":

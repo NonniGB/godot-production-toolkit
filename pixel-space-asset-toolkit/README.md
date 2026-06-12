@@ -24,6 +24,7 @@ pixel-space-assets asteroid-hex --material ferric --count 32 --size 64 --seed 7 
 pixel-space-assets strip-background input.png --output cleaned.png --tolerance 4
 pixel-space-assets preview generated\ferric --columns 8 --cell-size 64 --output generated\ferric_preview.png
 pixel-space-assets compare baseline.png current.png --diff-output generated\diff.png --format json
+pixel-space-assets compare-dir baseline\ferric generated\ferric --diff-output-dir generated\ferric_diffs --format json
 pixel-space-assets starfield --width 1080 --height 1920 --seed 42 --stars 900 --output generated\starfield.png --format json
 ```
 
@@ -34,6 +35,7 @@ pixel-space-assets starfield --width 1080 --height 1920 --seed 42 --stars 900 --
 - `strip-background`: converts a flat corner-color background to alpha.
 - `preview`: builds contact sheets for review.
 - `compare`: compares two PNGs and writes a red-highlight diff image.
+- `compare-dir`: compares PNG sets and writes matching diff images by relative path.
 
 ## Sample Gallery
 

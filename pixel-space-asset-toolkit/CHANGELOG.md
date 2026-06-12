@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 - 2026-06-12
+
+- Added `compare-dir` command for comparing PNG sets while preserving relative paths.
+- Added directory diff summaries for changed, added, removed, and unchanged files.
+
 ## 0.1.2 - 2026-06-12
 
 - Added `compare` command for deterministic PNG comparison and diff-image output.

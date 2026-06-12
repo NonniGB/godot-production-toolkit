@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from pixel_space_assets.compare import compare_images
+from pixel_space_assets.compare import compare_directories, compare_images
 from pixel_space_assets.preview import build_contact_sheet
 from pixel_space_assets.strip_background import strip_background
 
@@ -46,6 +46,23 @@ class BackgroundPreviewTests(unittest.TestCase):
             self.assertFalse(result.size_mismatch)
             with Image.open(diff) as diff_image:
                 self.assertEqual(diff_image.getpixel((2, 2)), (255, 74, 92, 255))
+
+    def test_compare_directories_keeps_relative_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline"
+            current = root / "current"
+            diff_dir = root / "diffs"
+            (baseline / "tiles").mkdir(parents=True)
+            (current / "tiles").mkdir(parents=True)
+            Image.new("RGBA", (2, 2), (1, 1, 1, 255)).save(baseline / "tiles" / "a.png")
+            Image.new("RGBA", (2, 2), (2, 2, 2, 255)).save(current / "tiles" / "a.png")
+
+            result = compare_directories(baseline, current, diff_dir)
+
+            self.assertEqual(result.changed_files, 1)
+            self.assertTrue((diff_dir / "tiles" / "a.png").exists())
+            self.assertEqual(result.entries[0]["path"], "tiles/a.png")
 
 
 if __name__ == "__main__":

@@ -31,6 +31,34 @@ class ImageComparison:
         }
 
 
+@dataclass(frozen=True)
+class DirectoryComparison:
+    baseline_dir: Path
+    current_dir: Path
+    diff_output_dir: Path
+    total_files: int
+    changed_files: int
+    added_files: int
+    removed_files: int
+    unchanged_files: int
+    different_pixels: int
+    entries: list[dict[str, Any]]
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "baseline_dir": str(self.baseline_dir),
+            "current_dir": str(self.current_dir),
+            "diff_output_dir": str(self.diff_output_dir),
+            "total_files": self.total_files,
+            "changed_files": self.changed_files,
+            "added_files": self.added_files,
+            "removed_files": self.removed_files,
+            "unchanged_files": self.unchanged_files,
+            "different_pixels": self.different_pixels,
+            "entries": self.entries,
+        }
+
+
 def compare_images(
     baseline_path: Path,
     current_path: Path,
@@ -74,6 +102,69 @@ def compare_images(
     )
 
 
+def compare_directories(
+    baseline_dir: Path,
+    current_dir: Path,
+    diff_output_dir: Path,
+    *,
+    tolerance: int = 0,
+) -> DirectoryComparison:
+    baseline_files = _png_files(baseline_dir)
+    current_files = _png_files(current_dir)
+    relative_paths = sorted(set(baseline_files) | set(current_files))
+    entries: list[dict[str, Any]] = []
+    diff_output_dir.mkdir(parents=True, exist_ok=True)
+
+    for relative_path in relative_paths:
+        baseline_path = baseline_files.get(relative_path)
+        current_path = current_files.get(relative_path)
+        diff_path = diff_output_dir / relative_path
+        if baseline_path and current_path:
+            comparison = compare_images(
+                baseline_path,
+                current_path,
+                diff_path,
+                tolerance=tolerance,
+            )
+            status = "changed" if comparison.different_pixels or comparison.size_mismatch else "unchanged"
+            entries.append(
+                {
+                    "path": relative_path.as_posix(),
+                    "status": status,
+                    "diff": str(diff_path),
+                    **comparison.as_dict(),
+                }
+            )
+            continue
+        source = baseline_path or current_path
+        if source is None:
+            continue
+        different_pixels = _write_missing_diff(source, diff_path)
+        entries.append(
+            {
+                "path": relative_path.as_posix(),
+                "status": "removed" if baseline_path else "added",
+                "baseline": str(baseline_path) if baseline_path else None,
+                "current": str(current_path) if current_path else None,
+                "diff": str(diff_path),
+                "different_pixels": different_pixels,
+            }
+        )
+
+    return DirectoryComparison(
+        baseline_dir=baseline_dir,
+        current_dir=current_dir,
+        diff_output_dir=diff_output_dir,
+        total_files=len(entries),
+        changed_files=sum(1 for entry in entries if entry["status"] == "changed"),
+        added_files=sum(1 for entry in entries if entry["status"] == "added"),
+        removed_files=sum(1 for entry in entries if entry["status"] == "removed"),
+        unchanged_files=sum(1 for entry in entries if entry["status"] == "unchanged"),
+        different_pixels=sum(int(entry["different_pixels"]) for entry in entries),
+        entries=entries,
+    )
+
+
 def _canvas(image: Image.Image, width: int, height: int) -> Image.Image:
     canvas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     canvas.alpha_composite(image, (0, 0))
@@ -91,3 +182,23 @@ def _muted_pixel(pixel: tuple[int, int, int, int]) -> tuple[int, int, int, int]:
     tone = int((pixel[0] + pixel[1] + pixel[2]) / 3)
     muted = max(24, min(120, tone))
     return (muted, muted, muted, 255)
+
+
+def _png_files(root: Path) -> dict[Path, Path]:
+    return {path.relative_to(root): path for path in sorted(root.rglob("*.png")) if path.is_file()}
+
+
+def _write_missing_diff(source: Path, diff_output: Path) -> int:
+    with Image.open(source) as raw:
+        image = raw.convert("RGBA")
+    diff = Image.new("RGBA", image.size, (8, 10, 18, 255))
+    different = 0
+    for y in range(image.height):
+        for x in range(image.width):
+            pixel = image.getpixel((x, y))
+            if pixel[3] > 0:
+                different += 1
+                diff.putpixel((x, y), (255, 74, 92, 255))
+    diff_output.parent.mkdir(parents=True, exist_ok=True)
+    diff.save(diff_output)
+    return different

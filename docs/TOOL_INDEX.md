@@ -20,7 +20,7 @@ are available from PyPI.
 | Data files reference missing ids, recipes, quests, or levels | `godot-content-graph-doctor` | `godot-content-graph . --preset recipes --format markdown` |
 | Runtime scenario runs need a readable summary or baseline comparison | `godot-scenario-report-kit` | `godot-scenario-report compare baseline current --format markdown` |
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
-| Pixel-art space assets need deterministic previews or PNG diffs | `pixel-space-asset-toolkit` | `pixel-space-assets compare baseline.png current.png --diff-output reports/pixel-diff.png` |
+| Pixel-art space assets need deterministic previews or PNG diffs | `pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
 | Several checks need one report | `godot-project-doctor` | `godot-project-doctor summarize reports --format html` |
 
 ## Package Names
@@ -72,6 +72,7 @@ godot-project-doctor summarize reports/godot-project-doctor --format html --outp
 ```powershell
 pixel-space-assets preview generated\ferric --columns 8 --cell-size 64 --output generated\ferric_preview.png
 pixel-space-assets compare baseline\ferric_preview.png generated\ferric_preview.png --diff-output reports\ferric_diff.png --fail-on-diff --format json
+pixel-space-assets compare-dir baseline\ferric generated\ferric --diff-output-dir reports\ferric_diffs --fail-on-diff --format json
 ```
 
 ## File Hints
