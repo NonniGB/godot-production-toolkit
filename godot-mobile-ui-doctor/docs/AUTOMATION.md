@@ -27,6 +27,10 @@ To bring related mobile checks into one review artifact:
 godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports\input-map.json --export-report reports\export.json --localization-report reports\localization.json --mobile-perf-report reports\mobile-perf.json --format markdown --output reports\mobile-readiness.md
 ```
 
+The readiness report includes the linked reports' top findings in addition to
+the per-screen mobile UI matrix, which makes it suitable for pull-request
+artifacts and CI summaries.
+
 When a project already uses `godot-visual-smoke-test-kit`, reuse its viewport
 plan instead of duplicating phone and tablet sizes:
 

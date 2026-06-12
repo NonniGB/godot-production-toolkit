@@ -112,7 +112,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.4", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.5", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -233,7 +233,14 @@ class MobileUiDoctorTests(unittest.TestCase):
                     {
                         "tool": "godot-input-map-auditor",
                         "summary": {"errors": 0, "warnings": 1},
-                        "findings": [{"severity": "warning", "message": "Touch action missing."}],
+                        "findings": [
+                            {
+                                "severity": "warning",
+                                "rule_id": "missing_touch_binding",
+                                "action": "ui_accept",
+                                "message": "Touch action missing.",
+                            }
+                        ],
                     }
                 ),
                 encoding="utf-8",
@@ -269,7 +276,54 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertEqual(report["summary"]["linked_reports"], 2)
             self.assertEqual(report["summary"]["linked_report_errors"], 1)
             self.assertEqual(report["summary"]["linked_report_warnings"], 1)
+            self.assertEqual(report["summary"]["linked_report_findings"], 1)
             self.assertEqual({item["slot"] for item in report["linked_reports"]}, {"input", "export"})
+            input_link = next(item for item in report["linked_reports"] if item["slot"] == "input")
+            self.assertEqual(input_link["top_findings"][0]["rule"], "missing_touch_binding")
+            self.assertEqual(input_link["top_findings"][0]["location"], "ui_accept")
+
+    def test_readiness_markdown_includes_top_linked_findings(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            input_report = root / "input.json"
+            metadata.write_text(json.dumps(_sample_metadata()), encoding="utf-8")
+            input_report.write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-input-map-auditor",
+                        "findings": [
+                            {
+                                "severity": "warning",
+                                "rule_id": "missing_touch_binding",
+                                "action": "ui_accept",
+                                "message": "Touch action missing.",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "readiness",
+                        str(metadata),
+                        "--input-report",
+                        str(input_report),
+                        "--format",
+                        "markdown",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            rendered = stdout.getvalue()
+            self.assertIn("Linked report findings", rendered)
+            self.assertIn("`missing_touch_binding` (ui_accept)", rendered)
 
     def test_readiness_markdown_can_use_visual_smoke_plan_viewports(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

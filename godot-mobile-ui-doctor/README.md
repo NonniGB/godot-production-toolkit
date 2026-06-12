@@ -158,7 +158,9 @@ from related toolkit checks:
 
 This gives a compact mobile release review: portrait UI risks, touch/input
 coverage, export settings, localization expansion risk, static mobile
-performance warnings, and screenshot-plan status in one report.
+performance warnings, and screenshot-plan status in one report. Linked reports
+include their top findings so a reviewer can see the first actions without
+opening every JSON file.
 
 ## How To Export Metadata
 

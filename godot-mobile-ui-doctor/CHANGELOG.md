@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5 - 2026-06-13
+
+- Added top linked findings to combined mobile readiness reports.
+- Included linked finding rules and locations in JSON, Markdown, and text output.
+
 ## 0.1.4 - 2026-06-11
 
 - Added `readiness` command for combining mobile UI metadata with optional input, export, localization, mobile performance, and visual-smoke JSON reports.

@@ -48,7 +48,7 @@ def render_overlays(
 
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.4",
+        "version": "0.1.5",
         "kind": "mobile_ui_overlay_previews",
         "summary": {
             "screens": len(screens),

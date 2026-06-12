@@ -32,13 +32,14 @@ def build_combined_readiness(
         "linked_reports": len(linked_reports),
         "linked_report_errors": sum(int(report["errors"]) for report in linked_reports),
         "linked_report_warnings": sum(int(report["warnings"]) for report in linked_reports),
+        "linked_report_findings": sum(int(report["findings"]) for report in linked_reports),
         "missing_reports": sum(1 for report in linked_reports if report["status"] == "missing"),
         "errors": matrix["summary"]["errors"] + sum(int(report["errors"]) for report in linked_reports),
         "warnings": matrix["summary"]["warnings"] + sum(int(report["warnings"]) for report in linked_reports),
     }
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.4",
+        "version": "0.1.5",
         "kind": "combined_mobile_readiness",
         "summary": summary,
         "matrix": matrix["matrix"],
@@ -84,6 +85,7 @@ def _linked_report(slot: str, path: Path) -> dict[str, Any]:
             "errors": errors,
             "warnings": warnings,
             "findings": _finding_count(data),
+            "top_findings": _top_findings(data),
             "status": _status(errors, warnings),
         }
     )
@@ -121,6 +123,35 @@ def _findings(data: dict[str, Any]) -> list[dict[str, Any]]:
     return []
 
 
+def _top_findings(data: dict[str, Any], limit: int = 3) -> list[dict[str, str]]:
+    ranked = sorted(_findings(data), key=_finding_rank)
+    return [_compact_finding(finding) for finding in ranked[:limit]]
+
+
+def _finding_rank(finding: dict[str, Any]) -> tuple[int, str]:
+    severity = str(finding.get("severity", "")).lower()
+    rank = {"error": 0, "warning": 1}.get(severity, 2)
+    return rank, str(finding.get("rule_id") or finding.get("code") or finding.get("id") or "")
+
+
+def _compact_finding(finding: dict[str, Any]) -> dict[str, str]:
+    return {
+        "severity": str(finding.get("severity", "info")),
+        "rule": str(finding.get("rule_id") or finding.get("code") or finding.get("id") or "finding"),
+        "message": str(finding.get("message", "")),
+        "location": _finding_location(finding),
+    }
+
+
+def _finding_location(finding: dict[str, Any]) -> str:
+    parts = []
+    for key in ("path", "file", "screen", "viewport", "node", "preset", "preset_name", "action"):
+        value = finding.get(key)
+        if value:
+            parts.append(str(value))
+    return " / ".join(parts)
+
+
 def _status(errors: int, warnings: int) -> str:
     if errors > 0:
         return "action"
@@ -139,7 +170,8 @@ def _text(report: dict[str, Any]) -> str:
         ),
         (
             f"Linked reports: {summary['linked_reports']} | "
-            f"Errors: {summary['errors']} | Warnings: {summary['warnings']}"
+            f"Errors: {summary['errors']} | Warnings: {summary['warnings']} | "
+            f"Findings: {summary['linked_report_findings']}"
         ),
         "",
         "Screens:",
@@ -156,6 +188,11 @@ def _text(report: dict[str, Any]) -> str:
                 f"- {item['label']}: {item['status']} "
                 f"({item['errors']} errors, {item['warnings']} warnings) - {item['path']}"
             )
+            for finding in item.get("top_findings", []):
+                location = f" [{finding['location']}]" if finding.get("location") else ""
+                lines.append(
+                    f"  - {finding['severity']} {finding['rule']}{location}: {finding['message']}"
+                )
     return "\n".join(lines)
 
 
@@ -170,6 +207,7 @@ def _markdown(report: dict[str, Any]) -> str:
         f"| Screens needing action | {summary['screen_actions']} |",
         f"| Screens needing review | {summary['screen_reviews']} |",
         f"| Linked reports | {summary['linked_reports']} |",
+        f"| Linked report findings | {summary['linked_report_findings']} |",
         f"| Total errors | {summary['errors']} |",
         f"| Total warnings | {summary['warnings']} |",
         "",
@@ -189,13 +227,23 @@ def _markdown(report: dict[str, Any]) -> str:
                 "",
                 "## Linked Reports",
                 "",
-                "| Area | Status | Errors | Warnings | Report |",
-                "|---|---|---:|---:|---|",
+                "| Area | Status | Errors | Warnings | Top Findings | Report |",
+                "|---|---|---:|---:|---|---|",
             ]
         )
         for item in report["linked_reports"]:
             lines.append(
                 f"| {item['label']} | {item['status']} | {item['errors']} | "
-                f"{item['warnings']} | `{item['path']}` |"
+                f"{item['warnings']} | {_finding_summary(item.get('top_findings', []))} | `{item['path']}` |"
             )
     return "\n".join(lines)
+
+
+def _finding_summary(findings: list[dict[str, str]]) -> str:
+    if not findings:
+        return "None"
+    labels = []
+    for finding in findings:
+        location = f" ({finding['location']})" if finding.get("location") else ""
+        labels.append(f"`{finding['rule']}`{location}")
+    return "<br>".join(labels)
