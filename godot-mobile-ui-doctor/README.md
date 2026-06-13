@@ -141,9 +141,15 @@ reviewer can see the risky rectangles without opening the Godot project.
 
 ```powershell
 godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports\mobile-ui-overlays --scale 0.5 --fail-on none
+godot-mobile-ui-doctor overlays mobile-ui.json --screenshot-dir reports\screenshots --output-dir reports\mobile-ui-overlays --fail-on none
 ```
 
 ![Mobile UI overlay preview](docs/images/mobile-ui-overlays/main_menu__portrait_phone.png)
+
+If `--screenshot-dir` is supplied, the command looks for PNGs named
+`screen__viewport.png` or `screen.png` and draws the overlay on top of the
+captured screen. Screens without a matching screenshot still use the plain grid
+background.
 
 ## Combined Readiness
 

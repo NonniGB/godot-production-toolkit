@@ -39,7 +39,7 @@ def build_combined_readiness(
     }
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.5",
+        "version": "0.1.6",
         "kind": "combined_mobile_readiness",
         "summary": summary,
         "matrix": matrix["matrix"],

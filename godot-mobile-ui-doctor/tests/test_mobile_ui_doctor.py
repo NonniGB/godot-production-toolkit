@@ -5,6 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from PIL import Image
+
 from godot_mobile_ui_doctor.audit import audit_mobile_ui, build_readiness_matrix
 from godot_mobile_ui_doctor.cli import main
 from godot_mobile_ui_doctor.loader import load_metadata
@@ -112,7 +114,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.5", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.6", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -219,6 +221,45 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertIn("Godot Mobile UI Overlay Previews", stdout.getvalue())
             self.assertTrue((output_dir / "main_menu__portrait_phone.png").exists())
+
+    def test_overlay_command_can_use_screenshot_backgrounds(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            screenshots = root / "screenshots"
+            output_dir = root / "overlays"
+            summary = root / "overlay-summary.json"
+            screenshots.mkdir()
+            metadata.write_text(json.dumps(_sample_metadata()), encoding="utf-8")
+            Image.new("RGB", (720, 1280), (30, 40, 50)).save(
+                screenshots / "main_menu__portrait_phone.png"
+            )
+
+            exit_code = main(
+                [
+                    "overlays",
+                    str(metadata),
+                    "--screenshot-dir",
+                    str(screenshots),
+                    "--output-dir",
+                    str(output_dir),
+                    "--output",
+                    str(summary),
+                    "--format",
+                    "json",
+                    "--scale",
+                    "0.25",
+                    "--fail-on",
+                    "none",
+                ]
+            )
+
+            report = json.loads(summary.read_text(encoding="utf-8"))
+            overlay = output_dir / "main_menu__portrait_phone.png"
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(overlay.exists())
+            self.assertEqual(report["summary"]["screenshots"], 1)
+            self.assertTrue(report["files"][0]["screenshot"].endswith("main_menu__portrait_phone.png"))
 
     def test_readiness_combines_ui_matrix_with_linked_reports(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

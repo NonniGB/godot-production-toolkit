@@ -19,7 +19,12 @@ For visual PR artifacts, render PNG overlays from the same metadata:
 
 ```powershell
 godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
+godot-mobile-ui-doctor overlays mobile-ui.json --screenshot-dir reports\screenshots --output-dir reports\mobile-ui-overlays --fail-on none
 ```
+
+Screenshot-backed overlays expect files named `screen__viewport.png` or
+`screen.png`. This lets screenshot capture jobs and metadata exporters feed the
+same review artifact.
 
 To bring related mobile checks into one review artifact:
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6 - 2026-06-13
+
+- Added `--screenshot-dir` to `overlays` for drawing safe-area and touch-target overlays on captured PNG screenshots.
+- Included screenshot usage counts and source paths in overlay summaries.
+
 ## 0.1.5 - 2026-06-13
 
 - Added top linked findings to combined mobile readiness reports.

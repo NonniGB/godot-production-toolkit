@@ -15,6 +15,7 @@ from .models import Screen, Thresholds, UiNode, Viewport
 class OverlayOptions:
     output_dir: Path
     scale: float = 0.5
+    screenshot_dir: Path | None = None
 
 
 def render_overlays(
@@ -33,7 +34,8 @@ def render_overlays(
         if viewport is None:
             continue
         finding_map = _findings_by_node(findings, screen.name)
-        image = _draw_screen(screen, viewport, thresholds, finding_map, options.scale)
+        screenshot = _find_screenshot(options.screenshot_dir, screen, viewport)
+        image = _draw_screen(screen, viewport, thresholds, finding_map, options.scale, screenshot)
         path = options.output_dir / f"{_slug(screen.name)}__{_slug(viewport.name)}.png"
         image.save(path)
         files.append(
@@ -41,6 +43,7 @@ def render_overlays(
                 "screen": screen.name,
                 "viewport": viewport.name,
                 "path": path.as_posix(),
+                "screenshot": str(screenshot) if screenshot else None,
                 "width": image.width,
                 "height": image.height,
             }
@@ -48,12 +51,13 @@ def render_overlays(
 
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.5",
+        "version": "0.1.6",
         "kind": "mobile_ui_overlay_previews",
         "summary": {
             "screens": len(screens),
             "viewports": len(viewports),
             "files": len(files),
+            "screenshots": sum(1 for item in files if item["screenshot"]),
             "errors": audit_report["summary"]["errors"],
             "warnings": audit_report["summary"]["warnings"],
         },
@@ -68,15 +72,17 @@ def _draw_screen(
     thresholds: Thresholds,
     finding_map: dict[str, list[dict[str, Any]]],
     scale: float,
+    screenshot: Path | None,
 ) -> Image.Image:
     width = max(1, round(viewport.width * scale))
     height = max(1, round(viewport.height * scale))
-    image = Image.new("RGB", (width, height), "#0e1118")
+    image = _base_image(screenshot, viewport, width, height)
     draw = ImageDraw.Draw(image)
     font = ImageFont.load_default()
     title_font = ImageFont.load_default()
 
-    _draw_grid(draw, width, height)
+    if screenshot is None:
+        _draw_grid(draw, width, height)
     safe_rect = (
         viewport.safe_area.left * scale,
         viewport.safe_area.top * scale,
@@ -87,7 +93,15 @@ def _draw_screen(
     _label(draw, (safe_rect[0] + 6, safe_rect[1] + 6), "safe area", "#45d483", font)
 
     for node in screen.nodes:
-        _draw_node(draw, node, thresholds, finding_map.get(node.id, []), scale, font)
+        _draw_node(
+            draw,
+            node,
+            thresholds,
+            finding_map.get(node.id, []),
+            scale,
+            font,
+            fill_nodes=screenshot is None,
+        )
 
     header = f"{screen.name} / {viewport.name} / {viewport.width}x{viewport.height}"
     legend = "yellow=review  red=error  blue=interactive  green=safe area"
@@ -110,6 +124,8 @@ def _draw_node(
     findings: list[dict[str, Any]],
     scale: float,
     font: ImageFont.ImageFont,
+    *,
+    fill_nodes: bool = True,
 ) -> None:
     rect = (
         node.x * scale,
@@ -127,7 +143,7 @@ def _draw_node(
     else:
         color = "#8f9bb3"
 
-    fill = _with_alpha_hint(color)
+    fill = _with_alpha_hint(color) if fill_nodes else None
     draw.rectangle(rect, outline=color, fill=fill, width=2)
     if node.interactive:
         target = (
@@ -152,6 +168,32 @@ def _with_alpha_hint(color: str) -> str:
         "#8f9bb3": "#1d2434",
     }
     return palette.get(color, "#1d2434")
+
+
+def _base_image(screenshot: Path | None, viewport: Viewport, width: int, height: int) -> Image.Image:
+    if screenshot is None:
+        return Image.new("RGB", (width, height), "#0e1118")
+    with Image.open(screenshot) as raw:
+        image = raw.convert("RGB")
+    if image.size != (viewport.width, viewport.height):
+        image = image.resize((viewport.width, viewport.height), Image.Resampling.BILINEAR)
+    return image.resize((width, height), Image.Resampling.BILINEAR)
+
+
+def _find_screenshot(root: Path | None, screen: Screen, viewport: Viewport) -> Path | None:
+    if root is None:
+        return None
+    names = [
+        f"{screen.name}__{viewport.name}.png",
+        f"{_slug(screen.name)}__{_slug(viewport.name)}.png",
+        f"{screen.name}.png",
+        f"{_slug(screen.name)}.png",
+    ]
+    for name in names:
+        path = root / name
+        if path.exists():
+            return path
+    return None
 
 
 def _findings_by_node(

@@ -39,7 +39,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-mobile-ui-doctor",
         description="Check exported Godot mobile UI metadata for touch and layout risks.",
     )
-    parser.add_argument("--version", action="version", version="godot-mobile-ui-doctor 0.1.5")
+    parser.add_argument("--version", action="version", version="godot-mobile-ui-doctor 0.1.6")
     parser.add_argument("metadata", help="JSON file containing exported UI viewport and node metadata.")
     parser.add_argument(
         "--visual-smoke-plan",
@@ -94,6 +94,10 @@ def _overlays(argv: list[str]) -> int:
         default=0.5,
         help="Scale factor for output images. Defaults to 0.5.",
     )
+    parser.add_argument(
+        "--screenshot-dir",
+        help="Optional directory of captured PNG screenshots to use as overlay backgrounds.",
+    )
     parser.add_argument("--format", choices=["text", "json"], default="text")
     parser.add_argument("--output", help="Write the overlay summary to this file instead of stdout.")
     parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
@@ -104,7 +108,11 @@ def _overlays(argv: list[str]) -> int:
         viewports,
         screens,
         thresholds,
-        OverlayOptions(output_dir=Path(args.output_dir), scale=args.scale),
+        OverlayOptions(
+            output_dir=Path(args.output_dir),
+            scale=args.scale,
+            screenshot_dir=Path(args.screenshot_dir) if args.screenshot_dir else None,
+        ),
     )
     _emit(_render_overlay_summary(report, args.format), args.output)
     return _exit_code(report, args.fail_on)
@@ -200,7 +208,7 @@ def _render_overlay_summary(report: dict[str, object], fmt: str) -> str:
         "Godot Mobile UI Overlay Previews",
         (
             f"Screens: {summary['screens']} | Viewports: {summary['viewports']} | "
-            f"Files: {summary['files']}"
+            f"Files: {summary['files']} | Screenshots: {summary['screenshots']}"
         ),
         f"Errors: {summary['errors']} | Warnings: {summary['warnings']}",
         "",
