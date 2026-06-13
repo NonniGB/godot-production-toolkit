@@ -39,7 +39,7 @@ def build_combined_readiness(
     }
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.6",
+        "version": "0.1.7",
         "kind": "combined_mobile_readiness",
         "summary": summary,
         "matrix": matrix["matrix"],
@@ -85,6 +85,7 @@ def _linked_report(slot: str, path: Path) -> dict[str, Any]:
             "errors": errors,
             "warnings": warnings,
             "findings": _finding_count(data),
+            "rule_summaries": _rule_summaries(data),
             "top_findings": _top_findings(data),
             "status": _status(errors, warnings),
         }
@@ -126,6 +127,43 @@ def _findings(data: dict[str, Any]) -> list[dict[str, Any]]:
 def _top_findings(data: dict[str, Any], limit: int = 3) -> list[dict[str, str]]:
     ranked = sorted(_findings(data), key=_finding_rank)
     return [_compact_finding(finding) for finding in ranked[:limit]]
+
+
+def _rule_summaries(data: dict[str, Any], limit: int = 5) -> list[dict[str, Any]]:
+    grouped: dict[str, dict[str, Any]] = {}
+    for finding in _findings(data):
+        rule = str(finding.get("rule_id") or finding.get("code") or finding.get("id") or "finding")
+        entry = grouped.setdefault(
+            rule,
+            {
+                "rule": rule,
+                "severity": "info",
+                "findings": 0,
+                "sample_message": "",
+                "locations": [],
+            },
+        )
+        entry["findings"] += 1
+        entry["severity"] = _higher_severity(str(entry["severity"]), str(finding.get("severity", "info")))
+        if not entry["sample_message"] and finding.get("message"):
+            entry["sample_message"] = str(finding["message"])
+        location = _finding_location(finding)
+        if location and location not in entry["locations"] and len(entry["locations"]) < 3:
+            entry["locations"].append(location)
+    return sorted(grouped.values(), key=_rule_summary_rank)[:limit]
+
+
+def _higher_severity(current: str, candidate: str) -> str:
+    rank = {"error": 0, "warning": 1, "info": 2}
+    current_key = current.lower()
+    candidate_key = candidate.lower()
+    return candidate_key if rank.get(candidate_key, 2) < rank.get(current_key, 2) else current_key
+
+
+def _rule_summary_rank(summary: dict[str, Any]) -> tuple[int, int, str]:
+    severity = str(summary["severity"]).lower()
+    rank = {"error": 0, "warning": 1}.get(severity, 2)
+    return rank, -int(summary["findings"]), str(summary["rule"])
 
 
 def _finding_rank(finding: dict[str, Any]) -> tuple[int, str]:
@@ -193,6 +231,13 @@ def _text(report: dict[str, Any]) -> str:
                 lines.append(
                     f"  - {finding['severity']} {finding['rule']}{location}: {finding['message']}"
                 )
+            for rule in item.get("rule_summaries", []):
+                locations = ", ".join(rule.get("locations", []))
+                suffix = f" ({locations})" if locations else ""
+                lines.append(
+                    f"  - rule {rule['rule']}: {rule['findings']} finding(s), "
+                    f"highest severity {rule['severity']}{suffix}"
+                )
     return "\n".join(lines)
 
 
@@ -227,14 +272,15 @@ def _markdown(report: dict[str, Any]) -> str:
                 "",
                 "## Linked Reports",
                 "",
-                "| Area | Status | Errors | Warnings | Top Findings | Report |",
-                "|---|---|---:|---:|---|---|",
+                "| Area | Status | Errors | Warnings | Common Rules | Top Findings | Report |",
+                "|---|---|---:|---:|---|---|---|",
             ]
         )
         for item in report["linked_reports"]:
             lines.append(
                 f"| {item['label']} | {item['status']} | {item['errors']} | "
-                f"{item['warnings']} | {_finding_summary(item.get('top_findings', []))} | `{item['path']}` |"
+                f"{item['warnings']} | {_rule_summary(item.get('rule_summaries', []))} | "
+                f"{_finding_summary(item.get('top_findings', []))} | `{item['path']}` |"
             )
     return "\n".join(lines)
 
@@ -246,4 +292,13 @@ def _finding_summary(findings: list[dict[str, str]]) -> str:
     for finding in findings:
         location = f" ({finding['location']})" if finding.get("location") else ""
         labels.append(f"`{finding['rule']}`{location}")
+    return "<br>".join(labels)
+
+
+def _rule_summary(rules: list[dict[str, Any]]) -> str:
+    if not rules:
+        return "None"
+    labels = []
+    for rule in rules:
+        labels.append(f"`{rule['rule']}` x{rule['findings']} ({rule['severity']})")
     return "<br>".join(labels)

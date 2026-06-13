@@ -114,7 +114,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.6", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.7", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -280,6 +280,12 @@ class MobileUiDoctorTests(unittest.TestCase):
                                 "rule_id": "missing_touch_binding",
                                 "action": "ui_accept",
                                 "message": "Touch action missing.",
+                            },
+                            {
+                                "severity": "warning",
+                                "rule_id": "missing_touch_binding",
+                                "action": "ui_cancel",
+                                "message": "Back action missing.",
                             }
                         ],
                     }
@@ -317,11 +323,14 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertEqual(report["summary"]["linked_reports"], 2)
             self.assertEqual(report["summary"]["linked_report_errors"], 1)
             self.assertEqual(report["summary"]["linked_report_warnings"], 1)
-            self.assertEqual(report["summary"]["linked_report_findings"], 1)
+            self.assertEqual(report["summary"]["linked_report_findings"], 2)
             self.assertEqual({item["slot"] for item in report["linked_reports"]}, {"input", "export"})
             input_link = next(item for item in report["linked_reports"] if item["slot"] == "input")
             self.assertEqual(input_link["top_findings"][0]["rule"], "missing_touch_binding")
             self.assertEqual(input_link["top_findings"][0]["location"], "ui_accept")
+            self.assertEqual(input_link["rule_summaries"][0]["rule"], "missing_touch_binding")
+            self.assertEqual(input_link["rule_summaries"][0]["findings"], 2)
+            self.assertEqual(input_link["rule_summaries"][0]["locations"], ["ui_accept", "ui_cancel"])
 
     def test_readiness_markdown_includes_top_linked_findings(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -364,6 +373,8 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             rendered = stdout.getvalue()
             self.assertIn("Linked report findings", rendered)
+            self.assertIn("Common Rules", rendered)
+            self.assertIn("`missing_touch_binding` x1 (warning)", rendered)
             self.assertIn("`missing_touch_binding` (ui_accept)", rendered)
 
     def test_readiness_markdown_can_use_visual_smoke_plan_viewports(self) -> None:

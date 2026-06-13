@@ -166,7 +166,9 @@ This gives a compact mobile release review: portrait UI risks, touch/input
 coverage, export settings, localization expansion risk, static mobile
 performance warnings, and screenshot-plan status in one report. Linked reports
 include their top findings so a reviewer can see the first actions without
-opening every JSON file.
+opening every JSON file. Repeated rule ids are also grouped, which helps show
+whether a linked report is failing because of one repeated setup problem or a
+mix of unrelated issues.
 
 ## How To Export Metadata
 

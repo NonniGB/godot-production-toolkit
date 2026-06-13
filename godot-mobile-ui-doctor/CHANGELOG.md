@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.7 - 2026-06-14
+
+- Added grouped rule summaries to combined mobile readiness reports.
+- Included repeated linked-report rule counts in JSON, Markdown, and text output.
+
 ## 0.1.6 - 2026-06-13
 
 - Added `--screenshot-dir` to `overlays` for drawing safe-area and touch-target overlays on captured PNG screenshots.
