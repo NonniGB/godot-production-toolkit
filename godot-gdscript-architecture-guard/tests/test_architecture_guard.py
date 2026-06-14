@@ -52,6 +52,38 @@ names = ["GameState"]
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("module_boundary_violation", rules)
             self.assertIn("autoload_access_violation", rules)
+            self.assertEqual(report["version"], "0.1.1")
+            self.assertEqual(report["metadata"]["schema_version"], "1.1")
+            self.assertIn("suggestion", report["findings"][0])
+            self.assertIn("module_boundary_violation", report["rule_help"])
+
+    def test_sarif_includes_rule_descriptions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scripts" / "ui").mkdir(parents=True)
+            (root / "scripts" / "ui" / "menu.gd").write_text(
+                'const Missing = preload("res://scripts/missing.gd")\n',
+                encoding="utf-8",
+            )
+            config = root / "architecture-guard.toml"
+            config.write_text(
+                """
+[modules.ui]
+paths = ["scripts/ui/**"]
+may_depend_on = []
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--config", str(config), "--format", "sarif", "--fail-on", "none"])
+
+            payload = json.loads(stdout.getvalue())
+            rules = payload["runs"][0]["tool"]["driver"]["rules"]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(rules[0]["id"], "unresolved_resource")
+            self.assertIn("Loaded resource does not exist", rules[0]["name"])
 
     def test_mermaid_lists_dependency_edges(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -88,4 +120,3 @@ may_depend_on = []
 
 if __name__ == "__main__":
     unittest.main()
-

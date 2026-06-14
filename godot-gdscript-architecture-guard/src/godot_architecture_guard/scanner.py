@@ -6,6 +6,7 @@ import re
 from typing import Any
 
 from .models import Finding, ModulePolicy
+from .rule_help import RULE_HELP, enrich_finding
 
 RESOURCE_RE = re.compile(r"""(?:preload|load)\(\s*["'](res://[^"']+)["']\s*\)""")
 
@@ -35,6 +36,12 @@ def audit_project(project: Path, modules: tuple[ModulePolicy, ...], autoloads: t
 
     return {
         "tool": "godot-gdscript-architecture-guard",
+        "version": "0.1.1",
+        "metadata": {
+            "schema_version": "1.1",
+            "rule_count": len(RULE_HELP),
+            "report_kind": "gdscript_architecture_guard",
+        },
         "summary": {
             "scripts": len(files),
             "modules": len(modules),
@@ -43,6 +50,7 @@ def audit_project(project: Path, modules: tuple[ModulePolicy, ...], autoloads: t
             "errors": sum(1 for finding in findings if finding.severity == "error"),
             "warnings": sum(1 for finding in findings if finding.severity == "warning"),
         },
+        "rule_help": RULE_HELP,
         "modules": {
             module.name: {
                 "paths": list(module.paths),
@@ -52,7 +60,7 @@ def audit_project(project: Path, modules: tuple[ModulePolicy, ...], autoloads: t
             for module in modules
         },
         "dependencies": [{"source": source, "target": target} for source, target in sorted(edges)],
-        "findings": [finding.to_dict() for finding in findings],
+        "findings": [enrich_finding(finding.to_dict()) for finding in findings],
     }
 
 
@@ -145,4 +153,3 @@ def _module_for_res_path(res_path: str, modules: tuple[ModulePolicy, ...]) -> Mo
         if any(fnmatch.fnmatch(rel, pattern) for pattern in module.paths):
             return module
     return None
-

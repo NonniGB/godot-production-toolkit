@@ -64,3 +64,6 @@ reports a module boundary violation unless `ui` may depend on `gameplay`.
 - `sarif`: GitHub code scanning.
 - `mermaid`: dependency graph.
 
+JSON reports include `metadata`, `rule_help`, and per-finding suggestions so CI
+jobs and small review scripts can explain the issue without hard-coding rule
+text. SARIF output carries the same rule descriptions for code scanning tools.

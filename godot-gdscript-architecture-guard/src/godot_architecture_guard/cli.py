@@ -32,7 +32,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-architecture-guard",
         description="Check GDScript module boundaries and autoload access policy.",
     )
-    parser.add_argument("--version", action="version", version="godot-architecture-guard 0.1.0")
+    parser.add_argument("--version", action="version", version="godot-architecture-guard 0.1.1")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--config", required=True, help="Architecture policy TOML file.")
     parser.add_argument("--format", choices=["text", "json", "markdown", "sarif", "mermaid"], default="text")
@@ -67,4 +67,3 @@ def _exit_code(report: dict[str, object], fail_on: str) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

@@ -21,7 +21,11 @@ def _text(report: dict[str, Any]) -> str:
         f"Scanned {summary['scripts']} script(s), {summary['modules']} module(s): {summary['errors']} error(s), {summary['warnings']} warning(s).",
     ]
     for finding in report["findings"]:
-        lines.append(f"[{finding['severity'].upper()}] {finding['rule_id']} - {finding.get('path', '')}: {finding['message']}")
+        title = finding.get("title", finding["rule_id"])
+        lines.append(
+            f"[{finding['severity'].upper()}] {finding['rule_id']} - {title} - "
+            f"{finding.get('path', '')}: {finding['message']}"
+        )
     if not report["findings"]:
         lines.append("No findings.")
     return "\n".join(lines)
@@ -38,18 +42,22 @@ def _markdown(report: dict[str, Any]) -> str:
         f"- Errors: {summary['errors']}",
         f"- Warnings: {summary['warnings']}",
         "",
-        "| Severity | Rule | Path | Message |",
-        "|---|---|---|---|",
+        "| Severity | Rule | Path | Message | Suggestion |",
+        "|---|---|---|---|---|",
     ]
     if report["findings"]:
         for finding in report["findings"]:
-            lines.append(f"| {finding['severity']} | {finding['rule_id']} | {finding.get('path', '')} | {finding['message']} |")
+            lines.append(
+                f"| {finding['severity']} | {finding['rule_id']} | {finding.get('path', '')} | "
+                f"{finding['message']} | {finding.get('suggestion', '')} |"
+            )
     else:
-        lines.append("| info | clean |  | No findings. |")
+        lines.append("| info | clean |  | No findings. | |")
     return "\n".join(lines)
 
 
 def _sarif(report: dict[str, Any]) -> str:
+    rule_help = report.get("rule_help", {})
     rules = sorted({finding["rule_id"] for finding in report["findings"]})
     payload = {
         "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
@@ -61,7 +69,7 @@ def _sarif(report: dict[str, Any]) -> str:
                         "name": "godot-gdscript-architecture-guard",
                         "informationUri": "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-gdscript-architecture-guard",
                         "rules": [
-                            {"id": rule, "name": rule, "shortDescription": {"text": rule.replace("_", " ")}}
+                            _sarif_rule(rule, rule_help.get(rule, {}))
                             for rule in rules
                         ],
                     }
@@ -71,6 +79,17 @@ def _sarif(report: dict[str, Any]) -> str:
         ],
     }
     return json.dumps(payload, indent=2, sort_keys=True)
+
+
+def _sarif_rule(rule: str, help_text: dict[str, str]) -> dict[str, Any]:
+    title = help_text.get("title", rule.replace("_", " "))
+    return {
+        "id": rule,
+        "name": title,
+        "shortDescription": {"text": title},
+        "fullDescription": {"text": help_text.get("explanation", title)},
+        "help": {"text": help_text.get("suggestion", "")},
+    }
 
 
 def _finding_to_sarif(finding: dict[str, Any]) -> dict[str, Any]:
@@ -86,4 +105,3 @@ def _finding_to_sarif(finding: dict[str, Any]) -> dict[str, Any]:
             }
         ],
     }
-

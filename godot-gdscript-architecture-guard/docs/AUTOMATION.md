@@ -15,3 +15,6 @@ godot-architecture-guard . --config architecture-guard.toml --format sarif --out
 Use `--fail-on warning` only after the policy is stable. For first adoption,
 `--fail-on error` is usually easier.
 
+JSON output includes report metadata, rule explanations, and per-finding
+suggestions. SARIF output uses the same rule descriptions for code-scanning
+annotations.
