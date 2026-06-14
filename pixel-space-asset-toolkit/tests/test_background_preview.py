@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from pixel_space_assets.compare import compare_directories, compare_images
+from pixel_space_assets.compare import compare_directories, compare_images, compare_manifests
 from pixel_space_assets.preview import build_contact_sheet
 from pixel_space_assets.strip_background import strip_background
 
@@ -63,6 +63,34 @@ class BackgroundPreviewTests(unittest.TestCase):
             self.assertEqual(result.changed_files, 1)
             self.assertTrue((diff_dir / "tiles" / "a.png").exists())
             self.assertEqual(result.entries[0]["path"], "tiles/a.png")
+
+    def test_compare_manifests_uses_manifest_file_list(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline"
+            current = root / "current"
+            diff_dir = root / "diffs"
+            baseline.mkdir()
+            current.mkdir()
+            Image.new("RGBA", (2, 2), (1, 1, 1, 255)).save(baseline / "tile.png")
+            Image.new("RGBA", (2, 2), (1, 1, 1, 255)).save(current / "tile.png")
+            (baseline / "manifest.json").write_text(
+                '{"type":"asteroid-hex","seed":1,"tiles":[{"file":"tile.png"}]}',
+                encoding="utf-8",
+            )
+            (current / "manifest.json").write_text(
+                '{"type":"asteroid-hex","seed":2,"tiles":[{"file":"tile.png"}]}',
+                encoding="utf-8",
+            )
+
+            result = compare_manifests(
+                baseline / "manifest.json",
+                current / "manifest.json",
+                diff_dir,
+            )
+
+            self.assertEqual(result.unchanged_files, 1)
+            self.assertEqual(result.manifest_changes, [{"field": "seed", "baseline": 1, "current": 2}])
 
 
 if __name__ == "__main__":

@@ -24,3 +24,13 @@ pixel-space-assets compare-dir baseline\ferric generated\ferric --diff-output-di
 
 Directory comparison preserves relative paths in the diff output and reports
 changed, added, removed, and unchanged PNG files.
+
+When a generator writes a manifest, compare through the manifests instead of
+scanning every PNG in the folder:
+
+```powershell
+pixel-space-assets compare-manifest baseline\ferric\manifest.json generated\ferric\manifest.json --diff-output-dir reports\ferric_manifest_diffs --fail-on-diff --format json
+```
+
+Manifest comparison uses the files listed by each manifest and also reports
+top-level manifest field changes such as seed, size, count, or material drift.

@@ -8,7 +8,7 @@ from pathlib import Path
 from PIL import Image
 
 from .asteroids import generate_asteroid_tiles
-from .compare import compare_directories, compare_images
+from .compare import compare_directories, compare_images, compare_manifests
 from .preview import build_contact_sheet
 from .starfield import generate_starfield
 from .strip_background import strip_background
@@ -49,6 +49,8 @@ def main(argv: list[str] | None = None) -> int:
         return _compare(args)
     if args.command == "compare-dir":
         return _compare_dir(args)
+    if args.command == "compare-manifest":
+        return _compare_manifest(args)
     parser.print_help()
     return 2
 
@@ -59,7 +61,7 @@ def entrypoint() -> None:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pixel-space-assets", description="Deterministic pixel-space asset tools.")
-    parser.add_argument("--version", action="version", version="pixel-space-assets 0.1.3")
+    parser.add_argument("--version", action="version", version="pixel-space-assets 0.1.4")
     subparsers = parser.add_subparsers(dest="command")
 
     starfield = subparsers.add_parser("starfield")
@@ -107,6 +109,14 @@ def _build_parser() -> argparse.ArgumentParser:
     compare_dir.add_argument("--tolerance", type=int, default=0)
     compare_dir.add_argument("--fail-on-diff", action="store_true")
     compare_dir.add_argument("--format", choices=["text", "json"], default="text")
+
+    compare_manifest = subparsers.add_parser("compare-manifest")
+    compare_manifest.add_argument("baseline_manifest")
+    compare_manifest.add_argument("current_manifest")
+    compare_manifest.add_argument("--diff-output-dir", required=True)
+    compare_manifest.add_argument("--tolerance", type=int, default=0)
+    compare_manifest.add_argument("--fail-on-diff", action="store_true")
+    compare_manifest.add_argument("--format", choices=["text", "json"], default="text")
     return parser
 
 
@@ -253,6 +263,47 @@ def _compare_dir(args: argparse.Namespace) -> int:
             f"Diffs: {args.diff_output_dir}"
         )
     has_diff = result.changed_files + result.added_files + result.removed_files > 0
+    return 1 if args.fail_on_diff and has_diff else 0
+
+
+def _compare_manifest(args: argparse.Namespace) -> int:
+    try:
+        result = compare_manifests(
+            Path(args.baseline_manifest),
+            Path(args.current_manifest),
+            Path(args.diff_output_dir),
+            tolerance=args.tolerance,
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(f"Manifest comparison failed: {exc}", file=sys.stderr)
+        return 2
+    payload = {
+        "status": "ok",
+        "command": "compare-manifest",
+        "outputs": {"diff_directory": str(Path(args.diff_output_dir))},
+        "parameters": {
+            "baseline_manifest": args.baseline_manifest,
+            "current_manifest": args.current_manifest,
+            "tolerance": args.tolerance,
+        },
+        "comparison": result.as_dict(),
+    }
+    _emit_status(args, payload)
+    if getattr(args, "format", "text") == "text":
+        print(
+            "Pixel asset manifest comparison: "
+            f"{result.changed_files} changed, {result.added_files} added, "
+            f"{result.removed_files} removed, {result.unchanged_files} unchanged, "
+            f"{len(result.manifest_changes)} manifest field changes. "
+            f"Diffs: {args.diff_output_dir}"
+        )
+    has_diff = (
+        result.changed_files
+        + result.added_files
+        + result.removed_files
+        + len(result.manifest_changes)
+        > 0
+    )
     return 1 if args.fail_on_diff and has_diff else 0
 
 

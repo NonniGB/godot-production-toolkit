@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("pixel-space-assets 0.1.3", stdout.getvalue())
+        self.assertIn("pixel-space-assets 0.1.4", stdout.getvalue())
 
     def test_starfield_cli_writes_image_and_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -185,6 +185,67 @@ class CliTests(unittest.TestCase):
             self.assertTrue((diff_dir / "changed.png").exists())
             self.assertTrue((diff_dir / "added.png").exists())
             self.assertTrue((diff_dir / "removed.png").exists())
+
+    def test_compare_manifest_cli_reports_manifest_and_pixel_changes(self) -> None:
+        from PIL import Image
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline"
+            current = root / "current"
+            diff_dir = root / "diffs"
+            baseline.mkdir()
+            current.mkdir()
+            Image.new("RGBA", (2, 2), (10, 10, 10, 255)).save(baseline / "ferric_000.png")
+            Image.new("RGBA", (2, 2), (20, 20, 20, 255)).save(current / "ferric_000.png")
+            (baseline / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "type": "asteroid-hex",
+                        "material": "ferric",
+                        "count": 1,
+                        "size": 2,
+                        "seed": 7,
+                        "tiles": [{"file": "ferric_000.png", "seed": 7}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (current / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "type": "asteroid-hex",
+                        "material": "ferric",
+                        "count": 1,
+                        "size": 2,
+                        "seed": 8,
+                        "tiles": [{"file": "ferric_000.png", "seed": 8}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "compare-manifest",
+                        str(baseline / "manifest.json"),
+                        str(current / "manifest.json"),
+                        "--diff-output-dir",
+                        str(diff_dir),
+                        "--format",
+                        "json",
+                    ]
+                )
+
+            payload = json.loads(stdout.getvalue())
+            comparison = payload["comparison"]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(payload["command"], "compare-manifest")
+            self.assertEqual(comparison["changed_files"], 1)
+            self.assertEqual(comparison["manifest_changes"][0]["field"], "seed")
+            self.assertTrue((diff_dir / "ferric_000.png").exists())
 
 
 if __name__ == "__main__":

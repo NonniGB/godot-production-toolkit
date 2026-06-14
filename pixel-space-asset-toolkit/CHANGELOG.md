@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 - 2026-06-14
+
+- Added `compare-manifest` for comparing generated PNG sets through asset manifests.
+- Included manifest field drift alongside changed, added, removed, and unchanged PNG counts.
+
 ## 0.1.3 - 2026-06-12
 
 - Added `compare-dir` command for comparing PNG sets while preserving relative paths.

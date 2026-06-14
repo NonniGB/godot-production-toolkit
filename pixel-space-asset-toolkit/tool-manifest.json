@@ -36,6 +36,10 @@
     {
       "purpose": "Compare two generated PNG directories and write matching diff images",
       "command": "pixel-space-assets compare-dir baseline/ferric generated/ferric --diff-output-dir reports/ferric-diffs --format json"
+    },
+    {
+      "purpose": "Compare generated PNG sets through their manifests",
+      "command": "pixel-space-assets compare-manifest baseline/ferric/manifest.json generated/ferric/manifest.json --diff-output-dir reports/ferric-manifest-diffs --format json"
     }
   ]
 }
