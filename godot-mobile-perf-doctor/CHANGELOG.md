@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.7 - 2026-06-15
+
+- Raised the package build backend floor to `setuptools>=82.0.1`.
+- Raised the Pillow dependency floor to `Pillow>=12.2.0`.
+
 ## 0.1.6 - 2026-06-09
 
 - Added the active profile description to machine-readable report metadata.

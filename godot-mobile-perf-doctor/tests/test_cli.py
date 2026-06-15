@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-perf-doctor 0.1.6", stdout.getvalue())
+        self.assertIn("godot-mobile-perf-doctor 0.1.7", stdout.getvalue())
 
     def test_cli_lists_builtin_profiles(self) -> None:
         stdout = StringIO()
@@ -46,7 +46,7 @@ renderer/rendering_method="forward_plus"
             self.assertEqual(exit_code, 1)
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.6")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.7")
             self.assertEqual(report["metadata"]["profile"], "portrait-2d")
             self.assertIn("Phone-first 2D", report["metadata"]["profile_description"])
             self.assertIn("forward_plus_renderer_mobile_risk", report["rules"])
@@ -72,7 +72,7 @@ renderer/rendering_method="forward_plus"
             self.assertEqual(sarif["version"], "2.1.0")
             driver = sarif["runs"][0]["tool"]["driver"]
             self.assertEqual(driver["name"], "godot-mobile-perf-doctor")
-            self.assertEqual(driver["semanticVersion"], "0.1.6")
+            self.assertEqual(driver["semanticVersion"], "0.1.7")
             self.assertTrue(driver["rules"])
             self.assertIn("Forward+ renderer selected", {rule["name"] for rule in driver["rules"]})
             self.assertTrue(sarif["runs"][0]["results"])

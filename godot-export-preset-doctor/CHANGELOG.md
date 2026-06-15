@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.7 - 2026-06-15
+
+- Raised the package build backend floor to `setuptools>=82.0.1`.
+
 ## 0.1.6 - 2026-06-09
 
 - Added report metadata and plain-language rule explanations to JSON, text, and SARIF output.

@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## 0.1.10 - 2026-06-15
+
+- Raised the package build backend floor to `setuptools>=82.0.1`.
+- Raised the Pillow dependency floor to `Pillow>=12.2.0,<14`.
+
 ## 0.1.9 - 2026-06-10
 
 - Added `manifest overlays` to render one anchor-overlay PNG per sprite.

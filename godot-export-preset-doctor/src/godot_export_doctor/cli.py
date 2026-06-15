@@ -65,7 +65,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-export-doctor",
         description="Audit Godot export_presets.cfg release readiness.",
     )
-    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.6")
+    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.7")
     parser.add_argument("project", help="Godot project directory or export_presets.cfg path.")
     parser.add_argument("--config", help=f"TOML config path. Defaults to {DEFAULT_CONFIG}.")
     parser.add_argument("--platform", help="Only evaluate presets for a platform, such as Android.")

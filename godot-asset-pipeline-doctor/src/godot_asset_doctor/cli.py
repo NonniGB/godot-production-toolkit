@@ -85,7 +85,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-asset-doctor",
         description="Scan Godot image/audio assets and .import metadata for release risks.",
     )
-    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.9")
+    parser.add_argument("--version", action="version", version="godot-asset-doctor 0.1.10")
     parser.add_argument("path", nargs="?", default=".", help="Godot project directory to scan.")
     parser.add_argument(
         "--profile",

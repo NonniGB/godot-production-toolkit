@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=82.0.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-export-preset-doctor"
-version = "0.1.6"
+version = "0.1.7"
 description = "CI-friendly Godot export_presets.cfg checks for Android, desktop, web, and release-readiness settings."
 readme = "README.md"
 requires-python = ">=3.11"

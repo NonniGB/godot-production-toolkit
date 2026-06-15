@@ -260,13 +260,13 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | Package | Current Version |
 |---|---:|
 | [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.3` |
-| [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.9` |
+| [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.10` |
 | [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.3` |
-| [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.6` |
+| [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.7` |
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.1` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.3` |
-| [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.6` |
+| [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.7` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.2` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.0` |
