@@ -5,8 +5,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+from . import __version__
 from .loader import load_results
 from .models import Finding, ScenarioResult
+from .rules import enrich_finding, rule_catalog
 
 
 def summarize(path: Path) -> dict[str, Any]:
@@ -64,9 +66,15 @@ def render(report: dict[str, Any], output_format: str) -> str:
 
 
 def _report(kind: str, results: list[ScenarioResult], findings: list[Finding]) -> dict[str, Any]:
+    enriched_findings = [enrich_finding(finding.to_dict()) for finding in findings]
     return {
         "tool": "godot-scenario-report-kit",
+        "tool_version": __version__,
+        "schema_version": "1.1",
         "kind": kind,
+        "metadata": {
+            "rules": rule_catalog(),
+        },
         "summary": {
             "scenarios": len(results),
             "passed": sum(1 for result in results if result.status == "passed"),
@@ -77,7 +85,7 @@ def _report(kind: str, results: list[ScenarioResult], findings: list[Finding]) -
             "duration_ms": sum(result.duration_ms for result in results),
         },
         "scenarios": [result.to_dict() for result in results],
-        "findings": [finding.to_dict() for finding in findings],
+        "findings": enriched_findings,
     }
 
 
@@ -128,7 +136,8 @@ def _text(report: dict[str, Any]) -> str:
         f"Findings: {summary['errors']} error(s), {summary['warnings']} warning(s).",
     ]
     for finding in report["findings"]:
-        lines.append(f"[{finding['severity'].upper()}] {finding['rule_id']}: {finding['message']}")
+        help_text = f" ({finding['rule_help']})" if finding.get("rule_help") else ""
+        lines.append(f"[{finding['severity'].upper()}] {finding['rule_id']}: {finding['message']}{help_text}")
     return "\n".join(lines)
 
 
@@ -151,10 +160,19 @@ def _markdown(report: dict[str, Any]) -> str:
             f"| {scenario['scenario']} | {scenario['status']} | {scenario['duration_ms']} | {len(scenario['assertions'])} |"
         )
     if report["findings"]:
-        lines.extend(["", "## Findings", "", "| Severity | Rule | Scenario | Message |", "|---|---|---|---|"])
+        lines.extend(
+            [
+                "",
+                "## Findings",
+                "",
+                "| Severity | Rule | Scenario | Message | Help |",
+                "|---|---|---|---|---|",
+            ]
+        )
         for finding in report["findings"]:
             lines.append(
-                f"| {finding['severity']} | {finding['rule_id']} | {finding.get('scenario', '')} | {finding['message']} |"
+                f"| {finding['severity']} | {finding['rule_id']} | {finding.get('scenario', '')} | "
+                f"{finding['message']} | {finding.get('rule_help', '')} |"
             )
     return "\n".join(lines)
 
@@ -176,6 +194,7 @@ def _html(report: dict[str, Any]) -> str:
         f"<td>{escape(str(item['rule_id']))}</td>"
         f"<td>{escape(str(item.get('scenario', '')))}</td>"
         f"<td>{escape(str(item['message']))}</td>"
+        f"<td>{escape(str(item.get('rule_help', '')))}</td>"
         "</tr>"
         for item in report["findings"]
     ]
@@ -193,9 +212,8 @@ def _html(report: dict[str, Any]) -> str:
             "<h2>Scenarios</h2><table><thead><tr><th>Scenario</th><th>Status</th><th>Duration ms</th><th>Assertions</th></tr></thead><tbody>",
             *scenario_rows,
             "</tbody></table>",
-            "<h2>Findings</h2><table><thead><tr><th>Severity</th><th>Rule</th><th>Scenario</th><th>Message</th></tr></thead><tbody>",
-            *(finding_rows or ["<tr><td colspan=\"4\">No findings.</td></tr>"]),
+            "<h2>Findings</h2><table><thead><tr><th>Severity</th><th>Rule</th><th>Scenario</th><th>Message</th><th>Help</th></tr></thead><tbody>",
+            *(finding_rows or ["<tr><td colspan=\"5\">No findings.</td></tr>"]),
             "</tbody></table></body></html>",
         ]
     )
-

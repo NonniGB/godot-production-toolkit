@@ -63,3 +63,7 @@ the source file and ignored by the report kit.
 - `markdown`: PR comments and release notes.
 - `html`: static artifact for run review.
 
+Reports include the package version, a schema version, and a small rule catalog.
+Each finding includes a stable `rule_id` plus a short `rule_help` field so CI
+jobs, PR comments, and local scripts can explain what to check next without
+hard-coding those messages separately.

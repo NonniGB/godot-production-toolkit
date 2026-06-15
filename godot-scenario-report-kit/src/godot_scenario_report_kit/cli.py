@@ -6,6 +6,8 @@ import sys
 
 from .reports import compare, render, summarize
 
+VERSION_LABEL = "godot-scenario-report 0.1.1"
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
@@ -30,7 +32,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-scenario-report",
         description="Validate, summarize, and compare Godot scenario run evidence.",
     )
-    parser.add_argument("--version", action="version", version="godot-scenario-report 0.1.0")
+    parser.add_argument("--version", action="version", version=VERSION_LABEL)
     subparsers = parser.add_subparsers(dest="command")
 
     summarize_parser = subparsers.add_parser("summarize", help="Summarize a scenario result file or directory.")
@@ -71,4 +73,3 @@ def _exit_code(report: dict[str, object], fail_on: str) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
