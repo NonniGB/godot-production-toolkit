@@ -1,0 +1,30 @@
+- name: workflow: export
+  color: "1d76db"
+  description: Export preset, Android, desktop, web, or release target checks.
+- name: workflow: mobile-ui
+  color: "0e8a16"
+  description: Safe areas, touch targets, portrait UI, and mobile readiness.
+- name: workflow: localization
+  color: "c5def5"
+  description: Translation files, placeholders, glyphs, pseudo-localization, and text fit.
+- name: workflow: visual-regression
+  color: "5319e7"
+  description: Screenshot comparison, baselines, diffs, and capture planning.
+- name: workflow: runtime-evidence
+  color: "fbca04"
+  description: Scenario reports, telemetry, budgets, timelines, and release evidence.
+- name: workflow: content-data
+  color: "f9d0c4"
+  description: Data graphs, content ids, save schemas, packs, DLC, and mods.
+- name: workflow: gdscript-architecture
+  color: "bfd4f2"
+  description: GDScript boundaries, scene signals, API comments, and refactor safety.
+- name: workflow: dashboard
+  color: "d4c5f9"
+  description: Report dashboards, CI artifacts, summaries, and review pages.
+- name: good first fixture
+  color: "7057ff"
+  description: Small public fixture, sample report, or documentation example work.
+- name: report schema
+  color: "006b75"
+  description: JSON report compatibility, schema docs, and downstream automation.

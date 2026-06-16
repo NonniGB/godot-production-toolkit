@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NonniGB/godot-production-toolkit/docs/report-schemas/tool-diagnostic-report-v1.schema.json",
+  "title": "Godot Production Toolkit Diagnostic Report",
+  "type": "object",
+  "required": ["summary"],
+  "anyOf": [
+    { "required": ["tool"] },
+    {
+      "required": ["metadata"],
+      "properties": {
+        "metadata": {
+          "required": ["report_kind"]
+        }
+      }
+    }
+  ],
+  "properties": {
+    "tool": {
+      "type": "string",
+      "minLength": 1
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "schema_version": { "type": "string" },
+        "tool_version": { "type": "string" },
+        "report_kind": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "finding-v1.schema.json" }
+    },
+    "issues": {
+      "type": "array",
+      "items": { "$ref": "finding-v1.schema.json" }
+    },
+    "rule_help": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

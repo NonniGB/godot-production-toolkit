@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NonniGB/godot-production-toolkit/docs/report-schemas/finding-v1.schema.json",
+  "title": "Godot Production Toolkit Finding",
+  "type": "object",
+  "required": ["severity", "message"],
+  "properties": {
+    "severity": {
+      "type": "string",
+      "enum": ["error", "warning", "info"]
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rule_id": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "path": {
+      "type": ["string", "null"]
+    },
+    "suggestion": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

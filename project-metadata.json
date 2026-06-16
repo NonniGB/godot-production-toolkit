@@ -1,6 +1,6 @@
 {
   "project_name": "Godot Production Toolkit",
-  "one_line_summary": "A suite of CI-friendly production diagnostics for Godot 4 projects, mobile-first 2D games, release readiness, localization, visual smoke checks, save compatibility, and pixel asset workflows.",
+  "one_line_summary": "Workflow-focused release checks for Godot 4 projects: exports, mobile readiness, localization, saves, visual regression, telemetry, and content validation.",
   "repository": "https://github.com/NonniGB/godot-production-toolkit",
   "repository_description": "CI-friendly production diagnostics for Godot 4 projects.",
   "repository_topics": [
@@ -127,6 +127,7 @@
   "ci_and_maintenance": {
     "github_workflow": ".github/workflows/ci.yml",
     "issue_templates": true,
+    "workflow_feedback_template": ".github/ISSUE_TEMPLATE/workflow_feedback.yml",
     "pull_request_template": true,
     "dependabot": ".github/dependabot.yml",
     "codeowners": ".github/CODEOWNERS",
@@ -146,10 +147,21 @@
     "CHANGELOG.md",
     ".github/CODEOWNERS",
     ".github/dependabot.yml",
+    ".github/labels.yml",
+    ".github/ISSUE_TEMPLATE/workflow_feedback.yml",
+    "docs/ROADMAP.md",
     "docs/PROJECT_HEALTH.md"
+  ],
+  "report_schemas": [
+    "docs/report-schemas/tool-diagnostic-report-v1.schema.json",
+    "docs/report-schemas/finding-v1.schema.json",
+    "docs/report-schemas/README.md"
   ],
   "public_examples": [
     "docs/USE_CASES.md",
+    "docs/workflows/README.md",
+    "docs/workflows/godot-version-upgrade-checks.md",
+    "docs/ROADMAP.md",
     "examples/release-readiness-demo/README.md",
     "docs/assets/sample-reports/release-readiness-summary.html",
     "docs/assets/sample-reports/content-graph-summary.md",

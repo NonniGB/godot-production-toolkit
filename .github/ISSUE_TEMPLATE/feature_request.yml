@@ -11,11 +11,18 @@ body:
       options:
         - godot-project-doctor
         - godot-asset-pipeline-doctor
+        - godot-content-graph-doctor
         - godot-export-preset-doctor
+        - godot-gdscript-architecture-guard
         - gdscript-api-comment-coverage
         - godot-input-map-auditor
         - godot-localization-qa-guard
+        - godot-mobile-ui-doctor
+        - godot-pack-mod-doctor
+        - godot-release-dashboard-kit
+        - godot-runtime-telemetry-lab
         - godot-save-schema-guard
+        - godot-scenario-report-kit
         - godot-scene-signal-auditor
         - godot-visual-smoke-test-kit
         - godot-mobile-perf-doctor

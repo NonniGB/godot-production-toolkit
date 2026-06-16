@@ -11,11 +11,18 @@ body:
       options:
         - godot-project-doctor
         - godot-asset-pipeline-doctor
+        - godot-content-graph-doctor
         - godot-export-preset-doctor
+        - godot-gdscript-architecture-guard
         - gdscript-api-comment-coverage
         - godot-input-map-auditor
         - godot-localization-qa-guard
+        - godot-mobile-ui-doctor
+        - godot-pack-mod-doctor
+        - godot-release-dashboard-kit
+        - godot-runtime-telemetry-lab
         - godot-save-schema-guard
+        - godot-scenario-report-kit
         - godot-scene-signal-auditor
         - godot-visual-smoke-test-kit
         - godot-mobile-perf-doctor
@@ -55,6 +62,23 @@ body:
         platform="Android"
 
         Or attach/link a tiny public repro project.
+    validations:
+      required: false
+  - type: textarea
+    id: report_schema
+    attributes:
+      label: Report or schema output
+      description: Optional. If this is about JSON, SARIF, Markdown, HTML, or schema compatibility, paste a reduced report sample plus the package version and output format.
+      placeholder: |
+        Package/version:
+        Output format:
+        Report schema version if shown:
+
+        Reduced report snippet:
+        {
+          "tool": "godot-export-preset-doctor",
+          "summary": {}
+        }
     validations:
       required: false
   - type: textarea

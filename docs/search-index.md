@@ -1,4 +1,4 @@
-# Search Index
+# Workflow Finder
 
 Use this page when you know the production problem you are trying to solve, but
 not the package name yet. The entries use practical phrases people search for
@@ -156,6 +156,16 @@ the [report gallery](report-gallery/README.md#umbrella-report-inputs) includes
 an input map report.
 
 ## Runtime Evidence And Release Review
+
+### "Will a Godot 4.x upgrade break my project?"
+
+Use the [Godot version upgrade workflow](workflows/godot-version-upgrade-checks.md).
+It suggests running the same export, asset, input, localization, signal, mobile
+performance, visual smoke, content graph, and save fixture checks before and
+after the engine upgrade.
+
+Keep the before/after reports and screenshot diffs together so review focuses
+on changed findings rather than re-reading every report from scratch.
 
 ### "Scenario runs need reviewable evidence"
 

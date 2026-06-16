@@ -1,0 +1,57 @@
+name: Workflow feedback
+description: Share a Godot release, CI, mobile, asset, or QA workflow that the toolkit could support better.
+title: "[workflow]: "
+labels: ["workflow", "needs-triage"]
+body:
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow area
+      description: Which kind of work were you trying to make safer or easier?
+      options:
+        - Android, desktop, or web export review
+        - Mobile UI, touch, or input review
+        - Localization or text overflow review
+        - Pixel-art, asset import, or sprite metadata review
+        - Save migration or save fixture review
+        - Scenario, telemetry, or runtime evidence review
+        - Data/content graph, pack, DLC, or mod review
+        - GDScript architecture or scene refactor review
+        - Release dashboard or pull request report
+        - First pass on an unfamiliar Godot project
+    validations:
+      required: true
+  - type: textarea
+    id: current_flow
+    attributes:
+      label: Current workflow
+      description: Describe the commands, CI steps, files, or reports you use today.
+      placeholder: |
+        I currently run...
+        The input files are...
+        The reports are reviewed by...
+    validations:
+      required: true
+  - type: textarea
+    id: pain
+    attributes:
+      label: What is hard to check?
+      description: What is easy to miss, noisy, repetitive, or hard to review?
+      placeholder: |
+        The risky part is...
+        I only notice it when...
+        The report I wish I had would show...
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Small public example
+      description: Optional. Paste a tiny file tree, config snippet, command, or report shape. Do not include private assets, signing keys, store credentials, or full proprietary projects.
+      placeholder: |
+        project.godot
+        export_presets.cfg
+        reports/scenarios/smoke_trade.json
+        .github/workflows/release.yml
+    validations:
+      required: false

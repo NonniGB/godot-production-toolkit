@@ -7,7 +7,7 @@
           "process/fix_alpha_border": false,
           "texture_filter": 1
         },
-        "path": "examples\\release-readiness-demo\\assets\\ui_panel.png.import",
+        "path": "C:\\Temp\\tools\\examples\\release-readiness-demo\\assets\\ui_panel.png.import",
         "sections": {
           "params": {
             "mipmaps/generate": true,
@@ -16,7 +16,7 @@
           }
         }
       },
-      "path": "examples\\release-readiness-demo\\assets\\ui_panel.png",
+      "path": "C:\\Temp\\tools\\examples\\release-readiness-demo\\assets\\ui_panel.png",
       "png": {
         "contaminated_transparent_edge_pixel_count": 1,
         "contaminated_transparent_pixel_count": 1,
@@ -25,43 +25,78 @@
         "height": 48,
         "mode": "RGBA",
         "palette_color_count": 6,
-        "path": "examples\\release-readiness-demo\\assets\\ui_panel.png",
+        "path": "C:\\Temp\\tools\\examples\\release-readiness-demo\\assets\\ui_panel.png",
         "transparent_pixel_count": 1088,
         "width": 96
       }
     }
   ],
+  "audio_assets": [],
   "issues": [
     {
       "code": "alpha_border_fix_disabled",
+      "explanation": "A transparent texture is imported without Godot's alpha border fix, which can leave visible fringes.",
       "message": "Alpha border fixing is disabled on an image with transparency.",
-      "path": "examples\\release-readiness-demo\\assets\\ui_panel.png",
+      "path": "C:\\Temp\\tools\\examples\\release-readiness-demo\\assets\\ui_panel.png",
       "severity": "warning",
-      "suggestion": "Enable alpha border fixing or ensure transparent pixels are decontaminated in source art."
+      "suggestion": "Enable alpha border fixing or ensure transparent pixels are decontaminated in source art.",
+      "title": "Alpha border fix disabled"
     },
     {
       "code": "pixel_mipmaps_enabled",
+      "explanation": "Mipmaps can blur pixel-art textures unless the asset is intentionally used at many scales.",
       "message": "Mipmaps are enabled for a pixel-art profile asset.",
-      "path": "examples\\release-readiness-demo\\assets\\ui_panel.png",
+      "path": "C:\\Temp\\tools\\examples\\release-readiness-demo\\assets\\ui_panel.png",
       "severity": "warning",
-      "suggestion": "Disable mipmap generation unless the asset is intentionally scaled in 3D or at many sizes."
+      "suggestion": "Disable mipmap generation unless the asset is intentionally scaled in 3D or at many sizes.",
+      "title": "Mipmaps enabled for pixel art"
     },
     {
       "code": "transparent_edge_rgb",
+      "explanation": "Fully transparent edge pixels carry RGB data that can bleed into visible edges after filtering.",
       "message": "1 fully transparent edge pixel(s) carry non-black RGB values.",
-      "path": "examples\\release-readiness-demo\\assets\\ui_panel.png",
+      "path": "C:\\Temp\\tools\\examples\\release-readiness-demo\\assets\\ui_panel.png",
       "severity": "warning",
-      "suggestion": "Clean transparent RGB data or enable alpha-border fixing to reduce fringe artifacts."
+      "suggestion": "Clean transparent RGB data or enable alpha-border fixing to reduce fringe artifacts.",
+      "title": "Transparent edge RGB data"
     }
   ],
+  "metadata": {
+    "formats": [
+      "text",
+      "json",
+      "sarif"
+    ],
+    "profile": "pixel-2d",
+    "report_kind": "asset_pipeline_scan",
+    "root": "C:\\Temp\\tools\\examples\\release-readiness-demo",
+    "schema_version": "1.2",
+    "tool_version": "0.1.10"
+  },
+  "rules": {
+    "alpha_border_fix_disabled": {
+      "explanation": "A transparent texture is imported without Godot's alpha border fix, which can leave visible fringes.",
+      "title": "Alpha border fix disabled"
+    },
+    "pixel_mipmaps_enabled": {
+      "explanation": "Mipmaps can blur pixel-art textures unless the asset is intentionally used at many scales.",
+      "title": "Mipmaps enabled for pixel art"
+    },
+    "transparent_edge_rgb": {
+      "explanation": "Fully transparent edge pixels carry RGB data that can bleed into visible edges after filtering.",
+      "title": "Transparent edge RGB data"
+    }
+  },
   "summary": {
     "asset_count": 1,
+    "audio_asset_count": 0,
     "error_count": 0,
+    "image_asset_count": 1,
     "info_count": 0,
     "issue_count": 3,
     "profile": "pixel-2d",
-    "root": "examples\\release-readiness-demo",
+    "root": "C:\\Temp\\tools\\examples\\release-readiness-demo",
     "warning_count": 3
-  }
+  },
+  "tool": "godot-asset-pipeline-doctor"
 }
-

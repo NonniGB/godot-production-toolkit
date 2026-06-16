@@ -1,8 +1,70 @@
 # Tool Index
 
-This page maps common Godot 4 production problems to the command-line tools in
-this repository. Each tool can run locally or in CI, and most standalone tools
-are available from PyPI.
+Start here by release workflow or review task. Each tool can run locally or in
+CI, and most standalone tools are available from PyPI.
+
+## Good First Workflows
+
+### Android Release
+
+```powershell
+godot-export-doctor . --format json --output reports/export.json
+godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown --output reports/export-matrix.md
+godot-export-doctor leaks . --format html --output reports/export-leaks.html --fail-on none
+godot-mobile-perf-doctor . --static --format markdown --output reports/mobile-perf.md
+godot-asset-doctor . --profile mobile --format json --output reports/assets.json
+```
+
+### Mobile UI And Input Review
+
+```powershell
+godot-input-audit . --require keyboard,touch --format markdown --output reports/input-map.md
+godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports/mobile-ui-matrix.md
+godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports/mobile-ui-overlays --fail-on none
+godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports/input-map.json --export-report reports/export.json --mobile-perf-report reports/mobile-perf.json --format markdown --output reports/mobile-readiness.md
+```
+
+### Localization Review
+
+```powershell
+godot-l10n-guard . --translations translations --require fr,es --scan-scripts --format markdown --output reports/localization.md
+godot-mobile-ui-doctor readiness mobile-ui.json --localization-report reports/localization.json --format markdown --output reports/localized-ui-readiness.md
+```
+
+### Visual Regression
+
+```powershell
+godot-visual-smoke plan visual-smoke.toml --project . --format json --output reports/visual-plan.json
+godot-visual-smoke compare screenshots/baseline/menu.png screenshots/current/menu.png --diff reports/visual-diffs/menu.png --format json --output reports/visual-smoke.json
+```
+
+### Save Migration
+
+```powershell
+godot-save-guard validate saves/fixtures --schema schemas/save.schema.json --format markdown --output reports/save-validation.md
+```
+
+### Runtime Performance
+
+```powershell
+godot-telemetry-lab budget init --profile android-high --output reports/runtime-budget.json
+godot-telemetry-lab timeline reports/runtime --budget-file reports/runtime-budget.json --format html --output reports/runtime-timeline.html
+```
+
+### Content And Mod Packs
+
+```powershell
+godot-content-graph . --preset recipes --format markdown --output reports/content-graph.md --fail-on none
+godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format markdown --output reports/pack.md
+```
+
+### Release Evidence Dashboard
+
+```powershell
+godot-project-doctor doctor . --profile release
+godot-project-doctor run --project . --checks assets,export,input,localization,signals,mobile_perf --format json --output reports/godot-project-doctor/summary.json
+godot-release-dashboard build reports --output reports/dashboard.html
+```
 
 ## Start By Problem
 
@@ -49,33 +111,7 @@ are available from PyPI.
 | `godot-visual-smoke-test-kit` | `godot-visual-smoke` | JSON, PNG diffs |
 | `pixel-space-asset-toolkit` | `pixel-space-assets` | JSON, PNG, HTML |
 
-## Good First Workflows
-
-### Android Release Preflight
-
-```powershell
-godot-export-doctor . --format json --output reports/export.json
-godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown --output reports/export-matrix.md
-godot-export-doctor leaks . --format html --output reports/export-leaks.html --fail-on none
-godot-mobile-perf-doctor . --static --format markdown --output reports/mobile-perf.md
-godot-asset-doctor . --profile mobile --format json --output reports/assets.json
-```
-
-### Mobile UI Review
-
-```powershell
-godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports/mobile-ui-matrix.md
-godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports/mobile-ui-overlays --fail-on none
-godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports/input-map.json --export-report reports/export.json --mobile-perf-report reports/mobile-perf.json --format markdown --output reports/mobile-readiness.md
-```
-
-### Pull Request Report
-
-```powershell
-godot-project-doctor doctor . --profile release
-godot-project-doctor run --project . --checks assets,export,input,localization,signals,mobile_perf --format json --output reports/godot-project-doctor/summary.json
-godot-project-doctor summarize reports/godot-project-doctor --format html --output reports/godot-project-doctor/index.html
-```
+## Focused Examples
 
 ### Pixel Asset Diff
 

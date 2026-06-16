@@ -10,9 +10,29 @@ Godot Production Toolkit helps solo developers and small teams catch release ris
 
 It is built as seventeen standalone command-line tools, one umbrella CLI, and one GitHub Action. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
 
-**Fastest path:** install one of the PyPI packages below if you need a single check today, or use the GitHub Action if you want release-readiness reports on every pull request. Use the source checkout when you want the umbrella `godot-project-doctor` command to run several tools together.
+**Fastest path:** choose the workflow closest to the problem in front of you,
+copy the command, and keep the report as a local or CI artifact. Install a
+single PyPI package when you need one focused check, use the GitHub Action for
+pull request reports, or use a source checkout when you want the umbrella
+`godot-project-doctor` command to run several tools together.
 
 ![Godot Project Doctor HTML report](docs/assets/screenshots/project-doctor-html-report.png)
+
+## Choose A Workflow
+
+| Workflow | Start here | Typical command |
+|---|---|---|
+| Android, desktop, or web export review | [`godot-export-preset-doctor`](godot-export-preset-doctor/README.md), [`godot-mobile-perf-doctor`](godot-mobile-perf-doctor/README.md) | `godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown` |
+| Mobile UI and touch readiness | [`godot-mobile-ui-doctor`](godot-mobile-ui-doctor/README.md), [`godot-input-map-auditor`](godot-input-map-auditor/README.md) | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
+| Pixel-art and asset import hygiene | [`godot-asset-pipeline-doctor`](godot-asset-pipeline-doctor/README.md), [`pixel-space-asset-toolkit`](pixel-space-asset-toolkit/README.md) | `godot-asset-doctor . --profile pixel-2d --format json` |
+| Scenario, telemetry, and release evidence | [`godot-scenario-report-kit`](godot-scenario-report-kit/README.md), [`godot-runtime-telemetry-lab`](godot-runtime-telemetry-lab/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) | `godot-release-dashboard build reports --output reports/dashboard.html` |
+| Data, saves, and content packs | [`godot-content-graph-doctor`](godot-content-graph-doctor/README.md), [`godot-save-schema-guard`](godot-save-schema-guard/README.md), [`godot-pack-mod-doctor`](godot-pack-mod-doctor/README.md) | `godot-content-graph . --preset recipes --format markdown` |
+| GDScript refactor safety | [`godot-gdscript-architecture-guard`](godot-gdscript-architecture-guard/README.md), [`godot-scene-signal-auditor`](godot-scene-signal-auditor/README.md), [`gdscript-api-comment-coverage`](gdscript-api-comment-coverage/README.md) | `godot-architecture-guard . --config architecture-guard.toml --format markdown` |
+| First pass on an unfamiliar project | [`godot-project-doctor`](godot-project-doctor/README.md) | `godot-project-doctor doctor . --profile release` |
+
+For a wider problem-to-tool map, see the [Tool Index](docs/TOOL_INDEX.md).
+For practical search phrases such as "Godot export preset CI" or "Godot visual
+regression testing", see the [Workflow Finder](docs/search-index.md).
 
 ## What This Is For
 
@@ -34,17 +54,25 @@ architecture, and CI reports for Godot projects.
 Start with these files when evaluating or extending the suite:
 
 - `PROJECT_OVERVIEW.md`
+- `docs/workflows/README.md`
 - `docs/TOOL_INDEX.md`
 - `docs/USE_CASES.md`
 - `docs/search-index.md`
 - `docs/WORKS_WITH_YOUR_GODOT_WORKFLOW.md`
 - `docs/diagrams/README.md`
-- `llms.txt`
+- `docs/ROADMAP.md`
 - `examples/release-readiness-demo/README.md`
 - `docs/PROJECT_HEALTH.md`
 - `verify_tool_manifests.py`
 
-## Quick Start
+Discovery files for search tools, scripts, and compact project orientation:
+
+- `docs/search-index.md`: practical problem phrases and workflow routing.
+- `project-metadata.json`: structured project metadata.
+- `*/tool-manifest.json`: per-tool command metadata.
+- `llms.txt`: compact project summary for search tools and script readers.
+
+## Install
 
 Install the umbrella CLI and the tools you want to run from a checkout:
 
@@ -178,7 +206,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 
 ## Workflows And Examples
 
-- [Workflow pages](docs/workflows/) cover Android export CI, HTML5 export checks,
+- [Workflow guides](docs/workflows/) cover Android export CI, HTML5 export checks,
   runtime performance regression, mobile UI safe areas, visual regression,
   localization overflow, save migration, and mod/DLC validation.
 - [Search index](docs/search-index.md) maps practical problem phrases to the
@@ -187,10 +215,13 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
   explains local CLI, GitHub Actions, artifact-only usage, and runtime impact.
 - [Toolkit diagrams](docs/diagrams/) show how reports, release evidence, and
   mobile-readiness checks fit together.
-- [Copy-paste CI recipes](docs/ci/) provide example GitHub Actions workflows to
+- [GitHub Actions examples](docs/ci/) provide workflow snippets to
   adapt inside a Godot project.
 - [Report gallery](docs/report-gallery/) links to generated sample reports,
   screenshots, fixtures, and the commands used to recreate them.
+- [Report schemas](docs/report-schemas/) document stable top-level JSON report
+  fields for scripts and CI consumers.
+- [Roadmap](docs/ROADMAP.md) groups future work by user-facing Godot workflow.
 
 ## Tool Set
 
@@ -270,7 +301,7 @@ Run each package suite from that package directory:
 python -m unittest discover -s tests -v
 ```
 
-## What's Included
+## Repository Layout
 
 Every standalone tool has the same basic shape so it is easy to browse, test, and package:
 
@@ -287,7 +318,7 @@ Every standalone tool has the same basic shape so it is easy to browse, test, an
 
 The root folder adds CI metadata, issue templates, a PR template, project metadata, and release guidance.
 
-## Maintainer Notes
+## Project Maintenance
 
 These root-level files explain how the project is maintained and how contributors can report issues:
 
