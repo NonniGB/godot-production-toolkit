@@ -82,6 +82,82 @@ def flake_compare(paths: list[Path]) -> dict[str, Any]:
     return report
 
 
+def bundle(
+    results_path: Path,
+    manifest_path: Path | None = None,
+    telemetry_path: Path | None = None,
+    visual_path: Path | None = None,
+) -> dict[str, Any]:
+    results, findings = load_results(results_path)
+    base_dir = results_path if results_path.is_dir() else results_path.parent
+    scenario_rows: list[dict[str, Any]] = []
+    for result in results:
+        artifacts: list[dict[str, Any]] = []
+        for artifact in result.artifacts:
+            artifact_path = base_dir / artifact
+            exists = artifact_path.exists()
+            artifacts.append({"path": artifact, "exists": exists})
+            if not exists:
+                findings.append(
+                    Finding(
+                        rule_id="bundle_missing_artifact",
+                        severity="warning",
+                        scenario=result.name,
+                        source=result.source,
+                        message=f"{result.name} lists missing bundle artifact {artifact!r}.",
+                    )
+                )
+        scenario_rows.append({**result.to_dict(), "bundle_artifacts": artifacts})
+
+    links = {
+        "manifest": _bundle_link(manifest_path, base_dir, findings, "manifest"),
+        "telemetry": _bundle_link(telemetry_path, base_dir, findings, "telemetry"),
+        "visual": _bundle_link(visual_path, base_dir, findings, "visual"),
+    }
+    report = _report("scenario_bundle", results, findings)
+    report["results"] = str(results_path)
+    report["bundle"] = {
+        "base_dir": str(base_dir),
+        "scenarios": scenario_rows,
+        "links": {key: value for key, value in links.items() if value is not None},
+    }
+    if manifest_path is not None:
+        manifest_report = manifest_check(manifest_path, results_path)
+        report["coverage"] = manifest_report.get("coverage")
+        report["manifest_findings"] = manifest_report.get("findings", [])
+    report["summary"]["artifacts"] = sum(len(row["bundle_artifacts"]) for row in scenario_rows)
+    report["summary"]["linked_evidence"] = sum(1 for value in links.values() if value is not None)
+    return report
+
+
+def _bundle_link(
+    path: Path | None,
+    base_dir: Path,
+    findings: list[Finding],
+    kind: str,
+) -> dict[str, Any] | None:
+    if path is None:
+        return None
+    exists = path.exists()
+    if not exists:
+        findings.append(
+            Finding(
+                rule_id="bundle_link_missing",
+                severity="warning",
+                source=str(path),
+                message=f"Linked {kind} evidence path {str(path)!r} does not exist.",
+            )
+        )
+    return {"path": str(path), "relative_path": _relative_path(path, base_dir), "exists": exists}
+
+
+def _relative_path(path: Path, base_dir: Path) -> str:
+    try:
+        return path.resolve().relative_to(base_dir.resolve()).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def _load_manifest(path: Path) -> tuple[dict[str, Any], list[Finding]]:
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))

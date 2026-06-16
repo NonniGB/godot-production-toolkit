@@ -19,7 +19,7 @@ class ReportingTests(unittest.TestCase):
         report = json.loads(render_json_report([preset], [finding]))
 
         self.assertEqual(report["metadata"]["schema_version"], "1.1")
-        self.assertEqual(report["metadata"]["tool_version"], "0.1.8")
+        self.assertEqual(report["metadata"]["tool_version"], "0.1.9")
         self.assertEqual(report["summary"]["presets"], 1)
         self.assertEqual(report["summary"]["errors"], 1)
         self.assertEqual(report["rules"]["missing_export_path"]["title"], "Missing export path")

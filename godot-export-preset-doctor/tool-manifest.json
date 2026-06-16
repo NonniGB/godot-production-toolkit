@@ -38,6 +38,14 @@
     {
       "purpose": "Preset leak review",
       "command": "godot-export-doctor leaks <project> --format html --output export-leaks.html --fail-on warning"
+    },
+    {
+      "purpose": "Compare export presets with a baseline",
+      "command": "godot-export-doctor diff <project> --baseline reports/baseline-export-presets --format markdown --output export-diff.md --fail-on none"
+    },
+    {
+      "purpose": "Inspect an exported folder for development files",
+      "command": "godot-export-doctor inspect-folder build/android --format markdown --output exported-folder.md --fail-on none"
     }
   ]
 }

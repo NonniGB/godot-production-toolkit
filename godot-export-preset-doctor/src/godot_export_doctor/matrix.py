@@ -83,6 +83,67 @@ def leak_report(project: Path, presets: list[ExportPreset]) -> dict[str, Any]:
     return payload
 
 
+def diff_report(baseline: list[ExportPreset], current: list[ExportPreset]) -> dict[str, Any]:
+    findings: list[Finding] = []
+    baseline_by_name = {preset.display_name(): preset for preset in baseline}
+    current_by_name = {preset.display_name(): preset for preset in current}
+    added = sorted(set(current_by_name) - set(baseline_by_name))
+    removed = sorted(set(baseline_by_name) - set(current_by_name))
+    changed: list[str] = []
+    for name in sorted(set(baseline_by_name) & set(current_by_name)):
+        before = _preset_compare_payload(baseline_by_name[name])
+        after = _preset_compare_payload(current_by_name[name])
+        if before != after:
+            changed.append(name)
+            findings.append(
+                Finding(
+                    rule_id="export_preset_changed",
+                    severity="warning",
+                    preset_index=current_by_name[name].index,
+                    preset_name=name,
+                    message=f"Export preset {name!r} changed since the baseline.",
+                )
+            )
+    for name in removed:
+        findings.append(
+            Finding(
+                rule_id="export_preset_removed",
+                severity="warning",
+                preset_index=baseline_by_name[name].index,
+                preset_name=name,
+                message=f"Export preset {name!r} was removed since the baseline.",
+            )
+        )
+    payload = _matrix_payload("export_diff", current, findings, [])
+    payload["diff"] = {"added": added, "removed": removed, "changed": changed}
+    payload["summary"]["added"] = len(added)
+    payload["summary"]["removed"] = len(removed)
+    payload["summary"]["changed"] = len(changed)
+    return payload
+
+
+def exported_folder_report(path: Path) -> dict[str, Any]:
+    findings: list[Finding] = []
+    files = sorted(item.relative_to(path).as_posix() for item in path.rglob("*") if item.is_file()) if path.exists() else []
+    for relative in files:
+        lowered = f"/{relative.lower()}"
+        if any(marker in lowered for marker in DEV_FILE_MARKERS):
+            findings.append(
+                Finding(
+                    rule_id="exported_folder_dev_file",
+                    severity="warning",
+                    preset_index=None,
+                    preset_name=path.name,
+                    message=f"Exported folder contains development-looking file {relative!r}.",
+                )
+            )
+    payload = _matrix_payload("exported_folder_inspection", [], findings, [])
+    payload["folder"] = str(path)
+    payload["files"] = files
+    payload["summary"]["files"] = len(files)
+    return payload
+
+
 def render_matrix_report(report: dict[str, Any], output_format: str) -> str:
     if output_format == "json":
         return json.dumps(report, indent=2, sort_keys=True)
@@ -135,6 +196,19 @@ def _preset_row(preset: ExportPreset) -> dict[str, Any]:
     }
 
 
+def _preset_compare_payload(preset: ExportPreset) -> dict[str, Any]:
+    return {
+        "platform": preset.platform,
+        "runnable": preset.runnable,
+        "export_filter": preset.export_filter,
+        "include_filter": preset.include_filter,
+        "exclude_filter": preset.exclude_filter,
+        "custom_features": preset.custom_features,
+        "export_path": preset.export_path,
+        "options": preset.options,
+    }
+
+
 def _preset_local_path_findings(preset: ExportPreset) -> list[Finding]:
     findings: list[Finding] = []
     for field, value in (
@@ -178,9 +252,14 @@ def _suspicious_project_files(project_root: Path) -> list[str]:
 def _text(report: dict[str, Any]) -> str:
     summary = report["summary"]
     lines = [
-        "Godot Export Matrix",
+        _report_title(report),
         f"Presets: {summary['presets']} | Platforms: {summary['platforms']} | Findings: {summary['findings']}",
     ]
+    if report.get("diff"):
+        diff = report["diff"]
+        lines.append(f"Added: {len(diff['added'])} | Removed: {len(diff['removed'])} | Changed: {len(diff['changed'])}")
+    if report.get("files") is not None:
+        lines.append(f"Files inspected: {summary.get('files', 0)}")
     for row in report["matrix"]:
         lines.append(
             f"- preset.{row['index']} {row['name']} ({row['platform']}): {row['export_path'] or '<no export path>'}"
@@ -193,21 +272,40 @@ def _text(report: dict[str, Any]) -> str:
 def _markdown(report: dict[str, Any]) -> str:
     summary = report["summary"]
     lines = [
-        "# Godot Export Matrix",
+        f"# {_report_title(report)}",
         "",
         f"- Presets: {summary['presets']}",
         f"- Platforms: {summary['platforms']}",
         f"- Warnings: {summary['warnings']}",
         f"- Errors: {summary['errors']}",
         "",
-        "| Preset | Platform | Runnable | Filter | Include | Exclude | Export path |",
-        "|---|---|---|---|---|---|---|",
     ]
-    for row in report["matrix"]:
-        lines.append(
-            f"| {row['name']} | {row['platform']} | {row['runnable']} | {row['export_filter']} | "
-            f"{row['include_filter']} | {row['exclude_filter']} | {row['export_path']} |"
+    if report.get("diff"):
+        diff = report["diff"]
+        lines.extend(
+            [
+                "## Diff",
+                "",
+                f"- Added: {', '.join(diff['added']) or '-'}",
+                f"- Removed: {', '.join(diff['removed']) or '-'}",
+                f"- Changed: {', '.join(diff['changed']) or '-'}",
+                "",
+            ]
         )
+    if report.get("files") is not None:
+        lines.extend(["## Exported Folder", "", f"- Files inspected: {summary.get('files', 0)}", ""])
+    if report["matrix"]:
+        lines.extend(
+            [
+                "| Preset | Platform | Runnable | Filter | Include | Exclude | Export path |",
+                "|---|---|---|---|---|---|---|",
+            ]
+        )
+        for row in report["matrix"]:
+            lines.append(
+                f"| {row['name']} | {row['platform']} | {row['runnable']} | {row['export_filter']} | "
+                f"{row['include_filter']} | {row['exclude_filter']} | {row['export_path']} |"
+            )
     if report["findings"]:
         lines.extend(["", "## Findings", "", "| Severity | Rule | Preset | Message |", "|---|---|---|---|"])
         for finding in report["findings"]:
@@ -244,7 +342,7 @@ def _html(report: dict[str, Any]) -> str:
     )
     if not preset_rows:
         preset_rows = '<tr><td colspan="7">No export presets were found.</td></tr>'
-    title = "Godot Export Leak Report" if report["metadata"]["report_kind"] == "export_leaks" else "Godot Export Matrix"
+    title = _report_title(report)
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -344,3 +442,14 @@ def _html(report: dict[str, Any]) -> str:
   </main>
 </body>
 </html>"""
+
+
+def _report_title(report: dict[str, Any]) -> str:
+    kind = report["metadata"]["report_kind"]
+    if kind == "export_leaks":
+        return "Godot Export Leak Report"
+    if kind == "export_diff":
+        return "Godot Export Diff"
+    if kind == "exported_folder_inspection":
+        return "Godot Exported Folder Inspection"
+    return "Godot Export Matrix"

@@ -36,7 +36,7 @@ class ScenarioReportTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.2")
+            self.assertEqual(report["tool_version"], "0.1.3")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("scenario_failed", report["metadata"]["rules"])
             self.assertEqual(report["summary"]["scenarios"], 1)
@@ -177,6 +177,61 @@ class ScenarioReportTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertIn("flaky_scenario", markdown)
             self.assertIn("Flaky Scenarios", markdown)
+
+    def test_bundle_links_telemetry_visual_and_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            results = root / "results"
+            results.mkdir()
+            (results / "screenshots").mkdir()
+            (results / "screenshots" / "menu.png").write_bytes(b"png")
+            telemetry = root / "telemetry.json"
+            visual = root / "visual.json"
+            manifest = root / "scenario-manifest.json"
+            telemetry.write_text(json.dumps({"samples": [{"frame_ms": 12}]}), encoding="utf-8")
+            visual.write_text(json.dumps({"summary": {"warnings": 0}}), encoding="utf-8")
+            manifest.write_text(
+                json.dumps({"scenarios": [{"id": "menu", "owner": "ui", "tags": ["smoke"]}]}),
+                encoding="utf-8",
+            )
+            (results / "menu.json").write_text(
+                json.dumps(
+                    {
+                        "scenario": "menu",
+                        "status": "passed",
+                        "artifacts": ["screenshots/menu.png", "missing.log"],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--manifest",
+                        str(manifest),
+                        "--telemetry",
+                        str(telemetry),
+                        "--visual",
+                        str(visual),
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["kind"], "scenario_bundle")
+            self.assertEqual(report["summary"]["linked_evidence"], 3)
+            self.assertEqual(report["summary"]["artifacts"], 2)
+            self.assertIn("telemetry", report["bundle"]["links"])
+            self.assertIn("visual", report["bundle"]["links"])
+            self.assertIn("bundle_missing_artifact", {finding["rule_id"] for finding in report["findings"]})
 
 
 if __name__ == "__main__":

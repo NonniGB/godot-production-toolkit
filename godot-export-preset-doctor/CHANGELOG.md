@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.9 - 2026-06-16
+
+- Added `diff` reports for comparing current export presets with a baseline.
+- Added `inspect-folder` reports for exported folders that may contain development, debug, test, log, backup, or source-art files.
+
 ## 0.1.8 - 2026-06-16
 
 - Added `matrix` reports for platform/preset coverage.

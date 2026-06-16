@@ -5,9 +5,9 @@ from pathlib import Path
 import sys
 
 from .reports import compare, render, summarize
-from .suite import coverage, flake_compare, manifest_check
+from .suite import bundle, coverage, flake_compare, manifest_check
 
-VERSION_LABEL = "godot-scenario-report 0.1.2"
+VERSION_LABEL = "godot-scenario-report 0.1.3"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -23,6 +23,13 @@ def main(argv: list[str] | None = None) -> int:
         report = coverage(Path(args.manifest), Path(args.results) if args.results else None)
     elif args.command == "flake" and args.flake_command == "compare":
         report = flake_compare([Path(path) for path in args.paths])
+    elif args.command == "bundle":
+        report = bundle(
+            Path(args.results),
+            manifest_path=Path(args.manifest) if args.manifest else None,
+            telemetry_path=Path(args.telemetry) if args.telemetry else None,
+            visual_path=Path(args.visual) if args.visual else None,
+        )
     else:
         parser.print_help()
         return 2
@@ -69,6 +76,13 @@ def _build_parser() -> argparse.ArgumentParser:
     flake_compare_parser = flake_subparsers.add_parser("compare", help="Compare two or more result folders.")
     flake_compare_parser.add_argument("paths", nargs="+")
     _add_output_args(flake_compare_parser)
+
+    bundle_parser = subparsers.add_parser("bundle", help="Create a portable scenario evidence bundle manifest.")
+    bundle_parser.add_argument("results")
+    bundle_parser.add_argument("--manifest", help="Optional scenario manifest used for coverage context.")
+    bundle_parser.add_argument("--telemetry", help="Optional runtime telemetry report or directory to link.")
+    bundle_parser.add_argument("--visual", help="Optional visual smoke report or screenshot directory to link.")
+    _add_output_args(bundle_parser)
     return parser
 
 

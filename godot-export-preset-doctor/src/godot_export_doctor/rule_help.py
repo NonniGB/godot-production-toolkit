@@ -74,6 +74,18 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Local path in export preset",
         "explanation": "Local machine paths in preset filters or export paths tend to fail in CI and can expose machine-specific setup.",
     },
+    "export_preset_changed": {
+        "title": "Export preset changed",
+        "explanation": "A preset differs from the baseline export configuration and should be reviewed before release.",
+    },
+    "export_preset_removed": {
+        "title": "Export preset removed",
+        "explanation": "A preset exists in the baseline but not in the current export configuration.",
+    },
+    "exported_folder_dev_file": {
+        "title": "Development file in exported folder",
+        "explanation": "An exported folder contains a test, debug, log, backup, or source-art file.",
+    },
 }
 
 

@@ -40,6 +40,92 @@ def check_manifest(path: Path, base: Path | None = None, allow_overrides: bool =
     }
 
 
+def diff_manifests(baseline: Path, current: Path) -> dict[str, Any]:
+    baseline_data = _load_manifest(baseline)
+    current_data = _load_manifest(current)
+    baseline_files = _files_by_path(baseline_data)
+    current_files = _files_by_path(current_data)
+    added = sorted(set(current_files) - set(baseline_files))
+    removed = sorted(set(baseline_files) - set(current_files))
+    changed = [
+        path
+        for path in sorted(set(baseline_files) & set(current_files))
+        if _stable_file_payload(baseline_files[path]) != _stable_file_payload(current_files[path])
+    ]
+    findings: list[dict[str, str]] = []
+    for path in removed:
+        findings.append(
+            {
+                "rule_id": "pack_file_removed",
+                "severity": "warning",
+                "message": f"{path!r} is present in the baseline pack but missing from the current pack.",
+                "rule_help": "Check whether the removal is intended before publishing the pack update.",
+            }
+        )
+    summary = {
+        "packs": 2,
+        "files": len(current_files),
+        "dependencies": len(current_data.get("dependencies", []) if isinstance(current_data.get("dependencies"), list) else []),
+        "added": len(added),
+        "removed": len(removed),
+        "changed": len(changed),
+        "errors": 0,
+        "warnings": len(findings),
+    }
+    return {
+        "tool": "godot-pack-mod-doctor",
+        "tool_version": __version__,
+        "schema_version": "1.0",
+        "kind": "pack_manifest_diff",
+        "summary": summary,
+        "baseline": str(baseline),
+        "current": str(current),
+        "diff": {"added": added, "removed": removed, "changed": changed},
+        "findings": findings,
+    }
+
+
+def load_order(manifests: list[Path]) -> dict[str, Any]:
+    findings: list[dict[str, str]] = []
+    owners: dict[str, str] = {}
+    packs: list[dict[str, Any]] = []
+    for index, manifest in enumerate(manifests):
+        data = _load_manifest(manifest)
+        pack_id = str(data.get("id") or manifest.stem)
+        files = [item for item in data.get("files", []) if isinstance(item, dict)]
+        packs.append({"id": pack_id, "path": str(manifest), "files": len(files), "order": index})
+        for item in files:
+            path = str(item.get("path", "")).strip()
+            if not path:
+                continue
+            previous_owner = owners.get(path)
+            if previous_owner and not item.get("overrides"):
+                findings.append(
+                    {
+                        "rule_id": "load_order_conflict",
+                        "severity": "warning",
+                        "message": f"{pack_id} ships {path!r} after {previous_owner} without declaring an override.",
+                        "rule_help": "Declare intentional overrides or change pack order so resource ownership is clear.",
+                    }
+                )
+            owners[path] = pack_id
+    return {
+        "tool": "godot-pack-mod-doctor",
+        "tool_version": __version__,
+        "schema_version": "1.0",
+        "kind": "pack_load_order",
+        "summary": {
+            "packs": len(packs),
+            "files": len(owners),
+            "dependencies": 0,
+            "errors": 0,
+            "warnings": len(findings),
+        },
+        "packs": packs,
+        "findings": findings,
+    }
+
+
 def render(report: dict[str, Any], output_format: str) -> str:
     if output_format == "json":
         return json.dumps(report, indent=2, sort_keys=True)
@@ -129,12 +215,31 @@ def _base_ids(path: Path | None) -> set[str]:
     return ids
 
 
+def _load_manifest(path: Path) -> dict[str, Any]:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return data if isinstance(data, dict) else {}
+
+
+def _files_by_path(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    files = [item for item in data.get("files", []) if isinstance(item, dict)]
+    return {str(item.get("path", "")).strip(): item for item in files if str(item.get("path", "")).strip()}
+
+
+def _stable_file_payload(item: dict[str, Any]) -> dict[str, Any]:
+    return {key: item.get(key) for key in sorted(item) if key != "path"}
+
+
 def _text(report: dict[str, Any]) -> str:
     summary = report["summary"]
     lines = [
         "Godot Pack Mod Doctor",
         f"Files: {summary['files']} | Errors: {summary['errors']} | Warnings: {summary['warnings']}",
     ]
+    if report.get("kind") == "pack_manifest_diff":
+        diff = report["diff"]
+        lines.append(f"Added: {len(diff['added'])} | Removed: {len(diff['removed'])} | Changed: {len(diff['changed'])}")
+    if report.get("kind") == "pack_load_order":
+        lines.append(f"Packs: {summary['packs']}")
     for finding in report["findings"]:
         lines.append(f"- {finding['severity'].upper()} {finding['rule_id']}: {finding['message']}")
     return "\n".join(lines)
@@ -152,9 +257,25 @@ def _markdown(report: dict[str, Any]) -> str:
         f"| Errors | {summary['errors']} |",
         f"| Warnings | {summary['warnings']} |",
         "",
-        "## Findings",
-        "",
     ]
+    if report.get("kind") == "pack_manifest_diff":
+        diff = report["diff"]
+        lines.extend(
+            [
+                "## Diff",
+                "",
+                f"- Added: {', '.join(diff['added']) or '-'}",
+                f"- Removed: {', '.join(diff['removed']) or '-'}",
+                f"- Changed: {', '.join(diff['changed']) or '-'}",
+                "",
+            ]
+        )
+    if report.get("kind") == "pack_load_order":
+        lines.extend(["## Load Order", "", "| Order | Pack | Files |", "|---:|---|---:|"])
+        for pack in report["packs"]:
+            lines.append(f"| {pack['order']} | {pack['id']} | {pack['files']} |")
+        lines.append("")
+    lines.extend(["## Findings", ""])
     if not report["findings"]:
         lines.append("No pack manifest findings.")
     else:

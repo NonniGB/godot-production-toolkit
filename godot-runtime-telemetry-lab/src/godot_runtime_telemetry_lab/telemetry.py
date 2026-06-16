@@ -125,6 +125,26 @@ def budget_profile(name: str) -> dict[str, Any]:
     }
 
 
+def adapt(path: Path, source_format: str = "auto") -> dict[str, Any]:
+    raw_samples = load_samples(path)
+    samples = [_adapt_sample(sample, index) for index, sample in enumerate(raw_samples)]
+    return {
+        "tool": "godot-runtime-telemetry-lab",
+        "tool_version": __version__,
+        "schema_version": "1.0",
+        "kind": "runtime_telemetry_adapter",
+        "source_format": source_format,
+        "summary": {
+            "samples": len(samples),
+            "scenarios": sorted({str(sample.get("scenario", "default")) for sample in samples}),
+            "errors": 0,
+            "warnings": 0,
+        },
+        "samples": samples,
+        "findings": [],
+    }
+
+
 def load_budget(path: Path) -> dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
@@ -171,6 +191,47 @@ def _load_json(path: Path) -> list[dict[str, Any]]:
 def _load_csv(path: Path) -> list[dict[str, Any]]:
     with path.open("r", encoding="utf-8", newline="") as handle:
         return [dict(row) for row in csv.DictReader(handle)]
+
+
+def _adapt_sample(sample: dict[str, Any], index: int) -> dict[str, Any]:
+    fps = _first_number(sample, "fps", "frames_per_second", "Performance.TIME_FPS")
+    frame_ms = _first_number(
+        sample,
+        "frame_ms",
+        "frame_time_ms",
+        "delta_ms",
+        "process_ms",
+        "Performance.TIME_PROCESS",
+    )
+    if frame_ms is None and fps and fps > 0:
+        frame_ms = 1000.0 / fps
+    physics_ms = _first_number(sample, "physics_ms", "physics_frame_ms", "physics_process_ms", "Performance.TIME_PHYSICS_PROCESS")
+    memory_mb = _first_number(sample, "memory_mb", "static_memory_mb", "memory_static_mb", "Performance.MEMORY_STATIC")
+    if memory_mb is not None and memory_mb > 4096:
+        memory_mb = memory_mb / 1048576.0
+    return {
+        "scenario": str(sample.get("scenario") or sample.get("run") or "default"),
+        "phase": str(sample.get("phase") or sample.get("event") or ""),
+        "time_s": _first_number(sample, "time_s", "timestamp_s", "elapsed_s", "time") or float(index),
+        "frame": _first_number(sample, "frame", "frame_index") or index,
+        "frame_ms": frame_ms or 0.0,
+        "physics_ms": physics_ms or 0.0,
+        "memory_mb": memory_mb or 0.0,
+        "nodes": int(_first_number(sample, "nodes", "node_count", "object_node_count", "Performance.OBJECT_NODE_COUNT") or 0),
+        "draw_calls": int(_first_number(sample, "draw_calls", "render_draw_calls", "Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME") or 0),
+    }
+
+
+def _first_number(sample: dict[str, Any], *keys: str) -> float | None:
+    lowered = {str(key).lower(): value for key, value in sample.items()}
+    for key in keys:
+        value = sample.get(key)
+        if value is None:
+            value = lowered.get(key.lower())
+        number = _number(value)
+        if number is not None:
+            return number
+    return None
 
 
 def _summary(samples: list[dict[str, Any]]) -> dict[str, Any]:
@@ -296,6 +357,8 @@ def _percentile(values: list[float], fraction: float) -> float:
 
 def _text(report: dict[str, Any]) -> str:
     summary = report["summary"]
+    if report.get("kind") == "runtime_telemetry_adapter":
+        return f"Godot Runtime Telemetry Adapter\nSamples: {summary['samples']}"
     if report.get("kind") == "runtime_telemetry_timeline":
         return _timeline_text(report)
     if report.get("kind") == "runtime_telemetry_budget":
@@ -312,6 +375,8 @@ def _text(report: dict[str, Any]) -> str:
 
 def _markdown(report: dict[str, Any]) -> str:
     summary = report["summary"]
+    if report.get("kind") == "runtime_telemetry_adapter":
+        return "\n".join(["# Godot Runtime Telemetry Adapter", "", f"- Samples: {summary['samples']}"])
     if report.get("kind") == "runtime_telemetry_timeline":
         return _timeline_markdown(report)
     if report.get("kind") == "runtime_telemetry_budget":

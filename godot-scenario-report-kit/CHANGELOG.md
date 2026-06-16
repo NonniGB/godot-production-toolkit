@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 - 2026-06-16
+
+- Added `bundle` reports that collect scenario results, listed artifacts, and optional manifest, telemetry, and visual evidence links.
+- Added bundle findings for missing scenario artifacts and missing linked evidence paths.
+
 ## 0.1.2 - 2026-06-16
 
 - Added `manifest check` for scenario manifests, expected artifacts, and optional result alignment.

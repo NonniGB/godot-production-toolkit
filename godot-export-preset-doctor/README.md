@@ -27,6 +27,8 @@ godot-export-doctor . --platform Android --required-android-abi arm64-v8a
 godot-export-doctor . --format sarif --output export-doctor.sarif
 godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown
 godot-export-doctor leaks . --format html --output reports\export-leaks.html
+godot-export-doctor diff . --baseline reports\baseline-export-presets --format markdown
+godot-export-doctor inspect-folder build\android --format markdown
 ```
 
 Use `--fail-on none` while exploring a report:
@@ -70,7 +72,9 @@ godot-export-doctor . --platform Android --required-android-abi arm64-v8a --fail
 - Release-like presets with debug options enabled.
 - Hard-coded password, token, secret, or keystore-like values.
 - Missing or duplicated expected export platforms in a release matrix.
+- Export preset changes compared with a baseline.
 - Broad export filters that may include debug/test/source files.
+- Exported folders that contain debug/test/source-art/log/backup files.
 - Local-looking export, include, or exclude paths that should not be shared in CI artifacts.
 - JSON and SARIF output for scripts and CI, with plain-language rule explanations.
 
@@ -100,6 +104,19 @@ flags local-looking paths in preset fields:
 
 ```powershell
 godot-export-doctor leaks . --format html --output reports\export-leaks.html --fail-on none
+```
+
+`diff` compares the current `export_presets.cfg` with a baseline project or
+baseline preset file:
+
+```powershell
+godot-export-doctor diff . --baseline reports\baseline-export-presets --format markdown
+```
+
+`inspect-folder` scans an already-exported folder for development-looking files:
+
+```powershell
+godot-export-doctor inspect-folder build\android --format json --output reports\exported-folder.json
 ```
 
 ## Configuration
@@ -153,6 +170,7 @@ godot-export-doctor . --format sarif --output export-doctor.sarif
 - run: godot-export-doctor . --platform Android --fail-on warning --format sarif --output reports/export-doctor.sarif
 - run: godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown --output reports/export-matrix.md --fail-on warning
 - run: godot-export-doctor leaks . --format html --output reports/export-leaks.html --fail-on warning
+- run: godot-export-doctor diff . --baseline reports/baseline-export-presets --format markdown --output reports/export-diff.md --fail-on none
 ```
 
 ## Documentation

@@ -42,6 +42,12 @@ Compare repeated runs for flaky status changes:
 godot-scenario-report flake compare examples\tiny-scenario-runs\baseline examples\tiny-scenario-runs\current examples\tiny-scenario-runs\repeat-run --format markdown
 ```
 
+Bundle scenario evidence with nearby telemetry and visual reports:
+
+```powershell
+godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --telemetry reports\runtime-timeline.html --visual reports\visual-smoke.json --format json --output reports\scenario-bundle.json
+```
+
 ## Result Shape
 
 A run file can be a single scenario:
@@ -71,6 +77,7 @@ the source file and ignored by the report kit.
 - manifest entries without results, owners, tags, or expected artifacts;
 - missing required tag, platform, or critical-flow coverage;
 - scenarios whose status changes across repeated runs.
+- missing artifacts or linked telemetry/visual evidence in a bundle report.
 
 ## Manifest Shape
 
@@ -103,6 +110,11 @@ to run, rather than only summarizing whatever files happened to be written:
 - `json`: CI and scripts.
 - `markdown`: PR comments and release notes.
 - `html`: static artifact for run review.
+
+The `bundle` command is intended for release dashboards and PR artifacts. It
+does not rewrite project-owned evidence; it builds a compact manifest of
+scenario results, listed artifacts, and optional telemetry or visual-smoke
+reports so reviewers can see which files belong together.
 
 Reports include the package version, a schema version, and a small rule catalog.
 Each finding includes a stable `rule_id` plus a short `rule_help` field so CI

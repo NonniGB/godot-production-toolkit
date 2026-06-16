@@ -4,9 +4,9 @@ import argparse
 from pathlib import Path
 import sys
 
-from .telemetry import BUDGET_PROFILES, budget_profile, compare, load_budget, render, summarize, timeline
+from .telemetry import BUDGET_PROFILES, adapt, budget_profile, compare, load_budget, render, summarize, timeline
 
-VERSION_LABEL = "godot-telemetry-lab 0.1.1"
+VERSION_LABEL = "godot-telemetry-lab 0.1.2"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -29,6 +29,13 @@ def main(argv: list[str] | None = None) -> int:
     timeline_parser.add_argument("--memory-budget-mb", type=float)
     _add_common_args(timeline_parser, formats=["text", "json", "markdown", "html", "svg"], default_format="html")
 
+    adapt_parser = subparsers.add_parser("adapt", help="Normalize common Godot telemetry field names.")
+    adapt_parser.add_argument("path")
+    adapt_parser.add_argument("--source-format", choices=["auto", "godot-monitor"], default="auto")
+    adapt_parser.add_argument("--format", choices=["text", "json", "markdown"], default="json")
+    adapt_parser.add_argument("--output")
+    adapt_parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="none")
+
     budget_parser = subparsers.add_parser("budget", help="Create or inspect starter runtime budgets.")
     budget_subparsers = budget_parser.add_subparsers(dest="budget_command")
     init_parser = budget_subparsers.add_parser("init", help="Write a starter budget profile as JSON.")
@@ -49,6 +56,8 @@ def main(argv: list[str] | None = None) -> int:
         if memory_budget_mb is None:
             memory_budget_mb = budget.get("memory_budget_mb")
         report = timeline(Path(args.path), budget["frame_budget_ms"], memory_budget_mb)
+    elif args.command == "adapt":
+        report = adapt(Path(args.path), args.source_format)
     elif args.command == "budget" and args.budget_command == "init":
         report = budget_profile(args.profile)
     else:

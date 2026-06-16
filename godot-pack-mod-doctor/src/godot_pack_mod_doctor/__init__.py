@@ -1,3 +1,3 @@
 """Pack, DLC, and mod manifest checks for Godot projects."""
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

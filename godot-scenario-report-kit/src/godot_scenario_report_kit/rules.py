@@ -84,6 +84,14 @@ RULES: dict[str, dict[str, str]] = {
         "title": "Scenario changed status across runs",
         "help": "Inspect logs and artifacts from both passing and failing runs before treating this scenario as stable.",
     },
+    "bundle_missing_artifact": {
+        "title": "Bundle artifact missing",
+        "help": "Check that scenario artifact paths are relative to the result folder before publishing the bundle.",
+    },
+    "bundle_link_missing": {
+        "title": "Bundle linked evidence missing",
+        "help": "Check the telemetry or visual evidence path before attaching the bundle to a release review.",
+    },
 }
 
 

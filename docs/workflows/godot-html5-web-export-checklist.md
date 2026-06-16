@@ -19,6 +19,7 @@ Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 ```powershell
 python -m pip install godot-export-preset-doctor godot-asset-pipeline-doctor godot-input-map-auditor
 godot-export-doctor . --platform Web --format json --output reports\web-export.json
+godot-export-doctor inspect-folder build\web --format markdown --output reports\web-exported-folder.md --fail-on none
 godot-asset-doctor . --profile web --format markdown --output reports\web-assets.md
 godot-input-audit . --format markdown --output reports\web-input.md
 ```

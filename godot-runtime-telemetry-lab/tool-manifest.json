@@ -33,6 +33,10 @@
       "command": "godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html"
     },
     {
+      "purpose": "Normalize common Godot monitor output",
+      "command": "godot-telemetry-lab adapt reports/godot-monitor.csv --format json --output reports/runtime-normalized.json"
+    },
+    {
       "purpose": "Create a reusable runtime budget",
       "command": "godot-telemetry-lab budget init --profile android-high --output reports/runtime-budget.json"
     }

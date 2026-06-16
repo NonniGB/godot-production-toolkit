@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-export-doctor 0.1.8", stdout.getvalue())
+        self.assertIn("godot-export-doctor 0.1.9", stdout.getvalue())
 
     def test_cli_reports_findings_as_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -196,7 +196,7 @@ export_path="build/web/index.html"
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.8")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.9")
             self.assertEqual(report["summary"]["presets"], 1)
 
     def test_cli_matrix_reports_missing_expected_platform(self) -> None:
@@ -319,6 +319,104 @@ export_path="build/web/index.html"
             self.assertEqual(exit_code, 0)
             self.assertEqual(report["summary"]["presets"], 2)
             self.assertEqual({row["platform"] for row in report["matrix"]}, {"Android", "Web"})
+
+    def test_cli_diff_reports_changed_and_removed_presets(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline"
+            current = root / "current"
+            baseline.mkdir()
+            current.mkdir()
+            (baseline / "export_presets.cfg").write_text(
+                """
+[preset.0]
+name="Android Release"
+platform="Android"
+export_path="build/game.apk"
+
+[preset.1]
+name="Web Release"
+platform="Web"
+export_path="build/web/index.html"
+""",
+                encoding="utf-8",
+            )
+            (current / "export_presets.cfg").write_text(
+                """
+[preset.0]
+name="Android Release"
+platform="Android"
+export_path="build/game.aab"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "diff",
+                        str(current),
+                        "--baseline",
+                        str(baseline),
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["metadata"]["report_kind"], "export_diff")
+            self.assertEqual(report["diff"]["changed"], ["Android Release"])
+            self.assertEqual(report["diff"]["removed"], ["Web Release"])
+
+    def test_cli_inspect_folder_reports_dev_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            export = Path(tmp) / "export"
+            (export / "tests").mkdir(parents=True)
+            (export / "tests" / "debug_scene.tscn").write_text("[gd_scene]", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["inspect-folder", str(export), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["metadata"]["report_kind"], "exported_folder_inspection")
+            self.assertIn("exported_folder_dev_file", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_cli_diff_does_not_inherit_config_platform_filter(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / ".godot-export-doctor.toml").write_text('platform = "Android"\n', encoding="utf-8")
+            (project / "export_presets.cfg").write_text(
+                """
+[preset.0]
+name="Android Release"
+platform="Android"
+export_path="build/game.apk"
+
+[preset.1]
+name="Web Release"
+platform="Web"
+export_path="build/web/index.html"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    ["diff", str(project), "--baseline", str(project), "--format", "json", "--fail-on", "none"]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["removed"], 0)
+            self.assertEqual(report["summary"]["changed"], 0)
+            self.assertEqual(report["summary"]["presets"], 2)
 
 
 if __name__ == "__main__":

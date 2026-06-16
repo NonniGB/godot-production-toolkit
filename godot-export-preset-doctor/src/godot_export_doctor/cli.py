@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .models import ExportPreset, Finding
-from .matrix import leak_report, matrix_report, render_matrix_report
+from .matrix import diff_report, exported_folder_report, leak_report, matrix_report, render_matrix_report
 from .preset_parser import parse_export_presets
 from .reporting import render_json_report, render_sarif_report, render_text_report
 from .rules import evaluate_presets, missing_export_presets_finding
@@ -29,7 +29,7 @@ def main(argv: list[str] | None = None) -> int:
     output_format = args.format or str(config.get("format", "text"))
     fail_on = args.fail_on or str(config.get("fail_on", "warning"))
     platform = args.platform or config.get("platform")
-    report_platform = args.platform if command in {"matrix", "leaks"} else platform
+    report_platform = args.platform if command in {"matrix", "leaks", "diff"} else platform
     required_android_abis = _configured_list(args.required_android_abi, config, "required_android_abis")
     allowed_secret_patterns = _configured_list(args.allow_secret_pattern, config, "allowed_secret_patterns")
     allowed_formats = {"text", "json", "sarif"} if command == "check" else {"text", "json", "markdown", "html"}
@@ -59,6 +59,22 @@ def main(argv: list[str] | None = None) -> int:
         report = leak_report(project, report_presets)
         rendered = render_matrix_report(report, output_format)
         findings = _findings_from_report(report)
+    elif command == "diff":
+        if not args.baseline:
+            parser.error("diff requires --baseline")
+        baseline_presets_file = _resolve_presets_file(Path(args.baseline))
+        baseline_presets = (
+            parse_export_presets(baseline_presets_file.read_text(encoding="utf-8"))
+            if baseline_presets_file.exists()
+            else []
+        )
+        report = diff_report(baseline_presets, report_presets)
+        rendered = render_matrix_report(report, output_format)
+        findings = _findings_from_report(report)
+    elif command == "inspect-folder":
+        report = exported_folder_report(project)
+        rendered = render_matrix_report(report, output_format)
+        findings = _findings_from_report(report)
     else:
         rendered = _render(output_format, report_presets, findings)
     if args.output:
@@ -80,9 +96,10 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-export-doctor",
         description="Audit Godot export_presets.cfg release readiness.",
     )
-    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.8")
-    parser.add_argument("command", nargs="?", choices=["check", "matrix", "leaks"], default="check")
+    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.9")
+    parser.add_argument("command", nargs="?", choices=["check", "matrix", "leaks", "diff", "inspect-folder"], default="check")
     parser.add_argument("project", help="Godot project directory or export_presets.cfg path.")
+    parser.add_argument("--baseline", help="Baseline project directory or export_presets.cfg path for diff reports.")
     parser.add_argument("--config", help=f"TOML config path. Defaults to {DEFAULT_CONFIG}.")
     parser.add_argument("--platform", help="Only evaluate presets for a platform, such as Android.")
     parser.add_argument(
@@ -195,10 +212,10 @@ def _findings_from_report(report: dict[str, Any]) -> list[Finding]:
 def _normalize_legacy_argv(argv: list[str] | None) -> list[str] | None:
     if argv is None:
         argv = sys.argv[1:]
-        if not argv or argv[0] in {"check", "matrix", "leaks"} or argv[0] in {"--version", "-h", "--help"}:
+        if not argv or argv[0] in {"check", "matrix", "leaks", "diff", "inspect-folder"} or argv[0] in {"--version", "-h", "--help"}:
             return None
         return _insert_default_command(argv)
-    if not argv or argv[0] in {"check", "matrix", "leaks"} or argv[0] in {"--version", "-h", "--help"}:
+    if not argv or argv[0] in {"check", "matrix", "leaks", "diff", "inspect-folder"} or argv[0] in {"--version", "-h", "--help"}:
         return argv
     return _insert_default_command(argv)
 
@@ -210,6 +227,7 @@ def _insert_default_command(argv: list[str]) -> list[str]:
         "--required-android-abi",
         "--allow-secret-pattern",
         "--expected-platform",
+        "--baseline",
         "--format",
         "--output",
         "--fail-on",
@@ -219,7 +237,7 @@ def _insert_default_command(argv: list[str]) -> list[str]:
         if skip_next:
             skip_next = False
             continue
-        if item in {"check", "matrix", "leaks"}:
+        if item in {"check", "matrix", "leaks", "diff", "inspect-folder"}:
             return argv
         if item in options_with_values:
             skip_next = True

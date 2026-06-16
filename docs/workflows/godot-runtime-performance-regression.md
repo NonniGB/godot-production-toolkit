@@ -22,10 +22,19 @@ godot-telemetry-lab compare reports\baseline-runtime reports\current-runtime --b
 godot-telemetry-lab timeline reports\current-runtime --budget-file reports\runtime-budget.json --format html --output reports\runtime-timeline.html
 ```
 
+If your Godot runner writes monitor-style CSV or JSON fields, normalize them
+first:
+
+```powershell
+godot-telemetry-lab adapt reports\godot-monitor.csv --format json --output reports\runtime-normalized.json
+godot-telemetry-lab timeline reports\runtime-normalized.json --budget-file reports\runtime-budget.json --format html --output reports\runtime-timeline.html
+```
+
 ## Expected inputs
 
 - Runtime telemetry in JSON or CSV.
 - Common fields such as `frame_ms`, `physics_ms`, `memory_mb`, `nodes`, `draw_calls`, `scenario`, `phase`, and `time_s`.
+- Optional Godot monitor fields such as `fps`, `Performance.MEMORY_STATIC`, `Performance.OBJECT_NODE_COUNT`, and `Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME`.
 - Optional baseline and current telemetry folders.
 - Optional budget JSON created by `budget init`.
 
@@ -34,4 +43,3 @@ godot-telemetry-lab timeline reports\current-runtime --budget-file reports\runti
 - Markdown, JSON, text, HTML, or SVG reports.
 - Baseline comparison findings for frame time, memory, or other tracked metrics.
 - Timeline artifacts that help explain spikes by scenario phase.
-

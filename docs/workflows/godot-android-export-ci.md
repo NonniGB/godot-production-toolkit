@@ -18,6 +18,7 @@ Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 ```powershell
 python -m pip install godot-export-preset-doctor godot-mobile-perf-doctor
 godot-export-doctor . --platform Android --required-android-abi arm64-v8a --format sarif --output reports\android-export.sarif
+godot-export-doctor diff . --baseline reports\baseline-export-presets --format markdown --output reports\android-export-diff.md --fail-on none
 godot-mobile-perf-doctor . --static --format markdown --output reports\android-mobile-settings.md
 ```
 
@@ -38,4 +39,3 @@ godot-export-doctor . --platform Android --required-android-abi arm64-v8a --fail
 - SARIF, JSON, or Markdown reports under `reports`.
 - Findings for missing or risky Android export fields.
 - A non-zero exit code when the configured severity threshold is reached.
-

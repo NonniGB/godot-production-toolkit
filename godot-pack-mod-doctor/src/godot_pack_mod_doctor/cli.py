@@ -4,9 +4,9 @@ import argparse
 from pathlib import Path
 import sys
 
-from .doctor import check_manifest, render
+from .doctor import check_manifest, diff_manifests, load_order, render
 
-VERSION_LABEL = "godot-pack-mod-doctor 0.1.0"
+VERSION_LABEL = "godot-pack-mod-doctor 0.1.1"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -22,11 +22,29 @@ def main(argv: list[str] | None = None) -> int:
     check_parser.add_argument("--output")
     check_parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
 
+    diff_parser = subparsers.add_parser("diff", help="Compare two pack manifests.")
+    diff_parser.add_argument("baseline")
+    diff_parser.add_argument("current")
+    diff_parser.add_argument("--format", choices=["text", "json", "markdown"], default="text")
+    diff_parser.add_argument("--output")
+    diff_parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="none")
+
+    load_order_parser = subparsers.add_parser("load-order", help="Check override conflicts across ordered packs.")
+    load_order_parser.add_argument("manifests", nargs="+")
+    load_order_parser.add_argument("--format", choices=["text", "json", "markdown"], default="text")
+    load_order_parser.add_argument("--output")
+    load_order_parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="warning")
+
     args = parser.parse_args(argv)
-    if args.command != "check":
+    if args.command == "check":
+        report = check_manifest(Path(args.manifest), Path(args.base) if args.base else None, args.allow_overrides)
+    elif args.command == "diff":
+        report = diff_manifests(Path(args.baseline), Path(args.current))
+    elif args.command == "load-order":
+        report = load_order([Path(path) for path in args.manifests])
+    else:
         parser.print_help()
         return 2
-    report = check_manifest(Path(args.manifest), Path(args.base) if args.base else None, args.allow_overrides)
     _emit(render(report, args.format), args.output)
     return _exit_code(report, args.fail_on)
 

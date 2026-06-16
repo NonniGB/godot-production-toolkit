@@ -28,7 +28,7 @@ class RuntimeTelemetryLabTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.1")
+            self.assertEqual(report["tool_version"], "0.1.2")
             self.assertEqual(report["summary"]["samples"], 2)
             self.assertEqual(report["findings"][0]["rule_id"], "frame_p95_over_budget")
 
@@ -93,6 +93,28 @@ class RuntimeTelemetryLabTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertEqual(report["summary"]["frame_budget_ms"], 33.33)
             self.assertEqual(report["spikes"][0]["rule_id"], "frame_over_budget")
+
+    def test_adapt_normalizes_godot_monitor_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "godot-monitor.csv"
+            path.write_text(
+                "scenario,fps,Performance.MEMORY_STATIC,Performance.OBJECT_NODE_COUNT,Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME\n"
+                "menu,50,104857600,42,8\n",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["adapt", str(path), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["kind"], "runtime_telemetry_adapter")
+            self.assertEqual(report["samples"][0]["scenario"], "menu")
+            self.assertAlmostEqual(report["samples"][0]["frame_ms"], 20.0)
+            self.assertAlmostEqual(report["samples"][0]["memory_mb"], 100.0)
+            self.assertEqual(report["samples"][0]["nodes"], 42)
+            self.assertEqual(report["samples"][0]["draw_calls"], 8)
 
 
 if __name__ == "__main__":

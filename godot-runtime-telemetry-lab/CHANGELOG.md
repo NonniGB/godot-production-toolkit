@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 - 2026-06-16
+
+- Added `adapt` to normalize common Godot monitor, CSV, and debug-exporter field names into toolkit telemetry samples.
+
 ## 0.1.1 - 2026-06-16
 
 - Added `timeline` reports with HTML, SVG, Markdown, text, and JSON output.

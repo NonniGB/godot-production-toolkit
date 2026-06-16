@@ -9,6 +9,7 @@ Each package is a small command-line tool for a specific Godot production check.
 |---|---|---|
 | Godot Android export preset check | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor matrix . --expected-platform Android --format markdown` |
 | Godot export leak or debug file check | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor leaks . --format html --output reports/export-leaks.html` |
+| Godot export preset diff | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor diff . --baseline reports/baseline-export-presets --format markdown` |
 | Godot mobile performance static check | `python -m pip install godot-mobile-perf-doctor` | `godot-mobile-perf-doctor . --static --format markdown` |
 | Godot mobile UI safe area check | `python -m pip install godot-mobile-ui-doctor` | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
 | Godot mobile UI localization expansion check | `python -m pip install godot-mobile-ui-doctor godot-localization-qa-guard` | `godot-mobile-ui-doctor matrix mobile-ui.json --format markdown` |
@@ -22,8 +23,11 @@ Each package is a small command-line tool for a specific Godot production check.
 | GDScript API comment coverage | `python -m pip install gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Godot data/content graph validation | `python -m pip install godot-content-graph-doctor` | `godot-content-graph . --preset recipes --format markdown` |
 | Godot mod, DLC, or patch manifest check | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
+| Godot mod or DLC pack diff | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown` |
 | Godot scenario evidence report | `python -m pip install godot-scenario-report-kit` | `godot-scenario-report manifest coverage scenario-manifest.json --results reports/current --format html` |
+| Godot scenario evidence bundle | `python -m pip install godot-scenario-report-kit` | `godot-scenario-report bundle reports/scenarios --telemetry reports/runtime.html --visual reports/visual.json --format json` |
 | Godot runtime telemetry timeline | `python -m pip install godot-runtime-telemetry-lab` | `godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html` |
+| Godot runtime telemetry adapter | `python -m pip install godot-runtime-telemetry-lab` | `godot-telemetry-lab adapt reports/godot-monitor.csv --format json --output reports/runtime-normalized.json` |
 | Godot release dashboard | `python -m pip install godot-release-dashboard-kit` | `godot-release-dashboard build reports --output reports/dashboard.html` |
 | Pixel-art asset import and texture checks | `python -m pip install godot-asset-pipeline-doctor` | `godot-asset-doctor . --profile pixel-2d --format json` |
 | Pixel space asset previews and image diffs | `python -m pip install pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |

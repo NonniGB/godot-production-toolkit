@@ -186,6 +186,10 @@ scenario evidence, manifest coverage, flake comparison, baseline comparison, and
 HTML summaries. It is designed for JSON output from scenario runners, smoke
 tests, or custom harnesses.
 
+Use `godot-scenario-report bundle` when scenario results, screenshots, runtime
+telemetry, and visual smoke reports should be handed to a dashboard or release
+review as one evidence manifest.
+
 The [scenario gallery entries](report-gallery/README.md#start-here) show
 comparison reports, coverage HTML, screenshots, fixtures, and commands used to
 regenerate the examples.
@@ -196,6 +200,9 @@ Use the [runtime performance regression workflow](workflows/godot-runtime-perfor
 and [`godot-runtime-telemetry-lab`](../godot-runtime-telemetry-lab/README.md).
 It turns frame, memory, draw-call, node-count, scenario, and phase samples into
 summaries, budget checks, baseline comparisons, and HTML timelines.
+
+Use `godot-telemetry-lab adapt` first when a project-owned Godot exporter writes
+common monitor names rather than the toolkit's normalized field names.
 
 For CI, start with the [runtime telemetry budget recipe](ci/runtime-telemetry-budget.yml).
 The [runtime telemetry gallery sample](report-gallery/README.md#start-here)

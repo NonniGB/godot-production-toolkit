@@ -27,6 +27,14 @@
     {
       "purpose": "Check pack references against base content",
       "command": "godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format json"
+    },
+    {
+      "purpose": "Compare two pack manifests",
+      "command": "godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown"
+    },
+    {
+      "purpose": "Check load order conflicts across packs",
+      "command": "godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown"
     }
   ]
 }
