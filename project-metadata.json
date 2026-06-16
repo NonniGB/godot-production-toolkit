@@ -106,8 +106,8 @@
     },
     {
       "name": "godot-runtime-telemetry-lab",
-      "role": "Runtime telemetry summaries, frame budget checks, and baseline comparisons.",
-      "interfaces": ["cli", "json", "markdown", "text"]
+      "role": "Runtime telemetry summaries, timeline reports, named budgets, frame budget checks, and baseline comparisons.",
+      "interfaces": ["cli", "json", "markdown", "text", "html", "svg"]
     },
     {
       "name": "pixel-space-asset-toolkit",
@@ -157,13 +157,16 @@
     "docs/assets/sample-reports/architecture-guard.md",
     "docs/assets/sample-reports/mobile-ui.md",
     "docs/assets/sample-reports/mobile-ui-matrix.md",
+    "docs/assets/sample-reports/runtime-telemetry-timeline.html",
+    "docs/assets/sample-reports/runtime-telemetry-timeline.svg",
     "docs/assets/sample-reports/sprite-manifest.txt",
     "docs/assets/screenshots/project-doctor-html-report.png",
     "docs/assets/screenshots/project-doctor-terminal.png",
     "docs/assets/screenshots/content-graph-terminal.svg",
     "docs/assets/screenshots/scenario-report-terminal.svg",
     "docs/assets/screenshots/architecture-guard-terminal.svg",
-    "docs/assets/screenshots/mobile-ui-matrix.svg"
+    "docs/assets/screenshots/mobile-ui-matrix.svg",
+    "docs/assets/screenshots/runtime-telemetry-timeline.png"
   ],
   "verification_commands": [
     "python verify_tool_manifests.py",

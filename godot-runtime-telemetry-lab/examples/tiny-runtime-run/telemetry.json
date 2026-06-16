@@ -1,0 +1,54 @@
+{
+  "samples": [
+    {
+      "scenario": "smoke_flight",
+      "phase": "boot",
+      "time_s": 0.0,
+      "frame_ms": 11.8,
+      "physics_ms": 1.7,
+      "memory_mb": 184,
+      "nodes": 420,
+      "draw_calls": 39
+    },
+    {
+      "scenario": "smoke_flight",
+      "phase": "launch",
+      "time_s": 1.0,
+      "frame_ms": 14.6,
+      "physics_ms": 2.2,
+      "memory_mb": 188,
+      "nodes": 455,
+      "draw_calls": 43
+    },
+    {
+      "scenario": "smoke_flight",
+      "phase": "combat",
+      "time_s": 2.0,
+      "frame_ms": 24.9,
+      "physics_ms": 4.8,
+      "memory_mb": 205,
+      "nodes": 510,
+      "draw_calls": 61
+    },
+    {
+      "scenario": "smoke_flight",
+      "phase": "combat",
+      "time_s": 3.0,
+      "frame_ms": 18.4,
+      "physics_ms": 3.1,
+      "memory_mb": 207,
+      "nodes": 512,
+      "draw_calls": 59
+    },
+    {
+      "scenario": "smoke_flight",
+      "phase": "dock",
+      "time_s": 4.0,
+      "frame_ms": 13.2,
+      "physics_ms": 2.0,
+      "memory_mb": 190,
+      "nodes": 448,
+      "draw_calls": 42
+    }
+  ]
+}

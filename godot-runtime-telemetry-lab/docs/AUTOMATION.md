@@ -6,10 +6,23 @@ Generate a CI-friendly runtime report:
 godot-telemetry-lab summarize reports\runtime --format json --output reports\runtime.json
 ```
 
+Create a reusable budget file for the target you are testing:
+
+```powershell
+godot-telemetry-lab budget init --profile android-high --output reports\runtime-budget.json
+```
+
 Compare a release candidate with a saved baseline:
 
 ```powershell
-godot-telemetry-lab compare reports\baseline-runtime reports\current-runtime --format markdown --output reports\runtime-compare.md
+godot-telemetry-lab compare reports\baseline-runtime reports\current-runtime --budget-file reports\runtime-budget.json --format markdown --output reports\runtime-compare.md
+```
+
+Write an HTML artifact that can be uploaded from CI:
+
+```powershell
+godot-telemetry-lab timeline reports\runtime --budget-file reports\runtime-budget.json --format html --output reports\runtime-timeline.html
+godot-telemetry-lab timeline reports\runtime --budget-file reports\runtime-budget.json --format svg --output reports\runtime-timeline.svg
 ```
 
 Exit codes:

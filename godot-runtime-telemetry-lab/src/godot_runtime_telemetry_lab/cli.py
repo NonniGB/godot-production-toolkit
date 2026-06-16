@@ -4,9 +4,9 @@ import argparse
 from pathlib import Path
 import sys
 
-from .telemetry import compare, render, summarize
+from .telemetry import BUDGET_PROFILES, budget_profile, compare, load_budget, render, summarize, timeline
 
-VERSION_LABEL = "godot-telemetry-lab 0.1.0"
+VERSION_LABEL = "godot-telemetry-lab 0.1.1"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -24,26 +24,54 @@ def main(argv: list[str] | None = None) -> int:
     compare_parser.add_argument("--regression-ratio", type=float, default=1.25)
     _add_common_args(compare_parser)
 
+    timeline_parser = subparsers.add_parser("timeline", help="Render a frame and memory timeline from telemetry samples.")
+    timeline_parser.add_argument("path")
+    timeline_parser.add_argument("--memory-budget-mb", type=float)
+    _add_common_args(timeline_parser, formats=["text", "json", "markdown", "html", "svg"], default_format="html")
+
+    budget_parser = subparsers.add_parser("budget", help="Create or inspect starter runtime budgets.")
+    budget_subparsers = budget_parser.add_subparsers(dest="budget_command")
+    init_parser = budget_subparsers.add_parser("init", help="Write a starter budget profile as JSON.")
+    init_parser.add_argument("--profile", choices=sorted(BUDGET_PROFILES), default="desktop-dev")
+    init_parser.add_argument("--format", choices=["text", "json", "markdown"], default="json")
+    init_parser.add_argument("--output")
+
     args = parser.parse_args(argv)
     if args.command == "summarize":
-        report = summarize(Path(args.path), args.frame_budget_ms)
+        budget = _budget_from_args(args)
+        report = summarize(Path(args.path), budget["frame_budget_ms"])
     elif args.command == "compare":
-        report = compare(Path(args.baseline), Path(args.current), args.frame_budget_ms, args.regression_ratio)
+        budget = _budget_from_args(args)
+        report = compare(Path(args.baseline), Path(args.current), budget["frame_budget_ms"], args.regression_ratio)
+    elif args.command == "timeline":
+        budget = _budget_from_args(args)
+        memory_budget_mb = args.memory_budget_mb
+        if memory_budget_mb is None:
+            memory_budget_mb = budget.get("memory_budget_mb")
+        report = timeline(Path(args.path), budget["frame_budget_ms"], memory_budget_mb)
+    elif args.command == "budget" and args.budget_command == "init":
+        report = budget_profile(args.profile)
     else:
         parser.print_help()
         return 2
 
     _emit(render(report, args.format), args.output)
-    return _exit_code(report, args.fail_on)
+    return _exit_code(report, getattr(args, "fail_on", "none"))
 
 
 def entrypoint() -> None:
     raise SystemExit(main())
 
 
-def _add_common_args(parser: argparse.ArgumentParser) -> None:
+def _add_common_args(
+    parser: argparse.ArgumentParser,
+    formats: list[str] | None = None,
+    default_format: str = "text",
+) -> None:
     parser.add_argument("--frame-budget-ms", type=float, default=16.67)
-    parser.add_argument("--format", choices=["text", "json", "markdown"], default="text")
+    parser.add_argument("--budget-profile", choices=sorted(BUDGET_PROFILES))
+    parser.add_argument("--budget-file")
+    parser.add_argument("--format", choices=formats or ["text", "json", "markdown"], default=default_format)
     parser.add_argument("--output")
     parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
 
@@ -58,12 +86,29 @@ def _emit(rendered: str, output: str | None) -> None:
 
 
 def _exit_code(report: dict[str, object], fail_on: str) -> int:
+    if "summary" not in report:
+        return 0
     summary = report["summary"]
     if fail_on == "none":
         return 0
     if fail_on == "warning":
         return 1 if int(summary["errors"]) + int(summary["warnings"]) > 0 else 0
     return 1 if int(summary["errors"]) > 0 else 0
+
+
+def _budget_from_args(args: argparse.Namespace) -> dict[str, float]:
+    budget: dict[str, float] = {"frame_budget_ms": float(args.frame_budget_ms)}
+    if args.budget_profile:
+        profile = budget_profile(args.budget_profile)
+        budget["frame_budget_ms"] = float(profile["frame_budget_ms"])
+        budget["memory_budget_mb"] = float(profile["memory_budget_mb"])
+    if args.budget_file:
+        loaded = load_budget(Path(args.budget_file))
+        if "frame_budget_ms" in loaded:
+            budget["frame_budget_ms"] = float(loaded["frame_budget_ms"])
+        if "memory_budget_mb" in loaded:
+            budget["memory_budget_mb"] = float(loaded["memory_budget_mb"])
+    return budget
 
 
 if __name__ == "__main__":

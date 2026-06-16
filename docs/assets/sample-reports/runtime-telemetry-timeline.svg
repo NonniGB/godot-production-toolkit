@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320" role="img" aria-label="Godot runtime telemetry timeline">
+  <title>Godot Runtime Telemetry Timeline</title>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="24" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172026">Frame time timeline</text>
+  <line x1="48" y1="100.8" x2="688" y2="100.8" stroke="#f0a000" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="578" y="92.8" font-family="Arial, sans-serif" font-size="12" fill="#7a5400">budget 16.67 ms</text>
+  <line x1="48" y1="38" x2="48" y2="228" stroke="#8190a0"/>
+  <line x1="48" y1="228" x2="688" y2="228" stroke="#8190a0"/>
+  <polyline points="48.0,138.0 208.0,116.6 368.0,38.0 528.0,87.6 688.0,127.3" fill="none" stroke="#2457c5" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="368.0" cy="38.0" r="5" fill="#d64550"><title>Sample 2: 24.90 ms</title></circle>
+  <circle cx="528.0" cy="87.6" r="5" fill="#d64550"><title>Sample 3: 18.40 ms</title></circle>
+  <text x="48" y="266" font-family="Arial, sans-serif" font-size="13" fill="#374151">Samples: 5 | Spikes: 2 | p95: 24.90 ms | max: 24.90 ms</text>
+  <text x="48" y="290" font-family="Arial, sans-serif" font-size="12" fill="#5f6b7a">Red markers show samples over the selected frame budget.</text>
+</svg>

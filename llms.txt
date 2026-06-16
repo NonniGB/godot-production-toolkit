@@ -3,8 +3,8 @@
 Godot Production Toolkit is a set of CI-friendly command-line diagnostics for
 Godot 4 projects. It focuses on release checks, mobile readiness, visual smoke
 testing, localization QA, asset/import hygiene, save compatibility, scene signal
-audits, scenario evidence, content graph validation, and GDScript architecture
-checks.
+audits, scenario evidence, runtime telemetry timelines, content graph
+validation, and GDScript architecture checks.
 
 ## Best Entry Points
 
@@ -27,6 +27,7 @@ checks.
 - Compare generated pixel-art PNGs: use `pixel-space-asset-toolkit`.
 - Check data-driven content references: use `godot-content-graph-doctor`.
 - Summarize runtime scenario evidence: use `godot-scenario-report-kit`.
+- Review frame/runtime telemetry, budget spikes, and timelines: use `godot-runtime-telemetry-lab`.
 
 ## Command Examples
 
@@ -35,6 +36,7 @@ godot-project-doctor inspect path\to\godot-project
 godot-project-doctor recommend path\to\godot-project
 godot-project-doctor summarize reports\godot-project-doctor --format html
 godot-mobile-ui-doctor readiness mobile-ui.json --format markdown
+godot-telemetry-lab timeline reports\runtime --format html --output reports\runtime-timeline.html
 godot-visual-smoke compare baseline current --format json
 ```
 

@@ -1,0 +1,10 @@
+{
+  "description": "High-end Android target where 60 fps is expected.",
+  "frame_budget_ms": 16.67,
+  "kind": "runtime_telemetry_budget",
+  "memory_budget_mb": 768,
+  "profile": "android-high",
+  "schema_version": "1.0",
+  "tool": "godot-runtime-telemetry-lab",
+  "tool_version": "0.1.1"
+}

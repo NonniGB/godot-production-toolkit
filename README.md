@@ -87,7 +87,7 @@ Pick the package that matches the risk you are trying to reduce:
 - `godot-mobile-ui-doctor`: before reviewing portrait/touch UI layout metadata.
 - `godot-pack-mod-doctor`: before publishing pack, DLC, mod, or patch manifests.
 - `godot-release-dashboard-kit`: when turning toolkit reports into one static review page.
-- `godot-runtime-telemetry-lab`: after scenario or soak runs produce frame/runtime samples.
+- `godot-runtime-telemetry-lab`: after scenario or soak runs produce frame/runtime samples, timelines, or budget checks.
 - `godot-save-schema-guard`: before changing save data, save fixtures, or migration commands.
 - `godot-scenario-report-kit`: after scenario, smoke, or regression runs produce JSON evidence.
 - `godot-scene-signal-auditor`: before refactoring scenes, signals, or autoload event wiring.
@@ -151,7 +151,8 @@ godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-archite
 godot-mobile-ui-doctor matrix godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown
 godot-mobile-ui-doctor overlays godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
 godot-mobile-ui-doctor readiness godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown --fail-on none
-godot-telemetry-lab summarize reports\runtime --format markdown
+godot-telemetry-lab budget init --profile android-high --output reports\runtime-budget.json
+godot-telemetry-lab timeline godot-runtime-telemetry-lab\examples\tiny-runtime-run --budget-file reports\runtime-budget.json --format html --output reports\runtime-timeline.html
 godot-pack-mod-doctor check pack-manifest.json --format markdown
 godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --title "Godot Toolkit Release Evidence" --output reports\dashboard.html
 ```
@@ -161,6 +162,7 @@ godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-
 ![Architecture guard report](docs/assets/screenshots/architecture-guard-terminal.svg)
 ![Mobile UI readiness matrix](docs/assets/screenshots/mobile-ui-matrix.svg)
 ![Mobile UI overlay preview](godot-mobile-ui-doctor/docs/images/mobile-ui-overlays/main_menu__portrait_phone.png)
+![Runtime telemetry timeline with budget spikes](docs/assets/screenshots/runtime-telemetry-timeline.png)
 ![Release dashboard with report cards and visual artifacts](docs/assets/screenshots/release-dashboard-demo.png)
 
 A separate public demo repository shows the GitHub Action in a clean fixture project:
@@ -188,7 +190,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-mobile-ui-doctor` | Mobile UI safe-area, touch-target, spacing, text-overflow, overlay previews, and combined mobile readiness reports. | JSON, Markdown, PNG, text |
 | `godot-pack-mod-doctor` | Pack, DLC, mod, and patch manifest checks. | JSON, Markdown, text |
 | `godot-release-dashboard-kit` | Static dashboard builder for toolkit reports. | HTML, JSON |
-| `godot-runtime-telemetry-lab` | Runtime telemetry summaries and baseline comparisons. | JSON, Markdown, text |
+| `godot-runtime-telemetry-lab` | Runtime telemetry summaries, timelines, named budgets, and baseline comparisons. | JSON, Markdown, text, HTML, SVG |
 | `pixel-space-asset-toolkit` | Deterministic pixel sci-fi asset utilities, galleries, and PNG image/directory diff checks. | JSON, PNG, HTML |
 
 ## Choose By Problem
@@ -201,7 +203,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | Portrait UI needs touch and safe-area review | `godot-mobile-ui-doctor`, `godot-visual-smoke-test-kit` |
 | Data files reference missing items, recipes, quests, or levels | `godot-content-graph-doctor` |
 | Runtime scenario runs need reviewable evidence | `godot-scenario-report-kit` |
-| Runtime frame or memory samples need budget checks | `godot-runtime-telemetry-lab` |
+| Runtime frame or memory samples need budget checks or timeline reports | `godot-runtime-telemetry-lab` |
 | Pack, DLC, mod, or patch manifests need release checks | `godot-pack-mod-doctor` |
 | Several reports need one static review page | `godot-release-dashboard-kit` |
 | GDScript modules or autoloads are becoming tangled | `godot-gdscript-architecture-guard` |
@@ -292,7 +294,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.8` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.0` |
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.1` |
-| [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.0` |
+| [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.1` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.2` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.1` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.2` |

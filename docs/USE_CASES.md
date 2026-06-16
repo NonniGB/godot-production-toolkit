@@ -175,15 +175,21 @@ Use this after a scenario runner, soak test, or debug exporter writes frame or
 runtime samples:
 
 ```powershell
+godot-telemetry-lab budget init --profile android-high --output reports\runtime-budget.json
 godot-telemetry-lab summarize reports\runtime --format markdown --output reports\runtime.md
 godot-telemetry-lab compare reports\baseline-runtime reports\current-runtime --format json --output reports\runtime-compare.json
+godot-telemetry-lab timeline reports\runtime --budget-file reports\runtime-budget.json --format html --output reports\runtime-timeline.html
 ```
 
 This helps catch:
 
 - Frame p95 values above a selected budget.
 - Runtime regressions compared with a saved baseline.
+- Spikes in frame or memory samples across scenario phases.
 - Scenario telemetry that needs a compact release-review artifact.
+
+The input can be JSON or CSV. Common fields are `frame_ms`, `physics_ms`,
+`memory_mb`, `nodes`, `draw_calls`, `scenario`, `phase`, and `time_s`.
 
 ## Pack, DLC, And Mod Manifests
 

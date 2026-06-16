@@ -6,7 +6,7 @@
   "interfaces": {
     "cli": true,
     "machine_output": ["json"],
-    "human_output": ["text", "markdown"]
+    "human_output": ["text", "markdown", "html", "svg"]
   },
   "run_behavior": {
     "noninteractive": true,
@@ -27,6 +27,14 @@
     {
       "purpose": "Compare runtime telemetry with a baseline",
       "command": "godot-telemetry-lab compare reports/baseline reports/current --format json"
+    },
+    {
+      "purpose": "Render a runtime timeline report",
+      "command": "godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html"
+    },
+    {
+      "purpose": "Create a reusable runtime budget",
+      "command": "godot-telemetry-lab budget init --profile android-high --output reports/runtime-budget.json"
     }
   ]
 }
