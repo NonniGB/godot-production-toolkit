@@ -10,6 +10,7 @@ claims or benchmark comparisons.
 | Sample | Report | Screenshot | Minimal fixture | Regenerate from the repo root |
 |---|---|---|---|---|
 | Release readiness summary | [Markdown](../assets/sample-reports/release-readiness-summary.md), [HTML](../assets/sample-reports/release-readiness-summary.html), [terminal transcript](../assets/sample-reports/terminal-demo.txt) | [HTML report PNG](../assets/screenshots/project-doctor-html-report.png), [terminal PNG](../assets/screenshots/project-doctor-terminal.png) | [release-readiness-demo](../../examples/release-readiness-demo/README.md) | `godot-project-doctor run examples\release-readiness-demo\godot-project-doctor.toml --format markdown --output docs\assets\sample-reports\release-readiness-summary.md` then `godot-project-doctor summarize docs\assets\sample-reports --format html --output docs\assets\sample-reports\release-readiness-summary.html` |
+| Export preset matrix | [Markdown](../assets/sample-reports/export-matrix.md), [HTML](../assets/sample-reports/export-matrix.html), [leak HTML](../assets/sample-reports/export-leaks.html) | [matrix PNG](../assets/screenshots/export-matrix.png) | [bad-export-project](../../godot-export-preset-doctor/examples/bad-export-project/export_presets.cfg) | `godot-export-doctor matrix godot-export-preset-doctor\examples\bad-export-project --expected-platform Android --expected-platform Web --format html --output docs\assets\sample-reports\export-matrix.html --fail-on none` |
 | Project doctor dry run | [dry-run plan](../assets/sample-reports/dry-run-plan.txt) | [profile checklist SVG](../assets/screenshots/project-doctor-profile.svg) | [release-readiness-demo](../../examples/release-readiness-demo/README.md) | `godot-project-doctor run examples\release-readiness-demo\godot-project-doctor.toml --dry-run` |
 | Content graph | [Markdown](../assets/sample-reports/content-graph-summary.md) | [terminal SVG](../assets/screenshots/content-graph-terminal.svg) | [tiny-content-project](../../godot-content-graph-doctor/examples/tiny-content-project/README.md) | `godot-content-graph godot-content-graph-doctor\examples\tiny-content-project --preset recipes --format markdown --output docs\assets\sample-reports\content-graph-summary.md --fail-on none` |
 | Scenario comparison | [Markdown](../assets/sample-reports/scenario-compare.md) | [terminal SVG](../assets/screenshots/scenario-report-terminal.svg) | [tiny-scenario-runs](../../godot-scenario-report-kit/examples/tiny-scenario-runs/README.md) | `godot-scenario-report compare godot-scenario-report-kit\examples\tiny-scenario-runs\baseline godot-scenario-report-kit\examples\tiny-scenario-runs\current --format markdown --output docs\assets\sample-reports\scenario-compare.md` |
@@ -40,6 +41,8 @@ documentation:
 ![Godot Project Doctor HTML report](../assets/screenshots/project-doctor-html-report.png)
 
 ![Godot Project Doctor terminal demo](../assets/screenshots/project-doctor-terminal.png)
+
+![Export preset matrix](../assets/screenshots/export-matrix.png)
 
 ![Scenario manifest coverage](../assets/screenshots/scenario-coverage.png)
 

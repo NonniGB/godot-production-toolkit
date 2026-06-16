@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.8 - 2026-06-16
+
+- Added `matrix` reports for platform/preset coverage.
+- Added `leaks` checks for broad export filters, dev/test/source-art files, and local-looking paths.
+- Added Markdown and HTML output for matrix-style release review reports.
+- Stopped matrix/leak reports from inheriting a config-only platform filter unless `--platform` is passed explicitly.
+- Parsed export filter, include filter, exclude filter, and custom feature fields for report output.
+
 ## 0.1.7 - 2026-06-15
 
 - Raised the package build backend floor to `setuptools>=82.0.1`.

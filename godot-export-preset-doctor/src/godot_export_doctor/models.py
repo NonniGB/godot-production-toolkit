@@ -13,6 +13,9 @@ class ExportPreset:
     platform: str = ""
     runnable: bool | None = None
     export_filter: str = ""
+    include_filter: str = ""
+    exclude_filter: str = ""
+    custom_features: str = ""
     export_path: str = ""
     options: dict[str, Any] = field(default_factory=dict)
 
@@ -26,6 +29,9 @@ class ExportPreset:
             "platform": self.platform,
             "runnable": self.runnable,
             "export_filter": self.export_filter,
+            "include_filter": self.include_filter,
+            "exclude_filter": self.exclude_filter,
+            "custom_features": self.custom_features,
             "export_path": self.export_path,
             "options": self.options,
         }

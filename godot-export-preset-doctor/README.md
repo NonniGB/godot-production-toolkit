@@ -25,6 +25,8 @@ godot-export-doctor C:\Projects\MyGame
 godot-export-doctor . --platform Android
 godot-export-doctor . --platform Android --required-android-abi arm64-v8a
 godot-export-doctor . --format sarif --output export-doctor.sarif
+godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown
+godot-export-doctor leaks . --format html --output reports\export-leaks.html
 ```
 
 Use `--fail-on none` while exploring a report:
@@ -67,7 +69,38 @@ godot-export-doctor . --platform Android --required-android-abi arm64-v8a --fail
 - Android package id, version code/name, enabled ABI, and launcher icon readiness.
 - Release-like presets with debug options enabled.
 - Hard-coded password, token, secret, or keystore-like values.
+- Missing or duplicated expected export platforms in a release matrix.
+- Broad export filters that may include debug/test/source files.
+- Local-looking export, include, or exclude paths that should not be shared in CI artifacts.
 - JSON and SARIF output for scripts and CI, with plain-language rule explanations.
+
+## Commands
+
+`check` is the default command and keeps the original release-readiness behavior:
+
+```powershell
+godot-export-doctor check . --platform Android --format sarif --output reports\export.sarif
+```
+
+For older scripts, this is equivalent to:
+
+```powershell
+godot-export-doctor . --platform Android --format sarif --output reports\export.sarif
+```
+
+`matrix` gives a compact table of export presets and warns when an expected
+platform is missing or duplicated:
+
+```powershell
+godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown
+```
+
+`leaks` checks broad export filters against common development-file patterns and
+flags local-looking paths in preset fields:
+
+```powershell
+godot-export-doctor leaks . --format html --output reports\export-leaks.html --fail-on none
+```
 
 ## Configuration
 
@@ -101,6 +134,12 @@ JSON reports include report metadata, a rule catalog, and findings with readable
 titles and explanations. This makes CI artifacts easier to review without
 looking up every rule id.
 
+Markdown or HTML matrix report:
+
+```powershell
+godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format html --output export-matrix.html
+```
+
 SARIF:
 
 ```powershell
@@ -112,6 +151,8 @@ godot-export-doctor . --format sarif --output export-doctor.sarif
 ```yaml
 - run: python -m pip install godot-export-preset-doctor
 - run: godot-export-doctor . --platform Android --fail-on warning --format sarif --output reports/export-doctor.sarif
+- run: godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown --output reports/export-matrix.md --fail-on warning
+- run: godot-export-doctor leaks . --format html --output reports/export-leaks.html --fail-on warning
 ```
 
 ## Documentation

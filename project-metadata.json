@@ -41,8 +41,8 @@
     },
     {
       "name": "godot-export-preset-doctor",
-      "role": "Release-readiness checks for export_presets.cfg.",
-      "interfaces": ["cli", "json", "sarif", "text"]
+      "role": "Release-readiness, target matrix, and leak-risk checks for export_presets.cfg.",
+      "interfaces": ["cli", "json", "sarif", "markdown", "html", "text"]
     },
     {
       "name": "gdscript-api-comment-coverage",
@@ -153,6 +153,8 @@
     "examples/release-readiness-demo/README.md",
     "docs/assets/sample-reports/release-readiness-summary.html",
     "docs/assets/sample-reports/content-graph-summary.md",
+    "docs/assets/sample-reports/export-matrix.html",
+    "docs/assets/sample-reports/export-leaks.html",
     "docs/assets/sample-reports/scenario-compare.md",
     "docs/assets/sample-reports/scenario-coverage.html",
     "docs/assets/sample-reports/scenario-flakes.md",
@@ -165,6 +167,7 @@
     "docs/assets/screenshots/project-doctor-html-report.png",
     "docs/assets/screenshots/project-doctor-terminal.png",
     "docs/assets/screenshots/content-graph-terminal.svg",
+    "docs/assets/screenshots/export-matrix.png",
     "docs/assets/screenshots/scenario-report-terminal.svg",
     "docs/assets/screenshots/scenario-coverage.png",
     "docs/assets/screenshots/architecture-guard-terminal.svg",

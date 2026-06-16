@@ -20,6 +20,7 @@ validation, and GDScript architecture checks.
 - Find the right tool for a production problem: read `docs/TOOL_INDEX.md`.
 - Run several checks together: use `godot-project-doctor`.
 - Check Android exports: use `godot-export-preset-doctor` and `godot-mobile-perf-doctor`.
+- Check release target drift or export filter leak risks: use `godot-export-doctor matrix` and `godot-export-doctor leaks`.
 - Check mobile UI safe areas and touch targets: use `godot-mobile-ui-doctor`.
 - Check screenshot regressions: use `godot-visual-smoke-test-kit`.
 - Check Godot localization files: use `godot-localization-qa-guard`.
@@ -38,6 +39,7 @@ godot-project-doctor summarize reports\godot-project-doctor --format html
 godot-scenario-report manifest coverage scenario-manifest.json --results reports\scenarios --format html
 godot-mobile-ui-doctor readiness mobile-ui.json --format markdown
 godot-telemetry-lab timeline reports\runtime --format html --output reports\runtime-timeline.html
+godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown
 godot-visual-smoke compare baseline current --format json
 ```
 

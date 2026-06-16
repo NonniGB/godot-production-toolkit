@@ -58,6 +58,22 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Missing preset name",
         "explanation": "Named presets are easier to review, select in CI, and discuss in release notes.",
     },
+    "export_matrix_missing_platform": {
+        "title": "Expected export platform missing",
+        "explanation": "Release checks are easier to trust when each expected platform has an explicit export preset.",
+    },
+    "export_matrix_duplicate_platform": {
+        "title": "Multiple presets for one platform",
+        "explanation": "Multiple presets can be intentional, but CI should make demo/full/debug/release variants clear.",
+    },
+    "export_leak_dev_file": {
+        "title": "Dev or test file may ship",
+        "explanation": "Export filters appear broad enough to include a development, test, debug, source-art, or local-only file.",
+    },
+    "export_leak_local_path": {
+        "title": "Local path in export preset",
+        "explanation": "Local machine paths in preset filters or export paths tend to fail in CI and can expose machine-specific setup.",
+    },
 }
 
 

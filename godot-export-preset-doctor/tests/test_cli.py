@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-export-doctor 0.1.7", stdout.getvalue())
+        self.assertIn("godot-export-doctor 0.1.8", stdout.getvalue())
 
     def test_cli_reports_findings_as_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -176,6 +176,149 @@ keystore/release_password="<set-in-ci>"
                         main([str(project), "--config", str(config)])
 
                     self.assertEqual(raised.exception.code, 2)
+
+    def test_cli_preserves_legacy_option_first_invocation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "export_presets.cfg").write_text(
+                """
+[preset.0]
+name="Web"
+platform="Web"
+export_path="build/web/index.html"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["--format", "json", str(project), "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.8")
+            self.assertEqual(report["summary"]["presets"], 1)
+
+    def test_cli_matrix_reports_missing_expected_platform(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "export_presets.cfg").write_text(
+                """
+[preset.0]
+name="Android Release"
+platform="Android"
+export_path="build/game.apk"
+custom_features="release,mobile"
+
+[preset.0.options]
+package/unique_name="com.example.game"
+version/code=1
+version/name="1.0.0"
+architectures/arm64-v8a=true
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "matrix",
+                        str(project),
+                        "--expected-platform",
+                        "Android",
+                        "--expected-platform",
+                        "Web",
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            rules = {finding["rule_id"] for finding in report["findings"]}
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["metadata"]["report_kind"], "export_matrix")
+            self.assertIn("export_matrix_missing_platform", rules)
+
+    def test_cli_leaks_reports_dev_files_and_local_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "tests").mkdir()
+            (project / "tests" / "debug_scene.tscn").write_text("[gd_scene]", encoding="utf-8")
+            (project / "export_presets.cfg").write_text(
+                """
+[preset.0]
+name="Windows Release"
+platform="Windows Desktop"
+export_filter="all_resources"
+include_filter="*"
+export_path="C:\\Users\\dev\\Desktop\\game.exe"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["leaks", str(project), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            rules = {finding["rule_id"] for finding in report["findings"]}
+            self.assertEqual(exit_code, 0)
+            self.assertIn("export_leak_dev_file", rules)
+            self.assertIn("export_leak_local_path", rules)
+
+    def test_cli_matrix_can_render_html(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / "export_presets.cfg").write_text(
+                """
+[preset.0]
+name="Android Release"
+platform="Android"
+export_path="build/game.apk"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["matrix", str(project), "--format", "html", "--fail-on", "none"])
+
+            html = stdout.getvalue()
+            self.assertEqual(exit_code, 0)
+            self.assertIn("<!doctype html>", html)
+            self.assertIn("Godot Export Matrix", html)
+            self.assertIn("Android Release", html)
+
+    def test_cli_matrix_does_not_inherit_config_platform_filter(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            (project / ".godot-export-doctor.toml").write_text('platform = "Android"\n', encoding="utf-8")
+            (project / "export_presets.cfg").write_text(
+                """
+[preset.0]
+name="Android Release"
+platform="Android"
+export_path="build/game.apk"
+
+[preset.1]
+name="Web Release"
+platform="Web"
+export_path="build/web/index.html"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["matrix", str(project), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["presets"], 2)
+            self.assertEqual({row["platform"] for row in report["matrix"]}, {"Android", "Web"})
 
 
 if __name__ == "__main__":

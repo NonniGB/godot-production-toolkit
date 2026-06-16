@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Godot Export Matrix</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Inter, Segoe UI, system-ui, sans-serif;
+      background: #111827;
+      color: #e5e7eb;
+    }
+    body {
+      margin: 0;
+      padding: 32px;
+      background: linear-gradient(180deg, #111827 0%, #172033 100%);
+    }
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+      margin: 0 0 16px;
+      letter-spacing: 0;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .metric {
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #1f2937;
+    }
+    .metric span {
+      display: block;
+      color: #94a3b8;
+      font-size: 13px;
+    }
+    .metric strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 24px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 28px;
+      background: #111827;
+      border: 1px solid #334155;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #253044;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    th {
+      color: #cbd5e1;
+      background: #1f2937;
+    }
+    code {
+      color: #bfdbfe;
+    }
+    @media (max-width: 780px) {
+      body { padding: 18px; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Godot Export Matrix</h1>
+    <p>Static export preset report for release review and CI artifacts.</p>
+    <section class="summary" aria-label="Summary">
+      <div class="metric"><span>Presets</span><strong>2</strong></div>
+      <div class="metric"><span>Platforms</span><strong>2</strong></div>
+      <div class="metric"><span>Warnings</span><strong>1</strong></div>
+      <div class="metric"><span>Errors</span><strong>0</strong></div>
+    </section>
+    <h2>Presets</h2>
+    <table>
+      <thead><tr><th>Preset</th><th>Platform</th><th>Runnable</th><th>Filter</th><th>Include</th><th>Exclude</th><th>Export path</th></tr></thead>
+      <tbody><tr><td>Android Release</td><td>Android</td><td>False</td><td>all_resources</td><td>*</td><td></td><td></td></tr>
+<tr><td>Desktop Debug</td><td>Windows Desktop</td><td>True</td><td>all_resources</td><td>res://debug/*</td><td></td><td>builds/desktop/game.exe</td></tr></tbody>
+    </table>
+    <h2>Findings</h2>
+    <table>
+      <thead><tr><th>Severity</th><th>Rule</th><th>Preset</th><th>Message</th></tr></thead>
+      <tbody><tr><td>warning</td><td><code>export_matrix_missing_platform</code></td><td>Web</td><td>Expected platform &#x27;Web&#x27; has no export preset.</td></tr></tbody>
+    </table>
+  </main>
+</body>
+</html>

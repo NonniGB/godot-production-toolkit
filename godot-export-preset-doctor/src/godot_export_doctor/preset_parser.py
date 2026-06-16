@@ -55,6 +55,9 @@ def parse_export_presets(content: str) -> list[ExportPreset]:
                 platform=str(fields.get("platform", "")),
                 runnable=_as_optional_bool(fields.get("runnable")),
                 export_filter=str(fields.get("export_filter", "")),
+                include_filter=str(fields.get("include_filter", "")),
+                exclude_filter=str(fields.get("exclude_filter", "")),
+                custom_features=str(fields.get("custom_features", "")),
                 export_path=str(fields.get("export_path", "")),
                 options=raw_options.get(index, {}),
             )

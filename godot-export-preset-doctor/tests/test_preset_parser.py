@@ -36,6 +36,9 @@ class PresetParserTests(unittest.TestCase):
         self.assertEqual(android.name, "Android Release")
         self.assertEqual(android.platform, "Android")
         self.assertFalse(android.runnable)
+        self.assertEqual(android.export_filter, "all_resources")
+        self.assertEqual(android.include_filter, "")
+        self.assertEqual(android.exclude_filter, "")
         self.assertEqual(android.export_path, "build/android/game.apk")
         self.assertEqual(android.options["package/unique_name"], "com.example.game")
         self.assertEqual(android.options["version/code"], 12)
@@ -56,6 +59,26 @@ export_path="build/web/index.html"
 
         self.assertEqual([preset.index for preset in presets], [2])
         self.assertEqual(presets[0].platform, "Web")
+
+    def test_parses_matrix_fields(self) -> None:
+        content = """
+[preset.0]
+name="Web Demo"
+platform="Web"
+runnable=true
+export_filter="all_resources"
+include_filter="*.pck,*.json"
+exclude_filter="tests/*"
+custom_features="web,demo"
+export_path="build/web/index.html"
+"""
+
+        preset = parse_export_presets(content)[0]
+
+        self.assertEqual(preset.export_filter, "all_resources")
+        self.assertEqual(preset.include_filter, "*.pck,*.json")
+        self.assertEqual(preset.exclude_filter, "tests/*")
+        self.assertEqual(preset.custom_features, "web,demo")
 
 
 if __name__ == "__main__":

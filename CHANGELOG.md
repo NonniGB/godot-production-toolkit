@@ -5,6 +5,7 @@
 - Added package foundations for runtime telemetry, pack/mod manifest checks, and static release dashboards.
 - Added runtime telemetry timeline reports, starter budget profiles, and a tiny runtime fixture.
 - Added scenario manifest coverage, flaky-run comparison, and a public coverage report sample.
+- Added export preset matrix and leak-risk reports, including HTML artifacts for release review.
 - Added `godot-content-graph-doctor` for data-driven content id, reference, unused-content, numeric outlier, and Mermaid graph checks.
 - Added `godot-scenario-report-kit` for scenario evidence summaries and baseline comparisons.
 - Added `godot-gdscript-architecture-guard` for module boundary, autoload access, dependency graph, and SARIF checks.

@@ -36,6 +36,9 @@ Start with these files when evaluating or extending the suite:
 - `PROJECT_OVERVIEW.md`
 - `docs/TOOL_INDEX.md`
 - `docs/USE_CASES.md`
+- `docs/search-index.md`
+- `docs/WORKS_WITH_YOUR_GODOT_WORKFLOW.md`
+- `docs/diagrams/README.md`
 - `llms.txt`
 - `examples/release-readiness-demo/README.md`
 - `docs/PROJECT_HEALTH.md`
@@ -146,6 +149,8 @@ The newest packages cover content-heavy projects and runtime evidence:
 
 ```powershell
 godot-content-graph godot-content-graph-doctor\examples\tiny-content-project --preset recipes --format markdown --fail-on none
+godot-export-doctor matrix godot-export-preset-doctor\examples\bad-export-project --expected-platform Android --expected-platform Web --format html --output reports\export-matrix.html --fail-on none
+godot-export-doctor leaks godot-export-preset-doctor\examples\bad-export-project --format html --output reports\export-leaks.html --fail-on none
 godot-scenario-report manifest coverage godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --results godot-scenario-report-kit\examples\tiny-scenario-runs\current --format html --output reports\scenario-coverage.html
 godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-architecture-project --config architecture-guard.toml --format markdown
 godot-mobile-ui-doctor matrix godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown
@@ -158,6 +163,7 @@ godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-
 ```
 
 ![Content graph terminal report](docs/assets/screenshots/content-graph-terminal.svg)
+![Export preset matrix report](docs/assets/screenshots/export-matrix.png)
 ![Scenario comparison report](docs/assets/screenshots/scenario-report-terminal.svg)
 ![Scenario manifest coverage report](docs/assets/screenshots/scenario-coverage.png)
 ![Architecture guard report](docs/assets/screenshots/architecture-guard-terminal.svg)
@@ -175,6 +181,12 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 - [Workflow pages](docs/workflows/) cover Android export CI, HTML5 export checks,
   runtime performance regression, mobile UI safe areas, visual regression,
   localization overflow, save migration, and mod/DLC validation.
+- [Search index](docs/search-index.md) maps practical problem phrases to the
+  relevant workflow pages, packages, CI recipes, and sample reports.
+- [Works with your Godot workflow](docs/WORKS_WITH_YOUR_GODOT_WORKFLOW.md)
+  explains local CLI, GitHub Actions, artifact-only usage, and runtime impact.
+- [Toolkit diagrams](docs/diagrams/) show how reports, release evidence, and
+  mobile-readiness checks fit together.
 - [Copy-paste CI recipes](docs/ci/) provide example GitHub Actions workflows to
   adapt inside a Godot project.
 - [Report gallery](docs/report-gallery/) links to generated sample reports,
@@ -188,7 +200,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-ci-doctor-action` | GitHub composite action wrapper. | JSON, Markdown, HTML artifacts |
 | `godot-asset-pipeline-doctor` | PNG/audio and `.import` checks for pixel art, mobile memory, and package-size risks. | JSON, SARIF |
 | `godot-content-graph-doctor` | Data-driven content id, reference, and numeric outlier checks. | JSON, Markdown, Mermaid |
-| `godot-export-preset-doctor` | Release-readiness checks for `export_presets.cfg`. | JSON, SARIF |
+| `godot-export-preset-doctor` | Release-readiness, target matrix, and leak-risk checks for `export_presets.cfg`. | JSON, SARIF, Markdown, HTML |
 | `gdscript-api-comment-coverage` | Public GDScript API docs and comment coverage gate. | JSON, Markdown |
 | `godot-gdscript-architecture-guard` | GDScript module boundaries, autoload access, and dependency policy checks. | JSON, SARIF, Markdown, Mermaid |
 | `godot-input-map-auditor` | Input device coverage and duplicate binding checks. | JSON, SARIF, Markdown |
@@ -297,7 +309,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.3` |
 | [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.10` |
 | [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.3` |
-| [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.7` |
+| [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.8` |
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.1` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.3` |

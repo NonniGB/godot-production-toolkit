@@ -8,7 +8,7 @@ are available from PyPI.
 
 | Problem | Use | Typical command |
 |---|---|---|
-| Android export settings are hard to review | `godot-export-preset-doctor`, `godot-mobile-perf-doctor` | `godot-export-doctor . --format sarif --output reports/export.sarif` |
+| Android, desktop, or web export settings are hard to review | `godot-export-preset-doctor`, `godot-mobile-perf-doctor` | `godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown` |
 | Godot mobile UI needs safe-area and touch-target checks | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
 | Screenshots need regression testing | `godot-visual-smoke-test-kit` | `godot-visual-smoke compare baseline current --format json` |
 | Imported PNGs, pixel art, icons, or sprite anchors need review | `godot-asset-pipeline-doctor` | `godot-asset-doctor . --profile pixel-2d --format json` |
@@ -34,7 +34,7 @@ are available from PyPI.
 | `gdscript-api-comment-coverage` | `gdscript-api-coverage` | JSON, Markdown |
 | `godot-asset-pipeline-doctor` | `godot-asset-doctor` | JSON, SARIF, PNG previews |
 | `godot-content-graph-doctor` | `godot-content-graph` | JSON, Markdown, Mermaid |
-| `godot-export-preset-doctor` | `godot-export-doctor` | JSON, SARIF |
+| `godot-export-preset-doctor` | `godot-export-doctor` | JSON, SARIF, Markdown, HTML |
 | `godot-gdscript-architecture-guard` | `godot-architecture-guard` | JSON, SARIF, Markdown, Mermaid |
 | `godot-input-map-auditor` | `godot-input-audit` | JSON, SARIF, Markdown |
 | `godot-localization-qa-guard` | `godot-l10n-guard` | JSON, SARIF, Markdown |
@@ -55,6 +55,8 @@ are available from PyPI.
 
 ```powershell
 godot-export-doctor . --format json --output reports/export.json
+godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown --output reports/export-matrix.md
+godot-export-doctor leaks . --format html --output reports/export-leaks.html --fail-on none
 godot-mobile-perf-doctor . --static --format markdown --output reports/mobile-perf.md
 godot-asset-doctor . --profile mobile --format json --output reports/assets.json
 ```

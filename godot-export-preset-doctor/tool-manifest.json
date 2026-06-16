@@ -6,7 +6,7 @@
   "interfaces": {
     "cli": true,
     "machine_output": ["json", "sarif"],
-    "human_output": ["text", "markdown docs"],
+    "human_output": ["text", "markdown", "html"],
     "report_metadata": true,
     "plain_language_rule_help": true,
     "visual_interface": "none"
@@ -30,6 +30,14 @@
     {
       "purpose": "Code scanning output",
       "command": "godot-export-doctor <project> --format sarif --output export-doctor.sarif --fail-on error"
+    },
+    {
+      "purpose": "Release target matrix",
+      "command": "godot-export-doctor matrix <project> --expected-platform Android --expected-platform Web --format markdown --output export-matrix.md --fail-on warning"
+    },
+    {
+      "purpose": "Preset leak review",
+      "command": "godot-export-doctor leaks <project> --format html --output export-leaks.html --fail-on warning"
     }
   ]
 }

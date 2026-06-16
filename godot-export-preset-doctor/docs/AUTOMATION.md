@@ -14,4 +14,17 @@ Use SARIF when integrating with code scanning:
 godot-export-doctor <project> --format sarif --output export-doctor.sarif --fail-on error
 ```
 
+Use the export matrix when a project has a known set of release targets:
+
+```powershell
+godot-export-doctor matrix <project> --expected-platform Android --expected-platform Web --format markdown --output export-matrix.md --fail-on warning
+```
+
+Use the leak report as a shareable release artifact before attaching build
+reports to a pull request or release checklist:
+
+```powershell
+godot-export-doctor leaks <project> --format html --output export-leaks.html --fail-on warning
+```
+
 Credential-like values are redacted in findings. Review reports before sharing because preset names and local paths may still be private.
