@@ -27,6 +27,12 @@ Check the chain without running commands:
 godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir migrated --dry-run --format markdown
 ```
 
+Check that every supported save version can reach the current format:
+
+```powershell
+godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1 --supported 2 --format markdown --output reports\migration-graph.md
+```
+
 Run the chain:
 
 ```powershell

@@ -1,7 +1,12 @@
 import unittest
 from pathlib import Path
 
-from godot_save_guard.migration import build_chain_commands, build_migration_command, parse_migration_chain
+from godot_save_guard.migration import (
+    analyze_migration_graph,
+    build_chain_commands,
+    build_migration_command,
+    parse_migration_chain,
+)
 
 
 class MigrationTests(unittest.TestCase):
@@ -44,6 +49,21 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(commands[0][2], Path("migrated/save.v2.json"))
         self.assertIn(str(Path("migrated/save.v2.json")), commands[1][3])
         self.assertEqual(commands[1][2], Path("migrated/save.v3.json"))
+
+    def test_analyzes_supported_versions_that_cannot_reach_current(self) -> None:
+        steps = parse_migration_chain(
+            {
+                "steps": [
+                    {"from": "1", "to": "2", "command": "copy {input} {output}"},
+                    {"from": "3", "to": "4", "command": "copy {input} {output}"},
+                ]
+            }
+        )
+
+        findings = analyze_migration_graph(steps, current_version="4", supported_versions=["1", "3", "4"])
+
+        self.assertEqual([finding.rule_id for finding in findings], ["migration_path_missing"])
+        self.assertIn("version 1", findings[0].message)
 
 
 if __name__ == "__main__":

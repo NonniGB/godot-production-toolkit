@@ -9,3 +9,4 @@
 - `migration_command_failed`: migration command returned a non-zero exit code.
 - `migration_chain_empty`: a migration chain file did not contain valid steps.
 - `migration_chain_planned`: dry-run output showing the ordered migration steps.
+- `migration_path_missing`: a supported save version has no migration path to the current format.

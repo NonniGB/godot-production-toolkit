@@ -18,6 +18,10 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Migration command failed",
         "explanation": "A project-owned migration command returned a non-zero exit code.",
     },
+    "migration_path_missing": {
+        "title": "Migration path missing",
+        "explanation": "A supported save version needs a complete path of migration steps to the current save format.",
+    },
     "missing_required_property": {
         "title": "Required property missing",
         "explanation": "A save fixture is missing a schema property that the current game version expects.",

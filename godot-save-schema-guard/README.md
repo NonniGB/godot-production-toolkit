@@ -23,6 +23,7 @@ godot-save-guard validate saves\fixtures --schema schemas\save.schema.json
 godot-save-guard validate examples\fixtures --schema examples\schema\save.schema.json --format markdown --output SAVE_COMPATIBILITY.md
 godot-save-guard migrate saves\v1 --output-dir migrated\v2 --command "godot --headless --script tools/migrate_save.gd --input {input} --output {output}"
 godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir migrated --dry-run
+godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1 --supported 2 --format markdown
 ```
 
 ## What It Checks
@@ -35,6 +36,7 @@ godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir mig
 - Unexpected properties when `additionalProperties` is false.
 - Migration command failures.
 - Ordered migration chains from older save versions to the current format.
+- Missing migration paths from supported save versions to the current format.
 - Report metadata and plain-language rule explanations for compatibility findings.
 
 ## Documentation

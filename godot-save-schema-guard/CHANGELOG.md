@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 - 2026-06-16
+
+- Added `migration-graph` to check that supported save versions can reach the current save format through the configured migration chain.
+- Added rule help and tests for missing migration paths.
+
 ## 0.1.2 - 2026-06-09
 
 - Added `migrate-chain` for ordered save migration steps defined in TOML.

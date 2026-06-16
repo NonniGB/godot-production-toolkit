@@ -43,6 +43,47 @@ def parse_migration_chain(data: dict[str, Any]) -> list[MigrationStep]:
     return steps
 
 
+def analyze_migration_graph(
+    steps: list[MigrationStep],
+    current_version: str,
+    supported_versions: list[str],
+) -> list[Finding]:
+    current = str(current_version).strip()
+    supported = [str(version).strip() for version in supported_versions if str(version).strip()]
+    if not supported:
+        supported = sorted({step.from_version for step in steps} | {current}, key=_version_sort_key)
+
+    findings: list[Finding] = []
+    if not steps:
+        findings.append(
+            Finding(
+                "migration_chain_empty",
+                "error",
+                "$",
+                "No valid migration steps were found.",
+            )
+        )
+
+    graph: dict[str, set[str]] = {}
+    for step in steps:
+        graph.setdefault(step.from_version, set()).add(step.to_version)
+        graph.setdefault(step.to_version, set())
+
+    for version in supported:
+        if version == current:
+            continue
+        if not _has_path(graph, version, current):
+            findings.append(
+                Finding(
+                    "migration_path_missing",
+                    "error",
+                    "$",
+                    f"Supported save version {version} has no migration path to current version {current}.",
+                )
+            )
+    return findings
+
+
 def build_chain_commands(
     steps: list[MigrationStep],
     input_path: Path,
@@ -56,6 +97,24 @@ def build_chain_commands(
         commands.append((step, current_input, output_path, command))
         current_input = output_path
     return commands
+
+
+def _has_path(graph: dict[str, set[str]], start: str, target: str) -> bool:
+    queue = [start]
+    seen: set[str] = set()
+    while queue:
+        version = queue.pop(0)
+        if version == target:
+            return True
+        if version in seen:
+            continue
+        seen.add(version)
+        queue.extend(sorted(graph.get(version, set()) - seen, key=_version_sort_key))
+    return False
+
+
+def _version_sort_key(value: str) -> tuple[int, str]:
+    return (0, f"{int(value):08d}") if value.isdigit() else (1, value)
 
 
 def run_migration_command(command: str) -> Finding | None:

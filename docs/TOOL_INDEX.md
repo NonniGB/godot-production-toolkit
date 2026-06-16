@@ -47,6 +47,7 @@ godot-visual-smoke compare screenshots/baseline/menu.png screenshots/current/men
 
 ```powershell
 godot-save-guard validate saves/fixtures --schema schemas/save.schema.json --format markdown --output reports/save-validation.md
+godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1 --supported 2 --format markdown --output reports/save-migration-graph.md
 ```
 
 ### Runtime Performance
@@ -86,6 +87,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Input actions need keyboard, mouse, touch, and controller coverage | `godot-input-map-auditor` | `godot-input-audit . --format markdown` |
 | CSV or PO localization imports need QA | `godot-localization-qa-guard` | `godot-l10n-guard . --format markdown` |
 | Save data needs schema and migration checks | `godot-save-schema-guard` | `godot-save-guard validate fixtures --schema save.schema.json` |
+| Supported save versions need migration path checks | `godot-save-schema-guard` | `godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1` |
 | Scene refactors risk broken signal wiring | `godot-scene-signal-auditor` | `godot-signal-audit . --format json` |
 | Scene refactors need required nodes, handlers, or signals kept stable | `godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |
 | GDScript modules or autoload access are becoming tangled | `godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml` |

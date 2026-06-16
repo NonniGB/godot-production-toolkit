@@ -8,6 +8,7 @@
     "machine_output": ["json"],
     "human_output": ["text", "markdown report"],
     "migration_chain_config": true,
+    "migration_graph_check": true,
     "report_metadata": true,
     "plain_language_rule_help": true,
     "visual_interface": "none"
@@ -35,6 +36,10 @@
     {
       "purpose": "Review an ordered migration chain",
       "command": "godot-save-guard migrate-chain <fixtures> --chain migrations.toml --output-dir migrated --dry-run --format json --output migration-chain.json"
+    },
+    {
+      "purpose": "Verify supported save versions can reach the current format",
+      "command": "godot-save-guard migration-graph --chain migrations.toml --current <version> --supported <old-version> --format markdown"
     }
   ]
 }

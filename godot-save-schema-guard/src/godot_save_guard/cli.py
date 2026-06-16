@@ -6,7 +6,13 @@ import sys
 from pathlib import Path
 
 from .fixtures import validate_fixtures
-from .migration import build_chain_commands, build_migration_command, load_migration_chain, run_migration_command
+from .migration import (
+    analyze_migration_graph,
+    build_chain_commands,
+    build_migration_command,
+    load_migration_chain,
+    run_migration_command,
+)
 from .models import Finding, FixtureResult
 from .reporting import render_json_report, render_markdown_report, render_text_report
 
@@ -20,6 +26,8 @@ def main(argv: list[str] | None = None) -> int:
         return _migrate(args)
     if args.command == "migrate-chain":
         return _migrate_chain(args)
+    if args.command == "migration-graph":
+        return _migration_graph(args)
     parser.print_help()
     return 2
 
@@ -33,7 +41,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-save-guard",
         description="Validate Godot save fixtures and migration compatibility.",
     )
-    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.2")
+    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.3")
     subparsers = parser.add_subparsers(dest="command")
 
     validate = subparsers.add_parser("validate", help="Validate JSON save fixtures.")
@@ -53,6 +61,20 @@ def _build_parser() -> argparse.ArgumentParser:
     migrate_chain.add_argument("--output-dir", required=True, help="Directory for migrated fixtures.")
     migrate_chain.add_argument("--dry-run", action="store_true", help="Plan commands without executing them.")
     _add_report_args(migrate_chain)
+
+    migration_graph = subparsers.add_parser(
+        "migration-graph",
+        help="Verify supported save versions can migrate to the current version.",
+    )
+    migration_graph.add_argument("--chain", required=True, help="TOML file containing migration steps.")
+    migration_graph.add_argument("--current", required=True, help="Current save version.")
+    migration_graph.add_argument(
+        "--supported",
+        action="append",
+        default=[],
+        help="Supported old save version. Repeat for each supported version. Defaults to versions found in the chain.",
+    )
+    _add_report_args(migration_graph)
     return parser
 
 
@@ -147,6 +169,15 @@ def _migrate_chain(args: argparse.Namespace) -> int:
                     )
                     break
         results.append(FixtureResult(fixture, findings))
+    _write_report(args, results)
+    return _exit_code(results, args.fail_on)
+
+
+def _migration_graph(args: argparse.Namespace) -> int:
+    chain_path = Path(args.chain)
+    steps = load_migration_chain(chain_path)
+    findings = analyze_migration_graph(steps, args.current, args.supported)
+    results = [FixtureResult(chain_path, findings)]
     _write_report(args, results)
     return _exit_code(results, args.fail_on)
 

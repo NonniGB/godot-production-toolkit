@@ -111,7 +111,9 @@ the [release dashboard CI recipe](ci/release-dashboard-artifact.yml).
 Use the [save migration workflow](workflows/godot-save-migration-testing.md) and
 [`godot-save-schema-guard`](../godot-save-schema-guard/README.md). The save guard
 validates fixtures against a schema and helps document migration commands before
-a release.
+a release. Use `godot-save-guard migration-graph` when each supported save
+version needs a verified path to the current format before running project-owned
+migration scripts.
 
 For a broader production pass, add the umbrella
 [`godot-project-doctor`](../godot-project-doctor/README.md) so save evidence can
