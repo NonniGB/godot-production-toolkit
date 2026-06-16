@@ -11,6 +11,8 @@ from .readiness import build_combined_readiness, render_combined_readiness
 from .reporting import render_report
 from .visual_smoke import load_visual_smoke_viewports, merge_viewports
 
+VERSION_LABEL = "godot-mobile-ui-doctor 0.1.8"
+
 
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
@@ -39,7 +41,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-mobile-ui-doctor",
         description="Check exported Godot mobile UI metadata for touch and layout risks.",
     )
-    parser.add_argument("--version", action="version", version="godot-mobile-ui-doctor 0.1.7")
+    parser.add_argument("--version", action="version", version=VERSION_LABEL)
     parser.add_argument("metadata", help="JSON file containing exported UI viewport and node metadata.")
     parser.add_argument(
         "--visual-smoke-plan",

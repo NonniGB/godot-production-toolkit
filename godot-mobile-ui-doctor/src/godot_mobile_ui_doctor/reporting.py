@@ -31,7 +31,11 @@ def _text(report: dict[str, Any]) -> str:
     lines.append("")
     for finding in findings:
         location = _location(finding)
-        lines.append(f"- {finding['severity'].upper()} {finding['rule_id']}{location}: {finding['message']}")
+        help_text = f" ({finding['rule_help']})" if finding.get("rule_help") else ""
+        lines.append(
+            f"- {finding['severity'].upper()} {finding['rule_id']}{location}: "
+            f"{finding['message']}{help_text}"
+        )
     return "\n".join(lines)
 
 
@@ -57,11 +61,11 @@ def _markdown(report: dict[str, Any]) -> str:
         lines.append("No mobile UI findings.")
         return "\n".join(lines)
 
-    lines.extend(["| Severity | Rule | Location | Message |", "|---|---|---|---|"])
+    lines.extend(["| Severity | Rule | Location | Message | Help |", "|---|---|---|---|---|"])
     for finding in findings:
         lines.append(
             f"| {finding['severity']} | `{finding['rule_id']}` | "
-            f"{_location_text(finding)} | {finding['message']} |"
+            f"{_location_text(finding)} | {finding['message']} | {finding.get('rule_help', '')} |"
         )
     return "\n".join(lines)
 

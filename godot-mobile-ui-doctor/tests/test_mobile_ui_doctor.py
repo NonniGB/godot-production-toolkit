@@ -22,11 +22,15 @@ class MobileUiDoctorTests(unittest.TestCase):
             viewports, screens, thresholds = load_metadata(path)
             report = audit_mobile_ui(viewports, screens, thresholds)
 
+            self.assertEqual(report["tool_version"], "0.1.8")
+            self.assertEqual(report["schema_version"], "1.1")
+            self.assertIn("touch_target_too_small", report["metadata"]["rules"])
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("touch_target_too_small", rule_ids)
             self.assertIn("safe_area_overlap", rule_ids)
             self.assertIn("text_overflow_risk", rule_ids)
             self.assertIn("touch_targets_too_close", rule_ids)
+            self.assertTrue(all("rule_help" in finding for finding in report["findings"]))
 
     def test_cli_writes_json_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -114,7 +118,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.7", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.8", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

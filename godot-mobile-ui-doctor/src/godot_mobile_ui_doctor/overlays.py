@@ -7,8 +7,10 @@ from typing import Any
 
 from PIL import Image, ImageDraw, ImageFont
 
+from . import __version__
 from .audit import audit_mobile_ui
 from .models import Screen, Thresholds, UiNode, Viewport
+from .rules import rule_catalog
 
 
 @dataclass(frozen=True)
@@ -51,7 +53,12 @@ def render_overlays(
 
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.7",
+        "version": __version__,
+        "tool_version": __version__,
+        "schema_version": "1.1",
+        "metadata": {
+            "rules": rule_catalog(),
+        },
         "kind": "mobile_ui_overlay_previews",
         "summary": {
             "screens": len(screens),

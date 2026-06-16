@@ -3,7 +3,9 @@ from __future__ import annotations
 from math import hypot
 from typing import Any
 
+from . import __version__
 from .models import Finding, Screen, Thresholds, UiNode, Viewport
+from .rules import enrich_finding, rule_catalog
 
 
 def audit_mobile_ui(
@@ -38,9 +40,14 @@ def audit_mobile_ui(
     }
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.7",
+        "version": __version__,
+        "tool_version": __version__,
+        "schema_version": "1.1",
+        "metadata": {
+            "rules": rule_catalog(),
+        },
         "summary": summary,
-        "findings": [finding.as_dict() for finding in findings],
+        "findings": [enrich_finding(finding.as_dict()) for finding in findings],
     }
 
 
@@ -74,7 +81,12 @@ def build_readiness_matrix(
 
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.7",
+        "version": __version__,
+        "tool_version": __version__,
+        "schema_version": "1.1",
+        "metadata": {
+            "rules": rule_catalog(),
+        },
         "kind": "mobile_readiness_matrix",
         "summary": {
             "screens": len(rows),

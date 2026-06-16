@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.8 - 2026-06-16
+
+- Added schema and tool version metadata to mobile UI, matrix, overlay, and readiness reports.
+- Added a rule catalog plus `rule_title` and `rule_help` fields to mobile UI findings.
+- Included rule help in text and Markdown mobile UI reports.
+
 ## 0.1.7 - 2026-06-14
 
 - Added grouped rule summaries to combined mobile readiness reports.

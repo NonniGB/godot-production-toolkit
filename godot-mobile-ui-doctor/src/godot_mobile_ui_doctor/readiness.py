@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import Any
 
 from .audit import build_readiness_matrix
+from . import __version__
 from .models import Screen, Thresholds, Viewport
+from .rules import rule_catalog
 
 
 REPORT_SLOTS: dict[str, str] = {
@@ -39,7 +41,12 @@ def build_combined_readiness(
     }
     return {
         "tool": "godot-mobile-ui-doctor",
-        "version": "0.1.7",
+        "version": __version__,
+        "tool_version": __version__,
+        "schema_version": "1.1",
+        "metadata": {
+            "rules": rule_catalog(),
+        },
         "kind": "combined_mobile_readiness",
         "summary": summary,
         "matrix": matrix["matrix"],

@@ -123,6 +123,10 @@ still take precedence.
 - `markdown`: PR comments, release notes, and report artifacts.
 - `png`: optional overlay previews from the `overlays` command.
 
+JSON reports include the package version, a schema version, and a rule catalog.
+Findings include stable `rule_id` values plus `rule_title` and `rule_help`
+fields, so CI comments and local scripts can explain what to check next.
+
 ## Mobile Readiness Matrix
 
 The `matrix` command groups findings by screen and viewport. It is useful when a
