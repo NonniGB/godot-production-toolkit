@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import sys
 
-from .doctor import check_manifest, diff_manifests, load_order, render
+from .doctor import check_manifest, diff_manifests, load_order, manifest_from_folder, render
 
-VERSION_LABEL = "godot-pack-mod-doctor 0.1.1"
+VERSION_LABEL = "godot-pack-mod-doctor 0.1.2"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -18,9 +19,23 @@ def main(argv: list[str] | None = None) -> int:
     check_parser.add_argument("manifest")
     check_parser.add_argument("--base", help="Optional base game content manifest.")
     check_parser.add_argument("--allow-overrides", action="store_true")
+    check_parser.add_argument(
+        "--unsafe-extension",
+        action="append",
+        default=[],
+        help="Additional extension to flag for manual review, such as .cfg or .sqlite.",
+    )
     check_parser.add_argument("--format", choices=["text", "json", "markdown"], default="text")
     check_parser.add_argument("--output")
     check_parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
+
+    manifest_parser = subparsers.add_parser("manifest", help="Create or review pack manifests.")
+    manifest_subparsers = manifest_parser.add_subparsers(dest="manifest_command")
+    from_folder_parser = manifest_subparsers.add_parser("from-folder", help="Generate a manifest from a pack folder.")
+    from_folder_parser.add_argument("folder")
+    from_folder_parser.add_argument("--id", required=True, help="Stable pack id to write into the generated manifest.")
+    from_folder_parser.add_argument("--version", required=True, help="Pack version to write into the generated manifest.")
+    from_folder_parser.add_argument("--output", help="Write manifest JSON to this path instead of stdout.")
 
     diff_parser = subparsers.add_parser("diff", help="Compare two pack manifests.")
     diff_parser.add_argument("baseline")
@@ -37,7 +52,20 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
     if args.command == "check":
-        report = check_manifest(Path(args.manifest), Path(args.base) if args.base else None, args.allow_overrides)
+        unsafe_extensions = set(args.unsafe_extension) if args.unsafe_extension else None
+        report = check_manifest(
+            Path(args.manifest),
+            Path(args.base) if args.base else None,
+            args.allow_overrides,
+            unsafe_extensions,
+        )
+    elif args.command == "manifest" and args.manifest_command == "from-folder":
+        try:
+            manifest = manifest_from_folder(Path(args.folder), args.id, args.version)
+        except ValueError as exc:
+            parser.error(str(exc))
+        _emit(json.dumps(manifest, indent=2, sort_keys=True), args.output)
+        return 0
     elif args.command == "diff":
         report = diff_manifests(Path(args.baseline), Path(args.current))
     elif args.command == "load-order":

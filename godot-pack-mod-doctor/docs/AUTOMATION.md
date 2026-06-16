@@ -1,5 +1,11 @@
 # Automation
 
+Generate a manifest from a pack folder:
+
+```powershell
+godot-pack-mod-doctor manifest from-folder addons\demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json
+```
+
 Check a pack manifest during CI:
 
 ```powershell
@@ -10,6 +16,12 @@ Check references against a base content manifest:
 
 ```powershell
 godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format markdown --output reports\pack.md
+```
+
+Treat advisory file-policy warnings as CI failures:
+
+```powershell
+godot-pack-mod-doctor check pack-manifest.json --format json --fail-on warning
 ```
 
 Exit codes:

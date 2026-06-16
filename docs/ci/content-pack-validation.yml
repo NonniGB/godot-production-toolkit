@@ -17,6 +17,7 @@ env:
   GODOT_PROJECT_DIR: "."
   CONTENT_GRAPH_CONFIG: "content-graph.toml"
   PACK_MANIFEST: "packs/pack-manifest.json"
+  PACK_SOURCE_DIR: "packs/current"
   BASE_CONTENT_MANIFEST: "packs/base-content.json"
   REPORTS_DIR: "reports/content-pack"
 
@@ -57,6 +58,12 @@ jobs:
         run: |
           # Required project path: PACK_MANIFEST should describe the pack,
           # patch, DLC, or mod files your build intends to publish.
+          if [ ! -f "$PACK_MANIFEST" ] && [ -d "$PACK_SOURCE_DIR" ]; then
+            godot-pack-mod-doctor manifest from-folder "$PACK_SOURCE_DIR" \
+              --id "current_pack" \
+              --version "${{ github.sha }}" \
+              --output "$PACK_MANIFEST"
+          fi
           test -f "$PACK_MANIFEST"
           if [ -f "$BASE_CONTENT_MANIFEST" ]; then
             godot-pack-mod-doctor check "$PACK_MANIFEST" \
@@ -79,4 +86,3 @@ jobs:
         with:
           name: content-pack-validation-reports
           path: ${{ env.REPORTS_DIR }}
-

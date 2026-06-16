@@ -205,6 +205,7 @@ The input can be JSON or CSV. Common fields are `frame_ms`, `physics_ms`,
 Use this before publishing a patch, DLC, or mod/content pack manifest:
 
 ```powershell
+godot-pack-mod-doctor manifest from-folder addons\demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json
 godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format markdown --output reports\pack.md
 ```
 
@@ -214,6 +215,9 @@ This helps catch:
 - Duplicate shipped paths.
 - Unexpected overrides.
 - References to ids that are not present in a supplied base manifest.
+- Local, parent-directory, or non-`res://` paths.
+- Case-only path collisions that can break on Windows or macOS.
+- Files that commonly need manual review before public pack distribution.
 
 ## Release Dashboards
 

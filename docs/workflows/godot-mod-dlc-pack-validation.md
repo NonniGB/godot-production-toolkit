@@ -3,7 +3,8 @@
 Use this before shipping a Godot patch, DLC pack, mod package, or optional
 content bundle. It checks the pack manifest for identity fields, duplicate
 paths, unexpected overrides, and references that do not exist in the base
-manifest.
+manifest. It can also generate a reviewable manifest from a folder before the
+check step runs.
 
 Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 
@@ -16,6 +17,7 @@ Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 
 ```powershell
 python -m pip install godot-pack-mod-doctor
+godot-pack-mod-doctor manifest from-folder addons\demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json
 godot-pack-mod-doctor check pack-manifest.json --format markdown --output reports\pack.md
 godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format json --output reports\pack.json
 godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown --output reports\pack-diff.md
@@ -31,11 +33,15 @@ godot-content-graph . --preset packs --format markdown --output reports\pack-con
 ## Expected inputs
 
 - A pack manifest JSON file.
+- Optional pack folder when generating a manifest from shipped resources.
 - Optional base manifest JSON for override and reference checks.
 - Optional content folders when running a separate content graph pass.
 
 ## Expected outputs
 
 - Markdown or JSON pack validation reports.
-- Findings for duplicate paths, missing identity fields, unexpected overrides, missing references, pack diffs, and load-order conflicts.
+- Generated manifests with `res://` paths, file sizes, and SHA-256 hashes.
+- Findings for duplicate paths, missing identity fields, non-portable paths,
+  case-only collisions, files that need manual review, unexpected overrides,
+  missing references, pack diffs, and load-order conflicts.
 - A CI-friendly exit code based on the selected failure threshold.

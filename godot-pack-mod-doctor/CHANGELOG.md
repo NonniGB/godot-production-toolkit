@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 - 2026-06-16
+
+- Added `manifest from-folder` for generating deterministic pack manifests
+  from a folder of Godot resources.
+- Added advisory checks for local paths, parent-directory paths, non-`res://`
+  paths, case-only collisions, file types that need review, and development or
+  private files.
+
 ## 0.1.1 - 2026-06-16
 
 - Added `diff` for added, removed, and changed files between pack manifests.

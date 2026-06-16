@@ -21,6 +21,10 @@
   },
   "recommended_commands": [
     {
+      "purpose": "Generate a pack manifest from a folder",
+      "command": "godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json"
+    },
+    {
       "purpose": "Check a pack or mod manifest",
       "command": "godot-pack-mod-doctor check pack-manifest.json --format markdown"
     },
@@ -35,6 +39,10 @@
     {
       "purpose": "Check load order conflicts across packs",
       "command": "godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown"
+    },
+    {
+      "purpose": "Fail CI on advisory file policy warnings",
+      "command": "godot-pack-mod-doctor check pack-manifest.json --format json --fail-on warning"
     }
   ]
 }

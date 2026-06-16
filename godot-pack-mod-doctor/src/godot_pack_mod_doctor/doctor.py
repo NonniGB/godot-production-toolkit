@@ -1,13 +1,37 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
 
 from . import __version__
 
+DEFAULT_UNSAFE_EXTENSIONS = {
+    ".bat",
+    ".cmd",
+    ".cs",
+    ".dll",
+    ".dylib",
+    ".exe",
+    ".gd",
+    ".pck",
+    ".ps1",
+    ".so",
+    ".zip",
+}
+DEV_PATH_PARTS = {".git", ".godot", ".import", "debug", "tests", "tmp"}
+DEV_FILE_NAMES = {".env"}
+DEV_FILE_EXTENSIONS = {".bak", ".key", ".log", ".pem", ".pfx"}
+SKIPPED_SCAN_DIRS = {".git", ".godot", "__pycache__"}
 
-def check_manifest(path: Path, base: Path | None = None, allow_overrides: bool = False) -> dict[str, Any]:
+
+def check_manifest(
+    path: Path,
+    base: Path | None = None,
+    allow_overrides: bool = False,
+    unsafe_extensions: set[str] | None = None,
+) -> dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
     base_ids = _base_ids(base) if base else set()
     files = [item for item in data.get("files", []) if isinstance(item, dict)]
@@ -18,6 +42,11 @@ def check_manifest(path: Path, base: Path | None = None, allow_overrides: bool =
     _duplicate_paths(files, findings)
     _override_policy(files, allow_overrides, findings)
     _reference_policy(files, base_ids, findings)
+    _path_policy(files, findings)
+    configured_unsafe_extensions = set(DEFAULT_UNSAFE_EXTENSIONS)
+    if unsafe_extensions:
+        configured_unsafe_extensions.update(unsafe_extensions)
+    _unsafe_file_policy(files, configured_unsafe_extensions, findings)
 
     summary = {
         "packs": 1,
@@ -37,6 +66,32 @@ def check_manifest(path: Path, base: Path | None = None, allow_overrides: bool =
             "version": str(data.get("version", "")),
         },
         "findings": findings,
+    }
+
+
+def manifest_from_folder(root: Path, pack_id: str, version: str) -> dict[str, Any]:
+    files: list[dict[str, Any]] = []
+    root = root.resolve()
+    for file_path in _iter_pack_files(root):
+        try:
+            relative = file_path.resolve().relative_to(root)
+        except ValueError:
+            continue
+        manifest_path = "res://" + relative.as_posix()
+        files.append(
+            {
+                "path": manifest_path,
+                "overrides": False,
+                "size": file_path.stat().st_size,
+                "sha256": _sha256(file_path),
+            }
+        )
+    files.sort(key=lambda item: item["path"].lower())
+    return {
+        "id": pack_id,
+        "version": version,
+        "dependencies": [],
+        "files": files,
     }
 
 
@@ -204,6 +259,88 @@ def _reference_policy(files: list[dict[str, Any]], base_ids: set[str], findings:
                 )
 
 
+def _path_policy(files: list[dict[str, Any]], findings: list[dict[str, str]]) -> None:
+    seen_lower: dict[str, str] = {}
+    for item in files:
+        path = str(item.get("path", "")).strip().replace("\\", "/")
+        if not path:
+            continue
+        if Path(path).is_absolute():
+            findings.append(
+                {
+                    "rule_id": "pack_absolute_path",
+                    "severity": "warning",
+                    "message": f"{path!r} looks like a local filesystem path.",
+                    "rule_help": "Use stable project paths such as res://addons/example/file.tres in pack manifests.",
+                }
+            )
+        if ".." in path.split("/"):
+            findings.append(
+                {
+                    "rule_id": "pack_path_traversal",
+                    "severity": "warning",
+                    "message": f"{path!r} contains a parent-directory segment.",
+                    "rule_help": "Pack manifests should not contain paths that can escape the intended project tree.",
+                }
+            )
+        if not path.startswith("res://"):
+            findings.append(
+                {
+                    "rule_id": "pack_non_res_path",
+                    "severity": "warning",
+                    "message": f"{path!r} is not under res://.",
+                    "rule_help": "Use Godot project paths so pack reviews are portable across machines.",
+                }
+            )
+        lower_path = path.lower()
+        previous = seen_lower.get(lower_path)
+        if previous and previous != path:
+            findings.append(
+                {
+                    "rule_id": "pack_duplicate_path_case_insensitive",
+                    "severity": "warning",
+                    "message": f"{path!r} differs only by case from {previous!r}.",
+                    "rule_help": "Avoid case-only path differences because Windows and macOS users may see collisions.",
+                }
+            )
+        seen_lower[lower_path] = path
+
+
+def _unsafe_file_policy(
+    files: list[dict[str, Any]], unsafe_extensions: set[str], findings: list[dict[str, str]]
+) -> None:
+    normalized_extensions = {_normalize_extension(extension) for extension in unsafe_extensions}
+    for item in files:
+        path = str(item.get("path", "")).strip().replace("\\", "/")
+        if not path:
+            continue
+        parts = [part for part in path.replace("res://", "", 1).split("/") if part]
+        name = parts[-1].lower() if parts else ""
+        suffix = Path(name).suffix.lower()
+        if suffix in normalized_extensions:
+            findings.append(
+                {
+                    "rule_id": "pack_unsafe_file_type",
+                    "severity": "warning",
+                    "message": f"{path!r} uses extension {suffix!r}, which often needs manual review in public packs.",
+                    "rule_help": "Script, native binary, archive, and packed-project files can be legitimate, but review them before distribution.",
+                }
+            )
+        if (
+            any(part.lower() in DEV_PATH_PARTS for part in parts[:-1])
+            or name in DEV_FILE_NAMES
+            or suffix in DEV_FILE_EXTENSIONS
+        ):
+            findings.append(
+                {
+                    "rule_id": "pack_dev_or_private_file",
+                    "severity": "warning",
+                    "message": f"{path!r} looks like a development, debug, or private file.",
+                    "rule_help": "Review whether editor caches, logs, backups, tests, or key material should be shipped in the pack.",
+                }
+            )
+
+
 def _base_ids(path: Path | None) -> set[str]:
     if path is None:
         return set()
@@ -227,6 +364,39 @@ def _files_by_path(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
 
 def _stable_file_payload(item: dict[str, Any]) -> dict[str, Any]:
     return {key: item.get(key) for key in sorted(item) if key != "path"}
+
+
+def _iter_pack_files(root: Path) -> list[Path]:
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"{root} is not a directory")
+    files: list[Path] = []
+    for file_path in root.rglob("*"):
+        if not file_path.is_file():
+            continue
+        relative_parts = file_path.relative_to(root).parts
+        if any(part in SKIPPED_SCAN_DIRS for part in relative_parts[:-1]):
+            continue
+        try:
+            resolved = file_path.resolve()
+        except OSError:
+            continue
+        if not resolved.is_relative_to(root):
+            continue
+        files.append(file_path)
+    return files
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _normalize_extension(extension: str) -> str:
+    value = extension.strip().lower()
+    return value if value.startswith(".") else f".{value}"
 
 
 def _text(report: dict[str, Any]) -> str:

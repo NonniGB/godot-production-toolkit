@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-pack-mod-doctor"
-version = "0.1.1"
-description = "Validate Godot pack, DLC, and mod manifests before release."
+version = "0.1.2"
+description = "Generate and validate Godot pack, DLC, and mod manifests before release."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

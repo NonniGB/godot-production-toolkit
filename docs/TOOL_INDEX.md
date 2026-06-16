@@ -63,6 +63,7 @@ godot-telemetry-lab timeline reports/runtime --budget-file reports/runtime-budge
 
 ```powershell
 godot-content-graph . --preset recipes --format markdown --output reports/content-graph.md --fail-on none
+godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json
 godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format markdown --output reports/pack.md
 godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown --output reports/pack-diff.md
 godot-pack-mod-doctor load-order base-pack.json patch-pack.json --format markdown --output reports/pack-load-order.md
@@ -98,6 +99,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Scenario runs, screenshots, telemetry, and visual reports need one evidence manifest | `godot-scenario-report-kit` | `godot-scenario-report bundle reports/scenarios --telemetry reports/runtime.html --visual reports/visual.json --format json` |
 | Runtime telemetry needs budgets, timelines, or baseline comparison | `godot-runtime-telemetry-lab` | `godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html` |
 | Pack, patch, DLC, or mod manifests need release checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
+| A pack folder needs a manifest before review or CI | `godot-pack-mod-doctor` | `godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json` |
 | Pack updates need added/removed/changed files or load-order conflicts reviewed | `godot-pack-mod-doctor` | `godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown` |
 | Release reports and screenshots need one static review page | `godot-release-dashboard-kit` | `godot-release-dashboard build reports --output reports/dashboard.html` |
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |

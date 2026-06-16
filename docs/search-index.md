@@ -126,7 +126,9 @@ sit beside export, asset, input, and localization reports.
 Start with the [mod and DLC pack workflow](workflows/godot-mod-dlc-pack-validation.md)
 and [`godot-pack-mod-doctor`](../godot-pack-mod-doctor/README.md). It checks pack
 identity, shipped paths, overrides, dependencies, and references against an
-optional base manifest.
+optional base manifest. It can also generate a deterministic manifest from a
+folder of pack files, including `res://` paths, file sizes, and SHA-256 hashes
+for later release diffs.
 
 If the pack also changes items, recipes, levels, quests, or other data-driven
 content, run [`godot-content-graph-doctor`](../godot-content-graph-doctor/README.md)

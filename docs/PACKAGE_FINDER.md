@@ -24,6 +24,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | GDScript architecture boundary check | `python -m pip install godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml --format markdown` |
 | GDScript API comment coverage | `python -m pip install gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Godot data/content graph validation | `python -m pip install godot-content-graph-doctor` | `godot-content-graph . --preset recipes --format markdown` |
+| Godot pack manifest generation from a folder | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json` |
 | Godot mod, DLC, or patch manifest check | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
 | Godot mod or DLC pack diff | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown` |
 | Godot scenario evidence report | `python -m pip install godot-scenario-report-kit` | `godot-scenario-report manifest coverage scenario-manifest.json --results reports/current --format html` |
