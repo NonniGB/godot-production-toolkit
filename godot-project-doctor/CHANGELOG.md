@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 - 2026-06-16
+
+- Added `doctor --profile release|mobile|content|qa` for profile-based first-run guidance.
+- Added task lists with expected inputs, output paths, commands, setup notes, and JSON output.
+- Added optional `--write-workflow` support for writing a starter GitHub Actions workflow only when requested.
+
 ## 0.1.4 - 2026-06-09
 
 - Added `compare` for checking report folders against an earlier run.

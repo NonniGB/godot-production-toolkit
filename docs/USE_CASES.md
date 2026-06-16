@@ -7,6 +7,7 @@ Godot Production Toolkit is meant to sit beside normal unit tests, scene tests, 
 Use this before cutting an Android build:
 
 ```powershell
+godot-project-doctor doctor . --profile release
 godot-project-doctor run --project . --checks export,mobile_perf,assets --reports-dir reports\godot-project-doctor --format markdown --output reports\godot-project-doctor\summary.md
 ```
 

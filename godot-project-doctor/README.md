@@ -17,11 +17,14 @@ Ask the doctor what it sees in a project:
 ```powershell
 godot-project-doctor inspect path\to\godot-project
 godot-project-doctor recommend path\to\godot-project
+godot-project-doctor doctor path\to\godot-project --profile release
 ```
 
 `inspect` reports the project shape, detected Godot signals, sample files, and
 the short check list it would start with. `recommend` adds priority, setup
-notes, and a dry-run command for each suggested check.
+notes, and a dry-run command for each suggested check. `doctor` groups checks
+into practical profiles and shows expected inputs, output paths, commands, and
+setup notes.
 
 Preview a starter config and workflow without writing files:
 
@@ -56,6 +59,25 @@ godot-project-doctor collect godot-project-doctor.toml --evidence-dir reports\go
 ## Config
 
 Use `examples/godot-project-doctor.toml` as a starting point. Project-audit tools are enabled by default; specialized tools such as save-schema validation, visual smoke plans, and pixel asset commands stay disabled until their required config is supplied.
+
+## Profile Checklists
+
+Use `doctor` when you want a first-run checklist instead of a raw command list:
+
+```powershell
+godot-project-doctor doctor . --profile release
+godot-project-doctor doctor . --profile mobile --format json
+godot-project-doctor doctor . --profile content --write-workflow
+godot-project-doctor doctor . --profile qa
+```
+
+Profiles are side-effect-free unless `--write-workflow` is passed. The current
+profiles are:
+
+- `release`: export, asset, input, localization, and mobile performance checks.
+- `mobile`: Android/export, mobile performance, input, mobile UI, and visual smoke planning.
+- `content`: content graph, save schema, scenario report, and asset checks.
+- `qa`: scenario, visual smoke, mobile UI, architecture, and signal checks.
 
 `recommend` is intentionally conservative. It looks for common project signals
 such as `export_presets.cfg`, GDScript files, PNG/import files, localization

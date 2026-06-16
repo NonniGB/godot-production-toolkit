@@ -8,6 +8,7 @@ import sys
 from .reports import render_json, render_summary
 from .runner import (
     build_plan,
+    build_doctor_profile,
     compare_report_dirs,
     collect_evidence,
     exit_code_for_compare,
@@ -30,6 +31,8 @@ def main(argv: list[str] | None = None) -> int:
         return _inspect(args)
     if args.command == "recommend":
         return _recommend(args)
+    if args.command == "doctor":
+        return _doctor(args)
     if args.command == "init":
         return _init(args)
     if args.command == "explain":
@@ -55,7 +58,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-project-doctor",
         description="Plan, run, and summarize the Godot production toolkit.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.4")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.5")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")
@@ -76,6 +79,19 @@ def _build_parser() -> argparse.ArgumentParser:
     recommend.add_argument("project", help="Godot project directory.")
     recommend.add_argument("--format", choices=["text", "json"], default="text")
     recommend.add_argument("--output", help="Write output to a file.")
+
+    doctor = subparsers.add_parser("doctor", help="Show a profile-based first-run checklist for a project.")
+    doctor.add_argument("project", nargs="?", default=".", help="Godot project directory.")
+    doctor.add_argument("--profile", choices=["release", "mobile", "content", "qa"], default="release")
+    doctor.add_argument("--reports-dir", help="Override report directory.")
+    doctor.add_argument("--format", choices=["text", "json"], default="text")
+    doctor.add_argument("--write-workflow", action="store_true", help="Write a starter GitHub Actions workflow.")
+    doctor.add_argument(
+        "--workflow-path",
+        default=".github/workflows/godot-production-profile.yml",
+        help="Workflow path relative to the project when --write-workflow is used.",
+    )
+    doctor.add_argument("--output", help="Write command output to a file.")
 
     init = subparsers.add_parser("init", help="Create or preview a starter godot-project-doctor config.")
     init.add_argument("project", nargs="?", default=".", help="Godot project directory.")
@@ -150,6 +166,26 @@ def _recommend(args: argparse.Namespace) -> int:
         "recommendations": inspected["recommendations"],
     }
     rendered = render_json(payload) if args.format == "json" else _render_recommend_text(payload)
+    _emit(rendered, args.output)
+    return 0
+
+
+def _doctor(args: argparse.Namespace) -> int:
+    try:
+        payload = build_doctor_profile(
+            Path(args.project),
+            args.profile,
+            reports_dir=Path(args.reports_dir) if args.reports_dir else None,
+        )
+    except KeyError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    if args.write_workflow:
+        workflow_path = Path(args.project).resolve() / args.workflow_path
+        workflow_path.parent.mkdir(parents=True, exist_ok=True)
+        workflow_path.write_text(str(payload["workflow"]) + "\n", encoding="utf-8")
+        payload["workflow_written"] = str(workflow_path)
+    rendered = render_json(payload) if args.format == "json" else _render_doctor_text(payload)
     _emit(rendered, args.output)
     return 0
 
@@ -323,6 +359,39 @@ def _render_recommend_text(payload: dict[str, object]) -> str:
                 f"  Try: {item.get('command', 'godot-project-doctor run --project <project> --checks ' + item['id'] + ' --dry-run')}",
             ]
         )
+    return "\n".join(lines)
+
+
+def _render_doctor_text(payload: dict[str, object]) -> str:
+    summary = payload["summary"]
+    lines = [
+        f"Godot Project Doctor - {payload['title']}",
+        f"Project: {payload['project']}",
+        f"Reports: {payload['reports_dir']}",
+        f"Ready: {summary['ready']} | Needs setup: {summary['needs_setup']}",
+        "",
+        str(payload["description"]),
+        "",
+        "Tasks:",
+    ]
+    for task in payload["tasks"]:
+        lines.extend(
+            [
+                f"- {task['id']} ({task['status']}): {task['title']}",
+                f"  Why: {task['why']}",
+                f"  Input: {', '.join(task['expected_inputs']) if task['expected_inputs'] else 'project path'}",
+                f"  Output: {task['output']}",
+                f"  Command: {task['command']}",
+            ]
+        )
+        if not task["ready"]:
+            lines.append(f"  Setup: {task['setup']}")
+    lines.extend(["", "Next steps:"])
+    lines.extend(f"- {step}" for step in payload["next_steps"])
+    if payload.get("workflow_written"):
+        lines.extend(["", f"Workflow written: {payload['workflow_written']}"])
+    else:
+        lines.extend(["", "Add --write-workflow to write a starter GitHub Actions workflow."])
     return "\n".join(lines)
 
 

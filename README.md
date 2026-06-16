@@ -105,12 +105,18 @@ Ask the umbrella CLI what it would run for a project:
 ```powershell
 godot-project-doctor inspect path\to\godot-project
 godot-project-doctor recommend path\to\godot-project
+godot-project-doctor doctor path\to\godot-project --profile release
+godot-project-doctor doctor path\to\godot-project --profile mobile --format json
 godot-project-doctor init path\to\godot-project --dry-run --include-workflow
 ```
 
 `inspect` shows the project shape, sample files, detected addons/test
 frameworks, and the checks the toolkit would start with. `recommend` turns that
-scan into prioritized checks with setup notes and dry-run commands.
+scan into prioritized checks with setup notes and dry-run commands. `doctor`
+groups tools into release, mobile, content, or QA profiles with expected inputs,
+output paths, and commands.
+
+![Godot Project Doctor profile checklist](docs/assets/screenshots/project-doctor-profile.svg)
 
 Run checks, summarize the generated reports, and compare two runs:
 

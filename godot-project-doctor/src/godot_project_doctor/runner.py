@@ -98,6 +98,29 @@ CHECK_GUIDANCE: dict[str, dict[str, str]] = {
     },
 }
 
+PROFILE_DEFINITIONS: dict[str, dict[str, Any]] = {
+    "release": {
+        "title": "Release readiness",
+        "description": "Export presets, assets, input coverage, localization, mobile performance, and report collection.",
+        "checks": ["export", "assets", "input", "localization", "mobile_perf"],
+    },
+    "mobile": {
+        "title": "Mobile review",
+        "description": "Android/export readiness, static mobile performance, touch input, mobile UI metadata, and visual smoke planning.",
+        "checks": ["export", "mobile_perf", "input", "mobile_ui", "visual_smoke"],
+    },
+    "content": {
+        "title": "Content safety",
+        "description": "Data graph integrity, save fixtures, scenario evidence, pack/content checks, and release dashboard inputs.",
+        "checks": ["content_graph", "save_schema", "scenario_report", "assets"],
+    },
+    "qa": {
+        "title": "QA evidence",
+        "description": "Scenario reports, visual smoke plans, mobile UI readiness, architecture checks, and combined evidence folders.",
+        "checks": ["scenario_report", "visual_smoke", "mobile_ui", "architecture", "signals"],
+    },
+}
+
 
 def load_config(config_path: Path | None) -> tuple[dict[str, Any], Path]:
     if not config_path:
@@ -236,6 +259,49 @@ def inspect_project(project: Path) -> dict[str, Any]:
     }
 
 
+def build_doctor_profile(
+    project: Path,
+    profile: str,
+    reports_dir: Path | None = None,
+) -> dict[str, Any]:
+    if profile not in PROFILE_DEFINITIONS:
+        known = ", ".join(sorted(PROFILE_DEFINITIONS))
+        raise KeyError(f"unknown profile {profile!r}; known profiles: {known}")
+    definition = PROFILE_DEFINITIONS[profile]
+    checks = [str(check_id) for check_id in definition["checks"]]
+    plan = build_plan(
+        project=project,
+        checks=checks,
+        reports_dir=reports_dir or Path(f"reports/godot-project-doctor/{profile}"),
+        fail_on="error",
+    )
+    inspected = inspect_project(project)
+    plan_by_id = {str(item["id"]): item for item in plan["checks"]}
+    tasks = [_doctor_task(plan_by_id[check_id], project) for check_id in checks if check_id in plan_by_id]
+    return {
+        "tool": "godot-project-doctor",
+        "kind": "doctor_profile",
+        "profile": profile,
+        "title": definition["title"],
+        "description": definition["description"],
+        "project": plan["project"],
+        "reports_dir": plan["reports_dir"],
+        "summary": {
+            "tasks": len(tasks),
+            "ready": sum(1 for task in tasks if task["ready"]),
+            "needs_setup": sum(1 for task in tasks if not task["ready"]),
+        },
+        "detected": inspected["features"],
+        "tasks": tasks,
+        "next_steps": [
+            "Review setup notes for tasks marked needs_setup.",
+            "Run the listed commands locally first, then put them in CI.",
+            "Use collect or godot-release-dashboard to bundle the resulting reports.",
+        ],
+        "workflow": render_github_action_example(checks),
+    }
+
+
 def recommend_checks_from_features(features: dict[str, Any], project: str | None = None) -> list[dict[str, str]]:
     recommended: list[dict[str, str]] = []
     rules = [
@@ -264,6 +330,51 @@ def recommend_checks_from_features(features: dict[str, Any], project: str | None
         for check_id in ("export", "assets", "input", "mobile_perf"):
             recommended.append(_recommendation(check_id, "Good first check for a Godot project.", project))
     return recommended
+
+
+def _doctor_task(plan_item: dict[str, Any], project: Path) -> dict[str, Any]:
+    check_id = str(plan_item["id"])
+    guidance = CHECK_GUIDANCE.get(check_id, {"why": "", "when": ""})
+    expected_inputs = _expected_inputs(check_id, project)
+    return {
+        "id": check_id,
+        "title": str(plan_item["title"]),
+        "ready": bool(plan_item["enabled"]),
+        "status": "ready" if plan_item["enabled"] else "needs_setup",
+        "reason": str(plan_item.get("reason", "")),
+        "why": guidance["why"],
+        "when": guidance["when"],
+        "expected_inputs": expected_inputs,
+        "output": str(plan_item["report"]),
+        "command": " ".join(str(part) for part in plan_item["argv"]),
+        "setup": _profile_setup_note(check_id, expected_inputs),
+    }
+
+
+def _expected_inputs(check_id: str, project: Path) -> list[str]:
+    hints = {
+        "export": ["export_presets.cfg"],
+        "assets": ["PNG assets and .import files"],
+        "input": ["project.godot [input] actions"],
+        "localization": ["CSV, PO, POT, or MO localization files"],
+        "mobile_perf": ["project.godot display/rendering settings"],
+        "mobile_ui": ["mobile UI metadata JSON"],
+        "visual_smoke": ["visual-smoke.toml capture plan"],
+        "content_graph": ["content-graph.toml and JSON/CSV/TOML content files"],
+        "save_schema": ["save fixtures directory and JSON schema"],
+        "scenario_report": ["scenario result JSON file or folder"],
+        "architecture": ["architecture-guard.toml and GDScript files"],
+        "signals": ["Godot scenes and GDScript files"],
+        "api_comments": ["GDScript files"],
+    }
+    return [str(project / hint) if hint.endswith((".cfg", ".toml")) else hint for hint in hints.get(check_id, [])]
+
+
+def _profile_setup_note(check_id: str, expected_inputs: list[str]) -> str:
+    config_hint = _config_hint(check_id)
+    if config_hint == "ready from project path":
+        return "No extra config is usually needed; run the command and review the report."
+    return f"Provide {', '.join(expected_inputs) if expected_inputs else config_hint}."
 
 
 def render_starter_config(project: Path, reports_dir: str = "reports/godot-project-doctor") -> str:

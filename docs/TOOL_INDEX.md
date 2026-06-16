@@ -25,6 +25,7 @@ are available from PyPI.
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Pixel-art space assets need deterministic previews or PNG diffs | `pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
 | Several checks need one report | `godot-project-doctor` | `godot-project-doctor summarize reports --format html` |
+| A first-run checklist is needed for release, mobile, content, or QA work | `godot-project-doctor` | `godot-project-doctor doctor . --profile release` |
 
 ## Package Names
 
@@ -69,6 +70,7 @@ godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports/input-map
 ### Pull Request Report
 
 ```powershell
+godot-project-doctor doctor . --profile release
 godot-project-doctor run --project . --checks assets,export,input,localization,signals,mobile_perf --format json --output reports/godot-project-doctor/summary.json
 godot-project-doctor summarize reports/godot-project-doctor --format html --output reports/godot-project-doctor/index.html
 ```

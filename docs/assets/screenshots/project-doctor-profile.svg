@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="430" viewBox="0 0 980 430" role="img" aria-label="Godot Project Doctor profile checklist terminal output">
+  <rect width="980" height="430" rx="14" fill="#0f172a"/>
+  <rect x="18" y="18" width="944" height="394" rx="10" fill="#111827" stroke="#334155"/>
+  <circle cx="42" cy="42" r="7" fill="#ef4444"/>
+  <circle cx="64" cy="42" r="7" fill="#f59e0b"/>
+  <circle cx="86" cy="42" r="7" fill="#22c55e"/>
+  <text x="34" y="78" fill="#93c5fd" font-family="Consolas, Menlo, monospace" font-size="18">PS&gt; godot-project-doctor doctor . --profile mobile</text>
+  <text x="34" y="114" fill="#f8fafc" font-family="Consolas, Menlo, monospace" font-size="22" font-weight="700">Godot Project Doctor - Mobile review</text>
+  <text x="34" y="148" fill="#cbd5e1" font-family="Consolas, Menlo, monospace" font-size="16">Ready: 3 | Needs setup: 2</text>
+  <text x="34" y="186" fill="#e2e8f0" font-family="Consolas, Menlo, monospace" font-size="16">Tasks:</text>
+  <text x="54" y="218" fill="#86efac" font-family="Consolas, Menlo, monospace" font-size="15">- export (ready): Export Preset Doctor</text>
+  <text x="54" y="246" fill="#86efac" font-family="Consolas, Menlo, monospace" font-size="15">- mobile_perf (ready): Mobile Perf Doctor</text>
+  <text x="54" y="274" fill="#86efac" font-family="Consolas, Menlo, monospace" font-size="15">- input (ready): Input Map Auditor</text>
+  <text x="54" y="302" fill="#fde68a" font-family="Consolas, Menlo, monospace" font-size="15">- mobile_ui (needs_setup): provide mobile UI metadata JSON</text>
+  <text x="54" y="330" fill="#fde68a" font-family="Consolas, Menlo, monospace" font-size="15">- visual_smoke (needs_setup): provide visual-smoke.toml capture plan</text>
+  <text x="34" y="374" fill="#cbd5e1" font-family="Consolas, Menlo, monospace" font-size="15">Next: run commands locally, then collect reports or build a release dashboard.</text>
+</svg>

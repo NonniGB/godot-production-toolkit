@@ -30,6 +30,10 @@
       "command": "godot-project-doctor recommend <project>"
     },
     {
+      "purpose": "Show a first-run profile checklist",
+      "command": "godot-project-doctor doctor <project> --profile release"
+    },
+    {
       "purpose": "Preview starter config and workflow",
       "command": "godot-project-doctor init <project> --dry-run --include-workflow"
     },

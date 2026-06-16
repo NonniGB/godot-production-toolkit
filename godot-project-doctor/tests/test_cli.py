@@ -180,6 +180,55 @@ metadata = "reports/mobile-ui.json"
             self.assertIn("Godot production checks", rendered)
             self.assertFalse((root / "godot-project-doctor.toml").exists())
 
+    def test_doctor_profile_outputs_first_run_guidance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.godot").write_text("[application]\nconfig/name=\"Tiny\"\n", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                self.assertEqual(main(["doctor", str(root), "--profile", "mobile", "--format", "json"]), 0)
+
+            payload = json.loads(stdout.getvalue())
+            self.assertEqual(payload["kind"], "doctor_profile")
+            self.assertEqual(payload["profile"], "mobile")
+            self.assertIn("Mobile review", payload["title"])
+            task_ids = [task["id"] for task in payload["tasks"]]
+            self.assertEqual(task_ids, ["export", "mobile_perf", "input", "mobile_ui", "visual_smoke"])
+            mobile_ui = next(task for task in payload["tasks"] if task["id"] == "mobile_ui")
+            self.assertEqual(mobile_ui["status"], "needs_setup")
+            self.assertIn("mobile UI metadata", " ".join(mobile_ui["expected_inputs"]))
+            self.assertIn("godot-mobile-ui-doctor", mobile_ui["command"])
+
+    def test_doctor_profile_writes_workflow_only_when_requested(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.godot").write_text("[application]\nconfig/name=\"Tiny\"\n", encoding="utf-8")
+            workflow = root / ".github" / "workflows" / "content-checks.yml"
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                self.assertEqual(
+                    main(
+                        [
+                            "doctor",
+                            str(root),
+                            "--profile",
+                            "content",
+                            "--write-workflow",
+                            "--workflow-path",
+                            ".github/workflows/content-checks.yml",
+                        ]
+                    ),
+                    0,
+                )
+
+            self.assertTrue(workflow.exists())
+            workflow_text = workflow.read_text(encoding="utf-8")
+            self.assertIn("Godot production checks", workflow_text)
+            self.assertIn("content_graph,save_schema,scenario_report,assets", workflow_text)
+            self.assertIn("Workflow written:", stdout.getvalue())
+
     def test_explain_outputs_check_guidance(self) -> None:
         stdout = StringIO()
 
@@ -367,7 +416,7 @@ metadata = "reports/mobile-ui.json"
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.1.4", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.1.5", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -382,7 +431,7 @@ metadata = "reports/mobile-ui.json"
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.1.4", completed.stdout)
+        self.assertIn("godot-project-doctor 0.1.5", completed.stdout)
 
 
 if __name__ == "__main__":
