@@ -1,0 +1,9 @@
+{
+  "tool": "godot-export-doctor",
+  "kind": "android_release_check",
+  "summary": {
+    "errors": 1,
+    "warnings": 2,
+    "presets": 1
+  }
+}

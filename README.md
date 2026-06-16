@@ -147,7 +147,7 @@ godot-mobile-ui-doctor overlays godot-mobile-ui-doctor\examples\tiny-mobile-ui-p
 godot-mobile-ui-doctor readiness godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown --fail-on none
 godot-telemetry-lab summarize reports\runtime --format markdown
 godot-pack-mod-doctor check pack-manifest.json --format markdown
-godot-release-dashboard build reports\godot-project-doctor --output reports\dashboard.html
+godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --title "Godot Toolkit Release Evidence" --output reports\dashboard.html
 ```
 
 ![Content graph terminal report](docs/assets/screenshots/content-graph-terminal.svg)
@@ -155,6 +155,7 @@ godot-release-dashboard build reports\godot-project-doctor --output reports\dash
 ![Architecture guard report](docs/assets/screenshots/architecture-guard-terminal.svg)
 ![Mobile UI readiness matrix](docs/assets/screenshots/mobile-ui-matrix.svg)
 ![Mobile UI overlay preview](godot-mobile-ui-doctor/docs/images/mobile-ui-overlays/main_menu__portrait_phone.png)
+![Release dashboard with report cards and visual artifacts](docs/assets/screenshots/release-dashboard-demo.png)
 
 A separate public demo repository shows the GitHub Action in a clean fixture project:
 
@@ -284,7 +285,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.8` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.0` |
-| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.0` |
+| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.1` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.0` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.2` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.1` |

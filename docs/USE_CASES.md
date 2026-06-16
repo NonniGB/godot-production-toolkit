@@ -208,7 +208,9 @@ godot-release-dashboard build reports\godot-project-doctor --output reports\dash
 ```
 
 This helps turn scattered release evidence into one static page for CI artifacts
-or local review.
+or local review. The dashboard can include JSON summaries, Markdown notes, and
+visual artifacts such as screenshot diffs, mobile UI overlays, and pixel-art
+previews.
 
 ## Visual Smoke Checks
 

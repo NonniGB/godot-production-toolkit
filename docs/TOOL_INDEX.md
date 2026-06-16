@@ -21,7 +21,7 @@ are available from PyPI.
 | Runtime scenario runs need a readable summary or baseline comparison | `godot-scenario-report-kit` | `godot-scenario-report compare baseline current --format markdown` |
 | Runtime telemetry needs budget or baseline comparison | `godot-runtime-telemetry-lab` | `godot-telemetry-lab compare baseline current --format markdown` |
 | Pack, patch, DLC, or mod manifests need release checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
-| Release reports need one static review page | `godot-release-dashboard-kit` | `godot-release-dashboard build reports --output reports/dashboard.html` |
+| Release reports and screenshots need one static review page | `godot-release-dashboard-kit` | `godot-release-dashboard build reports --output reports/dashboard.html` |
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Pixel-art space assets need deterministic previews or PNG diffs | `pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
 | Several checks need one report | `godot-project-doctor` | `godot-project-doctor summarize reports --format html` |
