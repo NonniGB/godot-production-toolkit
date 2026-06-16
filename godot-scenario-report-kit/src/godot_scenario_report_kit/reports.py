@@ -138,6 +138,16 @@ def _text(report: dict[str, Any]) -> str:
     for finding in report["findings"]:
         help_text = f" ({finding['rule_help']})" if finding.get("rule_help") else ""
         lines.append(f"[{finding['severity'].upper()}] {finding['rule_id']}: {finding['message']}{help_text}")
+    if report.get("coverage"):
+        coverage = report["coverage"]
+        lines.append(
+            "Coverage: "
+            f"tags {len(coverage['tags'])}, "
+            f"flows {len(coverage['critical_flows'])}, "
+            f"platforms {len(coverage['platforms'])}."
+        )
+    if report.get("flake_groups"):
+        lines.append(f"Flaky scenarios: {len(report['flake_groups'])}")
     return "\n".join(lines)
 
 
@@ -174,6 +184,26 @@ def _markdown(report: dict[str, Any]) -> str:
                 f"| {finding['severity']} | {finding['rule_id']} | {finding.get('scenario', '')} | "
                 f"{finding['message']} | {finding.get('rule_help', '')} |"
             )
+    if report.get("coverage"):
+        coverage = report["coverage"]
+        lines.extend(
+            [
+                "",
+                "## Coverage",
+                "",
+                "| Area | Values | Missing Required |",
+                "|---|---|---|",
+                f"| Tags | {', '.join(coverage['tags']) or '-'} | {', '.join(coverage['missing_required_tags']) or '-'} |",
+                f"| Critical flows | {', '.join(coverage['critical_flows']) or '-'} | {', '.join(coverage['missing_required_critical_flows']) or '-'} |",
+                f"| Platforms | {', '.join(coverage['platforms']) or '-'} | {', '.join(coverage['missing_required_platforms']) or '-'} |",
+            ]
+        )
+    if report.get("flake_groups"):
+        lines.extend(["", "## Flaky Scenarios", "", "| Scenario | Statuses | Observations |", "|---|---|---:|"])
+        for group in report["flake_groups"]:
+            lines.append(
+                f"| {group['scenario']} | {', '.join(group['statuses'])} | {len(group['observations'])} |"
+            )
     return "\n".join(lines)
 
 
@@ -198,6 +228,30 @@ def _html(report: dict[str, Any]) -> str:
         "</tr>"
         for item in report["findings"]
     ]
+    coverage_rows: list[str] = []
+    if report.get("coverage"):
+        coverage = report["coverage"]
+        coverage_rows = [
+            "<h2>Coverage</h2><table><thead><tr><th>Area</th><th>Values</th><th>Missing required</th></tr></thead><tbody>",
+            f"<tr><td>Tags</td><td>{escape(', '.join(coverage['tags']) or '-')}</td><td>{escape(', '.join(coverage['missing_required_tags']) or '-')}</td></tr>",
+            f"<tr><td>Critical flows</td><td>{escape(', '.join(coverage['critical_flows']) or '-')}</td><td>{escape(', '.join(coverage['missing_required_critical_flows']) or '-')}</td></tr>",
+            f"<tr><td>Platforms</td><td>{escape(', '.join(coverage['platforms']) or '-')}</td><td>{escape(', '.join(coverage['missing_required_platforms']) or '-')}</td></tr>",
+            "</tbody></table>",
+        ]
+    flake_rows: list[str] = []
+    if report.get("flake_groups"):
+        flake_rows = [
+            "<h2>Flaky Scenarios</h2><table><thead><tr><th>Scenario</th><th>Statuses</th><th>Observations</th></tr></thead><tbody>"
+        ]
+        for group in report["flake_groups"]:
+            flake_rows.append(
+                "<tr>"
+                f"<td>{escape(str(group['scenario']))}</td>"
+                f"<td>{escape(', '.join(group['statuses']))}</td>"
+                f"<td>{len(group['observations'])}</td>"
+                "</tr>"
+            )
+        flake_rows.append("</tbody></table>")
     return "\n".join(
         [
             "<!doctype html>",
@@ -214,6 +268,9 @@ def _html(report: dict[str, Any]) -> str:
             "</tbody></table>",
             "<h2>Findings</h2><table><thead><tr><th>Severity</th><th>Rule</th><th>Scenario</th><th>Message</th><th>Help</th></tr></thead><tbody>",
             *(finding_rows or ["<tr><td colspan=\"5\">No findings.</td></tr>"]),
-            "</tbody></table></body></html>",
+            "</tbody></table>",
+            *coverage_rows,
+            *flake_rows,
+            "</body></html>",
         ]
     )

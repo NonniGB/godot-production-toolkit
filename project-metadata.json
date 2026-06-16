@@ -71,7 +71,7 @@
     },
     {
       "name": "godot-scenario-report-kit",
-      "role": "Scenario run evidence validation, summary, and baseline comparison.",
+      "role": "Scenario run evidence validation, manifests, coverage checks, flake comparison, summary, and baseline comparison.",
       "interfaces": ["cli", "json", "markdown", "html"]
     },
     {
@@ -154,6 +154,8 @@
     "docs/assets/sample-reports/release-readiness-summary.html",
     "docs/assets/sample-reports/content-graph-summary.md",
     "docs/assets/sample-reports/scenario-compare.md",
+    "docs/assets/sample-reports/scenario-coverage.html",
+    "docs/assets/sample-reports/scenario-flakes.md",
     "docs/assets/sample-reports/architecture-guard.md",
     "docs/assets/sample-reports/mobile-ui.md",
     "docs/assets/sample-reports/mobile-ui-matrix.md",
@@ -164,6 +166,7 @@
     "docs/assets/screenshots/project-doctor-terminal.png",
     "docs/assets/screenshots/content-graph-terminal.svg",
     "docs/assets/screenshots/scenario-report-terminal.svg",
+    "docs/assets/screenshots/scenario-coverage.png",
     "docs/assets/screenshots/architecture-guard-terminal.svg",
     "docs/assets/screenshots/mobile-ui-matrix.svg",
     "docs/assets/screenshots/runtime-telemetry-timeline.png"

@@ -1,0 +1,88 @@
+# Example only. Copy this file to .github/workflows/runtime-telemetry-budget.yml
+# in a Godot game repository before enabling it.
+name: Runtime telemetry budget
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "reports/runtime/**"
+      - "tools/**"
+      - "scripts/**"
+      - "scenes/**"
+
+env:
+  TELEMETRY_DIR: "reports/runtime/current"
+  BASELINE_TELEMETRY_DIR: "reports/runtime/baseline"
+  BUDGET_FILE: "ci/runtime-budget.json"
+  REPORTS_DIR: "reports/runtime-budget"
+
+jobs:
+  runtime-telemetry-budget:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install telemetry lab
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install godot-runtime-telemetry-lab
+
+      - name: Prepare reports folder
+        run: mkdir -p "$REPORTS_DIR"
+
+      - name: Create starter budget if the project has not added one yet
+        run: |
+          # Preferred project path: commit ci/runtime-budget.json after tuning it
+          # for your target device, scenario set, and renderer.
+          if [ ! -f "$BUDGET_FILE" ]; then
+            mkdir -p "$(dirname "$BUDGET_FILE")"
+            godot-telemetry-lab budget init --profile android-high --output "$BUDGET_FILE"
+          fi
+
+      - name: Summarize current telemetry against budget
+        run: |
+          # Required project path: TELEMETRY_DIR should contain JSON or CSV
+          # samples from your own scenario runner, smoke test, or soak test.
+          test -d "$TELEMETRY_DIR"
+          godot-telemetry-lab summarize "$TELEMETRY_DIR" \
+            --budget-file "$BUDGET_FILE" \
+            --format markdown \
+            --output "$REPORTS_DIR/runtime-summary.md"
+          godot-telemetry-lab summarize "$TELEMETRY_DIR" \
+            --budget-file "$BUDGET_FILE" \
+            --format json \
+            --output "$REPORTS_DIR/runtime-summary.json"
+
+      - name: Build runtime timeline
+        run: |
+          godot-telemetry-lab timeline "$TELEMETRY_DIR" \
+            --budget-file "$BUDGET_FILE" \
+            --format html \
+            --output "$REPORTS_DIR/runtime-timeline.html"
+
+      - name: Compare with committed baseline when present
+        run: |
+          if [ -d "$BASELINE_TELEMETRY_DIR" ]; then
+            godot-telemetry-lab compare "$BASELINE_TELEMETRY_DIR" "$TELEMETRY_DIR" \
+              --budget-file "$BUDGET_FILE" \
+              --format markdown \
+              --output "$REPORTS_DIR/runtime-compare.md"
+          else
+            echo "No baseline telemetry directory found at $BASELINE_TELEMETRY_DIR."
+          fi
+
+      - name: Upload runtime telemetry reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-telemetry-budget-reports
+          path: ${{ env.REPORTS_DIR }}
+

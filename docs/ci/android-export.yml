@@ -1,0 +1,97 @@
+# Example only. Copy this file to .github/workflows/android-export.yml in a
+# Godot game repository before enabling it.
+name: Android export
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "export_presets.cfg"
+      - "project.godot"
+      - "addons/**"
+      - "assets/**"
+      - "scenes/**"
+      - "scripts/**"
+
+env:
+  GODOT_VERSION: "4.3"
+  GODOT_PROJECT_DIR: "."
+  EXPORT_PRESET: "Android"
+  EXPORT_OUTPUT: "build/android/game-release.apk"
+  REPORTS_DIR: "reports/android-export"
+
+jobs:
+  android-export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install toolkit checks
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install godot-export-preset-doctor godot-mobile-perf-doctor
+
+      - name: Check Android export preset
+        run: |
+          mkdir -p "$REPORTS_DIR"
+          godot-export-doctor "$GODOT_PROJECT_DIR" \
+            --platform Android \
+            --required-android-abi arm64-v8a \
+            --fail-on warning \
+            --format sarif \
+            --output "$REPORTS_DIR/export-doctor.sarif"
+
+      - name: Check mobile project settings
+        run: |
+          godot-mobile-perf-doctor "$GODOT_PROJECT_DIR" \
+            --static \
+            --fail-on warning \
+            --format markdown \
+            --output "$REPORTS_DIR/mobile-perf.md"
+
+      - name: Set up Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+
+      - name: Restore Android signing files
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          # Required project secret: base64-encoded Android keystore file.
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          mkdir -p "$GODOT_PROJECT_DIR/build/signing"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$GODOT_PROJECT_DIR/build/signing/release.keystore"
+
+      - name: Export Android build
+        env:
+          # Required project secrets when the export preset uses env signing.
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          mkdir -p "$(dirname "$EXPORT_OUTPUT")"
+          godot --headless --path "$GODOT_PROJECT_DIR" --export-release "$EXPORT_PRESET" "$EXPORT_OUTPUT"
+
+      - name: Upload Android build
+        uses: actions/upload-artifact@v4
+        with:
+          # Change this name if your release process expects a different artifact.
+          name: android-export
+          path: ${{ env.EXPORT_OUTPUT }}
+
+      - name: Upload Android reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-export-reports
+          path: ${{ env.REPORTS_DIR }}
+

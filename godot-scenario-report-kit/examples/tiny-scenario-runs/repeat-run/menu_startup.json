@@ -1,0 +1,8 @@
+{
+  "scenario": "menu_startup",
+  "status": "failed",
+  "duration_ms": 980,
+  "assertions": [
+    {"name": "main menu visible", "status": "failed", "message": "Menu was still loading."}
+  ]
+}

@@ -1,0 +1,297 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+from .loader import load_results
+from .models import Finding, ScenarioResult
+from .reports import _report
+
+
+def manifest_check(manifest_path: Path, results_path: Path | None = None) -> dict[str, Any]:
+    manifest, findings = _load_manifest(manifest_path)
+    entries = _entries(manifest)
+    findings.extend(_manifest_findings(entries, manifest_path))
+    coverage_summary = _coverage_summary(entries, manifest)
+    findings.extend(_coverage_findings(coverage_summary, manifest_path))
+    results: list[ScenarioResult] = []
+    if results_path is not None:
+        results, result_findings = load_results(results_path)
+        findings.extend(result_findings)
+        findings.extend(_result_alignment_findings(entries, results, results_path))
+        findings.extend(_expected_artifact_findings(entries, results_path))
+    scenarios = [_entry_as_result(entry, manifest_path) for entry in entries]
+    report = _report("manifest_check", scenarios, findings)
+    report["manifest"] = str(manifest_path)
+    if results_path is not None:
+        report["results"] = str(results_path)
+        report["result_scenarios"] = [result.to_dict() for result in results]
+    report["coverage"] = coverage_summary
+    return report
+
+
+def coverage(manifest_path: Path, results_path: Path | None = None) -> dict[str, Any]:
+    report = manifest_check(manifest_path, results_path)
+    report["kind"] = "coverage"
+    return report
+
+
+def flake_compare(paths: list[Path]) -> dict[str, Any]:
+    findings: list[Finding] = []
+    runs: list[dict[str, Any]] = []
+    by_scenario: dict[str, list[dict[str, Any]]] = {}
+    for path in paths:
+        results, result_findings = load_results(path)
+        findings.extend(result_findings)
+        run = {"path": str(path), "scenarios": len(results)}
+        runs.append(run)
+        for result in results:
+            by_scenario.setdefault(result.name, []).append(
+                {"status": result.status, "duration_ms": result.duration_ms, "source": result.source}
+            )
+    flake_groups: list[dict[str, Any]] = []
+    scenario_rows: list[ScenarioResult] = []
+    for name, observations in sorted(by_scenario.items()):
+        statuses = sorted({str(item["status"]) for item in observations})
+        status = "passed" if statuses == ["passed"] else "failed"
+        if len(statuses) > 1:
+            status = "warning"
+            findings.append(
+                Finding(
+                    rule_id="flaky_scenario",
+                    severity="warning",
+                    scenario=name,
+                    message=f"{name} changed status across runs: {', '.join(statuses)}.",
+                )
+            )
+            flake_groups.append({"scenario": name, "statuses": statuses, "observations": observations})
+        scenario_rows.append(
+            ScenarioResult(
+                name=name,
+                status=status,
+                duration_ms=sum(float(item["duration_ms"]) for item in observations),
+                assertions=[],
+                artifacts=[],
+            )
+        )
+    report = _report("flake_compare", scenario_rows, findings)
+    report["runs"] = runs
+    report["flake_groups"] = flake_groups
+    report["summary"]["flaky"] = len(flake_groups)
+    return report
+
+
+def _load_manifest(path: Path) -> tuple[dict[str, Any], list[Finding]]:
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return {}, [
+            Finding(
+                rule_id="manifest_invalid_json",
+                severity="error",
+                source=str(path),
+                message=f"Could not read scenario manifest JSON: {exc}",
+            )
+        ]
+    if not isinstance(raw, dict):
+        return {}, [
+            Finding(
+                rule_id="manifest_invalid_json",
+                severity="error",
+                source=str(path),
+                message="Scenario manifest must be a JSON object.",
+            )
+        ]
+    return raw, []
+
+
+def _entries(manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    scenarios = manifest.get("scenarios", [])
+    if not isinstance(scenarios, list):
+        return []
+    return [item for item in scenarios if isinstance(item, dict)]
+
+
+def _manifest_findings(entries: list[dict[str, Any]], source: Path) -> list[Finding]:
+    findings: list[Finding] = []
+    if not entries:
+        findings.append(
+            Finding(
+                rule_id="manifest_missing_scenarios",
+                severity="error",
+                source=str(source),
+                message="Scenario manifest does not contain any scenario entries.",
+            )
+        )
+        return findings
+    seen: set[str] = set()
+    for entry in entries:
+        scenario_id = _scenario_id(entry)
+        if not scenario_id:
+            findings.append(
+                Finding(
+                    rule_id="missing_scenario_name",
+                    severity="error",
+                    source=str(source),
+                    message="Scenario manifest entry is missing an id, scenario, or name field.",
+                )
+            )
+            continue
+        if scenario_id in seen:
+            findings.append(
+                Finding(
+                    rule_id="manifest_duplicate_id",
+                    severity="error",
+                    scenario=scenario_id,
+                    source=str(source),
+                    message=f"Scenario id {scenario_id!r} appears more than once in the manifest.",
+                )
+            )
+        seen.add(scenario_id)
+        if not str(entry.get("owner") or entry.get("area") or "").strip():
+            findings.append(
+                Finding(
+                    rule_id="manifest_missing_owner",
+                    severity="warning",
+                    scenario=scenario_id,
+                    source=str(source),
+                    message=f"{scenario_id} has no owner or area field.",
+                )
+            )
+        if not _list(entry.get("tags")):
+            findings.append(
+                Finding(
+                    rule_id="manifest_missing_tags",
+                    severity="warning",
+                    scenario=scenario_id,
+                    source=str(source),
+                    message=f"{scenario_id} has no tags.",
+                )
+            )
+    return findings
+
+
+def _coverage_findings(coverage_summary: dict[str, Any], source: Path) -> list[Finding]:
+    findings: list[Finding] = []
+    for tag in coverage_summary["missing_required_tags"]:
+        findings.append(
+            Finding(
+                rule_id="coverage_required_tag_missing",
+                severity="warning",
+                source=str(source),
+                message=f"Required tag {tag!r} has no listed scenario.",
+            )
+        )
+    for flow in coverage_summary["missing_required_critical_flows"]:
+        findings.append(
+            Finding(
+                rule_id="coverage_required_flow_missing",
+                severity="warning",
+                source=str(source),
+                message=f"Required critical flow {flow!r} has no listed scenario.",
+            )
+        )
+    for platform in coverage_summary["missing_required_platforms"]:
+        findings.append(
+            Finding(
+                rule_id="coverage_required_platform_missing",
+                severity="warning",
+                source=str(source),
+                message=f"Required platform {platform!r} has no listed scenario.",
+            )
+        )
+    return findings
+
+
+def _result_alignment_findings(
+    entries: list[dict[str, Any]], results: list[ScenarioResult], source: Path
+) -> list[Finding]:
+    findings: list[Finding] = []
+    expected = {_scenario_id(entry) for entry in entries}
+    actual = {result.name for result in results}
+    for scenario_id in sorted(expected - actual):
+        findings.append(
+            Finding(
+                rule_id="manifest_result_missing",
+                severity="error",
+                scenario=scenario_id,
+                source=str(source),
+                message=f"{scenario_id} is listed in the manifest but has no result.",
+            )
+        )
+    for scenario_id in sorted(actual - expected):
+        findings.append(
+            Finding(
+                rule_id="manifest_unlisted_result",
+                severity="warning",
+                scenario=scenario_id,
+                source=str(source),
+                message=f"{scenario_id} has a result but is not listed in the manifest.",
+            )
+        )
+    return findings
+
+
+def _expected_artifact_findings(entries: list[dict[str, Any]], results_path: Path) -> list[Finding]:
+    findings: list[Finding] = []
+    base_dir = results_path if results_path.is_dir() else results_path.parent
+    for entry in entries:
+        scenario_id = _scenario_id(entry)
+        for artifact in _list(entry.get("expected_artifacts") or entry.get("artifacts")):
+            if not (base_dir / artifact).exists():
+                findings.append(
+                    Finding(
+                        rule_id="manifest_expected_artifact_missing",
+                        severity="warning",
+                        scenario=scenario_id,
+                        source=str(results_path),
+                        message=f"{scenario_id} expects missing artifact {artifact!r}.",
+                    )
+                )
+    return findings
+
+
+def _coverage_summary(entries: list[dict[str, Any]], manifest: dict[str, Any]) -> dict[str, Any]:
+    tags = sorted({tag for entry in entries for tag in _list(entry.get("tags"))})
+    flows = sorted({flow for entry in entries for flow in _list(entry.get("critical_flows") or entry.get("flows"))})
+    platforms = sorted({platform for entry in entries for platform in _list(entry.get("platforms"))})
+    policy = manifest.get("coverage", {})
+    missing_tags = sorted(set(_list(policy.get("required_tags") if isinstance(policy, dict) else [])) - set(tags))
+    missing_flows = sorted(
+        set(_list(policy.get("required_critical_flows") if isinstance(policy, dict) else [])) - set(flows)
+    )
+    missing_platforms = sorted(
+        set(_list(policy.get("required_platforms") if isinstance(policy, dict) else [])) - set(platforms)
+    )
+    return {
+        "tags": tags,
+        "critical_flows": flows,
+        "platforms": platforms,
+        "missing_required_tags": missing_tags,
+        "missing_required_critical_flows": missing_flows,
+        "missing_required_platforms": missing_platforms,
+    }
+
+
+def _entry_as_result(entry: dict[str, Any], source: Path) -> ScenarioResult:
+    return ScenarioResult(
+        name=_scenario_id(entry),
+        status="passed",
+        duration_ms=0,
+        source=str(source),
+        assertions=[],
+        artifacts=_list(entry.get("expected_artifacts") or entry.get("artifacts")),
+    )
+
+
+def _scenario_id(entry: dict[str, Any]) -> str:
+    return str(entry.get("id") or entry.get("scenario") or entry.get("name") or "").strip()
+
+
+def _list(value: Any) -> list[str]:
+    if isinstance(value, list):
+        return [str(item) for item in value if str(item).strip()]
+    if isinstance(value, str) and value.strip():
+        return [value.strip()]
+    return []

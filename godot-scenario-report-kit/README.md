@@ -29,6 +29,19 @@ Compare a baseline with a current run:
 godot-scenario-report compare examples\tiny-scenario-runs\baseline examples\tiny-scenario-runs\current --format markdown
 ```
 
+Check a scenario manifest and coverage policy:
+
+```powershell
+godot-scenario-report manifest check examples\tiny-scenario-runs\scenario-manifest.json --results examples\tiny-scenario-runs\current --format markdown
+godot-scenario-report manifest coverage examples\tiny-scenario-runs\scenario-manifest.json --results examples\tiny-scenario-runs\current --format html --output reports\scenario-coverage.html
+```
+
+Compare repeated runs for flaky status changes:
+
+```powershell
+godot-scenario-report flake compare examples\tiny-scenario-runs\baseline examples\tiny-scenario-runs\current examples\tiny-scenario-runs\repeat-run --format markdown
+```
+
 ## Result Shape
 
 A run file can be a single scenario:
@@ -55,6 +68,34 @@ the source file and ignored by the report kit.
 - missing artifact paths when artifacts are listed;
 - new failures compared with a baseline;
 - duration regressions compared with a baseline.
+- manifest entries without results, owners, tags, or expected artifacts;
+- missing required tag, platform, or critical-flow coverage;
+- scenarios whose status changes across repeated runs.
+
+## Manifest Shape
+
+Scenario manifests are optional. They help teams describe the suite they expect
+to run, rather than only summarizing whatever files happened to be written:
+
+```json
+{
+  "coverage": {
+    "required_tags": ["smoke", "economy"],
+    "required_critical_flows": ["startup", "trade"],
+    "required_platforms": ["desktop", "android"]
+  },
+  "scenarios": [
+    {
+      "id": "menu_startup",
+      "owner": "ui",
+      "tags": ["smoke"],
+      "critical_flows": ["startup"],
+      "platforms": ["desktop"],
+      "expected_artifacts": ["screenshots/menu.png"]
+    }
+  ]
+}
+```
 
 ## Outputs
 

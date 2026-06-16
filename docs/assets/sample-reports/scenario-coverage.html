@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Godot Scenario Report</title>
+<style>body{font-family:system-ui,sans-serif;margin:2rem;line-height:1.4;color:#182033}table{border-collapse:collapse;width:100%;margin:1rem 0}th,td{border:1px solid #d0d7de;padding:.5rem;text-align:left}th{background:#eef2f7}.metric{display:inline-block;border:1px solid #d0d7de;border-radius:8px;padding:.75rem 1rem;margin:.25rem}</style>
+</head><body>
+<h1>Godot Scenario Report</h1>
+<div class="metric">Scenarios: 2</div>
+<div class="metric">Passed: 2</div>
+<div class="metric">Failed: 0</div>
+<div class="metric">Errors: 0</div>
+<h2>Scenarios</h2><table><thead><tr><th>Scenario</th><th>Status</th><th>Duration ms</th><th>Assertions</th></tr></thead><tbody>
+<tr><td>menu_startup</td><td>passed</td><td>0</td><td>0</td></tr>
+<tr><td>trade_flow</td><td>passed</td><td>0</td><td>0</td></tr>
+</tbody></table>
+<h2>Findings</h2><table><thead><tr><th>Severity</th><th>Rule</th><th>Scenario</th><th>Message</th><th>Help</th></tr></thead><tbody>
+<tr><td>warning</td><td>coverage_required_tag_missing</td><td></td><td>Required tag &#x27;combat&#x27; has no listed scenario.</td><td>Add at least one scenario for the required tag or remove the tag from the manifest coverage policy.</td></tr>
+<tr><td>warning</td><td>coverage_required_flow_missing</td><td></td><td>Required critical flow &#x27;combat&#x27; has no listed scenario.</td><td>Add a scenario for this user journey or update the manifest coverage policy.</td></tr>
+<tr><td>warning</td><td>manifest_expected_artifact_missing</td><td>menu_startup</td><td>menu_startup expects missing artifact &#x27;screenshots/menu.png&#x27;.</td><td>Check the runner output path or update the manifest if the artifact name changed.</td></tr>
+</tbody></table>
+<h2>Coverage</h2><table><thead><tr><th>Area</th><th>Values</th><th>Missing required</th></tr></thead><tbody>
+<tr><td>Tags</td><td>economy, menu, smoke</td><td>combat</td></tr>
+<tr><td>Critical flows</td><td>startup, trade</td><td>combat</td></tr>
+<tr><td>Platforms</td><td>android, desktop</td><td>-</td></tr>
+</tbody></table>
+</body></html>

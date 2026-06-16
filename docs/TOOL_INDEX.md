@@ -18,7 +18,7 @@ are available from PyPI.
 | Scene refactors risk broken signal wiring | `godot-scene-signal-auditor` | `godot-signal-audit . --format json` |
 | GDScript modules or autoload access are becoming tangled | `godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml` |
 | Data files reference missing ids, recipes, quests, or levels | `godot-content-graph-doctor` | `godot-content-graph . --preset recipes --format markdown` |
-| Runtime scenario runs need a readable summary or baseline comparison | `godot-scenario-report-kit` | `godot-scenario-report compare baseline current --format markdown` |
+| Runtime scenario runs need manifests, coverage, flake checks, or baseline comparison | `godot-scenario-report-kit` | `godot-scenario-report manifest coverage scenario-manifest.json --results reports/current --format html` |
 | Runtime telemetry needs budgets, timelines, or baseline comparison | `godot-runtime-telemetry-lab` | `godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html` |
 | Pack, patch, DLC, or mod manifests need release checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
 | Release reports and screenshots need one static review page | `godot-release-dashboard-kit` | `godot-release-dashboard build reports --output reports/dashboard.html` |

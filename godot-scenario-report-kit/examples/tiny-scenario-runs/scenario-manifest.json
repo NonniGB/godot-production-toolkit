@@ -1,0 +1,25 @@
+{
+  "coverage": {
+    "required_tags": ["smoke", "economy", "combat"],
+    "required_critical_flows": ["startup", "trade", "combat"],
+    "required_platforms": ["desktop", "android"]
+  },
+  "scenarios": [
+    {
+      "id": "menu_startup",
+      "owner": "ui",
+      "tags": ["smoke", "menu"],
+      "critical_flows": ["startup"],
+      "platforms": ["desktop", "android"],
+      "expected_artifacts": ["screenshots/menu.png"]
+    },
+    {
+      "id": "trade_flow",
+      "owner": "systems",
+      "tags": ["economy", "smoke"],
+      "critical_flows": ["trade"],
+      "platforms": ["desktop"],
+      "expected_artifacts": []
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+# Public Report Gallery
+
+This gallery collects the small, public sample reports and screenshots already
+checked into this repository. The fixtures are intentionally tiny and synthetic:
+they are useful for docs, visual review, and CLI smoke examples, not for adoption
+claims or benchmark comparisons.
+
+## Start Here
+
+| Sample | Report | Screenshot | Minimal fixture | Regenerate from the repo root |
+|---|---|---|---|---|
+| Release readiness summary | [Markdown](../assets/sample-reports/release-readiness-summary.md), [HTML](../assets/sample-reports/release-readiness-summary.html), [terminal transcript](../assets/sample-reports/terminal-demo.txt) | [HTML report PNG](../assets/screenshots/project-doctor-html-report.png), [terminal PNG](../assets/screenshots/project-doctor-terminal.png) | [release-readiness-demo](../../examples/release-readiness-demo/README.md) | `godot-project-doctor run examples\release-readiness-demo\godot-project-doctor.toml --format markdown --output docs\assets\sample-reports\release-readiness-summary.md` then `godot-project-doctor summarize docs\assets\sample-reports --format html --output docs\assets\sample-reports\release-readiness-summary.html` |
+| Project doctor dry run | [dry-run plan](../assets/sample-reports/dry-run-plan.txt) | [profile checklist SVG](../assets/screenshots/project-doctor-profile.svg) | [release-readiness-demo](../../examples/release-readiness-demo/README.md) | `godot-project-doctor run examples\release-readiness-demo\godot-project-doctor.toml --dry-run` |
+| Content graph | [Markdown](../assets/sample-reports/content-graph-summary.md) | [terminal SVG](../assets/screenshots/content-graph-terminal.svg) | [tiny-content-project](../../godot-content-graph-doctor/examples/tiny-content-project/README.md) | `godot-content-graph godot-content-graph-doctor\examples\tiny-content-project --preset recipes --format markdown --output docs\assets\sample-reports\content-graph-summary.md --fail-on none` |
+| Scenario comparison | [Markdown](../assets/sample-reports/scenario-compare.md) | [terminal SVG](../assets/screenshots/scenario-report-terminal.svg) | [tiny-scenario-runs](../../godot-scenario-report-kit/examples/tiny-scenario-runs/README.md) | `godot-scenario-report compare godot-scenario-report-kit\examples\tiny-scenario-runs\baseline godot-scenario-report-kit\examples\tiny-scenario-runs\current --format markdown --output docs\assets\sample-reports\scenario-compare.md` |
+| Scenario manifest coverage | [HTML](../assets/sample-reports/scenario-coverage.html), [flake Markdown](../assets/sample-reports/scenario-flakes.md) | [coverage PNG](../assets/screenshots/scenario-coverage.png) | [tiny-scenario-runs](../../godot-scenario-report-kit/examples/tiny-scenario-runs/README.md) | `godot-scenario-report manifest coverage godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --results godot-scenario-report-kit\examples\tiny-scenario-runs\current --format html --output docs\assets\sample-reports\scenario-coverage.html` |
+| Architecture guard | [Markdown](../assets/sample-reports/architecture-guard.md) | [terminal SVG](../assets/screenshots/architecture-guard-terminal.svg) | [tiny-architecture-project](../../godot-gdscript-architecture-guard/examples/tiny-architecture-project/README.md) | `godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-architecture-project --config architecture-guard.toml --format markdown --output docs\assets\sample-reports\architecture-guard.md --fail-on none` |
+| Mobile UI checks | [layout report](../assets/sample-reports/mobile-ui.md), [readiness matrix](../assets/sample-reports/mobile-ui-matrix.md) | [terminal SVG](../assets/screenshots/mobile-ui-terminal.svg), [matrix SVG](../assets/screenshots/mobile-ui-matrix.svg) | [tiny-mobile-ui-project](../../godot-mobile-ui-doctor/examples/tiny-mobile-ui-project) | `godot-mobile-ui-doctor godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown --output docs\assets\sample-reports\mobile-ui.md --fail-on none` and `godot-mobile-ui-doctor matrix godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown --output docs\assets\sample-reports\mobile-ui-matrix.md --fail-on none` |
+| Runtime telemetry timeline | [HTML](../assets/sample-reports/runtime-telemetry-timeline.html), [SVG](../assets/sample-reports/runtime-telemetry-timeline.svg) | [timeline PNG](../assets/screenshots/runtime-telemetry-timeline.png) | [tiny-runtime-run](../../godot-runtime-telemetry-lab/examples/tiny-runtime-run/README.md) | `godot-telemetry-lab budget init --profile android-high --output reports\runtime-budget.json` then `godot-telemetry-lab timeline godot-runtime-telemetry-lab\examples\tiny-runtime-run --budget-file reports\runtime-budget.json --format html --output docs\assets\sample-reports\runtime-telemetry-timeline.html` |
+| Release dashboard | [HTML](../assets/sample-reports/release-dashboard-demo.html) | [dashboard PNG](../assets/screenshots/release-dashboard-demo.png) | [tiny-release-evidence](../../godot-release-dashboard-kit/examples/tiny-release-evidence/README.md) | `godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --title "Godot Toolkit Release Evidence" --output docs\assets\sample-reports\release-dashboard-demo.html` |
+| Sprite manifest check | [text summary](../assets/sample-reports/sprite-manifest.txt) | See the asset-doctor sprite images in [godot-asset-pipeline-doctor/docs/images](../../godot-asset-pipeline-doctor/docs/images) | [tiny asset project](../../godot-asset-pipeline-doctor/examples/tiny-godot-project/README.md) | `godot-asset-doctor manifest check sprite-manifest.json --project . --format text --output docs\assets\sample-reports\sprite-manifest.txt` |
+
+## Umbrella Report Inputs
+
+The release readiness samples are built from these JSON reports in
+`docs/assets/sample-reports`:
+
+| Check | JSON report | Command from the dry-run plan |
+|---|---|---|
+| Asset pipeline | [assets.json](../assets/sample-reports/assets.json) | `godot-asset-doctor examples\release-readiness-demo --format json --output docs\assets\sample-reports\assets.json --profile pixel-2d --fail-on none` |
+| Android export presets | [export.json](../assets/sample-reports/export.json) | `godot-export-doctor examples\release-readiness-demo --format json --output docs\assets\sample-reports\export.json --platform Android --fail-on none` |
+| Input map coverage | [input-map.json](../assets/sample-reports/input-map.json) | `godot-input-audit examples\release-readiness-demo --format json --output docs\assets\sample-reports\input-map.json --require keyboard,touch --fail-on none` |
+| Mobile performance | [mobile-perf.json](../assets/sample-reports/mobile-perf.json) | `godot-mobile-perf-doctor examples\release-readiness-demo --static --format json --output docs\assets\sample-reports\mobile-perf.json --profile portrait-2d --max-texture-dimension 1024 --fail-on none` |
+
+## Screenshots At A Glance
+
+These image assets are safe, synthetic previews for README pages and package
+documentation:
+
+![Godot Project Doctor HTML report](../assets/screenshots/project-doctor-html-report.png)
+
+![Godot Project Doctor terminal demo](../assets/screenshots/project-doctor-terminal.png)
+
+![Scenario manifest coverage](../assets/screenshots/scenario-coverage.png)
+
+![Runtime telemetry timeline](../assets/screenshots/runtime-telemetry-timeline.png)
+
+![Release dashboard demo](../assets/screenshots/release-dashboard-demo.png)
+
+The SVG terminal captures are linked in the table above so they stay easy to
+open individually in rendered Markdown.

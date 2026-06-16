@@ -26,7 +26,7 @@ validation, and GDScript architecture checks.
 - Check asset imports and pixel-art textures: use `godot-asset-pipeline-doctor`.
 - Compare generated pixel-art PNGs: use `pixel-space-asset-toolkit`.
 - Check data-driven content references: use `godot-content-graph-doctor`.
-- Summarize runtime scenario evidence: use `godot-scenario-report-kit`.
+- Summarize scenario evidence, manifests, coverage, and flaky runs: use `godot-scenario-report-kit`.
 - Review frame/runtime telemetry, budget spikes, and timelines: use `godot-runtime-telemetry-lab`.
 
 ## Command Examples
@@ -35,6 +35,7 @@ validation, and GDScript architecture checks.
 godot-project-doctor inspect path\to\godot-project
 godot-project-doctor recommend path\to\godot-project
 godot-project-doctor summarize reports\godot-project-doctor --format html
+godot-scenario-report manifest coverage scenario-manifest.json --results reports\scenarios --format html
 godot-mobile-ui-doctor readiness mobile-ui.json --format markdown
 godot-telemetry-lab timeline reports\runtime --format html --output reports\runtime-timeline.html
 godot-visual-smoke compare baseline current --format json

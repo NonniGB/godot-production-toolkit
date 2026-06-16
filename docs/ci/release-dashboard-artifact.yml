@@ -1,0 +1,56 @@
+# Example only. Copy this file to .github/workflows/release-dashboard-artifact.yml
+# in a Godot game repository before enabling it.
+name: Release dashboard artifact
+
+on:
+  workflow_dispatch:
+
+env:
+  REPORTS_DIR: "reports/release-evidence"
+  DASHBOARD_DIR: "reports/release-dashboard"
+  DASHBOARD_TITLE: "Godot Release Evidence"
+
+jobs:
+  release-dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Download report artifacts from earlier jobs
+        uses: actions/download-artifact@v4
+        with:
+          # Required artifact pattern: make producer jobs upload reports with a
+          # shared suffix such as "-reports".
+          pattern: "*-reports"
+          path: ${{ env.REPORTS_DIR }}
+          merge-multiple: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dashboard builder
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install godot-release-dashboard-kit
+
+      - name: Build release dashboard
+        run: |
+          mkdir -p "$DASHBOARD_DIR"
+          # Required project artifact: REPORTS_DIR should contain JSON,
+          # Markdown, PNG, SVG, or HTML reports from earlier toolkit jobs.
+          godot-release-dashboard build "$REPORTS_DIR" \
+            --title "$DASHBOARD_TITLE" \
+            --output "$DASHBOARD_DIR/index.html"
+          godot-release-dashboard build "$REPORTS_DIR" \
+            --format json \
+            --output "$DASHBOARD_DIR/dashboard.json"
+
+      - name: Upload release dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dashboard
+          path: ${{ env.DASHBOARD_DIR }}
+

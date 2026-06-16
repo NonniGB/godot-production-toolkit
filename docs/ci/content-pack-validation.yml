@@ -1,0 +1,82 @@
+# Example only. Copy this file to .github/workflows/content-pack-validation.yml
+# in a Godot game repository before enabling it.
+name: Content pack validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/**"
+      - "data/**"
+      - "mods/**"
+      - "packs/**"
+      - "content-graph.toml"
+
+env:
+  GODOT_PROJECT_DIR: "."
+  CONTENT_GRAPH_CONFIG: "content-graph.toml"
+  PACK_MANIFEST: "packs/pack-manifest.json"
+  BASE_CONTENT_MANIFEST: "packs/base-content.json"
+  REPORTS_DIR: "reports/content-pack"
+
+jobs:
+  content-pack-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install content checks
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install godot-content-graph-doctor godot-pack-mod-doctor
+
+      - name: Validate content graph
+        run: |
+          mkdir -p "$REPORTS_DIR"
+          # Required project path: CONTENT_GRAPH_CONFIG maps your JSON, CSV, or
+          # TOML content collections and reference fields.
+          test -f "$CONTENT_GRAPH_CONFIG"
+          godot-content-graph "$GODOT_PROJECT_DIR" \
+            --config "$CONTENT_GRAPH_CONFIG" \
+            --format json \
+            --output "$REPORTS_DIR/content-graph.json"
+          godot-content-graph "$GODOT_PROJECT_DIR" \
+            --config "$CONTENT_GRAPH_CONFIG" \
+            --format mermaid \
+            --fail-on none \
+            --output "$REPORTS_DIR/content-graph.mmd"
+
+      - name: Validate pack or patch manifest
+        run: |
+          # Required project path: PACK_MANIFEST should describe the pack,
+          # patch, DLC, or mod files your build intends to publish.
+          test -f "$PACK_MANIFEST"
+          if [ -f "$BASE_CONTENT_MANIFEST" ]; then
+            godot-pack-mod-doctor check "$PACK_MANIFEST" \
+              --base "$BASE_CONTENT_MANIFEST" \
+              --format json \
+              --output "$REPORTS_DIR/pack-manifest.json"
+          else
+            godot-pack-mod-doctor check "$PACK_MANIFEST" \
+              --format json \
+              --output "$REPORTS_DIR/pack-manifest.json"
+          fi
+          godot-pack-mod-doctor check "$PACK_MANIFEST" \
+            --format markdown \
+            --output "$REPORTS_DIR/pack-manifest.md" \
+            --fail-on none
+
+      - name: Upload content pack reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-pack-validation-reports
+          path: ${{ env.REPORTS_DIR }}
+

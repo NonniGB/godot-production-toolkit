@@ -5,8 +5,9 @@ from pathlib import Path
 import sys
 
 from .reports import compare, render, summarize
+from .suite import coverage, flake_compare, manifest_check
 
-VERSION_LABEL = "godot-scenario-report 0.1.1"
+VERSION_LABEL = "godot-scenario-report 0.1.2"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -16,11 +17,17 @@ def main(argv: list[str] | None = None) -> int:
         report = summarize(Path(args.path))
     elif args.command == "compare":
         report = compare(Path(args.baseline), Path(args.current), args.duration_ratio)
+    elif args.command == "manifest" and args.manifest_command == "check":
+        report = manifest_check(Path(args.manifest), Path(args.results) if args.results else None)
+    elif args.command == "manifest" and args.manifest_command == "coverage":
+        report = coverage(Path(args.manifest), Path(args.results) if args.results else None)
+    elif args.command == "flake" and args.flake_command == "compare":
+        report = flake_compare([Path(path) for path in args.paths])
     else:
         parser.print_help()
         return 2
     _emit(render(report, args.format), args.output)
-    return _exit_code(report, args.fail_on)
+    return _exit_code(report, getattr(args, "fail_on", "error"))
 
 
 def entrypoint() -> None:
@@ -44,6 +51,24 @@ def _build_parser() -> argparse.ArgumentParser:
     compare_parser.add_argument("current")
     compare_parser.add_argument("--duration-ratio", type=float, default=1.5)
     _add_output_args(compare_parser)
+
+    manifest_parser = subparsers.add_parser("manifest", help="Validate scenario manifests and coverage policy.")
+    manifest_subparsers = manifest_parser.add_subparsers(dest="manifest_command")
+    manifest_check_parser = manifest_subparsers.add_parser("check", help="Check a scenario manifest against optional results.")
+    manifest_check_parser.add_argument("manifest")
+    manifest_check_parser.add_argument("--results")
+    _add_output_args(manifest_check_parser)
+
+    coverage_parser = manifest_subparsers.add_parser("coverage", help="Report scenario tag, flow, and platform coverage.")
+    coverage_parser.add_argument("manifest")
+    coverage_parser.add_argument("--results")
+    _add_output_args(coverage_parser)
+
+    flake_parser = subparsers.add_parser("flake", help="Compare repeated scenario runs for unstable status changes.")
+    flake_subparsers = flake_parser.add_subparsers(dest="flake_command")
+    flake_compare_parser = flake_subparsers.add_parser("compare", help="Compare two or more result folders.")
+    flake_compare_parser.add_argument("paths", nargs="+")
+    _add_output_args(flake_compare_parser)
     return parser
 
 

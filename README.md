@@ -146,7 +146,7 @@ The newest packages cover content-heavy projects and runtime evidence:
 
 ```powershell
 godot-content-graph godot-content-graph-doctor\examples\tiny-content-project --preset recipes --format markdown --fail-on none
-godot-scenario-report compare godot-scenario-report-kit\examples\tiny-scenario-runs\baseline godot-scenario-report-kit\examples\tiny-scenario-runs\current --format markdown
+godot-scenario-report manifest coverage godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --results godot-scenario-report-kit\examples\tiny-scenario-runs\current --format html --output reports\scenario-coverage.html
 godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-architecture-project --config architecture-guard.toml --format markdown
 godot-mobile-ui-doctor matrix godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown
 godot-mobile-ui-doctor overlays godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
@@ -159,6 +159,7 @@ godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-
 
 ![Content graph terminal report](docs/assets/screenshots/content-graph-terminal.svg)
 ![Scenario comparison report](docs/assets/screenshots/scenario-report-terminal.svg)
+![Scenario manifest coverage report](docs/assets/screenshots/scenario-coverage.png)
 ![Architecture guard report](docs/assets/screenshots/architecture-guard-terminal.svg)
 ![Mobile UI readiness matrix](docs/assets/screenshots/mobile-ui-matrix.svg)
 ![Mobile UI overlay preview](godot-mobile-ui-doctor/docs/images/mobile-ui-overlays/main_menu__portrait_phone.png)
@@ -168,6 +169,16 @@ godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-
 A separate public demo repository shows the GitHub Action in a clean fixture project:
 
 - [godot-production-toolkit-demo](https://github.com/NonniGB/godot-production-toolkit-demo)
+
+## Workflows And Examples
+
+- [Workflow pages](docs/workflows/) cover Android export CI, HTML5 export checks,
+  runtime performance regression, mobile UI safe areas, visual regression,
+  localization overflow, save migration, and mod/DLC validation.
+- [Copy-paste CI recipes](docs/ci/) provide example GitHub Actions workflows to
+  adapt inside a Godot project.
+- [Report gallery](docs/report-gallery/) links to generated sample reports,
+  screenshots, fixtures, and the commands used to recreate them.
 
 ## Tool Set
 
@@ -183,7 +194,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-input-map-auditor` | Input device coverage and duplicate binding checks. | JSON, SARIF, Markdown |
 | `godot-localization-qa-guard` | CSV/PO localization QA and translation-key usage scan. | JSON, SARIF, Markdown |
 | `godot-save-schema-guard` | Save fixture schema validation and migration command checks. | JSON, Markdown |
-| `godot-scenario-report-kit` | Scenario run evidence summary and baseline comparison. | JSON, Markdown, HTML |
+| `godot-scenario-report-kit` | Scenario run evidence summaries, manifests, coverage checks, flake comparison, and baseline comparison. | JSON, Markdown, HTML |
 | `godot-scene-signal-auditor` | Scene signal connection and autoload coupling analysis. | JSON, Mermaid |
 | `godot-visual-smoke-test-kit` | Screenshot diffing, approval, and Godot capture command planning. | JSON, PNG diffs |
 | `godot-mobile-perf-doctor` | Static mobile performance diagnostics. | JSON, SARIF, Markdown |
@@ -202,7 +213,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | Input works on desktop but not touch/gamepad | `godot-input-map-auditor` |
 | Portrait UI needs touch and safe-area review | `godot-mobile-ui-doctor`, `godot-visual-smoke-test-kit` |
 | Data files reference missing items, recipes, quests, or levels | `godot-content-graph-doctor` |
-| Runtime scenario runs need reviewable evidence | `godot-scenario-report-kit` |
+| Runtime scenario runs need manifests, coverage, flake checks, or reviewable evidence | `godot-scenario-report-kit` |
 | Runtime frame or memory samples need budget checks or timeline reports | `godot-runtime-telemetry-lab` |
 | Pack, DLC, mod, or patch manifests need release checks | `godot-pack-mod-doctor` |
 | Several reports need one static review page | `godot-release-dashboard-kit` |
@@ -296,7 +307,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.1` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.1` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.2` |
-| [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.1` |
+| [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.2` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.2` |
 | [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.2` |
 | [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/) | `0.1.4` |

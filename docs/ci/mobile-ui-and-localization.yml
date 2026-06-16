@@ -1,0 +1,84 @@
+# Example only. Copy this file to .github/workflows/mobile-ui-and-localization.yml
+# in a Godot game repository before enabling it.
+name: Mobile UI and localization
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "project.godot"
+      - "assets/i18n/**"
+      - "locale/**"
+      - "scenes/**"
+      - "scripts/**"
+      - "reports/mobile-ui/**"
+
+env:
+  GODOT_PROJECT_DIR: "."
+  MOBILE_UI_METADATA: "reports/mobile-ui/mobile-ui.json"
+  TRANSLATIONS_DIR: "assets/i18n"
+  REQUIRED_LOCALES: "fr,es,de"
+  REPORTS_DIR: "reports/mobile-ui-localization"
+
+jobs:
+  mobile-ui-localization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install toolkit checks
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install godot-mobile-ui-doctor godot-localization-qa-guard
+
+      - name: Check project-owned UI metadata
+        run: |
+          mkdir -p "$REPORTS_DIR"
+          # Required project path: MOBILE_UI_METADATA should be written by your
+          # Godot UI smoke test, debug exporter, or editor script before this job.
+          test -f "$MOBILE_UI_METADATA"
+          godot-mobile-ui-doctor "$MOBILE_UI_METADATA" \
+            --fail-on warning \
+            --format json \
+            --output "$REPORTS_DIR/mobile-ui.json"
+          godot-mobile-ui-doctor matrix "$MOBILE_UI_METADATA" \
+            --format markdown \
+            --output "$REPORTS_DIR/mobile-ui-matrix.md"
+          godot-mobile-ui-doctor overlays "$MOBILE_UI_METADATA" \
+            --output-dir "$REPORTS_DIR/mobile-ui-overlays" \
+            --fail-on none
+
+      - name: Check localization files
+        run: |
+          # Required project path: TRANSLATIONS_DIR should contain CSV or PO files.
+          godot-l10n-guard "$GODOT_PROJECT_DIR" \
+            --translations "$TRANSLATIONS_DIR" \
+            --require "$REQUIRED_LOCALES" \
+            --scan-scripts \
+            --scan-scenes \
+            --max-expansion 1.35 \
+            --format json \
+            --output "$REPORTS_DIR/localization.json"
+
+      - name: Write pseudo-localization preview
+        run: |
+          # Keep this artifact for layout testing; it is not meant to ship.
+          godot-l10n-guard "$GODOT_PROJECT_DIR" \
+            --translations "$TRANSLATIONS_DIR" \
+            --pseudo-output "$REPORTS_DIR/pseudo-localized.csv" \
+            --fail-on none
+
+      - name: Upload mobile UI and localization reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-ui-localization-reports
+          path: ${{ env.REPORTS_DIR }}
+

@@ -36,7 +36,7 @@ class ScenarioReportTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.1")
+            self.assertEqual(report["tool_version"], "0.1.2")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("scenario_failed", report["metadata"]["rules"])
             self.assertEqual(report["summary"]["scenarios"], 1)
@@ -88,6 +88,95 @@ class ScenarioReportTests(unittest.TestCase):
             markdown = stdout.getvalue()
             self.assertIn("| Severity | Rule | Scenario | Message | Help |", markdown)
             self.assertIn("Open the scenario source", markdown)
+
+    def test_manifest_check_reports_coverage_and_missing_results(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest = root / "scenario-manifest.json"
+            results = root / "results"
+            results.mkdir()
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "coverage": {
+                            "required_tags": ["smoke", "combat"],
+                            "required_critical_flows": ["startup", "trade"],
+                            "required_platforms": ["desktop", "android"],
+                        },
+                        "scenarios": [
+                            {
+                                "id": "menu_startup",
+                                "owner": "ui",
+                                "tags": ["smoke"],
+                                "critical_flows": ["startup"],
+                                "platforms": ["desktop"],
+                                "expected_artifacts": ["screenshots/menu.png"],
+                            },
+                            {
+                                "id": "trade_flow",
+                                "owner": "",
+                                "tags": [],
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (results / "menu_startup.json").write_text(
+                json.dumps({"scenario": "menu_startup", "status": "passed"}),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "manifest",
+                        "check",
+                        str(manifest),
+                        "--results",
+                        str(results),
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            rules = {finding["rule_id"] for finding in report["findings"]}
+            self.assertIn("manifest_result_missing", rules)
+            self.assertIn("manifest_expected_artifact_missing", rules)
+            self.assertIn("coverage_required_tag_missing", rules)
+            self.assertEqual(report["coverage"]["missing_required_tags"], ["combat"])
+
+    def test_flake_compare_reports_status_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            run_a = root / "run-a"
+            run_b = root / "run-b"
+            run_a.mkdir()
+            run_b.mkdir()
+            (run_a / "menu.json").write_text(
+                json.dumps({"scenario": "menu_startup", "status": "passed"}),
+                encoding="utf-8",
+            )
+            (run_b / "menu.json").write_text(
+                json.dumps({"scenario": "menu_startup", "status": "failed"}),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    ["flake", "compare", str(run_a), str(run_b), "--format", "markdown", "--fail-on", "none"]
+                )
+
+            markdown = stdout.getvalue()
+            self.assertEqual(exit_code, 0)
+            self.assertIn("flaky_scenario", markdown)
+            self.assertIn("Flaky Scenarios", markdown)
 
 
 if __name__ == "__main__":

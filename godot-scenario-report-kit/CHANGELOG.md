@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 - 2026-06-16
+
+- Added `manifest check` for scenario manifests, expected artifacts, and optional result alignment.
+- Added `manifest coverage` for tag, critical-flow, and platform coverage policy.
+- Added `flake compare` to identify scenarios whose status changes across repeated runs.
+- Extended the tiny fixture with a scenario manifest and repeat-run example.
+
 ## 0.1.1 - 2026-06-15
 
 - Added report schema and tool version metadata.

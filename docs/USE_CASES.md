@@ -160,6 +160,8 @@ Use this after a scenario runner, smoke test, or custom harness emits JSON:
 ```powershell
 godot-scenario-report summarize reports\scenarios --format html --output reports\scenarios\index.html
 godot-scenario-report compare reports\baseline reports\current --format markdown --output reports\scenario-compare.md
+godot-scenario-report manifest coverage scenario-manifest.json --results reports\scenarios --format html --output reports\scenario-coverage.html
+godot-scenario-report flake compare reports\run-1 reports\run-2 reports\run-3 --format markdown --output reports\scenario-flakes.md
 ```
 
 This helps catch:
@@ -168,6 +170,8 @@ This helps catch:
 - Missing listed artifacts such as screenshots.
 - New failures compared with a baseline run.
 - Duration regressions that make test runs or gameplay flows slower.
+- Missing coverage for required tags, platforms, or critical flows.
+- Scenarios whose status changes across repeated runs.
 
 ## Runtime Telemetry Evidence
 

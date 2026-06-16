@@ -28,7 +28,14 @@
     {
       "purpose": "Compare current scenario evidence against a baseline",
       "command": "godot-scenario-report compare reports/baseline reports/current --format markdown --output reports/scenarios/compare.md"
+    },
+    {
+      "purpose": "Check scenario manifest coverage",
+      "command": "godot-scenario-report manifest coverage scenario-manifest.json --results reports/current --format html --output reports/scenarios/coverage.html"
+    },
+    {
+      "purpose": "Find flaky scenario status changes",
+      "command": "godot-scenario-report flake compare reports/run-1 reports/run-2 reports/run-3 --format markdown"
     }
   ]
 }
-

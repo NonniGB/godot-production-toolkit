@@ -1,0 +1,74 @@
+# Example only. Copy this file to .github/workflows/html5-export.yml in a
+# Godot game repository before enabling it.
+name: HTML5 export
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "export_presets.cfg"
+      - "project.godot"
+      - "addons/**"
+      - "assets/**"
+      - "scenes/**"
+      - "scripts/**"
+
+env:
+  GODOT_VERSION: "4.3"
+  GODOT_PROJECT_DIR: "."
+  EXPORT_PRESET: "Web"
+  EXPORT_OUTPUT: "build/web/index.html"
+  REPORTS_DIR: "reports/html5-export"
+
+jobs:
+  html5-export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install export checker
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install godot-export-preset-doctor
+
+      - name: Check Web export preset
+        run: |
+          mkdir -p "$REPORTS_DIR"
+          godot-export-doctor "$GODOT_PROJECT_DIR" \
+            --platform Web \
+            --fail-on warning \
+            --format json \
+            --output "$REPORTS_DIR/export-doctor.json"
+
+      - name: Set up Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+
+      - name: Export HTML5 build
+        run: |
+          mkdir -p "$(dirname "$EXPORT_OUTPUT")"
+          godot --headless --path "$GODOT_PROJECT_DIR" --export-release "$EXPORT_PRESET" "$EXPORT_OUTPUT"
+
+      - name: Upload web build
+        uses: actions/upload-artifact@v4
+        with:
+          # This folder can be deployed to GitHub Pages, itch.io, or your own host.
+          name: html5-export
+          path: build/web
+
+      - name: Upload Web export reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html5-export-reports
+          path: ${{ env.REPORTS_DIR }}
+

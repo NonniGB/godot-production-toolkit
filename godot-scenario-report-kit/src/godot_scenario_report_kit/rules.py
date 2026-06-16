@@ -36,6 +36,54 @@ RULES: dict[str, dict[str, str]] = {
         "title": "Duration regression",
         "help": "Check recent runtime, scene loading, fixture, or wait-condition changes before raising the threshold.",
     },
+    "manifest_invalid_json": {
+        "title": "Unreadable manifest JSON",
+        "help": "Check that the scenario manifest is valid UTF-8 JSON before publishing it as run evidence.",
+    },
+    "manifest_missing_scenarios": {
+        "title": "No manifest scenarios",
+        "help": "Add a scenarios list so scenario coverage can be checked before a release.",
+    },
+    "manifest_duplicate_id": {
+        "title": "Duplicate scenario id",
+        "help": "Use stable unique scenario ids so results, coverage, and history can be matched reliably.",
+    },
+    "manifest_missing_owner": {
+        "title": "Missing scenario owner",
+        "help": "Add an owner or area field so failures can be routed to the right maintainer or team.",
+    },
+    "manifest_missing_tags": {
+        "title": "Missing scenario tags",
+        "help": "Tag scenarios by workflow, platform, mechanic, or risk area so coverage reports stay useful.",
+    },
+    "manifest_result_missing": {
+        "title": "Listed scenario has no result",
+        "help": "Run the scenario or remove it from the release manifest if it is no longer part of the suite.",
+    },
+    "manifest_unlisted_result": {
+        "title": "Result is not listed in manifest",
+        "help": "Add the scenario to the manifest if it is part of the supported release suite.",
+    },
+    "manifest_expected_artifact_missing": {
+        "title": "Expected artifact missing",
+        "help": "Check the runner output path or update the manifest if the artifact name changed.",
+    },
+    "coverage_required_tag_missing": {
+        "title": "Required tag has no scenario",
+        "help": "Add at least one scenario for the required tag or remove the tag from the manifest coverage policy.",
+    },
+    "coverage_required_flow_missing": {
+        "title": "Required flow has no scenario",
+        "help": "Add a scenario for this user journey or update the manifest coverage policy.",
+    },
+    "coverage_required_platform_missing": {
+        "title": "Required platform has no scenario",
+        "help": "Add platform-specific coverage or adjust the policy for this release.",
+    },
+    "flaky_scenario": {
+        "title": "Scenario changed status across runs",
+        "help": "Inspect logs and artifacts from both passing and failing runs before treating this scenario as stable.",
+    },
 }
 
 
