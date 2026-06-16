@@ -3,6 +3,9 @@
 Start here by release workflow or review task. Each tool can run locally or in
 CI, and most standalone tools are available from PyPI.
 
+If you already know the problem and only need a package name, install command,
+and first command, use the [Package Finder](PACKAGE_FINDER.md).
+
 ## Good First Workflows
 
 ### Android Release
@@ -72,12 +75,14 @@ godot-release-dashboard build reports --output reports/dashboard.html
 |---|---|---|
 | Android, desktop, or web export settings are hard to review | `godot-export-preset-doctor`, `godot-mobile-perf-doctor` | `godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown` |
 | Godot mobile UI needs safe-area and touch-target checks | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
+| Godot mobile UI labels need localization expansion checks | `godot-mobile-ui-doctor`, `godot-localization-qa-guard` | `godot-mobile-ui-doctor matrix mobile-ui.json --format markdown` |
 | Screenshots need regression testing | `godot-visual-smoke-test-kit` | `godot-visual-smoke compare baseline current --format json` |
 | Imported PNGs, pixel art, icons, or sprite anchors need review | `godot-asset-pipeline-doctor` | `godot-asset-doctor . --profile pixel-2d --format json` |
 | Input actions need keyboard, mouse, touch, and controller coverage | `godot-input-map-auditor` | `godot-input-audit . --format markdown` |
 | CSV or PO localization imports need QA | `godot-localization-qa-guard` | `godot-l10n-guard . --format markdown` |
 | Save data needs schema and migration checks | `godot-save-schema-guard` | `godot-save-guard validate fixtures --schema save.schema.json` |
 | Scene refactors risk broken signal wiring | `godot-scene-signal-auditor` | `godot-signal-audit . --format json` |
+| Scene refactors need required nodes, handlers, or signals kept stable | `godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |
 | GDScript modules or autoload access are becoming tangled | `godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml` |
 | Data files reference missing ids, recipes, quests, or levels | `godot-content-graph-doctor` | `godot-content-graph . --preset recipes --format markdown` |
 | Runtime scenario runs need manifests, coverage, flake checks, or baseline comparison | `godot-scenario-report-kit` | `godot-scenario-report manifest coverage scenario-manifest.json --results reports/current --format html` |

@@ -75,6 +75,9 @@ def build_readiness_matrix(
                 "touch_targets": _rule_status(screen_findings, "touch_target_too_small"),
                 "spacing": _rule_status(screen_findings, "touch_targets_too_close"),
                 "text_fit": _rule_status(screen_findings, "text_overflow_risk"),
+                "text_expansion": _rule_status(
+                    screen_findings, "text_expansion_overflow_risk"
+                ),
                 "viewport_bounds": _rule_status(screen_findings, "node_outside_viewport"),
             }
         )
@@ -240,17 +243,37 @@ def _audit_text(
         return []
     estimated_width = len(node.text) * node.font_size * 0.55
     estimated_height = node.font_size * 1.2
-    if estimated_width <= node.width * thresholds.max_text_width_ratio and estimated_height <= node.height:
+    usable_width = node.width * thresholds.max_text_width_ratio
+    current_fits = estimated_width <= usable_width and estimated_height <= node.height
+    if not current_fits:
+        return [
+            Finding(
+                rule_id="text_overflow_risk",
+                severity="warning",
+                screen=screen.name,
+                node=node.id,
+                viewport=viewport.name,
+                message=f"Text on node {node.id!r} may not fit inside its exported rectangle.",
+                help="Allow wrapping, shorten the label, resize the control, or check localized strings.",
+            )
+        ]
+    if thresholds.text_expansion_factor <= 1.0:
+        return []
+    expanded_width = estimated_width * thresholds.text_expansion_factor
+    if expanded_width <= usable_width:
         return []
     return [
         Finding(
-            rule_id="text_overflow_risk",
+            rule_id="text_expansion_overflow_risk",
             severity="warning",
             screen=screen.name,
             node=node.id,
             viewport=viewport.name,
-            message=f"Text on node {node.id!r} may not fit inside its exported rectangle.",
-            help="Allow wrapping, shorten the label, resize the control, or check localized strings.",
+            message=(
+                f"Text on node {node.id!r} fits current copy but may overflow at "
+                f"{thresholds.text_expansion_factor:g}x localized expansion."
+            ),
+            help="Reserve extra width for localized labels or verify expanded strings in this control.",
         )
     ]
 

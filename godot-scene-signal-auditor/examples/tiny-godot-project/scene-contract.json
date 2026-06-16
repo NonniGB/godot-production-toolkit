@@ -1,0 +1,22 @@
+{
+  "scenes": [
+    {
+      "path": "scenes/menu.tscn",
+      "required_nodes": [".", "StartButton"],
+      "required_connections": [
+        {
+          "from": "StartButton",
+          "signal": "pressed",
+          "to": ".",
+          "method": "_on_start_pressed"
+        }
+      ],
+      "script_methods": {
+        ".": ["_ready", "_on_start_pressed"]
+      },
+      "script_signals": {
+        ".": ["menu_confirmed"]
+      }
+    }
+  ]
+}

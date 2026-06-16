@@ -10,6 +10,13 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Stale scene connection",
         "explanation": "A saved scene connection points at a method that was not found on the resolved target script.",
     },
+    "scene_contract_violation": {
+        "title": "Scene contract violation",
+        "explanation": (
+            "A scanned scene did not satisfy a required node, connection, "
+            "script method, or script signal from the contract file."
+        ),
+    },
 }
 
 

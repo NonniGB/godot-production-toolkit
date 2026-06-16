@@ -33,6 +33,9 @@ def _load_thresholds(raw: object) -> Thresholds:
         max_text_width_ratio=_positive_float(
             raw.get("max_text_width_ratio", 0.95), "thresholds.max_text_width_ratio"
         ),
+        text_expansion_factor=_positive_float(
+            raw.get("text_expansion_factor", 1.0), "thresholds.text_expansion_factor"
+        ),
     )
 
 

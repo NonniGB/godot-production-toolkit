@@ -24,6 +24,10 @@ godot-l10n-guard pseudo translations\en.csv --output reports\pseudo-en.csv
 godot-mobile-ui-doctor readiness mobile-ui.json --localization-report reports\localization.json --format markdown --output reports\mobile-localization-readiness.md
 ```
 
+For a simple layout stress check, add `thresholds.text_expansion_factor` to
+`mobile-ui.json`. A value such as `1.4` asks the UI doctor to flag labels that
+fit current text but are likely to overflow after translated copy grows.
+
 For screenshot-backed review, capture your project-owned UI screenshots first,
 then compare them with the visual smoke tool:
 

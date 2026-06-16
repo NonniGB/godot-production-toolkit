@@ -2,10 +2,14 @@
 <html lang="en"><head><meta charset="utf-8">
 <title>Godot Toolkit Release Evidence</title>
 <link rel="icon" href="data:,">
-<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.ok{color:#147d3f}.warn{color:#a15c00}.err{color:#b42318}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}</style>
+<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.ok,.ready{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked{color:#b42318}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}</style>
 </head><body>
 <h1>Godot Toolkit Release Evidence</h1>
+<h2>Release Readiness</h2>
 <div class="metrics">
+<div class="metric blocked">Blocked: 1</div>
+<div class="metric attention">Needs attention: 1</div>
+<div class="metric ready">Ready: 1</div>
 <div class="metric">Reports: 3</div>
 <div class="metric">Images: 1</div>
 <div class="metric err">Errors: 1</div>
@@ -13,9 +17,9 @@
 </div>
 <h2>Reports</h2>
 <div class="grid">
-<section class="card"><h2>godot-export-doctor</h2><p><code>godot-release-dashboard-kit/examples/tiny-release-evidence/export.json</code></p><p class="err">Errors: 1 | Warnings: 2</p><p>errors: 1, presets: 1, warnings: 2</p></section>
-<section class="card"><h2>mobile-ui</h2><p><code>godot-release-dashboard-kit/examples/tiny-release-evidence/mobile-ui.md</code></p><p class="warn">Errors: 0 | Warnings: 1</p><p># Mobile UI Review</p></section>
-<section class="card"><h2>README</h2><p><code>godot-release-dashboard-kit/examples/tiny-release-evidence/README.md</code></p><p class="ok">Errors: 0 | Warnings: 0</p><p># Tiny Release Evidence</p></section>
+<section class="card"><h2>godot-export-doctor</h2><p class="status blocked">blocked</p><p><a href="../../../godot-release-dashboard-kit/examples/tiny-release-evidence/export.json"><code>../../../godot-release-dashboard-kit/examples/tiny-release-evidence/export.json</code></a></p><p class="err">Errors: 1 | Warnings: 2</p><p>errors: 1, presets: 1, warnings: 2</p></section>
+<section class="card"><h2>mobile-ui</h2><p class="status attention">attention</p><p><a href="../../../godot-release-dashboard-kit/examples/tiny-release-evidence/mobile-ui.md"><code>../../../godot-release-dashboard-kit/examples/tiny-release-evidence/mobile-ui.md</code></a></p><p class="warn">Errors: 0 | Warnings: 1</p><p># Mobile UI Review</p></section>
+<section class="card"><h2>README</h2><p class="status ready">ready</p><p><a href="../../../godot-release-dashboard-kit/examples/tiny-release-evidence/README.md"><code>../../../godot-release-dashboard-kit/examples/tiny-release-evidence/README.md</code></a></p><p class="ok">Errors: 0 | Warnings: 0</p><p># Tiny Release Evidence</p></section>
 </div>
 <h2>Visual Artifacts</h2>
 <div class="gallery">

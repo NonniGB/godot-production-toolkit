@@ -22,7 +22,7 @@ class MobileUiDoctorTests(unittest.TestCase):
             viewports, screens, thresholds = load_metadata(path)
             report = audit_mobile_ui(viewports, screens, thresholds)
 
-            self.assertEqual(report["tool_version"], "0.1.8")
+            self.assertEqual(report["tool_version"], "0.1.9")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("touch_target_too_small", report["metadata"]["rules"])
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
@@ -31,6 +31,22 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertIn("text_overflow_risk", rule_ids)
             self.assertIn("touch_targets_too_close", rule_ids)
             self.assertTrue(all("rule_help" in finding for finding in report["findings"]))
+
+    def test_text_expansion_factor_flags_localized_layout_risk(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "ui.json"
+            path.write_text(json.dumps(_localized_text_metadata()), encoding="utf-8")
+
+            viewports, screens, thresholds = load_metadata(path)
+            report = audit_mobile_ui(viewports, screens, thresholds)
+
+            finding = next(
+                item
+                for item in report["findings"]
+                if item["rule_id"] == "text_expansion_overflow_risk"
+            )
+            self.assertEqual(finding["node"], "continue")
+            self.assertIn("1.4x", finding["message"])
 
     def test_cli_writes_json_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -118,7 +134,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.8", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.9", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -481,6 +497,43 @@ def _visual_smoke_plan() -> dict[str, object]:
                 "output": "visual-smoke-output/main_menu.png",
                 "command": ["godot"],
                 "shell": "godot",
+            }
+        ],
+    }
+
+
+def _localized_text_metadata() -> dict[str, object]:
+    return {
+        "thresholds": {
+            "min_touch_size": 44,
+            "min_touch_spacing": 8,
+            "text_expansion_factor": 1.4,
+        },
+        "viewports": [
+            {
+                "name": "portrait_phone",
+                "width": 720,
+                "height": 1280,
+                "safe_area": {"left": 0, "top": 0, "right": 0, "bottom": 0},
+            }
+        ],
+        "screens": [
+            {
+                "name": "pause_menu",
+                "viewport": "portrait_phone",
+                "nodes": [
+                    {
+                        "id": "continue",
+                        "kind": "button",
+                        "x": 24,
+                        "y": 96,
+                        "width": 120,
+                        "height": 44,
+                        "text": "Continue",
+                        "font_size": 24,
+                        "interactive": True,
+                    }
+                ],
             }
         ],
     }

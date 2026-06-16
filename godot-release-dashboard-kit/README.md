@@ -5,6 +5,9 @@ Markdown, and image artifacts produced by Godot Production Toolkit commands.
 
 It is intentionally simple: point it at a reports folder and it writes a
 self-contained HTML file suitable for a CI artifact or release checklist.
+Report cards are grouped into release readiness states so a project can quickly
+spot blocked checks, warnings that need attention, and ready checks before a
+release build goes out.
 
 ## Install
 
@@ -40,5 +43,7 @@ captures are embedded into the self-contained HTML output.
 
 ## Outputs
 
-- `html`: self-contained static dashboard with report cards and image previews.
-- `json`: summary for scripts or later dashboard tooling.
+- `html`: self-contained static dashboard with release readiness metrics, source
+  report links, report cards, and image previews.
+- `json`: summary for scripts or later dashboard tooling, including counts for
+  `blocked`, `attention`, and `ready` report states.

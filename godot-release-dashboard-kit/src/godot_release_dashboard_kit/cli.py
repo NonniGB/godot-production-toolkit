@@ -6,7 +6,7 @@ import sys
 
 from .dashboard import build_dashboard, render_html, render_json
 
-VERSION_LABEL = "godot-release-dashboard 0.1.1"
+VERSION_LABEL = "godot-release-dashboard 0.1.2"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -24,9 +24,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.command != "build":
         parser.print_help()
         return 2
-    dashboard = build_dashboard(Path(args.reports_dir), args.title)
-    rendered = render_json(dashboard) if args.format == "json" else render_html(dashboard)
     output = Path(args.output)
+    dashboard = build_dashboard(Path(args.reports_dir), args.title, output.parent)
+    rendered = render_json(dashboard) if args.format == "json" else render_html(dashboard)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(rendered + "\n", encoding="utf-8")
     return 0

@@ -1,0 +1,24 @@
+{
+  "samples": [
+    {
+      "scenario": "smoke_run",
+      "phase": "boot",
+      "time_s": 0.5,
+      "frame_ms": 13.4,
+      "physics_ms": 1.8,
+      "memory_mb": 172.5,
+      "nodes": 318,
+      "draw_calls": 28
+    },
+    {
+      "scenario": "smoke_run",
+      "phase": "interaction",
+      "time_s": 1.5,
+      "frame_ms": 16.2,
+      "physics_ms": 2.1,
+      "memory_mb": 176.9,
+      "nodes": 342,
+      "draw_calls": 35
+    }
+  ]
+}

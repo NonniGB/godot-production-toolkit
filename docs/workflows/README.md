@@ -12,6 +12,7 @@ to keep from a local run or CI job.
 | [Mobile UI safe-area testing](godot-mobile-ui-safe-area-testing.md) | Portrait/touch UI needs safe-area, touch-target, spacing, or overlay review. | `mobile-ui.json`, optional screenshots. | Markdown readiness report and PNG overlays. |
 | [Localization overflow testing](godot-localization-overflow-testing.md) | Translated text may break placeholders, keys, or visible layout. | CSV/PO files, scripts, optional UI metadata. | Localization QA report and layout-risk inputs. |
 | [Visual regression testing](godot-visual-regression-testing.md) | Menus, HUDs, scenes, or exports need screenshot comparison. | Baseline/current PNG folders or capture plan. | JSON report and PNG diffs. |
+| [Scene contract refactor safety](godot-scene-contract-refactor-safety.md) | Scene/node/signal refactors need a small API contract before review. | `.tscn`, `.gd`, optional contract JSON/TOML. | Signal report and contract violations. |
 | [Save migration testing](godot-save-migration-testing.md) | Save format changes need fixture and migration proof. | Save fixtures and JSON schema. | Save compatibility report. |
 | [Runtime performance regression](godot-runtime-performance-regression.md) | Scenario runs emit frame, memory, draw-call, or phase samples. | Runtime telemetry JSON or CSV. | Budget summary, baseline comparison, or timeline report. |
 | [Mod and DLC pack validation](godot-mod-dlc-pack-validation.md) | Pack, patch, DLC, or mod manifests need release checks. | Pack manifest and optional base manifest. | Pack validation report. |

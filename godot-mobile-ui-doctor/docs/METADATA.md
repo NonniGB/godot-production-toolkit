@@ -16,6 +16,10 @@ Each screen points at a named viewport. Each node contains:
 The exported metadata should avoid secrets and avoid unnecessary private content.
 For many projects, stable technical ids are enough.
 
+Optional `thresholds.text_expansion_factor` enables localized-label layout risk
+checks. Values above `1.0` multiply the estimated text width before comparing it
+with the node rectangle; for example, `1.4` checks a 40% expansion.
+
 Viewport definitions can also come from `godot-visual-smoke plan --format json`
 by passing `--visual-smoke-plan`. In that workflow, `mobile-ui.json` can focus on
 screens and nodes while the visual smoke config owns shared phone and tablet

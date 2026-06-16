@@ -33,6 +33,8 @@ pull request reports, or use a source checkout when you want the umbrella
 For a wider problem-to-tool map, see the [Tool Index](docs/TOOL_INDEX.md).
 For practical search phrases such as "Godot export preset CI" or "Godot visual
 regression testing", see the [Workflow Finder](docs/search-index.md).
+For package-level install commands and search-friendly task names, see the
+[Package Finder](docs/PACKAGE_FINDER.md).
 
 ## What This Is For
 
@@ -56,6 +58,7 @@ Start with these files when evaluating or extending the suite:
 - `PROJECT_OVERVIEW.md`
 - `docs/workflows/README.md`
 - `docs/TOOL_INDEX.md`
+- `docs/PACKAGE_FINDER.md`
 - `docs/USE_CASES.md`
 - `docs/search-index.md`
 - `docs/WORKS_WITH_YOUR_GODOT_WORKFLOW.md`
@@ -68,6 +71,7 @@ Start with these files when evaluating or extending the suite:
 Discovery files for search tools, scripts, and compact project orientation:
 
 - `docs/search-index.md`: practical problem phrases and workflow routing.
+- `docs/PACKAGE_FINDER.md`: package names, install commands, and task phrases.
 - `project-metadata.json`: structured project metadata.
 - `*/tool-manifest.json`: per-tool command metadata.
 - `llms.txt`: compact project summary for search tools and script readers.
@@ -184,6 +188,7 @@ godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-archite
 godot-mobile-ui-doctor matrix godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown
 godot-mobile-ui-doctor overlays godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
 godot-mobile-ui-doctor readiness godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown --fail-on none
+godot-signal-audit godot-scene-signal-auditor\examples\tiny-godot-project --contract godot-scene-signal-auditor\examples\tiny-godot-project\scene-contract.json --format json --fail-on none
 godot-telemetry-lab budget init --profile android-high --output reports\runtime-budget.json
 godot-telemetry-lab timeline godot-runtime-telemetry-lab\examples\tiny-runtime-run --budget-file reports\runtime-budget.json --format html --output reports\runtime-timeline.html
 godot-pack-mod-doctor check pack-manifest.json --format markdown
@@ -209,6 +214,9 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 - [Workflow guides](docs/workflows/) cover Android export CI, HTML5 export checks,
   runtime performance regression, mobile UI safe areas, visual regression,
   localization overflow, save migration, and mod/DLC validation.
+- [Godot exporter examples](examples/godot-exporters/) show small GDScript
+  exporters for mobile UI metadata, scenario results, runtime telemetry, and
+  pack manifests.
 - [Search index](docs/search-index.md) maps practical problem phrases to the
   relevant workflow pages, packages, CI recipes, and sample reports.
 - [Works with your Godot workflow](docs/WORKS_WITH_YOUR_GODOT_WORKFLOW.md)

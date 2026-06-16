@@ -21,6 +21,10 @@ godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports\
 godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
 ```
 
+If the UI is being prepared for localization, set
+`thresholds.text_expansion_factor` in `mobile-ui.json` and include the matrix or
+readiness report in the same review.
+
 Reuse viewport data from a visual smoke plan when available:
 
 ```powershell
@@ -39,4 +43,3 @@ godot-mobile-ui-doctor readiness mobile-ui.json --visual-smoke-plan reports\visu
 - Markdown or JSON findings for touch targets, spacing, safe areas, and overflow risk.
 - Optional PNG overlays in `reports\mobile-ui-overlays`.
 - A readiness report that combines UI findings with other mobile checks.
-

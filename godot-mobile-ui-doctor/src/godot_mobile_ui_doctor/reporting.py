@@ -98,7 +98,8 @@ def _matrix_text(report: dict[str, Any]) -> str:
         lines.append(
             f"- {row['screen']} / {row['viewport']} ({row['viewport_size']}): "
             f"{row['status']} | safe area {row['safe_area']} | "
-            f"touch {row['touch_targets']} | spacing {row['spacing']} | text {row['text_fit']}"
+            f"touch {row['touch_targets']} | spacing {row['spacing']} | "
+            f"text {row['text_fit']} | expansion {row['text_expansion']}"
         )
     return "\n".join(lines)
 
@@ -117,13 +118,14 @@ def _matrix_markdown(report: dict[str, Any]) -> str:
         f"| Errors | {summary['errors']} |",
         f"| Warnings | {summary['warnings']} |",
         "",
-        "| Screen | Viewport | Size | Status | Safe Area | Touch Targets | Spacing | Text Fit | Bounds |",
-        "|---|---|---:|---|---|---|---|---|---|",
+        "| Screen | Viewport | Size | Status | Safe Area | Touch Targets | Spacing | Text Fit | Text Expansion | Bounds |",
+        "|---|---|---:|---|---|---|---|---|---|---|",
     ]
     for row in report["matrix"]:
         lines.append(
             f"| {row['screen']} | {row['viewport']} | {row['viewport_size']} | "
             f"{row['status']} | {row['safe_area']} | {row['touch_targets']} | "
-            f"{row['spacing']} | {row['text_fit']} | {row['viewport_bounds']} |"
+            f"{row['spacing']} | {row['text_fit']} | {row['text_expansion']} | "
+            f"{row['viewport_bounds']} |"
         )
     return "\n".join(lines)

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 - 2026-06-16
+
+- Added release readiness grouping for blocked, attention, and ready report cards.
+- Added source report links to generated HTML dashboards.
+- Included readiness counts in JSON dashboard summaries.
+
 ## 0.1.1 - 2026-06-16
 
 - Added PNG, JPG, SVG, and WebP artifact discovery.

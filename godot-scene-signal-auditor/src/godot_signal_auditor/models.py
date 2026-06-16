@@ -29,10 +29,12 @@ class ParsedScene:
     path: Path
     node_scripts: dict[str, str] = field(default_factory=dict)
     connections: list[SceneConnection] = field(default_factory=list)
+    nodes: set[str] = field(default_factory=set)
 
     def to_dict(self) -> dict[str, object]:
         return {
             "path": self.path.as_posix(),
+            "nodes": sorted(self.nodes),
             "node_scripts": self.node_scripts,
             "connections": [connection.to_dict() for connection in self.connections],
         }

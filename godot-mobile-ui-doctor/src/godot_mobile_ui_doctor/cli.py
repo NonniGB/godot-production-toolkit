@@ -11,7 +11,7 @@ from .readiness import build_combined_readiness, render_combined_readiness
 from .reporting import render_report
 from .visual_smoke import load_visual_smoke_viewports, merge_viewports
 
-VERSION_LABEL = "godot-mobile-ui-doctor 0.1.8"
+VERSION_LABEL = "godot-mobile-ui-doctor 0.1.9"
 
 
 def main(argv: list[str] | None = None) -> int:

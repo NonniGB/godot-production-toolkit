@@ -45,6 +45,7 @@ class Thresholds:
     min_touch_size: int = 44
     min_touch_spacing: int = 8
     max_text_width_ratio: float = 0.95
+    text_expansion_factor: float = 1.0
 
 
 @dataclass(frozen=True)

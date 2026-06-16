@@ -10,6 +10,7 @@ validation, and GDScript architecture checks.
 
 - README: `README.md`
 - Tool index: `docs/TOOL_INDEX.md`
+- Package finder: `docs/PACKAGE_FINDER.md`
 - Use cases: `docs/USE_CASES.md`
 - Project overview: `PROJECT_OVERVIEW.md`
 - Demo project: `examples/release-readiness-demo/README.md`
@@ -18,6 +19,7 @@ validation, and GDScript architecture checks.
 ## Common Tasks
 
 - Find the right tool for a production problem: read `docs/TOOL_INDEX.md`.
+- Find one PyPI package for a specific check: read `docs/PACKAGE_FINDER.md`.
 - Run several checks together: use `godot-project-doctor`.
 - Check Android exports: use `godot-export-preset-doctor` and `godot-mobile-perf-doctor`.
 - Check release target drift or export filter leak risks: use `godot-export-doctor matrix` and `godot-export-doctor leaks`.

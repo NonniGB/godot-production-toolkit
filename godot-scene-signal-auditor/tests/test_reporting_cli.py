@@ -19,7 +19,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-signal-audit 0.1.2", stdout.getvalue())
+        self.assertIn("godot-signal-audit 0.1.3", stdout.getvalue())
 
     def test_mermaid_graph_contains_signal_edge(self) -> None:
         scene = ParsedScene(
@@ -43,7 +43,7 @@ class ReportingCliTests(unittest.TestCase):
         )
 
         self.assertEqual(report["metadata"]["schema_version"], "1.1")
-        self.assertEqual(report["metadata"]["tool_version"], "0.1.2")
+        self.assertEqual(report["metadata"]["tool_version"], "0.1.3")
         self.assertEqual(report["rules"]["stale_scene_connection"]["title"], "Stale scene connection")
         self.assertIn("resolved target script", report["findings"][0]["explanation"])
 
@@ -82,6 +82,56 @@ script = ExtResource("1_menu")
             self.assertEqual(report["summary"]["errors"], 1)
             self.assertEqual(report["metadata"]["report_kind"], "scene_signal_audit")
             self.assertTrue(output.read_text(encoding="utf-8").endswith("\n"))
+
+    def test_cli_reports_json_scene_contract_violations(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scenes").mkdir()
+            (root / "scripts").mkdir()
+            (root / "scripts" / "menu.gd").write_text(
+                "signal ready_to_start\nfunc _ready() -> void:\n    pass\n",
+                encoding="utf-8",
+            )
+            (root / "scenes" / "menu.tscn").write_text(
+                """
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/menu.gd" id="1_menu"]
+[node name="Menu" type="Control"]
+script = ExtResource("1_menu")
+[node name="StartButton" type="Button" parent="."]
+[connection signal="pressed" from="StartButton" to="." method="_ready"]
+""",
+                encoding="utf-8",
+            )
+            contract = root / "scene-contract.json"
+            contract.write_text(
+                json.dumps(
+                    {
+                        "scenes": [
+                            {
+                                "path": "scenes/menu.tscn",
+                                "required_nodes": [".", "QuitButton"],
+                                "required_connections": [
+                                    {
+                                        "from": "StartButton",
+                                        "signal": "pressed",
+                                        "to": ".",
+                                        "method": "_on_start_pressed",
+                                    }
+                                ],
+                                "script_methods": {".": ["_ready", "_on_start_pressed"]},
+                                "script_signals": {".": ["ready_to_start"]},
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with redirect_stdout(StringIO()):
+                exit_code = main([str(root), "--contract", str(contract), "--format", "json"])
+
+            self.assertEqual(exit_code, 1)
 
 
 if __name__ == "__main__":

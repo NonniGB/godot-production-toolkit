@@ -9,6 +9,7 @@
 | `touch_target_too_small` | warning | An interactive control is smaller than the configured target size. |
 | `touch_targets_too_close` | warning | Two interactive controls are closer than the configured spacing. |
 | `text_overflow_risk` | warning | The exported text may not fit in the node rectangle. |
+| `text_expansion_overflow_risk` | warning | The exported text fits now but may overflow after configured expansion. |
 | `no_interactive_controls` | warning | A screen contains no interactive metadata. |
 
 These rules are intentionally conservative. They flag layout risks that deserve

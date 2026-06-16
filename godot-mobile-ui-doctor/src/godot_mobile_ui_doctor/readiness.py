@@ -224,7 +224,8 @@ def _text(report: dict[str, Any]) -> str:
     for row in report["matrix"]:
         lines.append(
             f"- {row['screen']} / {row['viewport']}: {row['status']} "
-            f"(safe area {row['safe_area']}, touch {row['touch_targets']}, text {row['text_fit']})"
+            f"(safe area {row['safe_area']}, touch {row['touch_targets']}, "
+            f"text {row['text_fit']}, expansion {row['text_expansion']})"
         )
     if report["linked_reports"]:
         lines.extend(["", "Linked reports:"])
@@ -265,13 +266,14 @@ def _markdown(report: dict[str, Any]) -> str:
         "",
         "## Screens",
         "",
-        "| Screen | Viewport | Status | Safe Area | Touch Targets | Spacing | Text Fit | Bounds |",
-        "|---|---|---|---|---|---|---|---|",
+        "| Screen | Viewport | Status | Safe Area | Touch Targets | Spacing | Text Fit | Text Expansion | Bounds |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for row in report["matrix"]:
         lines.append(
             f"| {row['screen']} | {row['viewport']} | {row['status']} | {row['safe_area']} | "
-            f"{row['touch_targets']} | {row['spacing']} | {row['text_fit']} | {row['viewport_bounds']} |"
+            f"{row['touch_targets']} | {row['spacing']} | {row['text_fit']} | "
+            f"{row['text_expansion']} | {row['viewport_bounds']} |"
         )
     if report["linked_reports"]:
         lines.extend(

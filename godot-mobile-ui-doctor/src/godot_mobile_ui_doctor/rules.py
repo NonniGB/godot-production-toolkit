@@ -32,6 +32,10 @@ RULES: dict[str, dict[str, str]] = {
         "title": "Text overflow risk",
         "help": "Allow wrapping, shorten the label, resize the control, or check localized strings.",
     },
+    "text_expansion_overflow_risk": {
+        "title": "Text expansion overflow risk",
+        "help": "Reserve extra width for localized labels or verify expanded strings in this control.",
+    },
     "no_interactive_controls": {
         "title": "No interactive controls",
         "help": "Export buttons, menus, sliders, or touch zones so the screen can be checked.",

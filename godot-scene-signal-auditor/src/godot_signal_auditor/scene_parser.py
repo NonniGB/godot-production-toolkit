@@ -18,6 +18,7 @@ def parse_scene(path: Path, content: str) -> ParsedScene:
     ext_resources: dict[str, str] = {}
     node_scripts: dict[str, str] = {}
     connections: list[SceneConnection] = []
+    nodes: set[str] = set()
     current_node: str | None = None
 
     for raw_line in content.splitlines():
@@ -32,7 +33,8 @@ def parse_scene(path: Path, content: str) -> ParsedScene:
         if node_match:
             name, rest = node_match.groups()
             parent_match = PARENT_RE.search(rest)
-            current_node = name if parent_match else "."
+            current_node = _node_path(name, parent_match.group(1) if parent_match else None)
+            nodes.add(current_node)
             continue
 
         script_match = SCRIPT_RE.search(line)
@@ -55,10 +57,18 @@ def parse_scene(path: Path, content: str) -> ParsedScene:
                 )
             )
 
-    return ParsedScene(path=path, node_scripts=node_scripts, connections=connections)
+    return ParsedScene(path=path, node_scripts=node_scripts, connections=connections, nodes=nodes)
 
 
 def _normalize_resource_path(path: str) -> str:
     if path.startswith("res://"):
         return path.removeprefix("res://")
     return path
+
+
+def _node_path(name: str, parent: str | None) -> str:
+    if parent is None:
+        return "."
+    if parent == ".":
+        return name
+    return f"{parent}/{name}"

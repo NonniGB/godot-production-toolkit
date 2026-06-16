@@ -66,7 +66,8 @@ godot-mobile-ui-doctor readiness mobile-ui.json --visual-smoke-plan reports\visu
 {
   "thresholds": {
     "min_touch_size": 44,
-    "min_touch_spacing": 8
+    "min_touch_spacing": 8,
+    "text_expansion_factor": 1.4
   },
   "viewports": [
     {
@@ -114,6 +115,7 @@ still take precedence.
 - `touch_target_too_small`: an interactive node is smaller than the configured target size.
 - `touch_targets_too_close`: interactive rectangles are too close together.
 - `text_overflow_risk`: text is unlikely to fit in the exported rectangle.
+- `text_expansion_overflow_risk`: text fits current copy but may overflow after the configured expansion factor.
 - `no_interactive_controls`: a screen has no interactive controls in the metadata.
 
 ## Outputs
@@ -133,8 +135,13 @@ The `matrix` command groups findings by screen and viewport. It is useful when a
 project has several phone and tablet captures and you want a quick table showing
 which screens are clean, which need review, and which need action.
 
-The matrix includes safe-area, touch-target, spacing, text-fit, and viewport
-bounds status for each screen.
+The matrix includes safe-area, touch-target, spacing, text-fit, text-expansion,
+and viewport bounds status for each screen.
+
+Set `thresholds.text_expansion_factor` above `1.0` to reserve space for likely
+localized label growth. For example, `1.4` checks whether each current label
+still fits after a 40% width expansion while keeping the input format as plain
+JSON metadata.
 
 ## Overlay Previews
 

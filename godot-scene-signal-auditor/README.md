@@ -21,6 +21,7 @@ python -m pip install godot-scene-signal-auditor
 ```powershell
 godot-signal-audit C:\Projects\MyGame --strict-stale-connections
 godot-signal-audit . --autoload EventBus,SignalBus
+godot-signal-audit . --contract scene-contract.json
 godot-signal-audit . --format mermaid --output docs\SIGNAL_GRAPH.md
 godot-signal-audit . --format json --output signal-report.json
 ```
@@ -29,6 +30,7 @@ Run the sample:
 
 ```powershell
 godot-signal-audit examples\tiny-godot-project --format mermaid --fail-on none
+godot-signal-audit examples\tiny-godot-project --contract examples\tiny-godot-project\scene-contract.json --format json
 ```
 
 ## What It Checks
@@ -37,8 +39,40 @@ godot-signal-audit examples\tiny-godot-project --format mermaid --fail-on none
 - Target method existence when the target script is resolvable.
 - GDScript `signal` declarations and method names.
 - Configured autoload signal connect usage.
+- Optional JSON or TOML scene contracts for required nodes, connections, script methods, and script signals.
 - Mermaid signal graph output.
 - Report metadata and readable rule explanations in text and JSON output.
+
+## Scene Contracts
+
+Use `--contract` to enforce a small scene API before refactors. Contracts can target exact scene paths or glob-style `path_pattern` values.
+
+```json
+{
+  "scenes": [
+    {
+      "path": "scenes/menu.tscn",
+      "required_nodes": [".", "StartButton"],
+      "required_connections": [
+        {
+          "from": "StartButton",
+          "signal": "pressed",
+          "to": ".",
+          "method": "_on_start_pressed"
+        }
+      ],
+      "script_methods": {
+        ".": ["_ready", "_on_start_pressed"]
+      },
+      "script_signals": {
+        ".": ["menu_opened"]
+      }
+    }
+  ]
+}
+```
+
+TOML files use the same field names with `[[scenes]]` entries. Contract violations are reported as errors and respect `--fail-on`.
 
 ## Documentation
 

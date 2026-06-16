@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from .audit import audit_project_model
+from .contracts import audit_scene_contracts, load_contract
 from .reporting import render_json_report, render_mermaid_graph, render_text_report
 from .scanner import scan_project
 
@@ -19,6 +20,8 @@ def main(argv: list[str] | None = None) -> int:
         scripts,
         strict_stale_connections=args.strict_stale_connections,
     )
+    if args.contract:
+        findings.extend(audit_scene_contracts(scenes, scripts, load_contract(Path(args.contract))))
 
     if args.format == "json":
         rendered = render_json_report(scenes, scripts, findings)
@@ -46,9 +49,10 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-signal-audit",
         description="Audit Godot scene signal connections and autoload signal usage.",
     )
-    parser.add_argument("--version", action="version", version="godot-signal-audit 0.1.2")
+    parser.add_argument("--version", action="version", version="godot-signal-audit 0.1.3")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--autoload", default="", help="Comma-separated autoload names to flag.")
+    parser.add_argument("--contract", help="JSON or TOML scene contract file to enforce.")
     parser.add_argument("--strict-stale-connections", action="store_true")
     parser.add_argument("--format", choices=["text", "json", "mermaid"], default="text")
     parser.add_argument("--output", help="Write report to a file instead of stdout.")

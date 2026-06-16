@@ -5,6 +5,10 @@ not the package name yet. The entries use practical phrases people search for
 during Godot release work and point to the most relevant workflow pages, package
 docs, CI recipes, and sample reports.
 
+If you are choosing a PyPI package for one check, the
+[Package Finder](PACKAGE_FINDER.md) gives install commands and first-run
+commands by task.
+
 ## Export And Platform Builds
 
 ### "My Godot export preset keeps breaking CI"
@@ -85,6 +89,10 @@ The [mobile UI and localization CI recipe](ci/mobile-ui-and-localization.yml)
 is the best copy point when both translation quality and visible layout fit
 matter in the same review.
 
+For a quick layout stress check without generating pseudo-localized screenshots,
+set `thresholds.text_expansion_factor` in `mobile-ui.json` and run
+`godot-mobile-ui-doctor matrix` or `readiness`.
+
 ### "I need visual regression testing for scenes, menus, or HUDs"
 
 Use the [visual regression workflow](workflows/godot-visual-regression-testing.md)
@@ -142,6 +150,10 @@ If the refactor touches scene wiring, add
 [`godot-scene-signal-auditor`](../godot-scene-signal-auditor/README.md). The
 [architecture guard gallery sample](report-gallery/README.md#start-here) shows
 the kind of report a reviewer can inspect without opening the whole project.
+
+When important scene nodes or handlers must stay stable, use the
+[scene contract refactor workflow](workflows/godot-scene-contract-refactor-safety.md)
+with `godot-signal-audit --contract scene-contract.json`.
 
 ### "Controls work on keyboard but not touch, mouse, or controller"
 

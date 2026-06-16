@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 - 2026-06-16
+
+- Added `--contract` support for JSON and TOML scene contracts.
+- Contract checks cover required nodes, scene connections, script methods, and script signals.
+
 ## 0.1.2 - 2026-06-09
 
 - Added report metadata and plain-language rule explanations to JSON and text output.

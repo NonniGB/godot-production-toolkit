@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.9 - 2026-06-16
+
+- Added `thresholds.text_expansion_factor` for flagging labels that fit current copy but may overflow after localization expansion.
+- Added `text_expansion_overflow_risk` to reports, rule metadata, and readiness matrix text/Markdown output.
+
 ## 0.1.8 - 2026-06-16
 
 - Added schema and tool version metadata to mobile UI, matrix, overlay, and readiness reports.

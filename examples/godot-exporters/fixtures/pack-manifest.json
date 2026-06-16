@@ -1,0 +1,17 @@
+{
+  "id": "demo_patch",
+  "version": "1.0.0",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "res://scenes/main_menu.tscn",
+      "references": [],
+      "overrides": false
+    },
+    {
+      "path": "res://ui/theme.tres",
+      "references": [],
+      "overrides": false
+    }
+  ]
+}

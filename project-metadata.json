@@ -159,6 +159,7 @@
   ],
   "public_examples": [
     "docs/USE_CASES.md",
+    "docs/PACKAGE_FINDER.md",
     "docs/workflows/README.md",
     "docs/workflows/godot-version-upgrade-checks.md",
     "docs/ROADMAP.md",

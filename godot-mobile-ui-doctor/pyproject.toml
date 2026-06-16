@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-mobile-ui-doctor"
-version = "0.1.8"
+version = "0.1.9"
 description = "Check Godot mobile UI metadata for safe areas, touch targets, text overflow, overlays, and readiness reports."
 readme = "README.md"
 requires-python = ">=3.11"

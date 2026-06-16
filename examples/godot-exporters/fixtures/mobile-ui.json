@@ -1,0 +1,47 @@
+{
+  "thresholds": {
+    "min_touch_size": 44,
+    "min_touch_spacing": 8
+  },
+  "viewports": [
+    {
+      "name": "portrait_phone",
+      "width": 720,
+      "height": 1280,
+      "safe_area": {
+        "left": 0,
+        "top": 48,
+        "right": 0,
+        "bottom": 24
+      }
+    }
+  ],
+  "screens": [
+    {
+      "name": "main_menu",
+      "viewport": "portrait_phone",
+      "nodes": [
+        {
+          "id": "/root/MainMenu/Title",
+          "kind": "label",
+          "x": 24,
+          "y": 56,
+          "width": 240,
+          "height": 32,
+          "interactive": false,
+          "text": "Main Menu"
+        },
+        {
+          "id": "/root/MainMenu/PlayButton",
+          "kind": "button",
+          "x": 24,
+          "y": 96,
+          "width": 160,
+          "height": 48,
+          "interactive": true,
+          "text": "Play"
+        }
+      ]
+    }
+  ]
+}
