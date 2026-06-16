@@ -16,6 +16,9 @@ PUBLISHED_PACKAGES = (
     "godot-localization-qa-guard",
     "godot-mobile-perf-doctor",
     "godot-mobile-ui-doctor",
+    "godot-pack-mod-doctor",
+    "godot-release-dashboard-kit",
+    "godot-runtime-telemetry-lab",
     "godot-save-schema-guard",
     "godot-scenario-report-kit",
     "godot-scene-signal-auditor",
@@ -68,6 +71,21 @@ PACKAGE_VERSION_FILES = {
         "init": "src/godot_mobile_ui_doctor/__init__.py",
         "cli": "src/godot_mobile_ui_doctor/cli.py",
         "cli_name": "godot-mobile-ui-doctor",
+    },
+    "godot-pack-mod-doctor": {
+        "init": "src/godot_pack_mod_doctor/__init__.py",
+        "cli": "src/godot_pack_mod_doctor/cli.py",
+        "cli_name": "godot-pack-mod-doctor",
+    },
+    "godot-release-dashboard-kit": {
+        "init": "src/godot_release_dashboard_kit/__init__.py",
+        "cli": "src/godot_release_dashboard_kit/cli.py",
+        "cli_name": "godot-release-dashboard",
+    },
+    "godot-runtime-telemetry-lab": {
+        "init": "src/godot_runtime_telemetry_lab/__init__.py",
+        "cli": "src/godot_runtime_telemetry_lab/cli.py",
+        "cli_name": "godot-telemetry-lab",
     },
     "godot-save-schema-guard": {
         "init": "src/godot_save_guard/__init__.py",

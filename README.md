@@ -2,13 +2,13 @@
 
 [![Suite CI](https://github.com/NonniGB/godot-production-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/NonniGB/godot-production-toolkit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![PyPI packages](https://img.shields.io/badge/PyPI-14%20packages-blue)](#package-publication)
+[![PyPI packages](https://img.shields.io/badge/PyPI-17%20packages-blue)](#package-publication)
 
 CI-friendly production diagnostics for Godot 4 projects.
 
 Godot Production Toolkit helps solo developers and small teams catch release risks before they become late-stage debugging work: export preset mistakes, texture/import problems, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, and visual regressions.
 
-It is built as fourteen standalone command-line tools, one umbrella CLI, and one GitHub Action. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
+It is built as seventeen standalone command-line tools, one umbrella CLI, and one GitHub Action. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
 
 **Fastest path:** install one of the PyPI packages below if you need a single check today, or use the GitHub Action if you want release-readiness reports on every pull request. Use the source checkout when you want the umbrella `godot-project-doctor` command to run several tools together.
 
@@ -64,6 +64,9 @@ python -m pip install godot-input-map-auditor
 python -m pip install godot-localization-qa-guard
 python -m pip install godot-mobile-perf-doctor
 python -m pip install godot-mobile-ui-doctor
+python -m pip install godot-pack-mod-doctor
+python -m pip install godot-release-dashboard-kit
+python -m pip install godot-runtime-telemetry-lab
 python -m pip install godot-save-schema-guard
 python -m pip install godot-scenario-report-kit
 python -m pip install godot-scene-signal-auditor
@@ -82,6 +85,9 @@ Pick the package that matches the risk you are trying to reduce:
 - `godot-localization-qa-guard`: before shipping translated builds or importing new localization files.
 - `godot-mobile-perf-doctor`: before testing a Godot 4 project on Android hardware.
 - `godot-mobile-ui-doctor`: before reviewing portrait/touch UI layout metadata.
+- `godot-pack-mod-doctor`: before publishing pack, DLC, mod, or patch manifests.
+- `godot-release-dashboard-kit`: when turning toolkit reports into one static review page.
+- `godot-runtime-telemetry-lab`: after scenario or soak runs produce frame/runtime samples.
 - `godot-save-schema-guard`: before changing save data, save fixtures, or migration commands.
 - `godot-scenario-report-kit`: after scenario, smoke, or regression runs produce JSON evidence.
 - `godot-scene-signal-auditor`: before refactoring scenes, signals, or autoload event wiring.
@@ -139,6 +145,9 @@ godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-archite
 godot-mobile-ui-doctor matrix godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown
 godot-mobile-ui-doctor overlays godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
 godot-mobile-ui-doctor readiness godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown --fail-on none
+godot-telemetry-lab summarize reports\runtime --format markdown
+godot-pack-mod-doctor check pack-manifest.json --format markdown
+godot-release-dashboard build reports\godot-project-doctor --output reports\dashboard.html
 ```
 
 ![Content graph terminal report](docs/assets/screenshots/content-graph-terminal.svg)
@@ -170,6 +179,9 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-visual-smoke-test-kit` | Screenshot diffing, approval, and Godot capture command planning. | JSON, PNG diffs |
 | `godot-mobile-perf-doctor` | Static mobile performance diagnostics. | JSON, SARIF, Markdown |
 | `godot-mobile-ui-doctor` | Mobile UI safe-area, touch-target, spacing, text-overflow, overlay previews, and combined mobile readiness reports. | JSON, Markdown, PNG, text |
+| `godot-pack-mod-doctor` | Pack, DLC, mod, and patch manifest checks. | JSON, Markdown, text |
+| `godot-release-dashboard-kit` | Static dashboard builder for toolkit reports. | HTML, JSON |
+| `godot-runtime-telemetry-lab` | Runtime telemetry summaries and baseline comparisons. | JSON, Markdown, text |
 | `pixel-space-asset-toolkit` | Deterministic pixel sci-fi asset utilities, galleries, and PNG image/directory diff checks. | JSON, PNG, HTML |
 
 ## Choose By Problem
@@ -182,6 +194,9 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | Portrait UI needs touch and safe-area review | `godot-mobile-ui-doctor`, `godot-visual-smoke-test-kit` |
 | Data files reference missing items, recipes, quests, or levels | `godot-content-graph-doctor` |
 | Runtime scenario runs need reviewable evidence | `godot-scenario-report-kit` |
+| Runtime frame or memory samples need budget checks | `godot-runtime-telemetry-lab` |
+| Pack, DLC, mod, or patch manifests need release checks | `godot-pack-mod-doctor` |
+| Several reports need one static review page | `godot-release-dashboard-kit` |
 | GDScript modules or autoloads are becoming tangled | `godot-gdscript-architecture-guard` |
 | Translation imports keep breaking placeholders or keys | `godot-localization-qa-guard` |
 | Save data changes need fixture coverage | `godot-save-schema-guard` |
@@ -268,6 +283,9 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.3` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.8` |
+| [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.0` |
+| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.0` |
+| [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.0` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.2` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.1` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.2` |

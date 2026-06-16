@@ -168,6 +168,48 @@ This helps catch:
 - New failures compared with a baseline run.
 - Duration regressions that make test runs or gameplay flows slower.
 
+## Runtime Telemetry Evidence
+
+Use this after a scenario runner, soak test, or debug exporter writes frame or
+runtime samples:
+
+```powershell
+godot-telemetry-lab summarize reports\runtime --format markdown --output reports\runtime.md
+godot-telemetry-lab compare reports\baseline-runtime reports\current-runtime --format json --output reports\runtime-compare.json
+```
+
+This helps catch:
+
+- Frame p95 values above a selected budget.
+- Runtime regressions compared with a saved baseline.
+- Scenario telemetry that needs a compact release-review artifact.
+
+## Pack, DLC, And Mod Manifests
+
+Use this before publishing a patch, DLC, or mod/content pack manifest:
+
+```powershell
+godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format markdown --output reports\pack.md
+```
+
+This helps catch:
+
+- Missing pack identity fields.
+- Duplicate shipped paths.
+- Unexpected overrides.
+- References to ids that are not present in a supplied base manifest.
+
+## Release Dashboards
+
+Use this after individual checks have written JSON or Markdown reports:
+
+```powershell
+godot-release-dashboard build reports\godot-project-doctor --output reports\dashboard.html
+```
+
+This helps turn scattered release evidence into one static page for CI artifacts
+or local review.
+
 ## Visual Smoke Checks
 
 Use this for UI screens, menus, HUDs, and other stable rendered screens:

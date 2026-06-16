@@ -18,6 +18,9 @@ TOOLS = [
     "godot-visual-smoke-test-kit",
     "godot-mobile-perf-doctor",
     "pixel-space-asset-toolkit",
+    "godot-runtime-telemetry-lab",
+    "godot-pack-mod-doctor",
+    "godot-release-dashboard-kit",
     "godot-project-doctor",
     "godot-ci-doctor-action",
 ]

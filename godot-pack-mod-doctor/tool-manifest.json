@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-pack-mod-doctor",
+  "entrypoint": "godot-pack-mod-doctor",
+  "module": "python -m godot_pack_mod_doctor",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json"],
+    "human_output": ["text", "markdown"]
+  },
+  "run_behavior": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "no findings at selected fail threshold",
+      "1": "findings met selected fail threshold",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Check a pack or mod manifest",
+      "command": "godot-pack-mod-doctor check pack-manifest.json --format markdown"
+    },
+    {
+      "purpose": "Check pack references against base content",
+      "command": "godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format json"
+    }
+  ]
+}

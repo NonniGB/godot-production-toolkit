@@ -23,6 +23,9 @@ Godot Production Toolkit is a collection of narrow production checks for Godot 4
 | Visual smoke diffing | `godot-visual-smoke-test-kit` |
 | Mobile performance diagnostics | `godot-mobile-perf-doctor` |
 | Mobile UI readiness | `godot-mobile-ui-doctor` |
+| Pack, DLC, and mod manifest checks | `godot-pack-mod-doctor` |
+| Release dashboard artifacts | `godot-release-dashboard-kit` |
+| Runtime telemetry evidence | `godot-runtime-telemetry-lab` |
 | Pixel art utility workflows | `pixel-space-asset-toolkit` |
 
 ## Maintenance Checks

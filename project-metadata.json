@@ -17,7 +17,7 @@
     "testing",
     "qa"
   ],
-  "tool_count": 16,
+  "tool_count": 19,
   "tools": [
     {
       "name": "godot-project-doctor",
@@ -95,6 +95,21 @@
       "interfaces": ["cli", "json", "markdown", "text"]
     },
     {
+      "name": "godot-pack-mod-doctor",
+      "role": "Pack, DLC, mod, and patch manifest validation.",
+      "interfaces": ["cli", "json", "markdown", "text"]
+    },
+    {
+      "name": "godot-release-dashboard-kit",
+      "role": "Static dashboard builder for toolkit reports and release evidence folders.",
+      "interfaces": ["cli", "html", "json"]
+    },
+    {
+      "name": "godot-runtime-telemetry-lab",
+      "role": "Runtime telemetry summaries, frame budget checks, and baseline comparisons.",
+      "interfaces": ["cli", "json", "markdown", "text"]
+    },
+    {
       "name": "pixel-space-asset-toolkit",
       "role": "Deterministic pixel sci-fi asset generation and cleanup utilities.",
       "interfaces": ["cli", "json", "png", "html-gallery"]
@@ -163,7 +178,10 @@
     "python -m unittest discover -s godot-mobile-perf-doctor/tests -v"
     ,
     "python -m unittest discover -s godot-mobile-ui-doctor/tests -v",
-    "python -m unittest discover -s godot-scenario-report-kit/tests -v"
+    "python -m unittest discover -s godot-scenario-report-kit/tests -v",
+    "python -m unittest discover -s godot-runtime-telemetry-lab/tests -v",
+    "python -m unittest discover -s godot-pack-mod-doctor/tests -v",
+    "python -m unittest discover -s godot-release-dashboard-kit/tests -v"
   ],
   "current_limitations": [
     "Some specialized tools require project-specific fixtures or visual smoke capture scripts to be fully useful.",
@@ -173,7 +191,7 @@
   "release_priorities": [
     "Maintain one public umbrella repository with all tools and the GitHub Action.",
     "Keep tagged releases tied to passing CI runs.",
-    "Maintain the published packages first: godot-asset-pipeline-doctor, godot-export-preset-doctor, godot-mobile-perf-doctor, godot-content-graph-doctor, godot-scenario-report-kit, and godot-gdscript-architecture-guard.",
+    "Maintain the published packages first: godot-asset-pipeline-doctor, godot-export-preset-doctor, godot-mobile-perf-doctor, godot-content-graph-doctor, godot-scenario-report-kit, godot-gdscript-architecture-guard, godot-runtime-telemetry-lab, godot-pack-mod-doctor, and godot-release-dashboard-kit.",
     "Use concise examples and minimal fixtures when discussing issues or improvements."
   ]
 }

@@ -32,7 +32,7 @@ classifiers = [
 dependencies = []
 
 [tool.godot-production-toolkit]
-tool_count = 16
+tool_count = 19
 umbrella_cli = "godot-project-doctor"
 github_action = "godot-ci-doctor-action"
 repository_description = "CI-friendly production diagnostics for Godot 4 projects."

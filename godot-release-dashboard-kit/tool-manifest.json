@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-release-dashboard-kit",
+  "entrypoint": "godot-release-dashboard",
+  "module": "python -m godot_release_dashboard_kit",
+  "interfaces": {
+    "cli": true,
+    "machine_output": ["json"],
+    "human_output": ["html"]
+  },
+  "run_behavior": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": false,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "dashboard written",
+      "2": "CLI or argument error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Build a static release dashboard",
+      "command": "godot-release-dashboard build reports/godot-project-doctor --output reports/dashboard.html"
+    },
+    {
+      "purpose": "Build a machine-readable dashboard summary",
+      "command": "godot-release-dashboard build reports/godot-project-doctor --format json --output reports/dashboard.json"
+    }
+  ]
+}

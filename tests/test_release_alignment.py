@@ -114,6 +114,24 @@ def _copy_required_files(source: Path, target: Path) -> None:
             "src/godot_mobile_ui_doctor/__init__.py",
             "src/godot_mobile_ui_doctor/cli.py",
         ),
+        "godot-pack-mod-doctor": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_pack_mod_doctor/__init__.py",
+            "src/godot_pack_mod_doctor/cli.py",
+        ),
+        "godot-release-dashboard-kit": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_release_dashboard_kit/__init__.py",
+            "src/godot_release_dashboard_kit/cli.py",
+        ),
+        "godot-runtime-telemetry-lab": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_runtime_telemetry_lab/__init__.py",
+            "src/godot_runtime_telemetry_lab/cli.py",
+        ),
         "godot-save-schema-guard": (
             "pyproject.toml",
             "CHANGELOG.md",

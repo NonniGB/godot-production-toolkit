@@ -19,6 +19,9 @@ are available from PyPI.
 | GDScript modules or autoload access are becoming tangled | `godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml` |
 | Data files reference missing ids, recipes, quests, or levels | `godot-content-graph-doctor` | `godot-content-graph . --preset recipes --format markdown` |
 | Runtime scenario runs need a readable summary or baseline comparison | `godot-scenario-report-kit` | `godot-scenario-report compare baseline current --format markdown` |
+| Runtime telemetry needs budget or baseline comparison | `godot-runtime-telemetry-lab` | `godot-telemetry-lab compare baseline current --format markdown` |
+| Pack, patch, DLC, or mod manifests need release checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
+| Release reports need one static review page | `godot-release-dashboard-kit` | `godot-release-dashboard build reports --output reports/dashboard.html` |
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Pixel-art space assets need deterministic previews or PNG diffs | `pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
 | Several checks need one report | `godot-project-doctor` | `godot-project-doctor summarize reports --format html` |
@@ -36,6 +39,9 @@ are available from PyPI.
 | `godot-localization-qa-guard` | `godot-l10n-guard` | JSON, SARIF, Markdown |
 | `godot-mobile-perf-doctor` | `godot-mobile-perf-doctor` | JSON, SARIF, Markdown |
 | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor` | JSON, Markdown, PNG |
+| `godot-pack-mod-doctor` | `godot-pack-mod-doctor` | JSON, Markdown, text |
+| `godot-release-dashboard-kit` | `godot-release-dashboard` | HTML, JSON |
+| `godot-runtime-telemetry-lab` | `godot-telemetry-lab` | JSON, Markdown, text |
 | `godot-save-schema-guard` | `godot-save-guard` | JSON, Markdown |
 | `godot-scenario-report-kit` | `godot-scenario-report` | JSON, Markdown, HTML |
 | `godot-scene-signal-auditor` | `godot-signal-audit` | JSON, Mermaid |

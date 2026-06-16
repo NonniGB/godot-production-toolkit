@@ -1,0 +1,41 @@
+name: Publish godot-runtime-telemetry-lab
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "godot-runtime-telemetry-lab-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Build and publish godot-runtime-telemetry-lab
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: python -m pip install --upgrade build twine
+
+      - name: Build package
+        run: python -m build godot-runtime-telemetry-lab
+
+      - name: Check package metadata
+        run: python -m twine check godot-runtime-telemetry-lab/dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: godot-runtime-telemetry-lab/dist
