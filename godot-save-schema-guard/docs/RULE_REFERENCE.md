@@ -10,3 +10,8 @@
 - `migration_chain_empty`: a migration chain file did not contain valid steps.
 - `migration_chain_planned`: dry-run output showing the ordered migration steps.
 - `migration_path_missing`: a supported save version has no migration path to the current format.
+- `redaction_applied`: selected scalar values were redacted and a sanitized fixture copy was written.
+- `redaction_non_scalar_target`: a configured redaction path matched an object or array and was left unchanged.
+- `redaction_output_exists`: the sanitized output file already exists and `--overwrite` was not set.
+- `redaction_path_missing`: a configured redaction path was not found in a fixture.
+- `redaction_planned`: dry-run output showing how many values would be redacted.

@@ -17,6 +17,7 @@ Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 python -m pip install godot-save-schema-guard
 godot-save-guard validate saves\fixtures --schema schemas\save.schema.json --format markdown --output reports\save-validation.md
 godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1 --supported 2 --format markdown --output reports\save-migration-graph.md
+godot-save-guard redact saves\fixtures --path player.name --path players.*.email --output-dir reports\sanitized-saves --dry-run --format markdown --output reports\save-redaction-plan.md
 godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir reports\migrated-saves --dry-run --format markdown --output reports\save-migration-plan.md
 ```
 
@@ -38,4 +39,6 @@ godot-save-guard validate reports\migrated-saves --schema schemas\save.schema.js
 
 - Validation reports for existing and migrated saves.
 - A dry-run migration plan before files are written.
+- A redaction plan and optional sanitized fixture copies when fixtures need to be
+  shared outside the project.
 - Migrated save files in the selected output directory when the real migration runs.

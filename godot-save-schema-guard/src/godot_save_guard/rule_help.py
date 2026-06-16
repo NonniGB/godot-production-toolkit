@@ -34,6 +34,26 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "No save fixtures found",
         "explanation": "No JSON save fixtures were available, so the compatibility check had nothing to validate.",
     },
+    "redaction_applied": {
+        "title": "Redaction applied",
+        "explanation": "A sanitized copy was written for review, tests, or public bug reports without changing the original fixture.",
+    },
+    "redaction_non_scalar_target": {
+        "title": "Redaction target is not scalar",
+        "explanation": "The configured redaction path points to an object or array, so the tool left it unchanged to avoid damaging fixture structure.",
+    },
+    "redaction_output_exists": {
+        "title": "Redaction output already exists",
+        "explanation": "The sanitized fixture would replace an existing file. Use overwrite only after reviewing the target directory.",
+    },
+    "redaction_path_missing": {
+        "title": "Redaction path not found",
+        "explanation": "The configured redaction path did not appear in this fixture, which can indicate stale redaction settings or a different save shape.",
+    },
+    "redaction_planned": {
+        "title": "Redaction planned",
+        "explanation": "The command is running in dry-run mode and is reporting the values it would redact without writing sanitized files.",
+    },
     "numeric_type_drift": {
         "title": "Numeric type drift",
         "explanation": "A value that should be numeric was saved as text, which can break typed load code or comparisons.",

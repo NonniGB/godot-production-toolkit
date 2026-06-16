@@ -19,7 +19,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-save-guard 0.1.3", stdout.getvalue())
+        self.assertIn("godot-save-guard 0.1.4", stdout.getvalue())
 
     def test_markdown_report_lists_fixture_findings(self) -> None:
         report = render_markdown_report(
@@ -61,7 +61,7 @@ class ReportingCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.3")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.4")
             self.assertEqual(report["summary"]["errors"], 1)
             self.assertEqual(report["rules"]["numeric_type_drift"]["title"], "Numeric type drift")
             finding = report["fixtures"][0]["findings"][0]
@@ -174,6 +174,68 @@ class ReportingCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             self.assertEqual(findings[0]["rule_id"], "migration_path_missing")
             self.assertIn("version 1", findings[0]["message"])
+
+    def test_cli_redact_writes_sanitized_fixture_and_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            fixture = root / "save.json"
+            output_dir = root / "sanitized"
+            report_path = root / "redaction.json"
+            fixture.write_text(json.dumps({"version": 1, "player_name": "Ada"}), encoding="utf-8")
+
+            exit_code = main(
+                [
+                    "redact",
+                    str(fixture),
+                    "--output-dir",
+                    str(output_dir),
+                    "--path",
+                    "player_name",
+                    "--replacement",
+                    "<private>",
+                    "--format",
+                    "json",
+                    "--output",
+                    str(report_path),
+                ]
+            )
+
+            sanitized = json.loads((output_dir / "save.json").read_text(encoding="utf-8"))
+            original = json.loads(fixture.read_text(encoding="utf-8"))
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(sanitized["player_name"], "<private>")
+            self.assertEqual(original["player_name"], "Ada")
+            self.assertEqual(report["fixtures"][0]["findings"][0]["rule_id"], "redaction_applied")
+
+    def test_cli_redact_dry_run_does_not_write_fixture(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            fixture = root / "save.json"
+            output_dir = root / "sanitized"
+            report_path = root / "redaction.json"
+            fixture.write_text(json.dumps({"version": 1, "player_name": "Ada"}), encoding="utf-8")
+
+            exit_code = main(
+                [
+                    "redact",
+                    str(fixture),
+                    "--output-dir",
+                    str(output_dir),
+                    "--path",
+                    "player_name",
+                    "--dry-run",
+                    "--format",
+                    "json",
+                    "--output",
+                    str(report_path),
+                ]
+            )
+
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            self.assertEqual(exit_code, 0)
+            self.assertFalse(output_dir.exists())
+            self.assertEqual(report["fixtures"][0]["findings"][0]["rule_id"], "redaction_planned")
 
 
 if __name__ == "__main__":

@@ -113,7 +113,9 @@ Use the [save migration workflow](workflows/godot-save-migration-testing.md) and
 validates fixtures against a schema and helps document migration commands before
 a release. Use `godot-save-guard migration-graph` when each supported save
 version needs a verified path to the current format before running project-owned
-migration scripts.
+migration scripts. Use `godot-save-guard redact` to create reviewed sanitized
+copies of selected fixture paths before attaching sample saves to reports or
+issues.
 
 For a broader production pass, add the umbrella
 [`godot-project-doctor`](../godot-project-doctor/README.md) so save evidence can

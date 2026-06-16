@@ -14,6 +14,7 @@ from .migration import (
     run_migration_command,
 )
 from .models import Finding, FixtureResult
+from .redaction import RedactionOptions, redact_fixtures
 from .reporting import render_json_report, render_markdown_report, render_text_report
 
 
@@ -28,6 +29,8 @@ def main(argv: list[str] | None = None) -> int:
         return _migrate_chain(args)
     if args.command == "migration-graph":
         return _migration_graph(args)
+    if args.command == "redact":
+        return _redact(args)
     parser.print_help()
     return 2
 
@@ -41,7 +44,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-save-guard",
         description="Validate Godot save fixtures and migration compatibility.",
     )
-    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.3")
+    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.4")
     subparsers = parser.add_subparsers(dest="command")
 
     validate = subparsers.add_parser("validate", help="Validate JSON save fixtures.")
@@ -75,6 +78,22 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Supported old save version. Repeat for each supported version. Defaults to versions found in the chain.",
     )
     _add_report_args(migration_graph)
+
+    redact = subparsers.add_parser("redact", help="Write sanitized copies of save fixtures.")
+    redact.add_argument("fixtures", help="JSON fixture file or directory.")
+    redact.add_argument("--output-dir", required=True, help="Directory for sanitized fixture copies.")
+    redact.add_argument(
+        "--path",
+        "--field",
+        dest="paths",
+        action="append",
+        required=True,
+        help="Dotted path to redact. Use * for array or object children. Repeat for each path.",
+    )
+    redact.add_argument("--replacement", help="Replacement value. Defaults to type-aware placeholder values.")
+    redact.add_argument("--dry-run", action="store_true", help="Report planned redactions without writing files.")
+    redact.add_argument("--overwrite", action="store_true", help="Replace existing sanitized fixture files.")
+    _add_report_args(redact)
     return parser
 
 
@@ -178,6 +197,29 @@ def _migration_graph(args: argparse.Namespace) -> int:
     steps = load_migration_chain(chain_path)
     findings = analyze_migration_graph(steps, args.current, args.supported)
     results = [FixtureResult(chain_path, findings)]
+    _write_report(args, results)
+    return _exit_code(results, args.fail_on)
+
+
+def _redact(args: argparse.Namespace) -> int:
+    fixtures_path = Path(args.fixtures)
+    results = redact_fixtures(
+        fixtures_path,
+        RedactionOptions(
+            paths=args.paths,
+            output_dir=Path(args.output_dir),
+            replacement=args.replacement,
+            dry_run=args.dry_run,
+            overwrite=args.overwrite,
+        ),
+    )
+    if not results:
+        results = [
+            FixtureResult(
+                fixtures_path,
+                [Finding("no_fixtures", "error", "$", "No JSON save fixtures were found.")],
+            )
+        ]
     _write_report(args, results)
     return _exit_code(results, args.fail_on)
 

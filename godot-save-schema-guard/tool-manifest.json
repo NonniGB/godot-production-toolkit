@@ -9,6 +9,7 @@
     "human_output": ["text", "markdown report"],
     "migration_chain_config": true,
     "migration_graph_check": true,
+    "fixture_redaction": true,
     "report_metadata": true,
     "plain_language_rule_help": true,
     "visual_interface": "none"
@@ -17,7 +18,7 @@
     "noninteractive": true,
     "safe_on_private_projects": true,
     "network_required": false,
-    "writes_only_when_requested": false,
+    "writes_only_when_requested": true,
     "exit_codes": {
       "0": "no findings at selected fail threshold, or --fail-on none",
       "1": "findings met selected fail threshold or migration command failed",
@@ -40,6 +41,10 @@
     {
       "purpose": "Verify supported save versions can reach the current format",
       "command": "godot-save-guard migration-graph --chain migrations.toml --current <version> --supported <old-version> --format markdown"
+    },
+    {
+      "purpose": "Write sanitized save fixture copies for sharing or CI artifacts",
+      "command": "godot-save-guard redact <fixtures> --path player.name --path players.*.email --output-dir sanitized-fixtures --dry-run"
     }
   ]
 }

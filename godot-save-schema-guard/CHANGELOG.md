@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 - 2026-06-17
+
+- Added `redact` to write sanitized copies of selected save fixture paths.
+- Added dry-run, wildcard path matching, overwrite protection, rule help, and tests for fixture redaction.
+
 ## 0.1.3 - 2026-06-16
 
 - Added `migration-graph` to check that supported save versions can reach the current save format through the configured migration chain.

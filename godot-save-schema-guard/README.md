@@ -24,6 +24,7 @@ godot-save-guard validate examples\fixtures --schema examples\schema\save.schema
 godot-save-guard migrate saves\v1 --output-dir migrated\v2 --command "godot --headless --script tools/migrate_save.gd --input {input} --output {output}"
 godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir migrated --dry-run
 godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1 --supported 2 --format markdown
+godot-save-guard redact saves\fixtures --path player.name --path players.*.email --output-dir sanitized\saves --dry-run
 ```
 
 ## What It Checks
@@ -37,7 +38,11 @@ godot-save-guard migration-graph --chain migrations.toml --current 3 --supported
 - Migration command failures.
 - Ordered migration chains from older save versions to the current format.
 - Missing migration paths from supported save versions to the current format.
+- Selected-field redaction for sanitized fixture copies.
 - Report metadata and plain-language rule explanations for compatibility findings.
+
+Redaction is path-based. It only changes paths you list with `--path`, so review
+sanitized fixtures before attaching them to issues, documentation, or reports.
 
 ## Documentation
 

@@ -18,6 +18,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot visual regression test | `python -m pip install godot-visual-smoke-test-kit` | `godot-visual-smoke compare baseline current --diff reports/diff.png --format json` |
 | Godot save schema validation | `python -m pip install godot-save-schema-guard` | `godot-save-guard validate saves/fixtures --schema schemas/save.schema.json` |
 | Godot save migration path check | `python -m pip install godot-save-schema-guard` | `godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1 --supported 2 --format markdown` |
+| Godot save fixture redaction | `python -m pip install godot-save-schema-guard` | `godot-save-guard redact saves/fixtures --path player.name --output-dir sanitized-saves --dry-run` |
 | Godot scene signal audit | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --format json` |
 | Godot scene contract check before refactoring | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |
 | GDScript architecture boundary check | `python -m pip install godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml --format markdown` |
