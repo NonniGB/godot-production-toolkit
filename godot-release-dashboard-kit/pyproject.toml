@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-release-dashboard-kit"
-version = "0.1.9"
-description = "Build static workflow-grouped release dashboards with typed report and scenario retry highlights."
+version = "0.1.10"
+description = "Build static workflow-grouped release dashboards with typed report, scenario retry, and export artifact highlights."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

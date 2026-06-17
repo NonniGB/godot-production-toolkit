@@ -40,7 +40,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot scenario evidence bundle | `python -m pip install godot-scenario-report-kit` | `godot-scenario-report bundle reports/scenarios --telemetry reports/runtime-timeline.json --visual reports/visual.json --evidence log=reports/run.log --format json` |
 | Godot runtime telemetry timeline | `python -m pip install godot-runtime-telemetry-lab` | `godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html` |
 | Godot runtime telemetry adapter | `python -m pip install godot-runtime-telemetry-lab` | `godot-telemetry-lab adapt reports/godot-monitor.csv --format json --output reports/runtime-normalized.json` |
-| Godot workflow-grouped release dashboard with typed highlights, scenario retry cards, and previous-run trends | `python -m pip install godot-release-dashboard-kit` | `godot-release-dashboard build reports/current --previous-reports-dir reports/previous --output reports/dashboard.html` |
+| Godot workflow-grouped release dashboard with typed highlights, scenario retry cards, export artifact cards, and previous-run trends | `python -m pip install godot-release-dashboard-kit` | `godot-release-dashboard build reports/current --previous-reports-dir reports/previous --output reports/dashboard.html` |
 | Pixel-art asset import and texture checks | `python -m pip install godot-asset-pipeline-doctor` | `godot-asset-doctor . --profile pixel-2d --format json` |
 | Pixel space asset previews and image diffs | `python -m pip install pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
 
@@ -83,7 +83,8 @@ is your starting point from a source checkout.
   test runs already produce JSON evidence and you want reviewable summaries.
 - Start with `godot-release-dashboard-kit` when a release or pull request has
   several reports, typed summary highlights, scenario retry evidence, and
-  screenshots that should be reviewed in one static page.
+  export artifact checks or screenshots that should be reviewed in one static
+  page.
 - Start with `godot-scene-signal-auditor --contract` when a refactor should
   preserve specific nodes, signal handlers, or scene-level script signals.
 

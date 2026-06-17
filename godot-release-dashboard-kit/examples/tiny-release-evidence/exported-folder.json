@@ -1,0 +1,52 @@
+{
+  "tool": "godot-export-preset-doctor",
+  "tool_version": "0.1.10",
+  "schema_version": "1.0",
+  "kind": "exported_folder_inspection",
+  "workflow": "Export and packaging",
+  "category": "Export artifact inspection",
+  "command": "godot-export-doctor inspect-folder build/android --hash-files --format json",
+  "summary": {
+    "files": 3,
+    "total_bytes": 4200,
+    "hashed_files": 2,
+    "errors": 0,
+    "warnings": 2
+  },
+  "extensions": {
+    ".pck": 1,
+    ".png": 1,
+    ".keystore": 1
+  },
+  "file_manifest": [
+    {
+      "path": "build/game.pck",
+      "extension": ".pck",
+      "size_bytes": 4096,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "path": "build/icon.png",
+      "extension": ".png",
+      "size_bytes": 100
+    },
+    {
+      "path": "build/release.keystore",
+      "extension": ".keystore",
+      "size_bytes": 4,
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "findings": [
+    {
+      "rule_id": "exported_folder_dev_file",
+      "severity": "warning",
+      "message": "Development-looking file found in exported folder: build/debug.log"
+    },
+    {
+      "rule_id": "exported_folder_private_file",
+      "severity": "warning",
+      "message": "Private or signing-looking file found in exported folder: build/release.keystore"
+    }
+  ]
+}

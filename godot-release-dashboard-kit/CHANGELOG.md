@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.10 - 2026-06-17
+
+- Exported-folder and exported-file-list reports now get a dedicated dashboard
+  section with file counts, byte totals, SHA-256 coverage, extension counts,
+  and a compact file manifest.
+- Dashboard summaries now roll up export artifact reports, files, hashed files,
+  and private/signing or development-file findings.
+- The tiny release evidence fixture now includes a synthetic exported-folder
+  inspection report so generated dashboards show export artifact evidence.
+
 ## 0.1.9 - 2026-06-17
 
 - Scenario flake comparison reports now get their own dashboard section with

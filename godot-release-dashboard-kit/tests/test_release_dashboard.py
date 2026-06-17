@@ -49,7 +49,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.9")
+            self.assertEqual(data["tool_version"], "0.1.10")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["summary"]["workflows"], 1)
@@ -326,6 +326,83 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertIn("trade_flow", html)
             self.assertIn("reports/retry-run", html)
             self.assertIn("Final status", html)
+
+    def test_export_artifact_reports_show_file_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            export_report = reports / "exported-folder.json"
+            export_report.write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-export-preset-doctor",
+                        "kind": "exported_folder_inspection",
+                        "summary": {
+                            "files": 3,
+                            "total_bytes": 4200,
+                            "hashed_files": 2,
+                            "errors": 0,
+                            "warnings": 2,
+                        },
+                        "extensions": {".pck": 1, ".png": 1, ".keystore": 1},
+                        "file_manifest": [
+                            {
+                                "path": "build/game.pck",
+                                "extension": ".pck",
+                                "size_bytes": 4096,
+                                "sha256": "a" * 64,
+                            },
+                            {
+                                "path": "build/icon.png",
+                                "extension": ".png",
+                                "size_bytes": 100,
+                            },
+                            {
+                                "path": "build/release.keystore",
+                                "extension": ".keystore",
+                                "size_bytes": 4,
+                                "sha256": "b" * 64,
+                            },
+                        ],
+                        "findings": [
+                            {
+                                "rule_id": "exported_folder_dev_file",
+                                "severity": "warning",
+                                "message": "Exported folder contains development-looking file 'debug.log'.",
+                            },
+                            {
+                                "rule_id": "exported_folder_private_file",
+                                "severity": "warning",
+                                "message": "Exported folder contains private file 'release.keystore'.",
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            dashboard = build_dashboard(reports)
+            output = root / "dashboard.html"
+            exit_code = main(["build", str(reports), "--output", str(output)])
+
+            html = output.read_text(encoding="utf-8")
+            report = dashboard["reports"][0]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(dashboard["summary"]["export_artifact_reports"], 1)
+            self.assertEqual(dashboard["summary"]["export_artifact_files"], 3)
+            self.assertEqual(dashboard["summary"]["export_artifact_private_findings"], 1)
+            self.assertEqual(dashboard["summary"]["export_artifact_dev_findings"], 1)
+            self.assertEqual(report["export_artifacts"]["files"], 3)
+            self.assertEqual(report["export_artifacts"]["hashed_files"], 2)
+            self.assertEqual(report["export_artifacts"]["extensions"][".pck"], 1)
+            self.assertIn("Export Artifact Evidence", html)
+            self.assertIn("Files inspected: 3", html)
+            self.assertIn("Files with SHA-256: 2", html)
+            self.assertIn("Private/signing findings: 1", html)
+            self.assertIn("Development file findings: 1", html)
+            self.assertIn(".keystore", html)
+            self.assertIn("build/release.keystore", html)
 
     def test_json_reports_surface_reproduction_commands_and_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

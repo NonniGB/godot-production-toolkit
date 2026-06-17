@@ -20,7 +20,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Build a workflow-grouped static release dashboard with typed highlights, report metadata, and previous-run trends",
+      "purpose": "Build a workflow-grouped static release dashboard with typed highlights, export artifact evidence, report metadata, and previous-run trends",
       "command": "godot-release-dashboard build reports/current --previous-reports-dir reports/previous --output reports/dashboard.html"
     },
     {
@@ -28,7 +28,7 @@
       "command": "godot-release-dashboard build reports/godot-project-doctor --format json --output reports/dashboard.json"
     },
     {
-      "purpose": "Build a dashboard with scenario evidence links",
+      "purpose": "Build a dashboard with scenario and export artifact evidence links",
       "command": "godot-release-dashboard build reports/release-evidence --output reports/dashboard.html"
     }
   ]

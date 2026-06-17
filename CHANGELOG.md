@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-release-dashboard-kit` with export artifact evidence cards
+  for exported-folder and exported-file-list reports.
 - Improved `godot-release-dashboard-kit` with scenario flake and retry evidence
   sections for `godot-scenario-report-kit` flake comparison reports.
 - Improved `godot-scenario-report-kit` flake reports with retry grouping for

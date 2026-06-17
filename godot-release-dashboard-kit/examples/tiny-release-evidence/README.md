@@ -5,6 +5,8 @@ This folder is a tiny example input for `godot-release-dashboard-kit`.
 It includes:
 
 - `export.json`: a small JSON report card with release warnings.
+- `exported-folder.json`: a synthetic exported-folder inspection with file
+  counts, extension counts, hashes, and export artifact findings.
 - `mobile-ui.md`: a Markdown note card.
 - `mobile-ui-overlay.svg`: a visual artifact preview.
 - `scenario-bundle.json`: synthetic scenario evidence with reviewer links.

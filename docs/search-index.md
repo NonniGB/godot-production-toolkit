@@ -251,7 +251,10 @@ shows the timeline report and screenshot.
 
 Use [`godot-release-dashboard-kit`](../godot-release-dashboard-kit/README.md) to
 turn JSON, Markdown, screenshots, overlays, diffs, telemetry artifacts, and
-scenario retry summaries into one static HTML dashboard. The
+scenario retry summaries into one static HTML dashboard. Exported-folder and
+exported-file-list JSON from `godot-export-preset-doctor` adds file counts,
+extension counts, hashes, and private/development file findings to the same
+page. The
 [release dashboard CI recipe](ci/release-dashboard-artifact.yml)
 shows how to publish it as a workflow artifact.
 

@@ -25,6 +25,7 @@ WORKFLOW_RULES = (
     ("refactor", "Refactor safety", ("architecture", "scene", "signal", "gdscript")),
 )
 DEFAULT_WORKFLOW = {"id": "general", "label": "General reports"}
+EXPORT_ARTIFACT_KINDS = {"exported_folder_inspection", "exported_file_list_inspection"}
 
 
 def build_dashboard(
@@ -57,6 +58,7 @@ def build_dashboard(
         "ready": sum(1 for report in reports if report["status"] == "ready"),
     }
     scenario_counts = _scenario_summary_counts(reports)
+    export_artifact_counts = _export_artifact_summary_counts(reports)
     workflow_groups = _workflow_groups(reports)
     trends = _trend_summary(reports, baseline_reports)
     summary = {
@@ -71,6 +73,7 @@ def build_dashboard(
         "trend_improvements": trends["summary"]["improvements"],
         **status_counts,
         **scenario_counts,
+        **export_artifact_counts,
     }
     dashboard = {
         "tool": "godot-release-dashboard-kit",
@@ -133,6 +136,11 @@ def render_html(dashboard: dict[str, Any]) -> str:
             f"<div class=\"metric warn\">Retried scenarios: {summary.get('scenario_retried', 0)}</div>",
             f"<div class=\"metric\">Telemetry samples: {summary['scenario_telemetry_samples']}</div>",
             f"<div class=\"metric warn\">Telemetry spikes: {summary['scenario_telemetry_spikes']}</div>",
+            f"<div class=\"metric\">Export artifact reports: {summary.get('export_artifact_reports', 0)}</div>",
+            f"<div class=\"metric\">Export files: {summary.get('export_artifact_files', 0)}</div>",
+            f"<div class=\"metric\">Files with SHA-256: {summary.get('export_artifact_hashed_files', 0)}</div>",
+            f"<div class=\"metric warn\">Private export findings: {summary.get('export_artifact_private_findings', 0)}</div>",
+            f"<div class=\"metric warn\">Development file findings: {summary.get('export_artifact_dev_findings', 0)}</div>",
             "</div>",
             trend_section,
             "<h2>Reports</h2>",
@@ -221,6 +229,8 @@ def _json_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, Any
     if isinstance(data, dict) and data.get("kind") == "flake_compare":
         card.update(_scenario_flake_details(data))
         _apply_scenario_flake_state(card)
+    if isinstance(data, dict) and data.get("kind") in EXPORT_ARTIFACT_KINDS:
+        card.update(_export_artifact_details(data))
     return card
 
 
@@ -372,6 +382,7 @@ def _previous_summary(reports: list[dict[str, Any]]) -> dict[str, int]:
         "warnings": sum(int(report.get("warnings", 0)) for report in reports),
         **status_counts,
         **_scenario_summary_counts(reports),
+        **_export_artifact_summary_counts(reports),
     }
 
 
@@ -508,7 +519,7 @@ def _report_highlights(data: dict[str, Any], summary: object) -> list[dict[str, 
         rows.extend(
             _summary_metric_highlights(
                 summary_dict,
-                ("presets", "platforms", "variants", "files", "total_bytes"),
+                ("presets", "platforms", "variants", "files", "total_bytes", "hashed_files"),
             )
         )
     if "asset" in haystack:
@@ -696,6 +707,89 @@ def _scenario_summary_counts(reports: list[dict[str, Any]]) -> dict[str, int]:
         "scenario_flake_reports": len(flake_reports),
         "scenario_flaky": sum(int(item.get("flaky", 0)) for item in flake_reports),
         "scenario_retried": sum(int(item.get("retried", 0)) for item in flake_reports),
+    }
+
+
+def _export_artifact_details(data: dict[str, Any]) -> dict[str, Any]:
+    summary = data.get("summary", {})
+    summary_dict = summary if isinstance(summary, dict) else {}
+    manifest_rows = _export_artifact_manifest_rows(data.get("file_manifest", []))
+    extension_counts = _export_extension_counts(data.get("extensions", {}))
+    findings = data.get("findings", [])
+    finding_rows = findings if isinstance(findings, list) else []
+    total_bytes = sum(int(row.get("size_bytes", 0)) for row in manifest_rows)
+    hashed_files = sum(1 for row in manifest_rows if row.get("sha256"))
+    return {
+        "export_artifacts": {
+            "kind": str(data.get("kind") or ""),
+            "files": _int_or_default(summary_dict.get("files"), len(manifest_rows)),
+            "total_bytes": _int_or_default(summary_dict.get("total_bytes"), total_bytes),
+            "hashed_files": _int_or_default(summary_dict.get("hashed_files"), hashed_files),
+            "private_findings": _finding_count(finding_rows, ("private", "signing", "keystore", "secret")),
+            "dev_findings": _finding_count(finding_rows, ("dev_file", "development", "debug", "log")),
+            "local_path_findings": _finding_count(finding_rows, ("local_path", "absolute path", "user path")),
+            "extensions": extension_counts,
+            "file_manifest": manifest_rows[:25],
+        }
+    }
+
+
+def _export_artifact_manifest_rows(manifest: object) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    if not isinstance(manifest, list):
+        return rows
+    for item in manifest:
+        if not isinstance(item, dict):
+            continue
+        path = str(item.get("path") or item.get("relative_path") or "").strip()
+        if not path:
+            continue
+        rows.append(
+            {
+                "path": path,
+                "extension": str(item.get("extension") or Path(path).suffix).lower(),
+                "size_bytes": _int_or_default(item.get("size_bytes"), 0),
+                "sha256": str(item.get("sha256") or "").strip(),
+            }
+        )
+    return rows
+
+
+def _export_extension_counts(extensions: object) -> dict[str, int]:
+    if not isinstance(extensions, dict):
+        return {}
+    rows: dict[str, int] = {}
+    for extension, count in extensions.items():
+        key = str(extension or "").strip().lower()
+        if key:
+            rows[key] = _int_or_default(count, 0)
+    return dict(sorted(rows.items()))
+
+
+def _finding_count(findings: list[object], needles: tuple[str, ...]) -> int:
+    count = 0
+    for finding in findings:
+        if not isinstance(finding, dict):
+            continue
+        text = f"{finding.get('rule_id', '')} {finding.get('message', '')}".lower()
+        if any(needle in text for needle in needles):
+            count += 1
+    return count
+
+
+def _export_artifact_summary_counts(reports: list[dict[str, Any]]) -> dict[str, int]:
+    artifacts = [
+        report["export_artifacts"]
+        for report in reports
+        if isinstance(report.get("export_artifacts"), dict)
+    ]
+    return {
+        "export_artifact_reports": len(artifacts),
+        "export_artifact_files": sum(int(item.get("files", 0)) for item in artifacts),
+        "export_artifact_hashed_files": sum(int(item.get("hashed_files", 0)) for item in artifacts),
+        "export_artifact_private_findings": sum(int(item.get("private_findings", 0)) for item in artifacts),
+        "export_artifact_dev_findings": sum(int(item.get("dev_findings", 0)) for item in artifacts),
+        "export_artifact_local_path_findings": sum(int(item.get("local_path_findings", 0)) for item in artifacts),
     }
 
 
@@ -982,6 +1076,7 @@ def _card(report: dict[str, Any]) -> str:
     commands = _commands_html(report.get("commands"))
     scenario_bundle = _scenario_bundle_html(report.get("scenario_bundle"))
     scenario_flakes = _scenario_flake_html(report.get("scenario_flakes"))
+    export_artifacts = _export_artifact_html(report.get("export_artifacts"))
     workflow = str(report.get("workflow_label") or DEFAULT_WORKFLOW["label"])
     category = str(report.get("category") or "").strip()
     category_html = f" <span class=\"tag\">{escape(category)}</span>" if category else ""
@@ -992,7 +1087,7 @@ def _card(report: dict[str, Any]) -> str:
         f"<p><a href=\"{escape(source_href)}\"><code>{escape(source_href)}</code></a></p>"
         f"<p class=\"{level}\">Errors: {report['errors']} | Warnings: {report['warnings']}</p>"
         f"<p>{escape(str(report.get('summary', '')))}</p>"
-        f"{highlights}{metadata}{commands}{scenario_bundle}{scenario_flakes}</section>"
+        f"{highlights}{metadata}{commands}{scenario_bundle}{scenario_flakes}{export_artifacts}</section>"
     )
 
 
@@ -1144,6 +1239,55 @@ def _scenario_flake_html(details: object) -> str:
                     f"<td>{escape(str(item.get('final_status', '')))}</td>"
                     "</tr>"
                 )
+        parts.append("</tbody></table>")
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def _export_artifact_html(details: object) -> str:
+    if not isinstance(details, dict):
+        return ""
+    extensions = details.get("extensions", {})
+    manifest = details.get("file_manifest", [])
+    parts = [
+        "<div class=\"bundle-details\">",
+        "<h3>Export Artifact Evidence</h3>",
+        "<p>"
+        f"Files inspected: {int(details.get('files', 0))} | "
+        f"Total bytes: {int(details.get('total_bytes', 0))} | "
+        f"Files with SHA-256: {int(details.get('hashed_files', 0))}"
+        "</p>",
+        "<p>"
+        f"Private/signing findings: {int(details.get('private_findings', 0))} | "
+        f"Development file findings: {int(details.get('dev_findings', 0))} | "
+        f"Local path findings: {int(details.get('local_path_findings', 0))}"
+        "</p>",
+    ]
+    if isinstance(extensions, dict) and extensions:
+        parts.append("<table><thead><tr><th>Extension</th><th>Files</th></tr></thead><tbody>")
+        for extension, count in extensions.items():
+            parts.append(
+                "<tr>"
+                f"<td><code>{escape(str(extension))}</code></td>"
+                f"<td>{int(count)}</td>"
+                "</tr>"
+            )
+        parts.append("</tbody></table>")
+    if isinstance(manifest, list) and manifest:
+        parts.append("<table><thead><tr><th>Path</th><th>Extension</th><th>Size</th><th>SHA-256</th></tr></thead><tbody>")
+        for item in manifest:
+            if not isinstance(item, dict):
+                continue
+            sha = str(item.get("sha256") or "")
+            sha_label = sha[:12] if sha else "not recorded"
+            parts.append(
+                "<tr>"
+                f"<td><code>{escape(str(item.get('path', '')))}</code></td>"
+                f"<td><code>{escape(str(item.get('extension', '')))}</code></td>"
+                f"<td>{int(item.get('size_bytes', 0))}</td>"
+                f"<td><code>{escape(sha_label)}</code></td>"
+                "</tr>"
+            )
         parts.append("</tbody></table>")
     parts.append("</div>")
     return "".join(parts)

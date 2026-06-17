@@ -9,7 +9,8 @@ Report cards are grouped into practical workflows and keep their release
 readiness state visible, so export, runtime evidence, mobile UI, content, and
 other checks stay easier to scan in one page. Common toolkit reports also show
 typed highlights such as frame p95, pack order, export preset counts, scenario
-retry counts, and risk scores without making readers open every JSON file first.
+retry counts, exported file counts, and risk scores without making readers open
+every JSON file first.
 
 ## Install
 
@@ -64,7 +65,14 @@ artifacts such as mobile UI overlays, screenshot diffs, pixel previews, and
 visual smoke captures are embedded into the self-contained HTML output.
 For common toolkit report shapes, dashboard cards include a small Highlights
 section with typed values such as runtime sample counts, frame p95/max, pack
-counts, pack load order, export preset counts, asset counts, and risk levels.
+counts, pack load order, export preset counts, export file totals, asset counts,
+and risk levels.
+
+Exported-folder and exported-file-list JSON from `godot-export-preset-doctor`
+is shown as export artifact evidence. The dashboard rolls up file counts, byte
+totals, SHA-256 coverage, extension counts, private/signing findings,
+development-file findings, and a compact file manifest so exported build
+contents are easier to review next to the preset and runtime checks.
 
 Scenario bundle JSON from `godot-scenario-report-kit` is shown as a release
 evidence card with scenario pass/fail counts plus the nearby files a reviewer
@@ -88,12 +96,14 @@ and error/warning deltas. The `--baseline` flag is accepted as a shorter alias.
 
 - `html`: self-contained static dashboard with release readiness metrics, source
   report links, workflow-grouped report cards, scenario evidence sections, and
-  image previews.
+  export artifact evidence sections, and image previews.
 - `json`: summary for scripts or later dashboard tooling, including counts for
   `blocked`, `attention`, `ready`, workflow groups, scenario bundles, scenarios,
-  linked scenario evidence, flaky scenarios, and retried scenarios. Reports that include reproduction commands are
-  counted in `summary.reports_with_commands`, and report cards can include
-  `highlights` rows for typed summary values. Scenario-linked telemetry
-  summaries are rolled up as sample, spike, warning, and error counts. When a
-  previous folder is supplied, JSON output also includes `previous_summary`,
-  `trends`, and trend-related summary counts.
+  linked scenario evidence, flaky scenarios, retried scenarios, export artifact
+  reports, inspected export files, hashed files, and export artifact finding
+  groups. Reports that include reproduction commands are counted in
+  `summary.reports_with_commands`, and report cards can include `highlights`
+  rows for typed summary values. Scenario-linked telemetry summaries are rolled
+  up as sample, spike, warning, and error counts. When a previous folder is
+  supplied, JSON output also includes `previous_summary`, `trends`, and
+  trend-related summary counts.
