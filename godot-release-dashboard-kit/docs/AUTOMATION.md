@@ -18,6 +18,10 @@ does not start Godot, run scenarios, copy logs, or rewrite evidence files.
 Scenario bundle telemetry summaries are shown as compact frame, sample, and
 spike metrics. If a JSON report records a reproduction command, the dashboard
 shows that command as supplied by the report; it does not execute it.
+Workflow and category labels are read from report metadata and used only to
+organize the dashboard. Review generated dashboards before sharing them because
+source reports may contain local paths, branch names, machine names, or command
+arguments.
 
 Build a JSON summary for downstream scripts:
 

@@ -244,6 +244,8 @@ input when scenario results should point to the logs, JUnit XML, screenshots, or
 telemetry files that explain a run. Runtime telemetry JSON or Markdown can be
 summarized into compact frame, memory, sample, and spike metrics inside the
 bundle.
+Optional `workflow` and `category` labels help reviewers scan related checks
+together in the generated dashboard.
 
 The [report gallery](report-gallery/README.md) includes a dashboard demo, sample
 HTML, screenshot, fixture, and regeneration command.

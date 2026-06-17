@@ -49,9 +49,11 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.5")
+            self.assertEqual(data["tool_version"], "0.1.6")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
+            self.assertEqual(data["summary"]["workflows"], 1)
+            self.assertEqual(data["reports"][0]["workflow_id"], "general")
             self.assertEqual(data["images"][0]["mime"], "image/svg+xml")
             self.assertTrue(data["images"][0]["data_uri"].startswith("data:image/svg+xml;base64,"))
 
@@ -83,6 +85,9 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertEqual(dashboard["summary"]["attention"], 1)
             self.assertEqual(dashboard["summary"]["ready"], 1)
             self.assertIn("Release Readiness", html)
+            self.assertIn("Export and packaging", html)
+            self.assertIn("General reports", html)
+            self.assertIn("Workflows: 3", html)
             self.assertIn("Blocked: 1", html)
             self.assertIn("Needs attention: 1", html)
             self.assertIn("Ready: 1", html)
@@ -90,6 +95,77 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertIn('href="reports/perf.json"', html)
             self.assertIn('href="reports/notes.md"', html)
             self.assertNotIn(str(root), html)
+
+    def test_groups_reports_by_workflow(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            (reports / "export.json").write_text(
+                json.dumps({"tool": "godot-export-preset-doctor", "kind": "export_matrix", "summary": {}}),
+                encoding="utf-8",
+            )
+            (reports / "scenario.json").write_text(
+                json.dumps({"tool": "godot-scenario-report-kit", "kind": "scenario_bundle", "summary": {"scenarios": 1}}),
+                encoding="utf-8",
+            )
+            (reports / "architecture.json").write_text(
+                json.dumps({"tool": "godot-gdscript-architecture-guard", "kind": "architecture", "summary": {}}),
+                encoding="utf-8",
+            )
+
+            dashboard = build_dashboard(reports)
+            workflows = {item["id"]: item for item in dashboard["workflows"]}
+
+            self.assertEqual(dashboard["summary"]["workflows"], 3)
+            self.assertEqual(workflows["export"]["label"], "Export and packaging")
+            self.assertEqual(workflows["runtime"]["label"], "Runtime evidence")
+            self.assertEqual(workflows["refactor"]["label"], "Refactor safety")
+            by_tool = {report["tool"]: report for report in dashboard["reports"]}
+            self.assertEqual(by_tool["godot-export-preset-doctor"]["workflow_label"], "Export and packaging")
+            self.assertEqual(by_tool["godot-scenario-report-kit"]["workflow_label"], "Runtime evidence")
+
+    def test_respects_report_workflow_and_category_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            (reports / "export.json").write_text(
+                json.dumps(
+                    {
+                        "tool": "custom-export-check",
+                        "workflow": "Release checklist",
+                        "category": "Android export",
+                        "summary": {"warnings": 1},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (reports / "runtime.json").write_text(
+                json.dumps(
+                    {
+                        "tool": "custom-runner",
+                        "metadata": {"workflow": "Runtime evidence", "category": "JUnit"},
+                        "summary": {},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            output = root / "dashboard.html"
+
+            dashboard = build_dashboard(reports)
+            exit_code = main(["build", str(reports), "--output", str(output)])
+
+            workflows = {item["id"]: item for item in dashboard["workflows"]}
+            html = output.read_text(encoding="utf-8")
+            self.assertEqual(exit_code, 0)
+            self.assertIn("release-checklist", workflows)
+            self.assertIn("runtime-evidence", workflows)
+            self.assertEqual(dashboard["reports"][0]["category"], "Android export")
+            self.assertIn("Release checklist", html)
+            self.assertIn("Android export", html)
+            self.assertIn("Runtime evidence", html)
+            self.assertIn("JUnit", html)
 
     def test_scenario_bundle_reports_reviewer_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

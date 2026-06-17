@@ -3,6 +3,8 @@
   "tool_version": "0.1.2",
   "schema_version": "1.0",
   "kind": "runtime_telemetry_timeline",
+  "workflow": "Runtime evidence",
+  "category": "Telemetry",
   "commands": [
     {
       "label": "Regenerate timeline",

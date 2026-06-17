@@ -5,6 +5,7 @@ from html import escape
 import json
 import os
 from pathlib import Path
+import re
 from typing import Any
 
 from . import __version__
@@ -12,6 +13,18 @@ from . import __version__
 
 REPORT_EXTENSIONS = {".json", ".md"}
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".webp"}
+WORKFLOW_RULES = (
+    ("project", "Project overview", ("godot-project-doctor", "project-doctor")),
+    ("export", "Export and packaging", ("export", "preset")),
+    ("assets", "Assets and imports", ("asset", "sprite", "pixel")),
+    ("input", "Input", ("input",)),
+    ("mobile", "Mobile and touch UI", ("mobile", "touch", "safe-area", "localization", "locale")),
+    ("content", "Data and content", ("content-graph", "content_graph", "pack", "mod")),
+    ("save", "Save compatibility", ("save", "schema", "migration")),
+    ("runtime", "Runtime evidence", ("scenario", "telemetry", "visual-smoke", "visual_smoke", "perf")),
+    ("refactor", "Refactor safety", ("architecture", "scene", "signal", "gdscript")),
+)
+DEFAULT_WORKFLOW = {"id": "general", "label": "General reports"}
 
 
 def build_dashboard(
@@ -32,12 +45,14 @@ def build_dashboard(
         "ready": sum(1 for report in reports if report["status"] == "ready"),
     }
     scenario_counts = _scenario_summary_counts(reports)
+    workflow_groups = _workflow_groups(reports)
     summary = {
         "reports": len(reports),
         "images": len(images),
         "errors": sum(int(report.get("errors", 0)) for report in reports),
         "warnings": sum(int(report.get("warnings", 0)) for report in reports),
         "reports_with_commands": sum(1 for report in reports if report.get("commands")),
+        "workflows": len(workflow_groups),
         **status_counts,
         **scenario_counts,
     }
@@ -48,13 +63,14 @@ def build_dashboard(
         "kind": "release_dashboard",
         "title": title,
         "summary": summary,
+        "workflows": workflow_groups,
         "reports": reports,
         "images": images,
     }
 
 
 def render_html(dashboard: dict[str, Any]) -> str:
-    cards = "\n".join(_card(report) for report in dashboard["reports"])
+    report_sections = _workflow_sections(dashboard.get("workflows", []))
     image_cards = "\n".join(_image(image) for image in dashboard.get("images", []))
     summary = dashboard["summary"]
     return "\n".join(
@@ -63,7 +79,7 @@ def render_html(dashboard: dict[str, Any]) -> str:
             "<html lang=\"en\"><head><meta charset=\"utf-8\">",
             f"<title>{escape(str(dashboard['title']))}</title>",
             "<link rel=\"icon\" href=\"data:,\">",
-            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.ok,.ready{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked{color:#b42318}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}</style>",
+            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.workflow{margin-top:1.5rem}.workflow-summary{color:#4b5563}.ok,.ready{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked{color:#b42318}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}.tag{display:inline-block;background:#eef2f7;border-radius:999px;padding:.15rem .45rem;font-size:.85rem}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}</style>",
             "</head><body>",
             f"<h1>{escape(str(dashboard['title']))}</h1>",
             "<h2>Release Readiness</h2>",
@@ -72,6 +88,7 @@ def render_html(dashboard: dict[str, Any]) -> str:
             f"<div class=\"metric attention\">Needs attention: {summary['attention']}</div>",
             f"<div class=\"metric ready\">Ready: {summary['ready']}</div>",
             f"<div class=\"metric\">Reports: {summary['reports']}</div>",
+            f"<div class=\"metric\">Workflows: {summary.get('workflows', 0)}</div>",
             f"<div class=\"metric\">Images: {summary['images']}</div>",
             f"<div class=\"metric err\">Errors: {summary['errors']}</div>",
             f"<div class=\"metric warn\">Warnings: {summary['warnings']}</div>",
@@ -82,9 +99,7 @@ def render_html(dashboard: dict[str, Any]) -> str:
             f"<div class=\"metric warn\">Telemetry spikes: {summary['scenario_telemetry_spikes']}</div>",
             "</div>",
             "<h2>Reports</h2>",
-            "<div class=\"grid\">",
-            cards or "<p>No JSON or Markdown reports found.</p>",
-            "</div>",
+            report_sections or "<p>No JSON or Markdown reports found.</p>",
             "<h2>Visual Artifacts</h2>",
             "<div class=\"gallery\">",
             image_cards or "<p>No PNG, JPG, SVG, or WebP artifacts found.</p>",
@@ -110,6 +125,7 @@ def _report_card(path: Path, link_base: Path) -> dict[str, Any]:
         "warnings": text.lower().count("warning"),
         "status": _release_state(text.lower().count("error"), text.lower().count("warning")),
         "summary": text.splitlines()[0] if text.splitlines() else path.name,
+        **_workflow_for(path.stem, "markdown", path.as_posix()),
     }
 
 
@@ -126,10 +142,12 @@ def _json_card(path: Path, link_base: Path) -> dict[str, Any]:
             "warnings": 0,
             "status": "blocked",
             "summary": f"Unreadable JSON: {exc}",
+            **_workflow_for(path.stem, "json", path.as_posix()),
         }
     summary = data.get("summary", {}) if isinstance(data, dict) else {}
     errors = int(summary.get("errors", summary.get("error_count", 0))) if isinstance(summary, dict) else 0
     warnings = int(summary.get("warnings", summary.get("warning_count", 0))) if isinstance(summary, dict) else 0
+    workflow, category = _explicit_grouping(data, summary) if isinstance(data, dict) else (None, None)
     card = {
         "path": path.as_posix(),
         "source_href": _source_href(path, link_base),
@@ -139,6 +157,13 @@ def _json_card(path: Path, link_base: Path) -> dict[str, Any]:
         "warnings": warnings,
         "status": _release_state(errors, warnings),
         "summary": _summary_text(summary),
+        **_workflow_for(
+            str(data.get("tool") or data.get("name") or path.stem) if isinstance(data, dict) else path.stem,
+            str(data.get("kind", "json")) if isinstance(data, dict) else "json",
+            path.as_posix(),
+            workflow,
+            category,
+        ),
     }
     if isinstance(data, dict):
         metadata = _report_metadata(data, summary)
@@ -184,6 +209,78 @@ def _summary_text(summary: object) -> str:
         return ""
     parts = [f"{key}: {value}" for key, value in sorted(summary.items()) if isinstance(value, (str, int, float))]
     return ", ".join(parts[:5])
+
+
+def _workflow_for(
+    tool: str,
+    kind: str,
+    path: str,
+    workflow: object = None,
+    category: object = None,
+) -> dict[str, str]:
+    explicit_workflow = str(workflow or "").strip()
+    explicit_category = str(category or "").strip()
+    if explicit_workflow:
+        row = {"workflow_id": _slug(explicit_workflow), "workflow_label": explicit_workflow}
+        if explicit_category:
+            row["category"] = explicit_category
+        return row
+    haystack = f"{tool} {kind} {path}".lower()
+    for workflow_id, label, needles in WORKFLOW_RULES:
+        if any(needle in haystack for needle in needles):
+            row = {"workflow_id": workflow_id, "workflow_label": label}
+            if explicit_category:
+                row["category"] = explicit_category
+            return row
+    row = {"workflow_id": DEFAULT_WORKFLOW["id"], "workflow_label": DEFAULT_WORKFLOW["label"]}
+    if explicit_category:
+        row["category"] = explicit_category
+    return row
+
+
+def _explicit_grouping(data: dict[str, Any], summary: object) -> tuple[object, object]:
+    metadata = data.get("metadata", {})
+    metadata_dict = metadata if isinstance(metadata, dict) else {}
+    summary_dict = summary if isinstance(summary, dict) else {}
+    return (
+        data.get("workflow", metadata_dict.get("workflow", summary_dict.get("workflow"))),
+        data.get("category", metadata_dict.get("category", summary_dict.get("category"))),
+    )
+
+
+def _slug(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return slug or DEFAULT_WORKFLOW["id"]
+
+
+def _workflow_groups(reports: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[str, dict[str, Any]] = {}
+    order = [rule[0] for rule in WORKFLOW_RULES] + [DEFAULT_WORKFLOW["id"]]
+    for report in reports:
+        workflow_id = str(report.get("workflow_id") or DEFAULT_WORKFLOW["id"])
+        group = grouped.setdefault(
+            workflow_id,
+            {
+                "id": workflow_id,
+                "label": str(report.get("workflow_label") or DEFAULT_WORKFLOW["label"]),
+                "reports": [],
+                "blocked": 0,
+                "attention": 0,
+                "ready": 0,
+                "errors": 0,
+                "warnings": 0,
+            },
+        )
+        group["reports"].append(report)
+        status = str(report.get("status") or "ready")
+        if status in {"blocked", "attention", "ready"}:
+            group[status] += 1
+        group["errors"] += int(report.get("errors", 0))
+        group["warnings"] += int(report.get("warnings", 0))
+    return sorted(
+        grouped.values(),
+        key=lambda group: (order.index(str(group["id"])) if str(group["id"]) in order else len(order), str(group["label"])),
+    )
 
 
 def _report_metadata(data: dict[str, Any], summary: object) -> dict[str, str]:
@@ -408,15 +505,45 @@ def _source_href(path: Path, link_base: Path) -> str:
     return Path(relative).as_posix()
 
 
+def _workflow_sections(workflows: object) -> str:
+    if not isinstance(workflows, list) or not workflows:
+        return ""
+    sections: list[str] = []
+    for workflow in workflows:
+        if not isinstance(workflow, dict):
+            continue
+        reports = workflow.get("reports", [])
+        if not isinstance(reports, list) or not reports:
+            continue
+        cards = "\n".join(_card(report) for report in reports if isinstance(report, dict))
+        sections.append(
+            "<section class=\"workflow\">"
+            f"<h3>{escape(str(workflow.get('label') or 'Reports'))}</h3>"
+            "<p class=\"workflow-summary\">"
+            f"{len(reports)} report(s), "
+            f"{int(workflow.get('blocked', 0))} blocked, "
+            f"{int(workflow.get('attention', 0))} attention, "
+            f"{int(workflow.get('ready', 0))} ready"
+            "</p>"
+            f"<div class=\"grid\">{cards}</div>"
+            "</section>"
+        )
+    return "\n".join(sections)
+
+
 def _card(report: dict[str, Any]) -> str:
     level = "err" if int(report["errors"]) else "warn" if int(report["warnings"]) else "ok"
     source_href = str(report["source_href"])
     metadata = _metadata_html(report.get("metadata"))
     commands = _commands_html(report.get("commands"))
     scenario_bundle = _scenario_bundle_html(report.get("scenario_bundle"))
+    workflow = str(report.get("workflow_label") or DEFAULT_WORKFLOW["label"])
+    category = str(report.get("category") or "").strip()
+    category_html = f" <span class=\"tag\">{escape(category)}</span>" if category else ""
     return (
         f"<section class=\"card\"><h2>{escape(str(report['tool']))}</h2>"
         f"<p class=\"status {escape(str(report['status']))}\">{escape(str(report['status']))}</p>"
+        f"<p><span class=\"tag\">{escape(workflow)}</span>{category_html}</p>"
         f"<p><a href=\"{escape(source_href)}\"><code>{escape(source_href)}</code></a></p>"
         f"<p class=\"{level}\">Errors: {report['errors']} | Warnings: {report['warnings']}</p>"
         f"<p>{escape(str(report.get('summary', '')))}</p>{metadata}{commands}{scenario_bundle}</section>"

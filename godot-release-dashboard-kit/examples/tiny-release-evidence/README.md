@@ -14,6 +14,8 @@ It includes:
 Some JSON reports include optional command and metadata fields so the dashboard
 can show the command that produced a report, tool versions, schema versions, and
 compact risk summaries when that information is available.
+The JSON examples also include synthetic `workflow` and `category` labels so the
+generated dashboard shows grouped release evidence.
 
 ```powershell
 godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --output reports\release-dashboard.html

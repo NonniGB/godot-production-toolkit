@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.6 - 2026-06-17
+
+- Dashboard JSON now includes workflow groups and per-report workflow labels.
+- HTML dashboards now render report cards in workflow sections while keeping
+  each card's blocked, attention, or ready state visible.
+- Reports can provide `workflow` and `category` at the top level, in
+  `metadata`, or in `summary`; otherwise the dashboard uses a conservative
+  fallback from the tool name, report kind, and path.
+
 ## 0.1.5 - 2026-06-17
 
 - Dashboard cards now surface optional report metadata such as tool version,

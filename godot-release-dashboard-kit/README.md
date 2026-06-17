@@ -5,9 +5,9 @@ Markdown, and image artifacts produced by Godot Production Toolkit commands.
 
 It is intentionally simple: point it at a reports folder and it writes a
 self-contained HTML file suitable for a CI artifact or release checklist.
-Report cards are grouped into release readiness states so a project can quickly
-spot blocked checks, warnings that need attention, and ready checks before a
-release build goes out.
+Report cards are grouped into practical workflows and keep their release
+readiness state visible, so export, runtime evidence, mobile UI, content, and
+other checks stay easier to scan in one page.
 
 ## Install
 
@@ -46,10 +46,13 @@ The dashboard scans a folder recursively for `.json`, `.md`, `.png`, `.jpg`,
 `.jpeg`, `.svg`, and `.webp` files. Toolkit JSON reports are summarized through
 their `tool`, `kind`, and `summary` fields when available. If a JSON report
 includes `command`, `commands`, `tool_version`, `schema_version`,
-`generated_at`, `profile`, or `risk`, the dashboard shows those fields as report
-metadata and reproduction commands. Image artifacts such as mobile UI overlays,
-screenshot diffs, pixel previews, and visual smoke captures are embedded into
-the self-contained HTML output.
+`generated_at`, `profile`, `risk`, `workflow`, or `category`, the dashboard
+shows those fields as report metadata, reproduction commands, and grouping
+labels. `workflow` and `category` can appear at the report top level, inside
+`metadata`, or inside `summary`. When they are absent, the dashboard uses a
+conservative fallback based on the tool name, report kind, and file path. Image
+artifacts such as mobile UI overlays, screenshot diffs, pixel previews, and
+visual smoke captures are embedded into the self-contained HTML output.
 
 Scenario bundle JSON from `godot-scenario-report-kit` is shown as a release
 evidence card with scenario pass/fail counts plus the nearby files a reviewer
@@ -62,9 +65,10 @@ frame p95, frame max, memory max, and budget spike counts.
 ## Outputs
 
 - `html`: self-contained static dashboard with release readiness metrics, source
-  report links, report cards, scenario evidence sections, and image previews.
+  report links, workflow-grouped report cards, scenario evidence sections, and
+  image previews.
 - `json`: summary for scripts or later dashboard tooling, including counts for
-  `blocked`, `attention`, `ready`, scenario bundles, scenarios, and linked
-  scenario evidence. Reports that include reproduction commands are counted in
-  `summary.reports_with_commands`. Scenario-linked telemetry summaries are
-  rolled up as sample, spike, warning, and error counts.
+  `blocked`, `attention`, `ready`, workflow groups, scenario bundles, scenarios,
+  and linked scenario evidence. Reports that include reproduction commands are
+  counted in `summary.reports_with_commands`. Scenario-linked telemetry
+  summaries are rolled up as sample, spike, warning, and error counts.

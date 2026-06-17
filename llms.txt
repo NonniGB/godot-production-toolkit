@@ -33,6 +33,7 @@ validation, and GDScript architecture checks.
 - Generate save fixtures, validate save schemas, and check migration chains: use `godot-save-schema-guard`.
 - Summarize scenario evidence, JUnit XML, manifests, coverage, flaky runs, and bundle reviewer links: use `godot-scenario-report-kit`.
 - Review frame/runtime telemetry, budget spikes, and timelines: use `godot-runtime-telemetry-lab`.
+- Build one workflow-grouped static review page from reports and visual artifacts: use `godot-release-dashboard-kit`.
 
 ## Command Examples
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-release-dashboard-kit` with workflow-grouped report sections
+  and optional `workflow`/`category` metadata on source reports.
 - Improved `godot-scenario-report-kit` with direct JUnit XML ingestion for
   scenario summaries, comparisons, manifest checks, flake checks, and bundles.
 - Improved `godot-gdscript-architecture-guard` with high fan-in/fan-out summaries, possible unused script summaries, and stale module path warnings.

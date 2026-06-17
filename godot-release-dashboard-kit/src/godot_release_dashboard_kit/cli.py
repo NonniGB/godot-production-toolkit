@@ -6,7 +6,7 @@ import sys
 
 from .dashboard import build_dashboard, render_html, render_json
 
-VERSION_LABEL = "godot-release-dashboard 0.1.5"
+VERSION_LABEL = "godot-release-dashboard 0.1.6"
 
 
 def main(argv: list[str] | None = None) -> int:

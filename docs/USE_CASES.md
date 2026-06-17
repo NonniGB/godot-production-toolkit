@@ -253,6 +253,8 @@ or local review. The dashboard can include JSON summaries, Markdown notes, and
 visual artifacts such as screenshot diffs, mobile UI overlays, and pixel-art
 previews. Scenario bundle JSON can also show the logs, JUnit files, telemetry,
 profiler captures, or screenshots that explain a run.
+Reports can provide `workflow` and `category` metadata so related cards are
+grouped together in the generated HTML dashboard.
 
 ## Visual Smoke Checks
 

@@ -87,7 +87,7 @@ Several packages are useful even when they never open a Godot project directly:
 - `godot-visual-smoke-test-kit` compares screenshots and manages visual baselines.
 - `godot-mobile-ui-doctor` checks exported UI rectangle metadata.
 - `godot-release-dashboard-kit` turns existing reports and screenshots into a
-  static review page.
+  workflow-grouped static review page.
 
 That makes the toolkit easy to add after the fact. A build can produce evidence
 however it already does today; the toolkit can then inspect that evidence and
@@ -113,7 +113,7 @@ the package command requires the Godot executable in order to run.
 | `godot-mobile-perf-doctor` | No | Statically reads project settings, import files, and mobile-relevant configuration. |
 | `godot-mobile-ui-doctor` | No | Reads exported UI metadata such as `mobile-ui.json`. Your project may use Godot to produce that file, but the doctor reads the artifact. |
 | `godot-pack-mod-doctor` | No | Reads pack, DLC, mod, or patch manifests. |
-| `godot-release-dashboard-kit` | No | Builds static HTML dashboards from existing toolkit reports and visual artifacts. |
+| `godot-release-dashboard-kit` | No | Builds workflow-grouped static HTML dashboards from existing toolkit reports and visual artifacts. |
 | `godot-runtime-telemetry-lab` | No | Reads telemetry files emitted by your own runtime or scenario runs. |
 | `godot-save-schema-guard` | No | Reads save fixtures, schemas, and migration command metadata; writes generated or migrated fixtures only when requested. |
 | `godot-scenario-report-kit` | No | Reads scenario manifests, JSON results, JUnit XML, and result artifacts from your own test runner. |
