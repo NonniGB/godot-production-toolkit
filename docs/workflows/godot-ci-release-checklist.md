@@ -22,7 +22,8 @@ python -m pip install godot-asset-pipeline-doctor godot-export-preset-doctor god
 python -m pip install -e .\godot-project-doctor
 godot-project-doctor doctor . --profile release
 godot-project-doctor run --project . --checks assets,export,input,mobile_perf --reports-dir reports\godot-project-doctor --format json --output reports\godot-project-doctor\summary.json
-godot-scenario-report bundle reports\scenarios --telemetry reports\runtime-timeline.html --visual reports\visual-smoke.json --format json --output reports\scenario-bundle.json
+godot-scenario-report summarize reports\junit.xml --format markdown --output reports\scenario-junit-summary.md
+godot-scenario-report bundle reports\scenarios --telemetry reports\runtime-timeline.html --visual reports\visual-smoke.json --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
 godot-project-doctor summarize reports\godot-project-doctor --format html --output reports\godot-project-doctor\index.html
 ```
 
@@ -42,6 +43,7 @@ godot-project-doctor run --project . --checks assets,export,input,mobile_perf --
 - A Godot project root containing `project.godot`.
 - `export_presets.cfg` when export checks are included.
 - Imported assets with their `*.import` files.
+- Optional JUnit XML from a scenario, smoke, GUT, GdUnit4, or custom test run.
 - Optional `godot-project-doctor.toml` for project-specific paths and checks.
 
 ## Expected outputs

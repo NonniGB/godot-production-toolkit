@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-scenario-report-kit"
-version = "0.1.5"
-description = "Validate, summarize, compare, and publish Godot scenario, smoke test, and regression run evidence."
+version = "0.1.6"
+description = "Validate, summarize, compare, and publish Godot scenario evidence from JSON and JUnit XML."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Godot Scenario Report Kit contributors" }]
-keywords = ["godot", "testing", "scenario", "qa", "regression", "gamedev", "ci"]
+keywords = ["godot", "testing", "scenario", "junit", "qa", "regression", "gamedev", "ci"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

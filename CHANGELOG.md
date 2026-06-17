@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-scenario-report-kit` with direct JUnit XML ingestion for
+  scenario summaries, comparisons, manifest checks, flake checks, and bundles.
 - Improved `godot-gdscript-architecture-guard` with high fan-in/fan-out summaries, possible unused script summaries, and stale module path warnings.
 - Improved `godot-save-schema-guard` with schema-based fixture generation and final migrated-output validation for migration chains.
 - Improved `godot-release-dashboard-kit` cards with report metadata and

@@ -36,7 +36,7 @@ class ScenarioReportTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.5")
+            self.assertEqual(report["tool_version"], "0.1.6")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("scenario_failed", report["metadata"]["rules"])
             self.assertEqual(report["summary"]["scenarios"], 1)
@@ -45,6 +45,89 @@ class ScenarioReportTests(unittest.TestCase):
             self.assertIn("assertion_failed", rules)
             self.assertIn("missing_artifact", rules)
             self.assertTrue(all("rule_help" in finding for finding in report["findings"]))
+
+    def test_summarize_accepts_junit_xml_results(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "junit.xml").write_text(
+                """<?xml version="1.0" encoding="utf-8"?>
+<testsuite name="scenario-smoke" tests="3" failures="1" skipped="1">
+  <testcase classname="market" name="trade_flow" time="1.25" />
+  <testcase classname="combat" name="pirate_escape" time="0.5">
+    <failure message="ship destroyed">Expected escape marker.</failure>
+  </testcase>
+  <testcase classname="ui" name="menu_navigation" time="0.1">
+    <skipped message="desktop only" />
+  </testcase>
+</testsuite>
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["summarize", str(root), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            scenarios = {item["scenario"]: item for item in report["scenarios"]}
+            rules = {finding["rule_id"] for finding in report["findings"]}
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["scenarios"], 3)
+            self.assertEqual(report["summary"]["passed"], 1)
+            self.assertEqual(report["summary"]["failed"], 1)
+            self.assertEqual(report["summary"]["skipped"], 1)
+            self.assertEqual(scenarios["market.trade_flow"]["duration_ms"], 1250.0)
+            self.assertEqual(scenarios["combat.pirate_escape"]["assertions"][0]["status"], "failed")
+            self.assertIn("Expected escape marker.", scenarios["combat.pirate_escape"]["assertions"][0]["message"])
+            self.assertIn("scenario_failed", rules)
+            self.assertIn("assertion_failed", rules)
+
+    def test_compare_accepts_mixed_json_and_junit_xml_directories(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline"
+            current = root / "current"
+            baseline.mkdir()
+            current.mkdir()
+            (baseline / "menu.json").write_text(
+                json.dumps({"scenario": "menu.startup", "status": "passed", "duration_ms": 100}),
+                encoding="utf-8",
+            )
+            (current / "junit.xml").write_text(
+                """<testsuite>
+  <testcase classname="menu" name="startup" time="0.4">
+    <failure message="button missing" />
+  </testcase>
+</testsuite>
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["compare", str(baseline), str(current), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            rules = {finding["rule_id"] for finding in report["findings"]}
+            self.assertEqual(exit_code, 0)
+            self.assertIn("new_scenario_failure", rules)
+            self.assertIn("duration_regression", rules)
+
+    def test_invalid_junit_xml_is_reported_with_rule_help(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "broken.xml").write_text("<testsuite><testcase>", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["summarize", str(root), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            finding = report["findings"][0]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["errors"], 1)
+            self.assertEqual(finding["rule_id"], "invalid_junit_xml")
+            self.assertEqual(finding["rule_title"], "Unreadable JUnit XML")
 
     def test_compare_reports_new_failures_and_duration_regression(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

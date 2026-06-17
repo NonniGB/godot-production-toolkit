@@ -8,6 +8,10 @@ RULES: dict[str, dict[str, str]] = {
         "title": "Unreadable result JSON",
         "help": "Check that the result file is valid UTF-8 JSON before publishing it as run evidence.",
     },
+    "invalid_junit_xml": {
+        "title": "Unreadable JUnit XML",
+        "help": "Check that the JUnit XML is complete and well-formed before using it as scenario evidence.",
+    },
     "missing_scenario_name": {
         "title": "Missing scenario name",
         "help": "Add a scenario or name field so regressions can be matched across runs.",

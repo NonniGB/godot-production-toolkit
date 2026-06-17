@@ -26,6 +26,10 @@
       "command": "godot-scenario-report summarize reports/scenarios --format html --output reports/scenarios/index.html"
     },
     {
+      "purpose": "Summarize JUnit XML from a Godot test runner",
+      "command": "godot-scenario-report summarize reports/junit.xml --format markdown --output reports/scenarios/junit-summary.md"
+    },
+    {
       "purpose": "Compare current scenario evidence against a baseline",
       "command": "godot-scenario-report compare reports/baseline reports/current --format markdown --output reports/scenarios/compare.md"
     },

@@ -176,10 +176,12 @@ This helps catch:
 
 ## Scenario Evidence Reports
 
-Use this after a scenario runner, smoke test, or custom harness emits JSON:
+Use this after a scenario runner, smoke test, or custom harness emits JSON or
+JUnit XML:
 
 ```powershell
 godot-scenario-report summarize reports\scenarios --format html --output reports\scenarios\index.html
+godot-scenario-report summarize reports\junit.xml --format markdown --output reports\scenario-junit-summary.md
 godot-scenario-report compare reports\baseline reports\current --format markdown --output reports\scenario-compare.md
 godot-scenario-report manifest coverage scenario-manifest.json --results reports\scenarios --format html --output reports\scenario-coverage.html
 godot-scenario-report flake compare reports\run-1 reports\run-2 reports\run-3 --format markdown --output reports\scenario-flakes.md
@@ -189,6 +191,7 @@ godot-scenario-report bundle reports\scenarios --telemetry reports\runtime-timel
 This helps catch:
 
 - Failed scenarios and assertions.
+- JUnit XML from an existing Godot test runner.
 - Missing listed artifacts such as screenshots.
 - New failures compared with a baseline run.
 - Duration regressions that make test runs or gameplay flows slower.

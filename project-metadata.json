@@ -71,7 +71,7 @@
     },
     {
       "name": "godot-scenario-report-kit",
-      "role": "Scenario run evidence validation, manifests, coverage checks, flake comparison, reviewer bundles, telemetry summaries, and baseline comparison.",
+      "role": "Scenario run evidence validation from JSON or JUnit XML, manifests, coverage checks, flake comparison, reviewer bundles, telemetry summaries, and baseline comparison.",
       "interfaces": ["cli", "json", "markdown", "html"]
     },
     {

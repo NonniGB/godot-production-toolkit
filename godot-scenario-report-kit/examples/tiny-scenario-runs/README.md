@@ -5,6 +5,7 @@ small enough to understand without running Godot.
 
 ```powershell
 godot-scenario-report summarize current --format markdown
+godot-scenario-report summarize junit.xml --format markdown
 godot-scenario-report compare baseline current --format markdown
 godot-scenario-report manifest check scenario-manifest.json --results current --format markdown
 godot-scenario-report manifest coverage scenario-manifest.json --results current --format html --output scenario-coverage.html
@@ -16,3 +17,6 @@ The manifest lists the scenarios expected for a small release check, the tags
 and critical flows they cover, and the artifacts the runner should have written.
 `repeat-run` is intentionally inconsistent so `flake compare` has a status
 change to report.
+
+`junit.xml` is a tiny runner-style example. It can be summarized directly, or
+linked into a bundle as review evidence beside the JSON scenario results.

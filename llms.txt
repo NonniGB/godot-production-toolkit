@@ -31,7 +31,7 @@ validation, and GDScript architecture checks.
 - Check data-driven content references: use `godot-content-graph-doctor`.
 - Review GDScript module boundaries, high fan-in/fan-out files, and possible unused scripts: use `godot-gdscript-architecture-guard`.
 - Generate save fixtures, validate save schemas, and check migration chains: use `godot-save-schema-guard`.
-- Summarize scenario evidence, manifests, coverage, flaky runs, and bundle reviewer links: use `godot-scenario-report-kit`.
+- Summarize scenario evidence, JUnit XML, manifests, coverage, flaky runs, and bundle reviewer links: use `godot-scenario-report-kit`.
 - Review frame/runtime telemetry, budget spikes, and timelines: use `godot-runtime-telemetry-lab`.
 
 ## Command Examples

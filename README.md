@@ -124,7 +124,7 @@ Pick the package that matches the risk you are trying to reduce:
 - `godot-release-dashboard-kit`: when turning toolkit reports into one static review page.
 - `godot-runtime-telemetry-lab`: after scenario or soak runs produce frame/runtime samples, timelines, or budget checks.
 - `godot-save-schema-guard`: before changing save data, generating save fixtures, or migration commands.
-- `godot-scenario-report-kit`: after scenario, smoke, or regression runs produce JSON evidence.
+- `godot-scenario-report-kit`: after scenario, smoke, or regression runs produce JSON or JUnit XML evidence.
 - `godot-scene-signal-auditor`: before refactoring scenes, signals, or autoload event wiring.
 - `godot-visual-smoke-test-kit`: before approving UI, scene, or rendering changes with screenshot baselines.
 - `pixel-space-asset-toolkit`: when generating deterministic pixel-art space assets or preview sheets.
@@ -189,6 +189,7 @@ godot-l10n-guard stress-pack godot-localization-qa-guard\examples\tiny-godot-pro
 godot-mobile-ui-doctor layout-risk godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 godot-mobile-ui-doctor layout-risk godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format json --output reports\mobile-layout-risk.json
 godot-mobile-ui-doctor overlays godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --layout-risk-report reports\mobile-layout-risk.json --output-dir reports\mobile-ui-overlays --fail-on none
+godot-scenario-report summarize godot-scenario-report-kit\examples\tiny-scenario-runs\junit.xml --format markdown --output reports\scenario-junit-summary.md
 godot-scenario-report manifest coverage godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --results godot-scenario-report-kit\examples\tiny-scenario-runs\current --format html --output reports\scenario-coverage.html
 godot-telemetry-lab timeline godot-runtime-telemetry-lab\examples\tiny-runtime-run --format json --output reports\runtime-timeline.json
 godot-scenario-report bundle godot-scenario-report-kit\examples\tiny-scenario-runs\current --manifest godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --telemetry reports\runtime-timeline.json --evidence log=godot-scenario-report-kit\examples\tiny-scenario-runs\run.log --evidence junit=godot-scenario-report-kit\examples\tiny-scenario-runs\junit.xml --format json --output reports\scenario-bundle.json
@@ -377,7 +378,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.5` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.2` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.5` |
-| [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.5` |
+| [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.6` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.3` |
 | [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.2` |
 | [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/) | `0.1.4` |

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.6 - 2026-06-17
+
+- `summarize`, `compare`, `manifest`, `flake`, and `bundle` now read JUnit XML
+  result files directly alongside the existing JSON scenario result shape.
+- JUnit `<testcase>` rows become scenarios, `time` values are converted to
+  milliseconds, and `<failure>`, `<error>`, and `<skipped>` children map to the
+  existing scenario/assertion status model.
+- Added rule help and tests for malformed JUnit XML input.
+
 ## 0.1.5 - 2026-06-17
 
 - Scenario bundles now summarize linked JSON runtime telemetry reports with samples, scenarios, frame p95, frame max, memory max, spike, warning, and error counts.
