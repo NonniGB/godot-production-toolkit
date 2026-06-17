@@ -234,7 +234,8 @@ godot-release-dashboard build reports\godot-project-doctor --output reports\dash
 This helps turn scattered release evidence into one static page for CI artifacts
 or local review. The dashboard can include JSON summaries, Markdown notes, and
 visual artifacts such as screenshot diffs, mobile UI overlays, and pixel-art
-previews.
+previews. Scenario bundle JSON can also show the logs, JUnit files, telemetry,
+profiler captures, or screenshots that explain a run.
 
 ## Visual Smoke Checks
 

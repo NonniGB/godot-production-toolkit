@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3 - 2026-06-17
+
+- Added scenario bundle awareness for `godot-scenario-report-kit` reports.
+- Dashboard JSON now includes scenario bundle, scenario, pass/fail, and evidence counts.
+- HTML report cards now show scenario evidence links and listed scenario artifacts.
+- Expanded the tiny release evidence fixture with synthetic scenario bundle, log, and JUnit inputs.
+
 ## 0.1.2 - 2026-06-16
 
 - Added release readiness grouping for blocked, attention, and ready report cards.

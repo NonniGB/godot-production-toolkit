@@ -230,6 +230,10 @@ turn JSON, Markdown, screenshots, overlays, diffs, and telemetry artifacts into
 one static HTML dashboard. The [release dashboard CI recipe](ci/release-dashboard-artifact.yml)
 shows how to publish it as a workflow artifact.
 
+Scenario bundle JSON from `godot-scenario-report-kit` is a dashboard-friendly
+input when scenario results should point to the logs, JUnit XML, screenshots, or
+telemetry files that explain a run.
+
 The [report gallery](report-gallery/README.md) includes a dashboard demo, sample
 HTML, screenshot, fixture, and regeneration command.
 

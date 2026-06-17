@@ -1,0 +1,61 @@
+{
+  "tool": "godot-scenario-report-kit",
+  "tool_version": "0.1.4",
+  "schema_version": "1.1",
+  "kind": "scenario_bundle",
+  "summary": {
+    "scenarios": 2,
+    "passed": 1,
+    "failed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "warnings": 1,
+    "linked_evidence": 3,
+    "artifacts": 2
+  },
+  "bundle": {
+    "links": {
+      "telemetry": {
+        "kind": "telemetry",
+        "relative_path": "runtime-timeline.html",
+        "exists": false
+      }
+    },
+    "evidence_links": [
+      {
+        "kind": "log",
+        "relative_path": "run.log",
+        "exists": true,
+        "size_bytes": 94
+      },
+      {
+        "kind": "junit",
+        "relative_path": "junit.xml",
+        "exists": true,
+        "size_bytes": 323
+      }
+    ],
+    "scenarios": [
+      {
+        "scenario": "menu_startup",
+        "status": "passed",
+        "bundle_artifacts": [
+          {
+            "path": "screenshots/menu.png",
+            "exists": false
+          }
+        ]
+      },
+      {
+        "scenario": "trade_flow",
+        "status": "failed",
+        "bundle_artifacts": [
+          {
+            "path": "logs/trade-flow.txt",
+            "exists": false
+          }
+        ]
+      }
+    ]
+  }
+}

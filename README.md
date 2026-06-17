@@ -202,6 +202,10 @@ godot-pack-mod-doctor load-order base-pack.json patch-pack.json --format markdow
 godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --title "Godot Toolkit Release Evidence" --output reports\dashboard.html
 ```
 
+`scenario-bundle.json` files from `godot-scenario-report-kit` can live in the
+same reports folder as other dashboard inputs, so scenario results and the logs,
+JUnit files, telemetry, or screenshots that explain them are reviewed together.
+
 ![Content graph terminal report](docs/assets/screenshots/content-graph-terminal.svg)
 ![Export preset matrix report](docs/assets/screenshots/export-matrix.png)
 ![Scenario comparison report](docs/assets/screenshots/scenario-report-terminal.svg)
@@ -362,7 +366,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.9` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.2` |
-| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.2` |
+| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.3` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.2` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.4` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.4` |

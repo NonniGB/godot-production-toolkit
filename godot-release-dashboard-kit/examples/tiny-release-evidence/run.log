@@ -1,0 +1,2 @@
+menu_startup passed in 812 ms
+trade_flow failed: expected cargo transfer event was not observed

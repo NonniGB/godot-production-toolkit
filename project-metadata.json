@@ -101,7 +101,7 @@
     },
     {
       "name": "godot-release-dashboard-kit",
-      "role": "Static dashboard builder for toolkit reports and release evidence folders.",
+      "role": "Static dashboard builder for toolkit reports, visual artifacts, and scenario evidence folders.",
       "interfaces": ["cli", "html", "json"]
     },
     {

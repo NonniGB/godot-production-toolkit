@@ -26,6 +26,10 @@
     {
       "purpose": "Build a machine-readable dashboard summary",
       "command": "godot-release-dashboard build reports/godot-project-doctor --format json --output reports/dashboard.json"
+    },
+    {
+      "purpose": "Build a dashboard with scenario evidence links",
+      "command": "godot-release-dashboard build reports/release-evidence --output reports/dashboard.html"
     }
   ]
 }

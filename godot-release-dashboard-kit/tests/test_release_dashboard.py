@@ -49,7 +49,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.2")
+            self.assertEqual(data["tool_version"], "0.1.3")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["images"][0]["mime"], "image/svg+xml")
@@ -90,6 +90,82 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertIn('href="reports/perf.json"', html)
             self.assertIn('href="reports/notes.md"', html)
             self.assertNotIn(str(root), html)
+
+    def test_scenario_bundle_reports_reviewer_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            bundle_report = reports / "scenario-bundle.json"
+            bundle_report.write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-scenario-report-kit",
+                        "kind": "scenario_bundle",
+                        "summary": {
+                            "scenarios": 2,
+                            "passed": 1,
+                            "failed": 1,
+                            "skipped": 0,
+                            "errors": 0,
+                            "warnings": 1,
+                            "linked_evidence": 3,
+                            "artifacts": 2,
+                        },
+                        "bundle": {
+                            "links": {
+                                "telemetry": {
+                                    "kind": "telemetry",
+                                    "relative_path": "../runtime-timeline.html",
+                                    "exists": True,
+                                    "size_bytes": 1200,
+                                }
+                            },
+                            "evidence_links": [
+                                {"kind": "log", "relative_path": "../run.log", "exists": True, "size_bytes": 240},
+                                {"kind": "junit", "relative_path": "../junit.xml", "exists": False},
+                            ],
+                            "scenarios": [
+                                {
+                                    "scenario": "menu_startup",
+                                    "bundle_artifacts": [
+                                        {"path": "screenshots/menu.png", "exists": True},
+                                        {"path": "logs/missing.txt", "exists": False},
+                                    ],
+                                }
+                            ],
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            dashboard = build_dashboard(reports)
+            output = root / "dashboard.html"
+            exit_code = main(["build", str(reports), "--output", str(output)])
+
+            html = output.read_text(encoding="utf-8")
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(dashboard["summary"]["scenario_bundles"], 1)
+            self.assertEqual(dashboard["summary"]["scenarios"], 2)
+            self.assertEqual(dashboard["summary"]["scenario_passed"], 1)
+            self.assertEqual(dashboard["summary"]["scenario_failed"], 1)
+            self.assertEqual(dashboard["summary"]["scenario_evidence"], 3)
+            self.assertEqual(dashboard["reports"][0]["status"], "blocked")
+            scenario_bundle = dashboard["reports"][0]["scenario_bundle"]
+            self.assertEqual(scenario_bundle["scenarios"], 2)
+            self.assertEqual(scenario_bundle["passed"], 1)
+            self.assertEqual(scenario_bundle["failed"], 1)
+            self.assertEqual(scenario_bundle["evidence_count"], 3)
+            self.assertEqual(scenario_bundle["artifact_count"], 2)
+            self.assertEqual(scenario_bundle["missing_evidence"], 1)
+            self.assertEqual(scenario_bundle["missing_artifacts"], 1)
+            self.assertIn("Scenario Bundle Evidence", html)
+            self.assertIn("Scenarios: 1 passed / 2 total", html)
+            self.assertIn("../runtime-timeline.html", html)
+            self.assertIn("../run.log", html)
+            self.assertIn("screenshots/menu.png", html)
+            self.assertIn("Missing evidence: 1", html)
 
 
 if __name__ == "__main__":

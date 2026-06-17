@@ -31,12 +31,14 @@ def build_dashboard(
         "attention": sum(1 for report in reports if report["status"] == "attention"),
         "ready": sum(1 for report in reports if report["status"] == "ready"),
     }
+    scenario_counts = _scenario_summary_counts(reports)
     summary = {
         "reports": len(reports),
         "images": len(images),
         "errors": sum(int(report.get("errors", 0)) for report in reports),
         "warnings": sum(int(report.get("warnings", 0)) for report in reports),
         **status_counts,
+        **scenario_counts,
     }
     return {
         "tool": "godot-release-dashboard-kit",
@@ -72,6 +74,8 @@ def render_html(dashboard: dict[str, Any]) -> str:
             f"<div class=\"metric\">Images: {summary['images']}</div>",
             f"<div class=\"metric err\">Errors: {summary['errors']}</div>",
             f"<div class=\"metric warn\">Warnings: {summary['warnings']}</div>",
+            f"<div class=\"metric\">Scenario bundles: {summary['scenario_bundles']}</div>",
+            f"<div class=\"metric\">Scenarios: {summary['scenario_passed']}/{summary['scenarios']} passed</div>",
             "</div>",
             "<h2>Reports</h2>",
             "<div class=\"grid\">",
@@ -122,7 +126,7 @@ def _json_card(path: Path, link_base: Path) -> dict[str, Any]:
     summary = data.get("summary", {}) if isinstance(data, dict) else {}
     errors = int(summary.get("errors", summary.get("error_count", 0))) if isinstance(summary, dict) else 0
     warnings = int(summary.get("warnings", summary.get("warning_count", 0))) if isinstance(summary, dict) else 0
-    return {
+    card = {
         "path": path.as_posix(),
         "source_href": _source_href(path, link_base),
         "tool": str(data.get("tool") or data.get("name") or path.stem) if isinstance(data, dict) else path.stem,
@@ -132,6 +136,10 @@ def _json_card(path: Path, link_base: Path) -> dict[str, Any]:
         "status": _release_state(errors, warnings),
         "summary": _summary_text(summary),
     }
+    if isinstance(data, dict) and data.get("kind") == "scenario_bundle":
+        card.update(_scenario_bundle_details(data))
+        _apply_scenario_bundle_state(card)
+    return card
 
 
 def _image_card(path: Path) -> dict[str, Any]:
@@ -167,6 +175,130 @@ def _summary_text(summary: object) -> str:
     return ", ".join(parts[:5])
 
 
+def _scenario_bundle_details(data: dict[str, Any]) -> dict[str, Any]:
+    bundle = data.get("bundle", {})
+    if not isinstance(bundle, dict):
+        return {}
+    evidence = _bundle_evidence_rows(bundle)
+    artifacts = _bundle_artifact_rows(bundle)
+    summary = data.get("summary", {})
+    scenarios = bundle.get("scenarios", [])
+    scenario_counts = _scenario_counts(summary, scenarios)
+    return {
+        "scenario_bundle": {
+            **scenario_counts,
+            "evidence_links": evidence,
+            "artifacts": artifacts,
+            "evidence": len(evidence),
+            "evidence_count": len(evidence),
+            "artifact_count": len(artifacts),
+            "missing_evidence": sum(1 for item in evidence if not item["exists"]),
+            "missing_artifacts": sum(1 for item in artifacts if not item["exists"]),
+        }
+    }
+
+
+def _scenario_counts(summary: object, scenarios: object) -> dict[str, int]:
+    scenario_rows = scenarios if isinstance(scenarios, list) else []
+    summary_dict = summary if isinstance(summary, dict) else {}
+    return {
+        "scenarios": _int_or_default(summary_dict.get("scenarios"), len(scenario_rows)),
+        "passed": _int_or_default(summary_dict.get("passed"), _count_status(scenario_rows, "passed")),
+        "failed": _int_or_default(summary_dict.get("failed"), _count_status(scenario_rows, "failed")),
+        "skipped": _int_or_default(summary_dict.get("skipped"), _count_status(scenario_rows, "skipped")),
+    }
+
+
+def _scenario_summary_counts(reports: list[dict[str, Any]]) -> dict[str, int]:
+    bundles = [
+        report["scenario_bundle"]
+        for report in reports
+        if isinstance(report.get("scenario_bundle"), dict)
+    ]
+    return {
+        "scenario_bundles": len(bundles),
+        "scenarios": sum(int(bundle.get("scenarios", 0)) for bundle in bundles),
+        "scenario_passed": sum(int(bundle.get("passed", 0)) for bundle in bundles),
+        "scenario_failed": sum(int(bundle.get("failed", 0)) for bundle in bundles),
+        "scenario_evidence": sum(int(bundle.get("evidence", 0)) for bundle in bundles),
+    }
+
+
+def _apply_scenario_bundle_state(card: dict[str, Any]) -> None:
+    bundle = card.get("scenario_bundle")
+    if not isinstance(bundle, dict):
+        return
+    if int(bundle.get("failed", 0)) > 0:
+        card["status"] = "blocked"
+    elif int(bundle.get("missing_evidence", 0)) + int(bundle.get("missing_artifacts", 0)) > 0:
+        card["status"] = "attention"
+
+
+def _int_or_default(value: object, default: int) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _count_status(rows: list[object], status: str) -> int:
+    return sum(
+        1
+        for row in rows
+        if isinstance(row, dict) and str(row.get("status", "")).lower() == status
+    )
+
+
+def _bundle_evidence_rows(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    links = bundle.get("links", {})
+    if isinstance(links, dict):
+        for kind, item in sorted(links.items()):
+            if isinstance(item, dict):
+                rows.append(_evidence_row(kind, item))
+    for item in bundle.get("evidence_links", []):
+        if isinstance(item, dict):
+            rows.append(_evidence_row(str(item.get("kind") or "evidence"), item))
+    return rows
+
+
+def _evidence_row(kind: str, item: dict[str, Any]) -> dict[str, Any]:
+    row: dict[str, Any] = {
+        "kind": str(item.get("kind") or kind),
+        "path": str(item.get("relative_path") or item.get("path") or ""),
+        "exists": bool(item.get("exists")),
+    }
+    if "size_bytes" in item:
+        row["size_bytes"] = item["size_bytes"]
+    if "is_dir" in item:
+        row["is_dir"] = bool(item["is_dir"])
+    return row
+
+
+def _bundle_artifact_rows(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    scenarios = bundle.get("scenarios", [])
+    if not isinstance(scenarios, list):
+        return rows
+    for scenario in scenarios:
+        if not isinstance(scenario, dict):
+            continue
+        scenario_name = str(scenario.get("scenario") or "")
+        artifacts = scenario.get("bundle_artifacts", [])
+        if not isinstance(artifacts, list):
+            continue
+        for artifact in artifacts:
+            if isinstance(artifact, dict):
+                rows.append(
+                    {
+                        "scenario": scenario_name,
+                        "path": str(artifact.get("path") or ""),
+                        "exists": bool(artifact.get("exists")),
+                    }
+                )
+    return rows
+
+
 def _release_state(errors: int, warnings: int) -> str:
     if errors:
         return "blocked"
@@ -183,13 +315,63 @@ def _source_href(path: Path, link_base: Path) -> str:
 def _card(report: dict[str, Any]) -> str:
     level = "err" if int(report["errors"]) else "warn" if int(report["warnings"]) else "ok"
     source_href = str(report["source_href"])
+    scenario_bundle = _scenario_bundle_html(report.get("scenario_bundle"))
     return (
         f"<section class=\"card\"><h2>{escape(str(report['tool']))}</h2>"
         f"<p class=\"status {escape(str(report['status']))}\">{escape(str(report['status']))}</p>"
         f"<p><a href=\"{escape(source_href)}\"><code>{escape(source_href)}</code></a></p>"
         f"<p class=\"{level}\">Errors: {report['errors']} | Warnings: {report['warnings']}</p>"
-        f"<p>{escape(str(report.get('summary', '')))}</p></section>"
+        f"<p>{escape(str(report.get('summary', '')))}</p>{scenario_bundle}</section>"
     )
+
+
+def _scenario_bundle_html(bundle: object) -> str:
+    if not isinstance(bundle, dict):
+        return ""
+    evidence = bundle.get("evidence_links", [])
+    artifacts = bundle.get("artifacts", [])
+    parts = [
+        "<div class=\"bundle-details\">",
+        "<h3>Scenario Bundle Evidence</h3>",
+        "<p>"
+        f"Scenarios: {int(bundle.get('passed', 0))} passed / {int(bundle.get('scenarios', 0))} total | "
+        f"Failed: {int(bundle.get('failed', 0))} | "
+        f"Evidence: {int(bundle.get('evidence', 0))}"
+        "</p>",
+        "<p>"
+        f"Evidence: {int(bundle.get('evidence_count', 0))} | "
+        f"Missing evidence: {int(bundle.get('missing_evidence', 0))} | "
+        f"Artifacts: {int(bundle.get('artifact_count', 0))} | "
+        f"Missing artifacts: {int(bundle.get('missing_artifacts', 0))}"
+        "</p>",
+    ]
+    if isinstance(evidence, list) and evidence:
+        parts.append("<table><thead><tr><th>Kind</th><th>Path</th><th>Exists</th><th>Size</th></tr></thead><tbody>")
+        for item in evidence:
+            if isinstance(item, dict):
+                parts.append(
+                    "<tr>"
+                    f"<td>{escape(str(item.get('kind', '')))}</td>"
+                    f"<td><code>{escape(str(item.get('path', '')))}</code></td>"
+                    f"<td>{escape(str(item.get('exists', False)).lower())}</td>"
+                    f"<td>{escape(str(item.get('size_bytes', '-')))}</td>"
+                    "</tr>"
+                )
+        parts.append("</tbody></table>")
+    if isinstance(artifacts, list) and artifacts:
+        parts.append("<table><thead><tr><th>Scenario</th><th>Artifact</th><th>Exists</th></tr></thead><tbody>")
+        for item in artifacts:
+            if isinstance(item, dict):
+                parts.append(
+                    "<tr>"
+                    f"<td>{escape(str(item.get('scenario', '')))}</td>"
+                    f"<td><code>{escape(str(item.get('path', '')))}</code></td>"
+                    f"<td>{escape(str(item.get('exists', False)).lower())}</td>"
+                    "</tr>"
+                )
+        parts.append("</tbody></table>")
+    parts.append("</div>")
+    return "".join(parts)
 
 
 def _image(image: dict[str, Any]) -> str:

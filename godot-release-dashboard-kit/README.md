@@ -33,6 +33,13 @@ Write a machine-readable dashboard summary:
 godot-release-dashboard build reports\godot-project-doctor --format json --output reports\dashboard.json
 ```
 
+Include scenario run evidence in the same dashboard:
+
+```powershell
+godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --evidence log=reports\run.log --evidence junit=reports\junit.xml --format json --output reports\release-evidence\scenario-bundle.json
+godot-release-dashboard build reports\release-evidence --output reports\dashboard.html
+```
+
 ## Inputs
 
 The dashboard scans a folder recursively for `.json`, `.md`, `.png`, `.jpg`,
@@ -41,9 +48,16 @@ their `tool`, `kind`, and `summary` fields when available. Image artifacts such
 as mobile UI overlays, screenshot diffs, pixel previews, and visual smoke
 captures are embedded into the self-contained HTML output.
 
+Scenario bundle JSON from `godot-scenario-report-kit` is shown as a release
+evidence card with scenario pass/fail counts plus the nearby files a reviewer
+should open next, such as logs, JUnit XML, runtime telemetry, profiler captures,
+visual-smoke reports, or screenshots. The dashboard shows link metadata from the
+bundle; it does not run the game or rewrite those evidence files.
+
 ## Outputs
 
 - `html`: self-contained static dashboard with release readiness metrics, source
-  report links, report cards, and image previews.
+  report links, report cards, scenario evidence sections, and image previews.
 - `json`: summary for scripts or later dashboard tooling, including counts for
-  `blocked`, `attention`, and `ready` report states.
+  `blocked`, `attention`, `ready`, scenario bundles, scenarios, and linked
+  scenario evidence.
