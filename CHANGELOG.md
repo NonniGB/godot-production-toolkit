@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-release-dashboard-kit` cards with report metadata and
+  copyable reproduction commands when reports provide them.
 - Improved `godot-pack-mod-doctor` diffs with moved-resource classification,
   content ID conflict checks, and dashboard-friendly risk summaries.
 - Added mobile UI overlay support for localized layout-risk JSON reports.

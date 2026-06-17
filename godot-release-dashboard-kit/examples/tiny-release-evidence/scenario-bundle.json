@@ -3,6 +3,7 @@
   "tool_version": "0.1.5",
   "schema_version": "1.1",
   "kind": "scenario_bundle",
+  "command": "godot-scenario-report bundle reports/scenarios --manifest scenario-manifest.json --telemetry reports/runtime-timeline.json --evidence log=reports/run.log --evidence junit=reports/junit.xml --format json",
   "summary": {
     "scenarios": 2,
     "passed": 1,

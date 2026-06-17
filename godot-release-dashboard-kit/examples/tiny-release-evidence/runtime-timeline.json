@@ -3,6 +3,12 @@
   "tool_version": "0.1.2",
   "schema_version": "1.0",
   "kind": "runtime_telemetry_timeline",
+  "commands": [
+    {
+      "label": "Regenerate timeline",
+      "command": "godot-telemetry-lab timeline godot-runtime-telemetry-lab/examples/tiny-runtime-run --format json"
+    }
+  ],
   "summary": {
     "samples": 18,
     "scenarios": ["menu_startup", "trade_flow"],

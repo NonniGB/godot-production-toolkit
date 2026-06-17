@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.5 - 2026-06-17
+
+- Dashboard cards now surface optional report metadata such as tool version,
+  schema version, generation time, profile, and risk level.
+- JSON reports can now include `command`, `reproduce_command`,
+  `reproduction_command`, or `commands` fields that render as copyable
+  reproduction commands in the HTML dashboard.
+- Dashboard JSON now counts report cards that include reproduction commands.
+
 ## 0.1.4 - 2026-06-17
 
 - Scenario bundle cards now show compact runtime telemetry summaries when the bundle includes them.

@@ -20,7 +20,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Build a static release dashboard",
+      "purpose": "Build a static release dashboard with report metadata",
       "command": "godot-release-dashboard build reports/godot-project-doctor --output reports/dashboard.html"
     },
     {

@@ -16,7 +16,8 @@ godot-release-dashboard build reports\release-evidence --output reports\dashboar
 The dashboard collects source report links and bundle metadata for review. It
 does not start Godot, run scenarios, copy logs, or rewrite evidence files.
 Scenario bundle telemetry summaries are shown as compact frame, sample, and
-spike metrics.
+spike metrics. If a JSON report records a reproduction command, the dashboard
+shows that command as supplied by the report; it does not execute it.
 
 Build a JSON summary for downstream scripts:
 

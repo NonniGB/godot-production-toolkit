@@ -11,6 +11,10 @@ It includes:
 - `runtime-timeline.json`: a tiny telemetry summary linked from the scenario bundle.
 - `run.log` and `junit.xml`: tiny linked files referenced by the scenario bundle.
 
+Some JSON reports include optional command and metadata fields so the dashboard
+can show the command that produced a report, tool versions, schema versions, and
+compact risk summaries when that information is available.
+
 ```powershell
 godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --output reports\release-dashboard.html
 ```

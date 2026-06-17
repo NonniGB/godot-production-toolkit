@@ -37,6 +37,7 @@ def build_dashboard(
         "images": len(images),
         "errors": sum(int(report.get("errors", 0)) for report in reports),
         "warnings": sum(int(report.get("warnings", 0)) for report in reports),
+        "reports_with_commands": sum(1 for report in reports if report.get("commands")),
         **status_counts,
         **scenario_counts,
     }
@@ -62,7 +63,7 @@ def render_html(dashboard: dict[str, Any]) -> str:
             "<html lang=\"en\"><head><meta charset=\"utf-8\">",
             f"<title>{escape(str(dashboard['title']))}</title>",
             "<link rel=\"icon\" href=\"data:,\">",
-            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.ok,.ready{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked{color:#b42318}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}</style>",
+            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.ok,.ready{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked{color:#b42318}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}</style>",
             "</head><body>",
             f"<h1>{escape(str(dashboard['title']))}</h1>",
             "<h2>Release Readiness</h2>",
@@ -74,6 +75,7 @@ def render_html(dashboard: dict[str, Any]) -> str:
             f"<div class=\"metric\">Images: {summary['images']}</div>",
             f"<div class=\"metric err\">Errors: {summary['errors']}</div>",
             f"<div class=\"metric warn\">Warnings: {summary['warnings']}</div>",
+            f"<div class=\"metric\">Reports with commands: {summary.get('reports_with_commands', 0)}</div>",
             f"<div class=\"metric\">Scenario bundles: {summary['scenario_bundles']}</div>",
             f"<div class=\"metric\">Scenarios: {summary['scenario_passed']}/{summary['scenarios']} passed</div>",
             f"<div class=\"metric\">Telemetry samples: {summary['scenario_telemetry_samples']}</div>",
@@ -138,6 +140,13 @@ def _json_card(path: Path, link_base: Path) -> dict[str, Any]:
         "status": _release_state(errors, warnings),
         "summary": _summary_text(summary),
     }
+    if isinstance(data, dict):
+        metadata = _report_metadata(data, summary)
+        commands = _report_commands(data)
+        if metadata:
+            card["metadata"] = metadata
+        if commands:
+            card["commands"] = commands
     if isinstance(data, dict) and data.get("kind") == "scenario_bundle":
         card.update(_scenario_bundle_details(data))
         _apply_scenario_bundle_state(card)
@@ -175,6 +184,56 @@ def _summary_text(summary: object) -> str:
         return ""
     parts = [f"{key}: {value}" for key, value in sorted(summary.items()) if isinstance(value, (str, int, float))]
     return ", ".join(parts[:5])
+
+
+def _report_metadata(data: dict[str, Any], summary: object) -> dict[str, str]:
+    summary_dict = summary if isinstance(summary, dict) else {}
+    metadata = data.get("metadata", {})
+    metadata_dict = metadata if isinstance(metadata, dict) else {}
+    rows: dict[str, str] = {}
+    for key in ("tool_version", "schema_version", "generated_at", "profile"):
+        value = data.get(key, metadata_dict.get(key, summary_dict.get(key)))
+        if value not in (None, ""):
+            rows[key] = str(value)
+    risk = data.get("risk", {})
+    risk_dict = risk if isinstance(risk, dict) else {}
+    risk_level = summary_dict.get("risk_level", risk_dict.get("level"))
+    risk_score = summary_dict.get("risk_score", risk_dict.get("score"))
+    if risk_level not in (None, ""):
+        rows["risk"] = f"{risk_level} ({risk_score or 0})"
+    return rows
+
+
+def _report_commands(data: dict[str, Any]) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    metadata = data.get("metadata", {})
+    metadata_dict = metadata if isinstance(metadata, dict) else {}
+    for key in ("command", "reproduce_command", "reproduction_command"):
+        command = data.get(key, metadata_dict.get(key))
+        if isinstance(command, str) and command.strip():
+            rows.append({"label": "Reproduce", "command": command.strip()})
+    commands = data.get("commands", metadata_dict.get("commands", []))
+    if isinstance(commands, list):
+        for item in commands:
+            if isinstance(item, str) and item.strip():
+                rows.append({"label": "Reproduce", "command": item.strip()})
+            elif isinstance(item, dict):
+                command = str(item.get("command") or "").strip()
+                if command:
+                    rows.append({"label": str(item.get("label") or "Reproduce"), "command": command})
+    return _dedupe_commands(rows)[:5]
+
+
+def _dedupe_commands(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    seen: set[str] = set()
+    unique: list[dict[str, str]] = []
+    for row in rows:
+        command = row["command"]
+        if command in seen:
+            continue
+        seen.add(command)
+        unique.append(row)
+    return unique
 
 
 def _scenario_bundle_details(data: dict[str, Any]) -> dict[str, Any]:
@@ -352,14 +411,40 @@ def _source_href(path: Path, link_base: Path) -> str:
 def _card(report: dict[str, Any]) -> str:
     level = "err" if int(report["errors"]) else "warn" if int(report["warnings"]) else "ok"
     source_href = str(report["source_href"])
+    metadata = _metadata_html(report.get("metadata"))
+    commands = _commands_html(report.get("commands"))
     scenario_bundle = _scenario_bundle_html(report.get("scenario_bundle"))
     return (
         f"<section class=\"card\"><h2>{escape(str(report['tool']))}</h2>"
         f"<p class=\"status {escape(str(report['status']))}\">{escape(str(report['status']))}</p>"
         f"<p><a href=\"{escape(source_href)}\"><code>{escape(source_href)}</code></a></p>"
         f"<p class=\"{level}\">Errors: {report['errors']} | Warnings: {report['warnings']}</p>"
-        f"<p>{escape(str(report.get('summary', '')))}</p>{scenario_bundle}</section>"
+        f"<p>{escape(str(report.get('summary', '')))}</p>{metadata}{commands}{scenario_bundle}</section>"
     )
+
+
+def _metadata_html(metadata: object) -> str:
+    if not isinstance(metadata, dict) or not metadata:
+        return ""
+    rows = []
+    for key, value in metadata.items():
+        label = key.replace("_", " ").capitalize()
+        rows.append(f"<dt>{escape(label)}</dt><dd>{escape(str(value))}</dd>")
+    return "<h3>Report Metadata</h3><dl>" + "".join(rows) + "</dl>"
+
+
+def _commands_html(commands: object) -> str:
+    if not isinstance(commands, list) or not commands:
+        return ""
+    parts = ["<h3>Reproduce</h3>"]
+    for item in commands:
+        if not isinstance(item, dict):
+            continue
+        label = str(item.get("label") or "Command")
+        command = str(item.get("command") or "")
+        if command:
+            parts.append(f"<p>{escape(label)}</p><pre><code>{escape(command)}</code></pre>")
+    return "".join(parts)
 
 
 def _scenario_bundle_html(bundle: object) -> str:

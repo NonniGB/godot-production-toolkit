@@ -49,7 +49,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.4")
+            self.assertEqual(data["tool_version"], "0.1.5")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["images"][0]["mime"], "image/svg+xml")
@@ -187,6 +187,52 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertIn("../run.log", html)
             self.assertIn("screenshots/menu.png", html)
             self.assertIn("Missing evidence: 1", html)
+
+    def test_json_reports_surface_reproduction_commands_and_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            pack_report = reports / "pack-mod.json"
+            pack_report.write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-pack-mod-doctor",
+                        "tool_version": "0.1.4",
+                        "schema_version": "1.0",
+                        "kind": "pack_load_order",
+                        "command": "godot-pack-mod-doctor load-order base.json patch.json --format json",
+                        "generated_at": "2026-06-17T12:00:00Z",
+                        "summary": {
+                            "errors": 0,
+                            "warnings": 1,
+                            "risk_level": "attention",
+                            "risk_score": 10,
+                            "packs": 2,
+                        },
+                        "risk": {"level": "attention", "score": 10, "reasons": ["content_id_conflict"]},
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            dashboard = build_dashboard(reports)
+            output = root / "dashboard.html"
+            exit_code = main(["build", str(reports), "--output", str(output)])
+
+            html = output.read_text(encoding="utf-8")
+            report = dashboard["reports"][0]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(dashboard["summary"]["reports_with_commands"], 1)
+            self.assertEqual(report["commands"][0]["command"], "godot-pack-mod-doctor load-order base.json patch.json --format json")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.4")
+            self.assertEqual(report["metadata"]["risk"], "attention (10)")
+            self.assertIn("Reproduce", html)
+            self.assertIn("godot-pack-mod-doctor load-order base.json patch.json --format json", html)
+            self.assertIn("Tool version", html)
+            self.assertIn("0.1.4", html)
+            self.assertIn("Risk", html)
+            self.assertIn("attention (10)", html)
 
 
 if __name__ == "__main__":

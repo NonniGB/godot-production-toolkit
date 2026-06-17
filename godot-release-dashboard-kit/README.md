@@ -44,9 +44,12 @@ godot-release-dashboard build reports\release-evidence --output reports\dashboar
 
 The dashboard scans a folder recursively for `.json`, `.md`, `.png`, `.jpg`,
 `.jpeg`, `.svg`, and `.webp` files. Toolkit JSON reports are summarized through
-their `tool`, `kind`, and `summary` fields when available. Image artifacts such
-as mobile UI overlays, screenshot diffs, pixel previews, and visual smoke
-captures are embedded into the self-contained HTML output.
+their `tool`, `kind`, and `summary` fields when available. If a JSON report
+includes `command`, `commands`, `tool_version`, `schema_version`,
+`generated_at`, `profile`, or `risk`, the dashboard shows those fields as report
+metadata and reproduction commands. Image artifacts such as mobile UI overlays,
+screenshot diffs, pixel previews, and visual smoke captures are embedded into
+the self-contained HTML output.
 
 Scenario bundle JSON from `godot-scenario-report-kit` is shown as a release
 evidence card with scenario pass/fail counts plus the nearby files a reviewer
@@ -62,5 +65,6 @@ frame p95, frame max, memory max, and budget spike counts.
   report links, report cards, scenario evidence sections, and image previews.
 - `json`: summary for scripts or later dashboard tooling, including counts for
   `blocked`, `attention`, `ready`, scenario bundles, scenarios, and linked
-  scenario evidence. Scenario-linked telemetry summaries are rolled up as
-  sample, spike, warning, and error counts.
+  scenario evidence. Reports that include reproduction commands are counted in
+  `summary.reports_with_commands`. Scenario-linked telemetry summaries are
+  rolled up as sample, spike, warning, and error counts.
