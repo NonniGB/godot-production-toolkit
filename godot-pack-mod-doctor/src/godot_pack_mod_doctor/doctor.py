@@ -39,6 +39,7 @@ def check_manifest(
 
     _require_string(data, "id", "missing_pack_id", findings)
     _require_string(data, "version", "missing_pack_version", findings)
+    _dependency_policy(data, findings)
     _duplicate_paths(files, findings)
     _override_policy(files, allow_overrides, findings)
     _reference_policy(files, base_ids, findings)
@@ -143,12 +144,39 @@ def diff_manifests(baseline: Path, current: Path) -> dict[str, Any]:
 def load_order(manifests: list[Path]) -> dict[str, Any]:
     findings: list[dict[str, str]] = []
     owners: dict[str, str] = {}
+    pack_positions: dict[str, int] = {}
     packs: list[dict[str, Any]] = []
     for index, manifest in enumerate(manifests):
         data = _load_manifest(manifest)
         pack_id = str(data.get("id") or manifest.stem)
+        _dependency_policy(data, findings)
+        dependencies = _dependency_ids(data.get("dependencies"))
+        dependency_count = _dependency_entry_count(data.get("dependencies"))
+        previous_index = pack_positions.get(pack_id)
+        if previous_index is not None:
+            findings.append(
+                {
+                    "rule_id": "duplicate_pack_id",
+                    "severity": "error",
+                    "message": (
+                        f"{manifest} uses pack id {pack_id!r}, which was already used "
+                        f"by pack at load order {previous_index}."
+                    ),
+                    "rule_help": "Give each pack a stable unique id so dependencies and overrides can be reviewed.",
+                }
+            )
+        pack_positions.setdefault(pack_id, index)
         files = [item for item in data.get("files", []) if isinstance(item, dict)]
-        packs.append({"id": pack_id, "path": str(manifest), "files": len(files), "order": index})
+        packs.append(
+            {
+                "id": pack_id,
+                "path": str(manifest),
+                "files": len(files),
+                "dependencies": dependencies,
+                "dependency_count": dependency_count,
+                "order": index,
+            }
+        )
         for item in files:
             path = str(item.get("path", "")).strip()
             if not path:
@@ -164,6 +192,9 @@ def load_order(manifests: list[Path]) -> dict[str, Any]:
                     }
                 )
             owners[path] = pack_id
+    _load_order_dependency_findings(packs, pack_positions, findings)
+    errors = sum(1 for finding in findings if finding["severity"] == "error")
+    warnings = sum(1 for finding in findings if finding["severity"] == "warning")
     return {
         "tool": "godot-pack-mod-doctor",
         "tool_version": __version__,
@@ -172,9 +203,9 @@ def load_order(manifests: list[Path]) -> dict[str, Any]:
         "summary": {
             "packs": len(packs),
             "files": len(owners),
-            "dependencies": 0,
-            "errors": 0,
-            "warnings": len(findings),
+            "dependencies": sum(int(pack["dependency_count"]) for pack in packs),
+            "errors": errors,
+            "warnings": warnings,
         },
         "packs": packs,
         "findings": findings,
@@ -199,6 +230,87 @@ def _require_string(data: dict[str, Any], key: str, rule_id: str, findings: list
                 "rule_help": "Add stable pack identity fields before publishing or comparing pack versions.",
             }
         )
+
+
+def _dependency_policy(data: dict[str, Any], findings: list[dict[str, str]]) -> None:
+    dependencies = data.get("dependencies", [])
+    if dependencies in (None, ""):
+        return
+    if not isinstance(dependencies, list):
+        findings.append(
+            {
+                "rule_id": "pack_dependencies_not_list",
+                "severity": "error",
+                "message": "Pack dependencies must be a list.",
+                "rule_help": "Use a list of dependency objects such as {'id': 'base_pack'} or simple id strings.",
+            }
+        )
+        return
+    seen: set[str] = set()
+    for index, item in enumerate(dependencies):
+        dependency_id = _dependency_id(item)
+        if not dependency_id:
+            findings.append(
+                {
+                    "rule_id": "pack_dependency_missing_id",
+                    "severity": "error",
+                    "message": f"Dependency entry {index} is missing a non-empty id.",
+                    "rule_help": "Give every dependency a stable id so load order checks can match it to another pack.",
+                }
+            )
+            continue
+        if dependency_id == str(data.get("id") or "").strip():
+            findings.append(
+                {
+                    "rule_id": "pack_self_dependency",
+                    "severity": "error",
+                    "message": f"Pack {dependency_id!r} lists itself as a dependency.",
+                    "rule_help": "Remove self-dependencies so load-order checks describe real pack relationships.",
+                }
+            )
+        if dependency_id in seen:
+            findings.append(
+                {
+                    "rule_id": "pack_dependency_duplicate_id",
+                    "severity": "warning",
+                    "message": f"Dependency id {dependency_id!r} is listed more than once.",
+                    "rule_help": "Keep each dependency id once so release review is easier to read.",
+                }
+            )
+        seen.add(dependency_id)
+
+
+def _load_order_dependency_findings(
+    packs: list[dict[str, Any]],
+    pack_positions: dict[str, int],
+    findings: list[dict[str, str]],
+) -> None:
+    for pack in packs:
+        pack_id = str(pack["id"])
+        pack_index = int(pack["order"])
+        for dependency in pack["dependencies"]:
+            dependency_index = pack_positions.get(dependency)
+            if dependency_index is None:
+                findings.append(
+                    {
+                        "rule_id": "pack_dependency_missing",
+                        "severity": "error",
+                        "message": f"{pack_id} depends on missing pack {dependency!r}.",
+                        "rule_help": "Add the dependency pack to the load-order command or remove the stale dependency.",
+                    }
+                )
+            elif dependency_index > pack_index:
+                findings.append(
+                    {
+                        "rule_id": "pack_dependency_order",
+                        "severity": "warning",
+                        "message": (
+                            f"{pack_id} depends on {dependency!r}, but that pack appears later "
+                            f"in the supplied load order."
+                        ),
+                        "rule_help": "Load dependency packs before packs that extend or override them.",
+                    }
+                )
 
 
 def _duplicate_paths(files: list[dict[str, Any]], findings: list[dict[str, str]]) -> None:
@@ -357,6 +469,29 @@ def _load_manifest(path: Path) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def _dependency_ids(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    ids: list[str] = []
+    for item in value:
+        dependency_id = _dependency_id(item)
+        if dependency_id:
+            ids.append(dependency_id)
+    return ids
+
+
+def _dependency_entry_count(value: object) -> int:
+    return len(value) if isinstance(value, list) else 0
+
+
+def _dependency_id(value: object) -> str:
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, dict):
+        return str(value.get("id") or "").strip()
+    return ""
+
+
 def _files_by_path(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
     files = [item for item in data.get("files", []) if isinstance(item, dict)]
     return {str(item.get("path", "")).strip(): item for item in files if str(item.get("path", "")).strip()}
@@ -409,7 +544,10 @@ def _text(report: dict[str, Any]) -> str:
     summary = report["summary"]
     lines = [
         "Godot Pack Mod Doctor",
-        f"Files: {summary['files']} | Errors: {summary['errors']} | Warnings: {summary['warnings']}",
+        (
+            f"Files: {summary['files']} | Dependencies: {summary['dependencies']} | "
+            f"Errors: {summary['errors']} | Warnings: {summary['warnings']}"
+        ),
     ]
     if report.get("kind") == "pack_manifest_diff":
         diff = report["diff"]
@@ -447,9 +585,10 @@ def _markdown(report: dict[str, Any]) -> str:
             ]
         )
     if report.get("kind") == "pack_load_order":
-        lines.extend(["## Load Order", "", "| Order | Pack | Files |", "|---:|---|---:|"])
+        lines.extend(["## Load Order", "", "| Order | Pack | Files | Dependencies |", "|---:|---|---:|---|"])
         for pack in report["packs"]:
-            lines.append(f"| {pack['order']} | {pack['id']} | {pack['files']} |")
+            dependencies = ", ".join(pack.get("dependencies", [])) or "-"
+            lines.append(f"| {pack['order']} | {pack['id']} | {pack['files']} | {dependencies} |")
         lines.append("")
     lines.extend(["## Findings", ""])
     if not report["findings"]:

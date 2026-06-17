@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 - 2026-06-17
+
+- Added dependency shape checks for pack manifests, including missing and duplicate dependency IDs.
+- `load-order` now reports duplicate pack IDs, missing dependency packs, and dependencies that appear after the packs that need them.
+- Text and Markdown reports now include dependency counts for ordered pack reviews.
+
 ## 0.1.2 - 2026-06-16
 
 - Added `manifest from-folder` for generating deterministic pack manifests

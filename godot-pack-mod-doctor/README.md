@@ -51,10 +51,13 @@ so later `diff` reports can show exactly which shipped resources changed.
 ```
 
 The optional base manifest can contain `content` entries with `id` fields.
+Dependencies can be written as objects with an `id` field, or as simple id
+strings when version constraints are tracked elsewhere.
 
 ## Checks
 
 - missing pack id or version;
+- malformed or duplicated dependency entries;
 - file entries without paths;
 - duplicate shipped paths;
 - unexpected overrides;
@@ -64,7 +67,8 @@ The optional base manifest can contain `content` entries with `id` fields.
 - script, native binary, archive, packed-project, debug, backup, cache, or key
   files that commonly need manual review before public distribution;
 - added, removed, and changed files between two pack manifests;
-- undeclared override conflicts across ordered packs.
+- duplicate pack ids, missing dependencies, dependency order problems, and
+  undeclared override conflicts across ordered packs.
 
 Scripted mods and native extensions can be legitimate. These file policy checks
 are warnings by default; use `--fail-on warning` in CI if your project wants a
@@ -81,4 +85,5 @@ paths and stable file metadata so changed resources are visible in review.
 
 `load-order` reads packs in the order supplied on the command line. If a later
 pack ships the same resource path without setting `overrides: true`, the report
-flags the conflict so the intended ownership is explicit.
+flags the conflict so the intended ownership is explicit. It also checks that
+dependencies listed by each pack are present earlier in the supplied load order.

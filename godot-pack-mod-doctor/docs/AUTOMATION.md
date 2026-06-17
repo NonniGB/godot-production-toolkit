@@ -24,6 +24,12 @@ Treat advisory file-policy warnings as CI failures:
 godot-pack-mod-doctor check pack-manifest.json --format json --fail-on warning
 ```
 
+Review content-pack load order before publishing a mod set:
+
+```powershell
+godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown --output reports\pack-load-order.md
+```
+
 Exit codes:
 
 - `0`: no findings at the selected fail threshold.

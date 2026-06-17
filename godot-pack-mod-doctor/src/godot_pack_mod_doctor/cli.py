@@ -7,7 +7,7 @@ import sys
 
 from .doctor import check_manifest, diff_manifests, load_order, manifest_from_folder, render
 
-VERSION_LABEL = "godot-pack-mod-doctor 0.1.2"
+VERSION_LABEL = "godot-pack-mod-doctor 0.1.3"
 
 
 def main(argv: list[str] | None = None) -> int:

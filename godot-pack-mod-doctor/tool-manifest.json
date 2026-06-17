@@ -37,7 +37,7 @@
       "command": "godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown"
     },
     {
-      "purpose": "Check load order conflicts across packs",
+      "purpose": "Check load order dependencies and conflicts across packs",
       "command": "godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown"
     },
     {

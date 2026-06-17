@@ -72,7 +72,7 @@ godot-content-graph . --preset recipes --format markdown --output reports/conten
 godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json
 godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format markdown --output reports/pack.md
 godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown --output reports/pack-diff.md
-godot-pack-mod-doctor load-order base-pack.json patch-pack.json --format markdown --output reports/pack-load-order.md
+godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown --output reports/pack-load-order.md
 ```
 
 ### Release Evidence Dashboard
@@ -110,6 +110,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Pack, patch, DLC, or mod manifests need release checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
 | A pack folder needs a manifest before review or CI | `godot-pack-mod-doctor` | `godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json` |
 | Pack updates need added/removed/changed files or load-order conflicts reviewed | `godot-pack-mod-doctor` | `godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown` |
+| Mod or DLC packs need missing dependency or ordering checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown` |
 | Release reports and screenshots need one static review page | `godot-release-dashboard-kit` | `godot-release-dashboard build reports --output reports/dashboard.html` |
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Pixel-art space assets need deterministic previews or PNG diffs | `pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |

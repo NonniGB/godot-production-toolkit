@@ -19,6 +19,8 @@ env:
   PACK_MANIFEST: "packs/pack-manifest.json"
   PACK_SOURCE_DIR: "packs/current"
   BASE_CONTENT_MANIFEST: "packs/base-content.json"
+  # Optional: space-separated manifest paths in the order they should load.
+  PACK_LOAD_ORDER: ""
   REPORTS_DIR: "reports/content-pack"
 
 jobs:
@@ -79,6 +81,12 @@ jobs:
             --format markdown \
             --output "$REPORTS_DIR/pack-manifest.md" \
             --fail-on none
+          if [ -n "$PACK_LOAD_ORDER" ]; then
+            godot-pack-mod-doctor load-order $PACK_LOAD_ORDER \
+              --format markdown \
+              --output "$REPORTS_DIR/pack-load-order.md" \
+              --fail-on none
+          fi
 
       - name: Upload content pack reports
         if: always()

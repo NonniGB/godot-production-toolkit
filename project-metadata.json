@@ -96,7 +96,7 @@
     },
     {
       "name": "godot-pack-mod-doctor",
-      "role": "Pack, DLC, mod, and patch manifest generation, validation, diffing, and load-order checks.",
+      "role": "Pack, DLC, mod, and patch manifest generation, validation, dependency, diffing, and load-order checks.",
       "interfaces": ["cli", "json", "markdown", "text"]
     },
     {

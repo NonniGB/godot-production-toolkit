@@ -203,7 +203,7 @@ godot-telemetry-lab timeline godot-runtime-telemetry-lab\examples\tiny-runtime-r
 godot-pack-mod-doctor manifest from-folder addons\demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json
 godot-pack-mod-doctor check pack-manifest.json --format markdown
 godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown
-godot-pack-mod-doctor load-order base-pack.json patch-pack.json --format markdown
+godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown
 godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --title "Godot Toolkit Release Evidence" --output reports\dashboard.html
 ```
 
@@ -266,7 +266,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-visual-smoke-test-kit` | Screenshot diffing, approval, and Godot capture command planning. | JSON, PNG diffs |
 | `godot-mobile-perf-doctor` | Static mobile performance diagnostics. | JSON, SARIF, Markdown |
 | `godot-mobile-ui-doctor` | Mobile UI safe-area, touch-target, spacing, localized layout-risk, overlay previews, and combined mobile readiness reports. | JSON, Markdown, PNG, text |
-| `godot-pack-mod-doctor` | Pack, DLC, mod, and patch manifest generation, validation, diffing, and load-order checks. | JSON, Markdown, text |
+| `godot-pack-mod-doctor` | Pack, DLC, mod, and patch manifest generation, validation, diffing, dependency, and load-order checks. | JSON, Markdown, text |
 | `godot-release-dashboard-kit` | Static dashboard builder for toolkit reports. | HTML, JSON |
 | `godot-runtime-telemetry-lab` | Runtime telemetry summaries, timelines, named budgets, and baseline comparisons. | JSON, Markdown, text, HTML, SVG |
 | `pixel-space-asset-toolkit` | Deterministic pixel sci-fi asset utilities, galleries, and PNG image/directory diff checks. | JSON, PNG, HTML |
@@ -371,7 +371,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.4` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.11` |
-| [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.2` |
+| [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.3` |
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.4` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.2` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.4` |

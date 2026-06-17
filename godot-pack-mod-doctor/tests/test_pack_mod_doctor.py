@@ -37,11 +37,44 @@ class PackModDoctorTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.2")
+            self.assertEqual(report["tool_version"], "0.1.3")
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("duplicate_file_path", rules)
             self.assertIn("override_not_allowed", rules)
             self.assertNotIn("pack_unsafe_file_type", rules)
+
+    def test_check_reports_dependency_shape_findings(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "pack.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "id": "demo_pack",
+                        "version": "1.0.0",
+                        "dependencies": [
+                            {"id": "base_pack"},
+                            {"id": "base_pack"},
+                            {"id": "demo_pack"},
+                            {"name": "missing_id"},
+                            "",
+                        ],
+                        "files": [{"path": "res://items/sword.tres"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["check", str(manifest), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["dependencies"], 5)
+            rules = {finding["rule_id"] for finding in report["findings"]}
+            self.assertIn("pack_dependency_duplicate_id", rules)
+            self.assertIn("pack_dependency_missing_id", rules)
+            self.assertIn("pack_self_dependency", rules)
 
     def test_manifest_from_folder_generates_stable_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -217,6 +250,107 @@ class PackModDoctorTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertEqual(report["kind"], "pack_load_order")
             self.assertEqual(report["findings"][0]["rule_id"], "load_order_conflict")
+
+    def test_load_order_reports_dependency_problems(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = root / "base.json"
+            patch = root / "patch.json"
+            duplicate = root / "duplicate.json"
+            missing_dep = root / "missing-dep.json"
+            base.write_text(
+                json.dumps({"id": "base", "version": "1", "files": [{"path": "res://items/base.tres"}]}),
+                encoding="utf-8",
+            )
+            patch.write_text(
+                json.dumps(
+                    {
+                        "id": "patch",
+                        "version": "1",
+                        "dependencies": [{"id": "base"}, {"id": "optional"}],
+                        "files": [{"path": "res://items/patch.tres"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            duplicate.write_text(
+                json.dumps({"id": "base", "version": "2", "files": [{"path": "res://items/base2.tres"}]}),
+                encoding="utf-8",
+            )
+            missing_dep.write_text(
+                json.dumps(
+                    {
+                        "id": "early_patch",
+                        "version": "1",
+                        "dependencies": ["patch", "missing_pack", {"name": "broken"}],
+                        "files": [{"path": "res://items/early.tres"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "load-order",
+                        str(missing_dep),
+                        str(base),
+                        str(patch),
+                        str(duplicate),
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["dependencies"], 5)
+            self.assertEqual(report["summary"]["errors"], 4)
+            rules = {finding["rule_id"] for finding in report["findings"]}
+            self.assertIn("duplicate_pack_id", rules)
+            self.assertIn("pack_dependency_missing_id", rules)
+            self.assertIn("pack_dependency_missing", rules)
+            self.assertIn("pack_dependency_order", rules)
+            early_pack = report["packs"][0]
+            self.assertEqual(early_pack["dependencies"], ["patch", "missing_pack"])
+
+    def test_load_order_text_and_markdown_include_dependency_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = root / "base.json"
+            patch = root / "patch.json"
+            base.write_text(
+                json.dumps({"id": "base", "version": "1", "files": [{"path": "res://items/base.tres"}]}),
+                encoding="utf-8",
+            )
+            patch.write_text(
+                json.dumps(
+                    {
+                        "id": "patch",
+                        "version": "1",
+                        "dependencies": [{"id": "base"}],
+                        "files": [{"path": "res://items/patch.tres"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            text_stdout = StringIO()
+            with redirect_stdout(text_stdout):
+                text_exit = main(["load-order", str(base), str(patch), "--format", "text"])
+
+            markdown_stdout = StringIO()
+            with redirect_stdout(markdown_stdout):
+                markdown_exit = main(["load-order", str(base), str(patch), "--format", "markdown"])
+
+            self.assertEqual(text_exit, 0)
+            self.assertEqual(markdown_exit, 0)
+            self.assertIn("Dependencies: 1", text_stdout.getvalue())
+            self.assertIn("| Order | Pack | Files | Dependencies |", markdown_stdout.getvalue())
+            self.assertIn("| 1 | patch | 1 | base |", markdown_stdout.getvalue())
 
 
 if __name__ == "__main__":

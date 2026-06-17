@@ -4,6 +4,7 @@
 
 - Added mobile UI overlay support for localized layout-risk JSON reports.
 - Added compact telemetry summaries to scenario evidence bundles and release dashboard cards.
+- Added dependency and load-order checks for Godot pack/mod manifests.
 - Added package foundations for runtime telemetry, pack/mod manifest checks, and static release dashboards.
 - Added runtime telemetry timeline reports, starter budget profiles, and a tiny runtime fixture.
 - Added scenario manifest coverage, flaky-run comparison, and a public coverage report sample.
