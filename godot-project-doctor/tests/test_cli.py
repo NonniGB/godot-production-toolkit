@@ -108,6 +108,7 @@ window/handheld/orientation=1
             (root / "addons" / "gut" / "plugin.cfg").write_text("[plugin]\nname=\"GUT\"\n", encoding="utf-8")
             (root / "reports").mkdir()
             (root / "reports" / "mobile-ui.json").write_text("{}", encoding="utf-8")
+            (root / "reports" / "runtime-telemetry.csv").write_text("frame_ms,memory_mb\n16,128\n", encoding="utf-8")
 
             inspect_stdout = StringIO()
             with redirect_stdout(inspect_stdout):
@@ -116,6 +117,7 @@ window/handheld/orientation=1
             self.assertTrue(inspected["features"]["export_presets"])
             self.assertTrue(inspected["features"]["png_assets"])
             self.assertTrue(inspected["features"]["content_data_likely"])
+            self.assertTrue(inspected["features"]["runtime_telemetry_likely"])
             self.assertEqual(inspected["details"]["project_name"], "Tiny Project")
             self.assertEqual(inspected["details"]["gdscript_count"], 1)
             self.assertIn("GUT", inspected["details"]["test_frameworks"])
@@ -133,6 +135,7 @@ window/handheld/orientation=1
             self.assertIn("content_graph", recommended)
             self.assertIn("mobile_ui", recommended)
             self.assertIn("scenario_report", recommended)
+            self.assertIn("runtime_telemetry", recommended)
             export = next(item for item in recommendation_payload["recommendations"] if item["id"] == "export")
             self.assertEqual(export["priority"], "high")
             self.assertEqual(export["package"], "godot-export-preset-doctor")
@@ -166,6 +169,67 @@ metadata = "reports/mobile-ui.json"
             self.assertEqual(command["id"], "mobile_ui")
             self.assertIn("godot-mobile-ui-doctor", command["argv"][0])
             self.assertIn("mobile-ui.json", " ".join(command["argv"]))
+
+    def test_plan_includes_runtime_telemetry_when_path_is_configured(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / "godot-project-doctor.toml"
+            config.write_text(
+                """
+[project]
+path = "demo"
+checks = ["runtime_telemetry"]
+
+[tools.runtime_telemetry]
+path = "reports/runtime"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                self.assertEqual(main(["plan", str(config), "--format", "json"]), 0)
+
+            payload = json.loads(stdout.getvalue())
+            command = payload["commands"][0]
+            self.assertEqual(command["id"], "runtime_telemetry")
+            self.assertEqual(command["argv"][0], "godot-telemetry-lab")
+            self.assertIn("summarize", command["argv"])
+            self.assertIn("reports", " ".join(command["argv"]))
+            self.assertIn("--format", command["argv"])
+            self.assertIn("--output", command["argv"])
+
+    def test_plan_includes_pack_mod_when_manifest_is_configured(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / "godot-project-doctor.toml"
+            config.write_text(
+                """
+[project]
+path = "demo"
+checks = ["pack_mod"]
+
+[tools.pack_mod]
+manifest = "pack-manifest.json"
+base = "base-content.json"
+allow_overrides = true
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                self.assertEqual(main(["plan", str(config), "--format", "json"]), 0)
+
+            payload = json.loads(stdout.getvalue())
+            command = payload["commands"][0]
+            self.assertEqual(command["id"], "pack_mod")
+            self.assertEqual(command["argv"][0], "godot-pack-mod-doctor")
+            self.assertIn("check", command["argv"])
+            self.assertIn("pack-manifest.json", " ".join(command["argv"]))
+            self.assertIn("--base", command["argv"])
+            self.assertIn("base-content.json", " ".join(command["argv"]))
+            self.assertIn("--allow-overrides", command["argv"])
 
     def test_init_dry_run_prints_config_without_writing_files(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -213,6 +277,49 @@ metadata = "reports/mobile-ui.json"
             self.assertIn("godot-release-dashboard build", " ".join(payload["guided_plan"]["commands"]))
             self.assertFalse((root / "reports" / "godot-project-doctor" / "mobile-plan.md").exists())
 
+    def test_doctor_profile_catalog_includes_focused_workflows(self) -> None:
+        cases = {
+            "android": ["export", "mobile_perf", "input", "assets", "localization"],
+            "html5": ["export", "assets", "input", "localization", "visual_smoke"],
+            "localization": ["localization", "mobile_ui", "visual_smoke", "input"],
+            "runtime": ["scenario_report", "runtime_telemetry", "mobile_perf", "visual_smoke", "signals"],
+            "mods": ["pack_mod", "content_graph", "scenario_report", "assets", "save_schema"],
+            "save-migration": ["save_schema", "scenario_report", "content_graph", "runtime_telemetry"],
+            "architecture": ["architecture", "signals", "api_comments", "scenario_report"],
+            "visual": ["visual_smoke", "mobile_ui", "assets", "localization", "input"],
+            "mobile-ui": ["input", "mobile_ui", "localization", "visual_smoke", "mobile_perf"],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.godot").write_text("[application]\nconfig/name=\"Tiny\"\n", encoding="utf-8")
+            for profile, expected in cases.items():
+                stdout = StringIO()
+                with redirect_stdout(stdout):
+                    self.assertEqual(main(["doctor", str(root), "--profile", profile, "--format", "json"]), 0)
+                payload = json.loads(stdout.getvalue())
+                self.assertEqual(payload["profile"], profile)
+                self.assertEqual([task["id"] for task in payload["tasks"]], expected)
+
+            mods_stdout = StringIO()
+            with redirect_stdout(mods_stdout):
+                self.assertEqual(main(["doctor", str(root), "--profile", "mods", "--format", "json"]), 0)
+            mods_payload = json.loads(mods_stdout.getvalue())
+            pack_task = next(task for task in mods_payload["tasks"] if task["id"] == "pack_mod")
+            self.assertEqual(pack_task["status"], "needs_setup")
+            self.assertEqual(pack_task["package"], "godot-pack-mod-doctor")
+            self.assertIn("pack manifest JSON", " ".join(pack_task["expected_inputs"]))
+            self.assertIn("godot-pack-mod-doctor check", pack_task["command"])
+
+    def test_unknown_doctor_profile_returns_usage_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            with self.assertRaises(SystemExit) as raised:
+                main(["doctor", str(root), "--profile", "unknown-profile"])
+
+            self.assertEqual(raised.exception.code, 2)
+
+
     def test_doctor_profile_text_outputs_install_guidance(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -253,7 +360,7 @@ metadata = "reports/mobile-ui.json"
             self.assertTrue(workflow.exists())
             workflow_text = workflow.read_text(encoding="utf-8")
             self.assertIn("Godot production checks", workflow_text)
-            self.assertIn("content_graph,save_schema,scenario_report,assets", workflow_text)
+            self.assertIn("content_graph,save_schema,scenario_report,pack_mod,assets", workflow_text)
             self.assertIn("Workflow written:", stdout.getvalue())
 
     def test_doctor_profile_writes_guided_plan_only_when_requested(self) -> None:
@@ -488,7 +595,7 @@ metadata = "reports/mobile-ui.json"
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.1.7", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.1.8", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -503,7 +610,7 @@ metadata = "reports/mobile-ui.json"
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.1.7", completed.stdout)
+        self.assertIn("godot-project-doctor 0.1.8", completed.stdout)
 
 
 if __name__ == "__main__":

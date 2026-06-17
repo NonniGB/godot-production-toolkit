@@ -100,12 +100,32 @@ TOOL_REGISTRY: tuple[ToolSpec, ...] = (
         required_config=("config",),
     ),
     ToolSpec(
+        "pack_mod",
+        "Pack/Mod Doctor",
+        "godot-pack-mod-doctor",
+        "pack-mod.json",
+        False,
+        "godot-pack-mod-doctor",
+        required_config=("manifest",),
+        project_arg=False,
+    ),
+    ToolSpec(
         "scenario_report",
         "Scenario Report Kit",
         "godot-scenario-report",
         "scenario-report.json",
         False,
         "godot-scenario-report-kit",
+        required_config=("path",),
+        project_arg=False,
+    ),
+    ToolSpec(
+        "runtime_telemetry",
+        "Runtime Telemetry Lab",
+        "godot-telemetry-lab",
+        "runtime-telemetry.json",
+        False,
+        "godot-runtime-telemetry-lab",
         required_config=("path",),
         project_arg=False,
     ),
@@ -169,9 +189,17 @@ CHECK_GUIDANCE: dict[str, dict[str, str]] = {
         "why": "Validates ids, references, and numeric outliers across data-driven content files.",
         "when": "Run before merging item, recipe, quest, level, dialogue, or content-pack data.",
     },
+    "pack_mod": {
+        "why": "Checks pack, DLC, patch, or mod manifests for identity, dependency, path, and shipped-file risks.",
+        "when": "Run before sharing optional content packs or comparing a pack update against a baseline.",
+    },
     "scenario_report": {
         "why": "Summarizes and compares runtime scenario evidence from a project's own runner.",
         "when": "Run after scenario, smoke, or regression runs have produced JSON evidence.",
+    },
+    "runtime_telemetry": {
+        "why": "Summarizes frame, memory, node, and draw-call samples from project-owned runtime logs.",
+        "when": "Run after smoke, soak, or scenario runs produce telemetry JSON or CSV files.",
     },
     "architecture": {
         "why": "Checks module dependency direction, autoload access, and unresolved GDScript resource links.",
@@ -185,15 +213,60 @@ PROFILE_DEFINITIONS: dict[str, dict[str, Any]] = {
         "description": "Export presets, assets, input coverage, localization, mobile performance, and report collection.",
         "checks": ["export", "assets", "input", "localization", "mobile_perf"],
     },
+    "android": {
+        "title": "Android release review",
+        "description": "Android export settings, static mobile performance, input coverage, asset imports, and localization basics.",
+        "checks": ["export", "mobile_perf", "input", "assets", "localization"],
+    },
+    "html5": {
+        "title": "Web export review",
+        "description": "Web export settings, asset imports, input coverage, localization, and visual smoke planning.",
+        "checks": ["export", "assets", "input", "localization", "visual_smoke"],
+    },
     "mobile": {
         "title": "Mobile review",
         "description": "Android/export readiness, static mobile performance, touch input, mobile UI metadata, and visual smoke planning.",
         "checks": ["export", "mobile_perf", "input", "mobile_ui", "visual_smoke"],
     },
+    "mobile-ui": {
+        "title": "Mobile UI review",
+        "description": "Touch input, safe-area metadata, localization stress inputs, visual smoke planning, and static mobile settings.",
+        "checks": ["input", "mobile_ui", "localization", "visual_smoke", "mobile_perf"],
+    },
+    "localization": {
+        "title": "Localization review",
+        "description": "Translation files, script key usage, mobile layout risk inputs, visual smoke planning, and input text flows.",
+        "checks": ["localization", "mobile_ui", "visual_smoke", "input"],
+    },
+    "runtime": {
+        "title": "Runtime evidence",
+        "description": "Scenario reports, runtime telemetry, static performance checks, visual smoke planning, and signal evidence.",
+        "checks": ["scenario_report", "runtime_telemetry", "mobile_perf", "visual_smoke", "signals"],
+    },
     "content": {
         "title": "Content safety",
         "description": "Data graph integrity, save fixtures, scenario evidence, pack/content checks, and release dashboard inputs.",
-        "checks": ["content_graph", "save_schema", "scenario_report", "assets"],
+        "checks": ["content_graph", "save_schema", "scenario_report", "pack_mod", "assets"],
+    },
+    "save-migration": {
+        "title": "Save migration review",
+        "description": "Save fixtures, schema validation, migration evidence, scenario reports, and content reference checks.",
+        "checks": ["save_schema", "scenario_report", "content_graph", "runtime_telemetry"],
+    },
+    "mods": {
+        "title": "Mod and pack review",
+        "description": "Pack manifests, content graph checks, scenario evidence, asset imports, and save compatibility inputs.",
+        "checks": ["pack_mod", "content_graph", "scenario_report", "assets", "save_schema"],
+    },
+    "architecture": {
+        "title": "Architecture review",
+        "description": "GDScript module boundaries, scene signal wiring, public API comments, and scenario evidence.",
+        "checks": ["architecture", "signals", "api_comments", "scenario_report"],
+    },
+    "visual": {
+        "title": "Visual review",
+        "description": "Screenshot plans, UI metadata, asset imports, localization stress inputs, and input coverage.",
+        "checks": ["visual_smoke", "mobile_ui", "assets", "localization", "input"],
     },
     "qa": {
         "title": "QA evidence",
@@ -290,6 +363,11 @@ def inspect_project(project: Path) -> dict[str, Any]:
             ("scenario" in path.lower() or "smoke" in path.lower()) and path.endswith(".json")
             for path in rel_paths
         ),
+        "runtime_telemetry_likely": any(
+            ("telemetry" in path.lower() or "runtime" in path.lower() or "perf" in path.lower())
+            and path.endswith((".json", ".csv"))
+            for path in rel_paths
+        ),
         "content_data_likely": any(
             path.startswith(("data/", "content/", "resources/")) and path.endswith((".json", ".csv", ".toml"))
             for path in rel_paths
@@ -313,6 +391,12 @@ def inspect_project(project: Path) -> dict[str, Any]:
             for path in rel_paths
             if ("scenario" in path.lower() or "smoke" in path.lower()) and path.endswith(".json")
         ),
+        "runtime_telemetry_count": sum(
+            1
+            for path in rel_paths
+            if ("telemetry" in path.lower() or "runtime" in path.lower() or "perf" in path.lower())
+            and path.endswith((".json", ".csv"))
+        ),
         "test_frameworks": test_frameworks,
         "sample_paths": {
             "scripts": _sample_paths(rel_paths, lambda path: path.endswith(".gd")),
@@ -326,6 +410,11 @@ def inspect_project(project: Path) -> dict[str, Any]:
             "scenario_results": _sample_paths(
                 rel_paths,
                 lambda path: ("scenario" in path.lower() or "smoke" in path.lower()) and path.endswith(".json"),
+            ),
+            "runtime_telemetry": _sample_paths(
+                rel_paths,
+                lambda path: ("telemetry" in path.lower() or "runtime" in path.lower() or "perf" in path.lower())
+                and path.endswith((".json", ".csv")),
             ),
         },
     }
@@ -572,6 +661,11 @@ def recommend_checks_from_features(features: dict[str, Any], project: str | None
             bool(features.get("scenario_results_likely") or features.get("test_framework_likely")),
             "Scenario results or a Godot test framework were found.",
         ),
+        (
+            "runtime_telemetry",
+            bool(features.get("runtime_telemetry_likely")),
+            "Runtime, telemetry, or performance JSON/CSV files were found.",
+        ),
         ("mobile_ui", bool(features.get("mobile_ui_metadata_likely")), "Mobile UI metadata files were found."),
         ("architecture", bool(features.get("gdscript_files")), "GDScript files were found."),
     ]
@@ -623,8 +717,10 @@ def _expected_inputs(check_id: str, project: Path) -> list[str]:
         "mobile_ui": ["mobile UI metadata JSON"],
         "visual_smoke": ["visual-smoke.toml capture plan"],
         "content_graph": ["content-graph.toml and JSON/CSV/TOML content files"],
+        "pack_mod": ["pack manifest JSON"],
         "save_schema": ["save fixtures directory and JSON schema"],
         "scenario_report": ["scenario result JSON file or folder"],
+        "runtime_telemetry": ["runtime telemetry JSON/CSV file or folder"],
         "architecture": ["architecture-guard.toml and GDScript files"],
         "signals": ["Godot scenes and GDScript files"],
         "api_comments": ["GDScript files"],
@@ -732,8 +828,14 @@ def render_starter_config(project: Path, reports_dir: str = "reports/godot-proje
         "# [tools.content_graph]",
         '# config = "content-graph.toml"',
         "",
+        "# [tools.pack_mod]",
+        '# manifest = "pack-manifest.json"',
+        "",
         "# [tools.scenario_report]",
         '# path = "reports/scenarios"',
+        "",
+        "# [tools.runtime_telemetry]",
+        '# path = "reports/runtime"',
         "",
         "# [tools.architecture]",
         '# config = "architecture-guard.toml"',
@@ -1040,11 +1142,34 @@ def _build_tool_argv(spec: ToolSpec, project: Path, report_path: Path, config: d
             str(report_path),
             *args,
         ]
+    if spec.id == "pack_mod":
+        argv = [
+            spec.command,
+            "check",
+            str(_resolve_path(project, str(config.get("manifest", "pack-manifest.json")))),
+        ]
+        if config.get("base"):
+            argv.extend(["--base", str(_resolve_path(project, str(config.get("base"))))])
+        if config.get("allow_overrides"):
+            argv.append("--allow-overrides")
+        argv.extend(["--format", "json", "--output", str(report_path), *args])
+        return argv
     if spec.id == "scenario_report":
         return [
             spec.command,
             "summarize",
             str(_resolve_path(project, str(config.get("path", "reports/scenarios")))),
+            "--format",
+            "json",
+            "--output",
+            str(report_path),
+            *args,
+        ]
+    if spec.id == "runtime_telemetry":
+        return [
+            spec.command,
+            "summarize",
+            str(_resolve_path(project, str(config.get("path", "reports/runtime")))),
             "--format",
             "json",
             "--output",
@@ -1162,9 +1287,9 @@ def _recommendation(check_id: str, reason: str, project: str | None) -> dict[str
 
 
 def _priority_for_check(check_id: str) -> str:
-    if check_id in {"export", "assets", "input", "localization", "mobile_perf", "content_graph"}:
+    if check_id in {"export", "assets", "input", "localization", "mobile_perf", "content_graph", "pack_mod"}:
         return "high"
-    if check_id in {"api_comments", "signals", "architecture", "scenario_report"}:
+    if check_id in {"api_comments", "signals", "architecture", "scenario_report", "runtime_telemetry"}:
         return "medium"
     return "specialized"
 

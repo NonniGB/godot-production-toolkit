@@ -64,7 +64,7 @@ godot-project-doctor collect godot-project-doctor.toml --evidence-dir reports\go
 
 ## Config
 
-Use `examples/godot-project-doctor.toml` as a starting point. Project-audit tools are enabled by default; specialized tools such as save-schema validation, visual smoke plans, and pixel asset commands stay disabled until their required config is supplied.
+Use `examples/godot-project-doctor.toml` as a starting point. Project-audit tools are enabled by default; specialized tools such as save-schema validation, visual smoke plans, pack manifests, runtime telemetry, and pixel asset commands stay disabled until their required config is supplied.
 
 ## Profile Checklists
 
@@ -72,10 +72,19 @@ Use `doctor` when you want a first-run checklist instead of a raw command list:
 
 ```powershell
 godot-project-doctor doctor . --profile release
+godot-project-doctor doctor . --profile android
+godot-project-doctor doctor . --profile html5
 godot-project-doctor doctor . --profile mobile --format json
+godot-project-doctor doctor . --profile mobile-ui --write-plan
+godot-project-doctor doctor . --profile localization --write-plan
+godot-project-doctor doctor . --profile runtime --write-plan
 godot-project-doctor doctor . --profile release --write-plan
 godot-project-doctor doctor . --profile mobile --write-plan --plan-path docs/mobile-check-plan.md
 godot-project-doctor doctor . --profile content --write-workflow
+godot-project-doctor doctor . --profile save-migration
+godot-project-doctor doctor . --profile mods
+godot-project-doctor doctor . --profile architecture
+godot-project-doctor doctor . --profile visual
 godot-project-doctor doctor . --profile qa
 ```
 
@@ -83,8 +92,17 @@ Profiles are side-effect-free unless `--write-plan` or `--write-workflow` is
 passed. The current profiles are:
 
 - `release`: export, asset, input, localization, and mobile performance checks.
+- `android`: Android export settings, static mobile performance, input, assets, and localization checks.
+- `html5`: web export settings, asset imports, input, localization, and visual smoke planning.
 - `mobile`: Android/export, mobile performance, input, mobile UI, and visual smoke planning.
-- `content`: content graph, save schema, scenario report, and asset checks.
+- `mobile-ui`: touch input, mobile UI metadata, localization, visual smoke planning, and mobile settings.
+- `localization`: translation files, mobile layout metadata, visual smoke planning, and input text flows.
+- `runtime`: scenario reports, runtime telemetry, static performance checks, visual smoke planning, and signal evidence.
+- `content`: content graph, save schema, scenario report, pack manifest, and asset checks.
+- `save-migration`: save fixtures, schema validation, migration evidence, scenario reports, and content reference checks.
+- `mods`: pack manifests, content graph checks, scenario evidence, asset imports, and save compatibility inputs.
+- `architecture`: GDScript module boundaries, scene signals, public API comments, and scenario evidence.
+- `visual`: screenshot plans, UI metadata, asset imports, localization stress inputs, and input coverage.
 - `qa`: scenario, visual smoke, mobile UI, architecture, and signal checks.
 
 `--write-plan` writes a Markdown checklist for the selected profile. The plan

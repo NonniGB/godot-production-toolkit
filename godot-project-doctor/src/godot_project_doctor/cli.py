@@ -15,6 +15,7 @@ from .runner import (
     exit_code_for_summary,
     explain_check,
     inspect_project,
+    PROFILE_DEFINITIONS,
     render_github_action_example,
     render_guided_plan_markdown,
     render_starter_config,
@@ -59,7 +60,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-project-doctor",
         description="Plan, run, and summarize the Godot production toolkit.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.7")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.8")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")
@@ -83,7 +84,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     doctor = subparsers.add_parser("doctor", help="Show a profile-based first-run checklist for a project.")
     doctor.add_argument("project", nargs="?", default=".", help="Godot project directory.")
-    doctor.add_argument("--profile", choices=["release", "mobile", "content", "qa"], default="release")
+    doctor.add_argument("--profile", choices=sorted(PROFILE_DEFINITIONS), default="release")
     doctor.add_argument("--reports-dir", help="Override report directory.")
     doctor.add_argument("--format", choices=["text", "json"], default="text")
     doctor.add_argument("--write-workflow", action="store_true", help="Write a starter GitHub Actions workflow.")

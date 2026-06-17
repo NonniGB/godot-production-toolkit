@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.8 - 2026-06-17
+
+- Added focused doctor profiles for Android, HTML5/Web, localization, runtime
+  evidence, mods/content packs, save migration, architecture, visual review,
+  and mobile UI work.
+- Added pack/mod manifest and runtime telemetry checks to profile planning.
+
 ## 0.1.7 - 2026-06-17
 
 - Added package names and `pip install` guidance to `recommend`, `doctor`, and

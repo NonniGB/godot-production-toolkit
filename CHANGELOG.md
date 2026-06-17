@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Improved `godot-project-doctor` with focused Android, HTML5/Web,
+  localization, runtime evidence, mods/content packs, save migration,
+  architecture, visual review, and mobile UI profiles.
 - Improved `godot-project-doctor` with package names and compact `pip install`
   guidance in recommendations, profile output, and generated first-run plans.
 - Improved `godot-project-doctor` with profile-based Markdown first-run plans

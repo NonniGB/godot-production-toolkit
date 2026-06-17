@@ -81,6 +81,8 @@ godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.jso
 
 ```powershell
 godot-project-doctor doctor . --profile release --write-plan
+godot-project-doctor doctor . --profile android --write-plan
+godot-project-doctor doctor . --profile runtime --write-plan
 godot-project-doctor run --project . --checks assets,export,input,localization,signals,mobile_perf --format json --output reports/godot-project-doctor/summary.json
 godot-release-dashboard build reports --output reports/dashboard.html
 ```
@@ -119,7 +121,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Pixel-art space assets need deterministic previews or PNG diffs | `pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
 | Several checks need one report | `godot-project-doctor` | `godot-project-doctor summarize reports --format html` |
-| A first-run checklist with package installs is needed for release, mobile, content, or QA work | `godot-project-doctor` | `godot-project-doctor doctor . --profile release --write-plan` |
+| A first-run checklist with package installs is needed for Android, web, localization, runtime evidence, mods, save migration, architecture, visual, mobile UI, release, content, or QA work | `godot-project-doctor` | `godot-project-doctor doctor . --profile android --write-plan` |
 
 ## Package Names
 
