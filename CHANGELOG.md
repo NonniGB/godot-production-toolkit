@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-release-dashboard-kit` with typed report highlights for
+  common toolkit report cards.
 - Improved `godot-project-doctor` with focused Android, HTML5/Web,
   localization, runtime evidence, mods/content packs, save migration,
   architecture, visual review, and mobile UI profiles.

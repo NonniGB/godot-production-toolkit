@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.8 - 2026-06-17
+
+- Dashboard cards now show typed highlights for common toolkit report shapes,
+  including runtime telemetry, pack/mod, export, asset, content, and save
+  reports.
+- JSON dashboards now include per-card `highlights` rows for scripts and
+  downstream dashboard tooling.
+
 ## 0.1.7 - 2026-06-17
 
 - Added `--previous-reports-dir` with `--baseline` as an alias for comparing a

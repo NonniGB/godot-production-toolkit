@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-release-dashboard-kit"
-version = "0.1.7"
-description = "Build static workflow-grouped release dashboards with baseline trend summaries."
+version = "0.1.8"
+description = "Build static workflow-grouped release dashboards with typed report highlights and baseline trends."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

@@ -206,10 +206,13 @@ def _json_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, Any
     if isinstance(data, dict):
         metadata = _report_metadata(data, summary)
         commands = _report_commands(data)
+        highlights = _report_highlights(data, summary)
         if metadata:
             card["metadata"] = metadata
         if commands:
             card["commands"] = commands
+        if highlights:
+            card["highlights"] = highlights
     if isinstance(data, dict) and data.get("kind") == "scenario_bundle":
         card.update(_scenario_bundle_details(data))
         _apply_scenario_bundle_state(card)
@@ -483,6 +486,125 @@ def _report_commands(data: dict[str, Any]) -> list[dict[str, str]]:
                 if command:
                     rows.append({"label": str(item.get("label") or "Reproduce"), "command": command})
     return _dedupe_commands(rows)[:5]
+
+
+def _report_highlights(data: dict[str, Any], summary: object) -> list[dict[str, str]]:
+    summary_dict = summary if isinstance(summary, dict) else {}
+    rows: list[dict[str, str]] = []
+    tool = str(data.get("tool") or "").lower()
+    kind = str(data.get("kind") or "").lower()
+    haystack = f"{tool} {kind}"
+
+    if "runtime" in haystack or "telemetry" in haystack:
+        rows.extend(_runtime_highlights(summary_dict))
+    if "pack" in haystack or "mod" in haystack:
+        rows.extend(_pack_highlights(data, summary_dict))
+    if "export" in haystack:
+        rows.extend(
+            _summary_metric_highlights(
+                summary_dict,
+                ("presets", "platforms", "variants", "files", "total_bytes"),
+            )
+        )
+    if "asset" in haystack:
+        rows.extend(
+            _summary_metric_highlights(
+                summary_dict,
+                ("asset_count", "image_asset_count", "audio_asset_count", "issue_count"),
+            )
+        )
+    if "content" in haystack:
+        rows.extend(
+            _summary_metric_highlights(
+                summary_dict,
+                ("collections", "items", "references", "unused", "missing_references"),
+            )
+        )
+    if "save" in haystack:
+        rows.extend(_summary_metric_highlights(summary_dict, ("fixtures", "migrations", "validated", "redacted")))
+    if not rows:
+        rows.extend(_summary_metric_highlights(summary_dict, ("findings", "reports", "scenarios", "samples")))
+
+    return _dedupe_highlights(rows)[:8]
+
+
+def _runtime_highlights(summary: dict[str, Any]) -> list[dict[str, str]]:
+    rows = _summary_metric_highlights(summary, ("samples", "spikes", "frame_budget_ms", "memory_budget_mb"))
+    scenarios = summary.get("scenarios")
+    if isinstance(scenarios, list):
+        rows.append({"label": "Scenarios", "value": str(len(scenarios))})
+    frame_ms = summary.get("frame_ms")
+    if isinstance(frame_ms, dict):
+        if "p95" in frame_ms:
+            rows.append({"label": "Frame p95", "value": f"{_float_or_default(frame_ms.get('p95'), 0.0):.2f} ms"})
+        if "max" in frame_ms:
+            rows.append({"label": "Frame max", "value": f"{_float_or_default(frame_ms.get('max'), 0.0):.2f} ms"})
+    memory_mb = summary.get("memory_mb")
+    if isinstance(memory_mb, dict) and "max" in memory_mb:
+        rows.append({"label": "Memory max", "value": f"{_float_or_default(memory_mb.get('max'), 0.0):.1f} MB"})
+    return rows
+
+
+def _pack_highlights(data: dict[str, Any], summary: dict[str, Any]) -> list[dict[str, str]]:
+    rows = _summary_metric_highlights(summary, ("packs", "files", "dependencies", "content_ids", "risk_score"))
+    risk_level = summary.get("risk_level")
+    risk = data.get("risk", {})
+    risk_dict = risk if isinstance(risk, dict) else {}
+    if risk_level in (None, ""):
+        risk_level = risk_dict.get("level")
+    if risk_level not in (None, ""):
+        rows.append({"label": "Risk", "value": str(risk_level)})
+    packs = data.get("packs")
+    if isinstance(packs, list) and packs:
+        pack_order = [
+            str(pack.get("id") or "?")
+            for pack in packs
+            if isinstance(pack, dict)
+        ]
+        if pack_order:
+            rows.append({"label": "Pack order", "value": " -> ".join(pack_order)})
+    return rows
+
+
+def _summary_metric_highlights(summary: dict[str, Any], keys: tuple[str, ...]) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for key in keys:
+        value = summary.get(key)
+        if value in (None, "", []):
+            continue
+        rows.append({"label": _metric_label(key), "value": _metric_value(value)})
+    return rows
+
+
+def _metric_label(key: str) -> str:
+    labels = {
+        "p95": "p95",
+        "total_bytes": "Total bytes",
+        "risk_score": "Risk score",
+        "frame_budget_ms": "Frame budget",
+        "memory_budget_mb": "Memory budget",
+    }
+    return labels.get(key, key.replace("_", " ").capitalize())
+
+
+def _metric_value(value: object) -> str:
+    if isinstance(value, float):
+        return f"{value:.2f}"
+    if isinstance(value, list):
+        return str(len(value))
+    return str(value)
+
+
+def _dedupe_highlights(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    seen: set[tuple[str, str]] = set()
+    unique: list[dict[str, str]] = []
+    for row in rows:
+        key = (row["label"], row["value"])
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(row)
+    return unique
 
 
 def _dedupe_commands(rows: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -761,6 +883,7 @@ def _card(report: dict[str, Any]) -> str:
     level = "err" if int(report["errors"]) else "warn" if int(report["warnings"]) else "ok"
     source_href = str(report["source_href"])
     metadata = _metadata_html(report.get("metadata"))
+    highlights = _highlights_html(report.get("highlights"))
     commands = _commands_html(report.get("commands"))
     scenario_bundle = _scenario_bundle_html(report.get("scenario_bundle"))
     workflow = str(report.get("workflow_label") or DEFAULT_WORKFLOW["label"])
@@ -772,7 +895,7 @@ def _card(report: dict[str, Any]) -> str:
         f"<p><span class=\"tag\">{escape(workflow)}</span>{category_html}</p>"
         f"<p><a href=\"{escape(source_href)}\"><code>{escape(source_href)}</code></a></p>"
         f"<p class=\"{level}\">Errors: {report['errors']} | Warnings: {report['warnings']}</p>"
-        f"<p>{escape(str(report.get('summary', '')))}</p>{metadata}{commands}{scenario_bundle}</section>"
+        f"<p>{escape(str(report.get('summary', '')))}</p>{highlights}{metadata}{commands}{scenario_bundle}</section>"
     )
 
 
@@ -784,6 +907,22 @@ def _metadata_html(metadata: object) -> str:
         label = key.replace("_", " ").capitalize()
         rows.append(f"<dt>{escape(label)}</dt><dd>{escape(str(value))}</dd>")
     return "<h3>Report Metadata</h3><dl>" + "".join(rows) + "</dl>"
+
+
+def _highlights_html(highlights: object) -> str:
+    if not isinstance(highlights, list) or not highlights:
+        return ""
+    rows = []
+    for item in highlights:
+        if not isinstance(item, dict):
+            continue
+        label = str(item.get("label") or "").strip()
+        value = str(item.get("value") or "").strip()
+        if label and value:
+            rows.append(f"<dt>{escape(label)}</dt><dd>{escape(value)}</dd>")
+    if not rows:
+        return ""
+    return "<h3>Highlights</h3><dl>" + "".join(rows) + "</dl>"
 
 
 def _commands_html(commands: object) -> str:

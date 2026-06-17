@@ -49,7 +49,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.7")
+            self.assertEqual(data["tool_version"], "0.1.8")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["summary"]["workflows"], 1)
@@ -309,6 +309,82 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertIn("0.1.4", html)
             self.assertIn("Risk", html)
             self.assertIn("attention (10)", html)
+
+    def test_json_reports_surface_typed_highlights(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            (reports / "runtime.json").write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-runtime-telemetry-lab",
+                        "kind": "runtime_telemetry_timeline",
+                        "summary": {
+                            "errors": 0,
+                            "warnings": 1,
+                            "samples": 18,
+                            "scenarios": ["menu", "trade"],
+                            "spikes": 2,
+                            "frame_budget_ms": 16.67,
+                            "frame_ms": {"p95": 21.5, "max": 33.1},
+                            "memory_mb": {"max": 256.0},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (reports / "pack.json").write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-pack-mod-doctor",
+                        "kind": "pack_load_order",
+                        "summary": {
+                            "errors": 0,
+                            "warnings": 1,
+                            "packs": 2,
+                            "files": 3,
+                            "dependencies": 1,
+                            "content_ids": 2,
+                            "risk_score": 10,
+                            "risk_level": "attention",
+                        },
+                        "packs": [
+                            {"id": "base_pack"},
+                            {"id": "patch_pack"},
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            dashboard = build_dashboard(reports)
+            output = root / "dashboard.html"
+            exit_code = main(["build", str(reports), "--output", str(output)])
+
+            html = output.read_text(encoding="utf-8")
+            self.assertEqual(exit_code, 0)
+            by_tool = {report["tool"]: report for report in dashboard["reports"]}
+            runtime_highlights = {
+                item["label"]: item["value"]
+                for item in by_tool["godot-runtime-telemetry-lab"]["highlights"]
+            }
+            pack_highlights = {
+                item["label"]: item["value"]
+                for item in by_tool["godot-pack-mod-doctor"]["highlights"]
+            }
+            self.assertEqual(runtime_highlights["Samples"], "18")
+            self.assertEqual(runtime_highlights["Scenarios"], "2")
+            self.assertEqual(runtime_highlights["Frame p95"], "21.50 ms")
+            self.assertEqual(runtime_highlights["Memory max"], "256.0 MB")
+            self.assertEqual(pack_highlights["Packs"], "2")
+            self.assertEqual(pack_highlights["Risk"], "attention")
+            self.assertEqual(pack_highlights["Pack order"], "base_pack -> patch_pack")
+            self.assertIn("Highlights", html)
+            self.assertIn("Frame p95", html)
+            self.assertIn("21.50 ms", html)
+            self.assertIn("Pack order", html)
+            self.assertIn("base_pack -&gt; patch_pack", html)
 
     def test_builds_trend_cards_from_previous_report_directory(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

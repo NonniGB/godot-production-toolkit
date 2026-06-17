@@ -7,7 +7,9 @@ It is intentionally simple: point it at a reports folder and it writes a
 self-contained HTML file suitable for a CI artifact or release checklist.
 Report cards are grouped into practical workflows and keep their release
 readiness state visible, so export, runtime evidence, mobile UI, content, and
-other checks stay easier to scan in one page.
+other checks stay easier to scan in one page. Common toolkit reports also show
+typed highlights such as frame p95, pack order, export preset counts, and risk
+scores without making readers open every JSON file first.
 
 ## Install
 
@@ -59,6 +61,9 @@ labels. `workflow` and `category` can appear at the report top level, inside
 conservative fallback based on the tool name, report kind, and file path. Image
 artifacts such as mobile UI overlays, screenshot diffs, pixel previews, and
 visual smoke captures are embedded into the self-contained HTML output.
+For common toolkit report shapes, dashboard cards include a small Highlights
+section with typed values such as runtime sample counts, frame p95/max, pack
+counts, pack load order, export preset counts, asset counts, and risk levels.
 
 Scenario bundle JSON from `godot-scenario-report-kit` is shown as a release
 evidence card with scenario pass/fail counts plus the nearby files a reviewer
@@ -81,7 +86,8 @@ and error/warning deltas. The `--baseline` flag is accepted as a shorter alias.
 - `json`: summary for scripts or later dashboard tooling, including counts for
   `blocked`, `attention`, `ready`, workflow groups, scenario bundles, scenarios,
   and linked scenario evidence. Reports that include reproduction commands are
-  counted in `summary.reports_with_commands`. Scenario-linked telemetry
+  counted in `summary.reports_with_commands`, and report cards can include
+  `highlights` rows for typed summary values. Scenario-linked telemetry
   summaries are rolled up as sample, spike, warning, and error counts. When a
   previous folder is supplied, JSON output also includes `previous_summary`,
   `trends`, and trend-related summary counts.
