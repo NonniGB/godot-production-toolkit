@@ -30,6 +30,14 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Migration command failed",
         "explanation": "A project-owned migration command returned a non-zero exit code.",
     },
+    "migration_compare_summary": {
+        "title": "Migration comparison summary",
+        "explanation": "The original fixture and final migrated fixture were compared so reviewers can see the shape of the save change.",
+    },
+    "migration_compare_unavailable": {
+        "title": "Migration comparison unavailable",
+        "explanation": "The tool could not read both fixtures as JSON, so it could not summarize the before-and-after save shape.",
+    },
     "migration_path_missing": {
         "title": "Migration path missing",
         "explanation": "A supported save version needs a complete path of migration steps to the current save format.",

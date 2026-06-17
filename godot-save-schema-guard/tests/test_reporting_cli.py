@@ -20,7 +20,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-save-guard 0.1.5", stdout.getvalue())
+        self.assertIn("godot-save-guard 0.1.6", stdout.getvalue())
 
     def test_markdown_report_lists_fixture_findings(self) -> None:
         report = render_markdown_report(
@@ -62,7 +62,7 @@ class ReportingCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.5")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.6")
             self.assertEqual(report["summary"]["errors"], 1)
             self.assertEqual(report["rules"]["numeric_type_drift"]["title"], "Numeric type drift")
             finding = report["fixtures"][0]["findings"][0]
@@ -228,6 +228,58 @@ class ReportingCliTests(unittest.TestCase):
             report = json.loads(report_path.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
             self.assertEqual(report["summary"]["findings"], 0)
+
+    def test_cli_migrate_chain_can_compare_original_to_final_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            fixture = root / "save.json"
+            chain = root / "chain.toml"
+            report_path = root / "migration.json"
+            script = root / "migrate.py"
+            fixture.write_text(json.dumps({"version": 1, "credits": 100, "debug": True}), encoding="utf-8")
+            script.write_text(
+                "from pathlib import Path\n"
+                "import json\n"
+                "import sys\n"
+                "save = {'version': 3, 'credits': 125, 'inventory': ['laser']}\n"
+                "Path(sys.argv[2]).write_text(json.dumps(save), encoding='utf-8')\n",
+                encoding="utf-8",
+            )
+            chain.write_text(
+                "\n".join(
+                    [
+                        "[[steps]]",
+                        'from = "1"',
+                        'to = "3"',
+                        f'command = \'"{sys.executable}" "{script}" {{input}} {{output}}\'',
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            exit_code = main(
+                [
+                    "migrate-chain",
+                    str(fixture),
+                    "--chain",
+                    str(chain),
+                    "--output-dir",
+                    str(root / "migrated"),
+                    "--compare-original",
+                    "--format",
+                    "json",
+                    "--output",
+                    str(report_path),
+                ]
+            )
+
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            findings = report["fixtures"][0]["findings"]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(findings[0]["rule_id"], "migration_compare_summary")
+            self.assertEqual(report["summary"]["migrations"], 1)
+            self.assertEqual(report["summary"]["migration_comparisons"], 1)
+            self.assertIn("version 1 -> 3", findings[0]["message"])
 
     def test_cli_migrate_chain_reports_schema_errors_for_final_output(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

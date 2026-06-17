@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-save-schema-guard"
-version = "0.1.5"
-description = "Validate Godot save-game fixtures, generate schema samples, check migration chains, and catch compatibility drift before release."
+version = "0.1.6"
+description = "Validate Godot save-game fixtures, generate schema samples, compare migration outputs, and catch compatibility drift before release."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

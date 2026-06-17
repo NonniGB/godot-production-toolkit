@@ -131,7 +131,7 @@ Use this when changing save-game data:
 ```powershell
 godot-save-guard generate-fixture --schema schemas\save.schema.json --fixture-output tests\fixtures\saves\generated_current.json --set 'player.id="pilot-1"' --format markdown --output reports\save-fixture-generation.md
 godot-save-guard validate tests\fixtures\saves --schema schemas\save.schema.json --format markdown --output reports\saves.md
-godot-save-guard migrate-chain tests\fixtures\saves\v1 --chain migrations.toml --output-dir reports\migrated-saves --schema schemas\save.schema.json --format json --output reports\save-migration.json
+godot-save-guard migrate-chain tests\fixtures\saves\v1 --chain migrations.toml --output-dir reports\migrated-saves --schema schemas\save.schema.json --compare-original --format json --output reports\save-migration.json
 ```
 
 This helps catch:

@@ -128,8 +128,9 @@ can generate a baseline fixture from a schema, validate existing fixtures, and
 check migration commands before a release. Use `godot-save-guard
 migration-graph` when each supported save version needs a verified path to the
 current format before running project-owned migration scripts. Use
-`godot-save-guard migrate-chain --schema` when a migration command should prove
-that the final migrated save still matches the current schema. Use
+`godot-save-guard migrate-chain --schema --compare-original` when a migration
+command should prove that the final migrated save still matches the current
+schema and show a compact before-and-after summary. Use
 `godot-save-guard redact` to create reviewed sanitized copies of selected
 fixture paths before attaching sample saves to reports or issues.
 

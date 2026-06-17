@@ -1,0 +1,48 @@
+{
+  "fixtures": [
+    {
+      "findings": [],
+      "path": "docs\\assets\\sample-reports\\generated-save-migrations\\valid_save.v3.json"
+    },
+    {
+      "findings": [
+        {
+          "explanation": "The original fixture and final migrated fixture were compared so reviewers can see the shape of the save change.",
+          "json_path": "$",
+          "message": "Compared original save to valid_save.v3.json: added 0, removed 0, changed 2 path(s); version 1 -> 3. Examples: changed: $.credits, $.version.",
+          "rule_id": "migration_compare_summary",
+          "severity": "info",
+          "title": "Migration comparison summary"
+        }
+      ],
+      "path": "godot-save-schema-guard\\examples\\fixtures\\v1\\valid_save.json"
+    }
+  ],
+  "metadata": {
+    "formats": [
+      "text",
+      "json",
+      "markdown"
+    ],
+    "report_kind": "save_schema_compatibility",
+    "schema_version": "1.1",
+    "tool_version": "0.1.6"
+  },
+  "rules": {
+    "migration_compare_summary": {
+      "explanation": "The original fixture and final migrated fixture were compared so reviewers can see the shape of the save change.",
+      "title": "Migration comparison summary"
+    }
+  },
+  "summary": {
+    "errors": 0,
+    "findings": 1,
+    "fixtures": 2,
+    "migration_comparisons": 1,
+    "migrations": 1,
+    "redacted": 0,
+    "validated": 2,
+    "warnings": 0
+  },
+  "tool": "godot-save-schema-guard"
+}

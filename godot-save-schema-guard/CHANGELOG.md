@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.6 - 2026-06-17
+
+- Added `migrate-chain --compare-original` to compare each original fixture with its final migrated output.
+- JSON reports now include migration comparison, migration, validation, and redaction summary counts for dashboards.
+- Added rule help and tests for before-and-after migration comparison reports.
+
 ## 0.1.5 - 2026-06-17
 
 - Added `generate-fixture` to create deterministic JSON save fixtures from schema defaults, required fields, and explicit overrides.

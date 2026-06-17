@@ -21,8 +21,12 @@ When running a migration chain for real, pass `--schema` to validate each final
 migrated fixture in the same report:
 
 ```powershell
-godot-save-guard migrate-chain <fixtures> --chain migrations.toml --output-dir migrated --schema <schema.json> --format json --output migration-chain.json
+godot-save-guard migrate-chain <fixtures> --chain migrations.toml --output-dir migrated --schema <schema.json> --compare-original --format json --output migration-chain.json
 ```
+
+Use `--compare-original` when automation should surface how the final migrated
+save differs from the original fixture without attaching large save files to a
+report.
 
 Before sharing fixtures outside your project, create reviewed sanitized copies:
 

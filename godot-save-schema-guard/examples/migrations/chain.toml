@@ -1,0 +1,4 @@
+[[steps]]
+from = "1"
+to = "3"
+command = "python godot-save-schema-guard/examples/migrations/to_current.py {input} {output}"

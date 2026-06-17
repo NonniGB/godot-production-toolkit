@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-save-schema-guard` with before-and-after migration comparison
+  summaries for migrated fixtures.
 - Improved `godot-release-dashboard-kit` with typed report highlights for
   common toolkit report cards.
 - Improved `godot-project-doctor` with focused Android, HTML5/Web,

@@ -10,6 +10,7 @@ from .migration import (
     analyze_migration_graph,
     build_chain_commands,
     build_migration_command,
+    compare_migrated_fixture,
     load_migration_chain,
     run_migration_command,
 )
@@ -46,7 +47,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-save-guard",
         description="Validate Godot save fixtures and migration compatibility.",
     )
-    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.5")
+    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.6")
     subparsers = parser.add_subparsers(dest="command")
 
     validate = subparsers.add_parser("validate", help="Validate JSON save fixtures.")
@@ -87,6 +88,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Validate each final migrated fixture against this JSON schema after the chain succeeds.",
     )
     migrate_chain.add_argument("--dry-run", action="store_true", help="Plan commands without executing them.")
+    migrate_chain.add_argument(
+        "--compare-original",
+        action="store_true",
+        help="Compare each original fixture with its final migrated output and add a dashboard-friendly summary.",
+    )
     _add_report_args(migrate_chain)
 
     migration_graph = subparsers.add_parser(
@@ -230,6 +236,23 @@ def _migrate_chain(args: argparse.Namespace) -> int:
                 if final_output.exists():
                     validated = validate_fixtures(final_output, schema)
                     results.extend(validated)
+                else:
+                    findings.append(
+                        Finding(
+                            "migration_output_missing",
+                            "error",
+                            "$",
+                            f"Final migrated fixture was not written: {final_output}.",
+                        )
+                    )
+            if (
+                args.compare_original
+                and commands
+                and not any(finding.severity == "error" for finding in findings)
+            ):
+                final_output = commands[-1][2]
+                if final_output.exists():
+                    findings.append(compare_migrated_fixture(fixture, final_output))
                 else:
                     findings.append(
                         Finding(

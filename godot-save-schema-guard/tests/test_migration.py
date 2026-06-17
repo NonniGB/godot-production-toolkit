@@ -1,3 +1,5 @@
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -5,6 +7,7 @@ from godot_save_guard.migration import (
     analyze_migration_graph,
     build_chain_commands,
     build_migration_command,
+    compare_migrated_fixture,
     parse_migration_chain,
 )
 
@@ -64,6 +67,31 @@ class MigrationTests(unittest.TestCase):
 
         self.assertEqual([finding.rule_id for finding in findings], ["migration_path_missing"])
         self.assertIn("version 1", findings[0].message)
+
+    def test_compares_original_and_final_migrated_fixture(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            original = root / "save.v1.json"
+            migrated = root / "save.v3.json"
+            original.write_text(
+                json.dumps({"version": 1, "credits": 100, "debug": True}),
+                encoding="utf-8",
+            )
+            migrated.write_text(
+                json.dumps({"version": 3, "credits": 125, "inventory": ["laser"]}),
+                encoding="utf-8",
+            )
+
+            finding = compare_migrated_fixture(original, migrated)
+
+            self.assertEqual(finding.rule_id, "migration_compare_summary")
+            self.assertEqual(finding.severity, "info")
+            self.assertIn("version 1 -> 3", finding.message)
+            self.assertIn("added 1", finding.message)
+            self.assertIn("removed 1", finding.message)
+            self.assertIn("changed 2", finding.message)
+            self.assertIn("$.inventory", finding.message)
+            self.assertIn("$.debug", finding.message)
 
 
 if __name__ == "__main__":

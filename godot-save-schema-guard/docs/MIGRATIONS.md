@@ -48,7 +48,7 @@ godot-save-guard migration-graph --chain migrations.toml --current 3 --supported
 Run the chain:
 
 ```powershell
-godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir migrated --schema schemas\save.schema.json --format json --output reports\migration-chain.json
+godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir migrated --schema schemas\save.schema.json --compare-original --format json --output reports\migration-chain.json
 ```
 
 Each step writes an intermediate output named after the original fixture and
@@ -58,3 +58,6 @@ When `--schema` is provided, the command validates the final migrated output
 with the same save-compatibility rules used by `validate`. That catches cases
 where a migration script exits cleanly but writes a save shape the current game
 cannot load.
+
+Add `--compare-original` when reviewers also need a compact before-and-after
+summary of added, removed, and changed JSON paths.

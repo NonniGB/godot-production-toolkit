@@ -25,7 +25,7 @@ godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir rep
 Run the migration chain for real after reviewing the dry run:
 
 ```powershell
-godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir reports\migrated-saves --schema schemas\save.schema.json --format json --output reports\save-migration.json
+godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir reports\migrated-saves --schema schemas\save.schema.json --compare-original --format json --output reports\save-migration.json
 ```
 
 ## Expected inputs
@@ -43,4 +43,5 @@ godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir rep
 - A redaction plan and optional sanitized fixture copies when fixtures need to be
   shared outside the project.
 - Migrated save files in the selected output directory when the real migration runs.
-- Schema findings for final migrated saves when `migrate-chain --schema` is used.
+- Schema findings and before-and-after summaries for final migrated saves when
+  `migrate-chain --schema --compare-original` is used.

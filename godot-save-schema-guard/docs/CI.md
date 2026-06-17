@@ -20,8 +20,11 @@ save shape in the same job:
 
 ```yaml
 - name: Run save migrations and validate output
-  run: godot-save-guard migrate-chain saves/v1 --chain migrations.toml --output-dir reports/migrated-saves --schema schemas/save.schema.json --format json --output reports/save-migration.json
+  run: godot-save-guard migrate-chain saves/v1 --chain migrations.toml --output-dir reports/migrated-saves --schema schemas/save.schema.json --compare-original --format json --output reports/save-migration.json
 ```
+
+`--compare-original` adds a compact before-and-after summary that is useful in
+dashboards and pull request notes.
 
 When CI uploads sample fixtures as artifacts, write sanitized copies first:
 

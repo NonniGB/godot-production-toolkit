@@ -23,7 +23,7 @@ godot-save-guard generate-fixture --schema schemas\save.schema.json --fixture-ou
 godot-save-guard validate saves\fixtures --schema schemas\save.schema.json
 godot-save-guard validate examples\fixtures --schema examples\schema\save.schema.json --format markdown --output SAVE_COMPATIBILITY.md
 godot-save-guard migrate saves\v1 --output-dir migrated\v2 --command "godot --headless --script tools/migrate_save.gd --input {input} --output {output}"
-godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir migrated --schema schemas\save.schema.json --format json --output reports\migration-chain.json
+godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir migrated --schema schemas\save.schema.json --compare-original --format json --output reports\migration-chain.json
 godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1 --supported 2 --format markdown
 godot-save-guard redact saves\fixtures --path player.name --path players.*.email --output-dir sanitized\saves --dry-run
 ```
@@ -40,6 +40,7 @@ godot-save-guard redact saves\fixtures --path player.name --path players.*.email
 - Migration command failures.
 - Ordered migration chains from older save versions to the current format.
 - Final migrated fixture validation after a migration chain succeeds.
+- Before-and-after summaries that compare original fixtures with final migrated outputs.
 - Missing migration paths from supported save versions to the current format.
 - Selected-field redaction for sanitized fixture copies.
 - Report metadata and plain-language rule explanations for compatibility findings.

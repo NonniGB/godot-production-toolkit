@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -99,6 +100,48 @@ def build_chain_commands(
     return commands
 
 
+def compare_migrated_fixture(original_path: Path, migrated_path: Path) -> Finding:
+    try:
+        original = json.loads(original_path.read_text(encoding="utf-8"))
+        migrated = json.loads(migrated_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return Finding(
+            "migration_compare_unavailable",
+            "warning",
+            "$",
+            f"Could not compare original and migrated fixture: {exc}.",
+        )
+
+    original_values = _flatten_json(original)
+    migrated_values = _flatten_json(migrated)
+    original_paths = set(original_values)
+    migrated_paths = set(migrated_values)
+    added = sorted(migrated_paths - original_paths)
+    removed = sorted(original_paths - migrated_paths)
+    changed = sorted(
+        path
+        for path in original_paths & migrated_paths
+        if original_values[path] != migrated_values[path]
+    )
+    version_note = _version_note(original, migrated)
+    samples = (
+        _sample_paths("added", added)
+        + _sample_paths("removed", removed)
+        + _sample_paths("changed", changed)
+    )
+    sample_note = f" Examples: {'; '.join(samples)}." if samples else ""
+    return Finding(
+        "migration_compare_summary",
+        "info",
+        "$",
+        (
+            f"Compared original save to {migrated_path.name}: "
+            f"added {len(added)}, removed {len(removed)}, changed {len(changed)} path(s)"
+            f"{version_note}.{sample_note}"
+        ),
+    )
+
+
 def _has_path(graph: dict[str, set[str]], start: str, target: str) -> bool:
     queue = [start]
     seen: set[str] = set()
@@ -115,6 +158,42 @@ def _has_path(graph: dict[str, set[str]], start: str, target: str) -> bool:
 
 def _version_sort_key(value: str) -> tuple[int, str]:
     return (0, f"{int(value):08d}") if value.isdigit() else (1, value)
+
+
+def _flatten_json(value: object, prefix: str = "$") -> dict[str, object]:
+    if isinstance(value, dict):
+        rows: dict[str, object] = {}
+        if not value:
+            rows[prefix] = {}
+        for key, child in value.items():
+            rows.update(_flatten_json(child, f"{prefix}.{key}"))
+        return rows
+    if isinstance(value, list):
+        rows = {}
+        if not value:
+            rows[prefix] = []
+        for index, child in enumerate(value):
+            rows.update(_flatten_json(child, f"{prefix}[{index}]"))
+        return rows
+    return {prefix: value}
+
+
+def _version_note(original: object, migrated: object) -> str:
+    if not isinstance(original, dict) or not isinstance(migrated, dict):
+        return ""
+    if "version" not in original and "version" not in migrated:
+        return ""
+    original_version = original.get("version", "missing")
+    migrated_version = migrated.get("version", "missing")
+    return f"; version {original_version} -> {migrated_version}"
+
+
+def _sample_paths(label: str, paths: list[str], limit: int = 3) -> list[str]:
+    if not paths:
+        return []
+    shown = ", ".join(paths[:limit])
+    suffix = "" if len(paths) <= limit else ", ..."
+    return [f"{label}: {shown}{suffix}"]
 
 
 def run_migration_command(command: str) -> Finding | None:

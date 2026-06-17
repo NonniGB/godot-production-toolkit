@@ -64,6 +64,20 @@ def render_json_report(results: list[FixtureResult]) -> str:
             "findings": sum(len(result.findings) for result in results),
             "errors": _count(results, "error"),
             "warnings": _count(results, "warning"),
+            "validated": _validated_count(results),
+            "migrations": _rule_count(
+                results,
+                {
+                    "migration_chain_planned",
+                    "migration_command_failed",
+                    "migration_compare_summary",
+                    "migration_compare_unavailable",
+                    "migration_output_missing",
+                    "migration_path_missing",
+                },
+            ),
+            "migration_comparisons": _rule_count(results, {"migration_compare_summary"}),
+            "redacted": _rule_count(results, {"redaction_applied"}),
         },
         "rules": catalog_for({finding.rule_id for result in results for finding in result.findings}),
         "fixtures": [result.to_dict() for result in results],
@@ -73,6 +87,14 @@ def render_json_report(results: list[FixtureResult]) -> str:
 
 def _count(results: list[FixtureResult], severity: str) -> int:
     return sum(1 for result in results for finding in result.findings if finding.severity == severity)
+
+
+def _rule_count(results: list[FixtureResult], rule_ids: set[str]) -> int:
+    return sum(1 for result in results for finding in result.findings if finding.rule_id in rule_ids)
+
+
+def _validated_count(results: list[FixtureResult]) -> int:
+    return sum(1 for result in results if not any(finding.severity == "error" for finding in result.findings))
 
 
 def _markdown_cell(value: object) -> str:

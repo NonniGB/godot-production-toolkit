@@ -9,6 +9,7 @@
     "human_output": ["text", "markdown report"],
     "migration_chain_config": true,
     "migration_graph_check": true,
+    "migration_output_comparison": true,
     "fixture_generation": true,
     "fixture_redaction": true,
     "final_migration_schema_validation": true,
@@ -45,8 +46,8 @@
       "command": "godot-save-guard migrate-chain <fixtures> --chain migrations.toml --output-dir migrated --dry-run --format json --output migration-chain.json"
     },
     {
-      "purpose": "Run a migration chain and validate the final saves",
-      "command": "godot-save-guard migrate-chain <fixtures> --chain migrations.toml --output-dir migrated --schema <schema.json> --format json --output migration-chain.json"
+      "purpose": "Run a migration chain, validate the final saves, and compare before/after shape",
+      "command": "godot-save-guard migrate-chain <fixtures> --chain migrations.toml --output-dir migrated --schema <schema.json> --compare-original --format json --output migration-chain.json"
     },
     {
       "purpose": "Verify supported save versions can reach the current format",
