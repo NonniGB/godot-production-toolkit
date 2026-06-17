@@ -27,6 +27,7 @@ godot-asset-doctor . --profile mobile --format json --output reports/assets.json
 godot-input-audit . --require keyboard,touch --format markdown --output reports/input-map.md
 godot-mobile-ui-doctor matrix mobile-ui.json --format markdown --output reports/mobile-ui-matrix.md
 godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports/mobile-ui-overlays --fail-on none
+godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports/mobile-layout-risk.json --output-dir reports/mobile-ui-overlays --fail-on none
 godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports/input-map.json --export-report reports/export.json --mobile-perf-report reports/mobile-perf.json --format markdown --output reports/mobile-readiness.md
 ```
 
@@ -36,6 +37,8 @@ godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports/input-map
 godot-l10n-guard . --translations translations --require fr,es --scan-scripts --format markdown --output reports/localization.md
 godot-l10n-guard stress-pack . --translations translations --output-dir reports/localization-stress --format markdown --output reports/localization-stress.md
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format markdown --output reports/mobile-layout-risk.md
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format json --output reports/mobile-layout-risk.json
+godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports/mobile-layout-risk.json --output-dir reports/mobile-ui-overlays --fail-on none
 godot-mobile-ui-doctor readiness mobile-ui.json --localization-report reports/localization.json --format markdown --output reports/localized-ui-readiness.md
 ```
 
@@ -88,6 +91,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Exported build folders or file lists need reviewable artifact checks | `godot-export-preset-doctor` | `godot-export-doctor inspect-folder build/android --hash-files --format json` |
 | Godot mobile UI needs safe-area and touch-target checks | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
 | Godot mobile UI labels need localization expansion checks | `godot-mobile-ui-doctor`, `godot-localization-qa-guard` | `godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format markdown` |
+| Godot mobile UI overlays should show localized text risks | `godot-mobile-ui-doctor`, `godot-localization-qa-guard` | `godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports/mobile-layout-risk.json --output-dir reports/mobile-ui-overlays` |
 | Godot UI text needs pseudo, long, compact, or RTL-like stress catalogs | `godot-localization-qa-guard` | `godot-l10n-guard stress-pack . --translations translations --output-dir reports/localization-stress` |
 | Screenshots need regression testing | `godot-visual-smoke-test-kit` | `godot-visual-smoke compare baseline current --format json` |
 | Imported PNGs, pixel art, icons, or sprite anchors need review | `godot-asset-pipeline-doctor` | `godot-asset-doctor . --profile pixel-2d --format json` |

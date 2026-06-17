@@ -51,9 +51,6 @@ jobs:
           godot-mobile-ui-doctor matrix "$MOBILE_UI_METADATA" \
             --format markdown \
             --output "$REPORTS_DIR/mobile-ui-matrix.md"
-          godot-mobile-ui-doctor overlays "$MOBILE_UI_METADATA" \
-            --output-dir "$REPORTS_DIR/mobile-ui-overlays" \
-            --fail-on none
 
       - name: Check localization files
         run: |
@@ -82,6 +79,15 @@ jobs:
             --stress-pack "$REPORTS_DIR/localization-stress/stress-pack-manifest.json" \
             --format markdown \
             --output "$REPORTS_DIR/mobile-layout-risk.md" \
+            --fail-on none
+          godot-mobile-ui-doctor layout-risk "$MOBILE_UI_METADATA" \
+            --stress-pack "$REPORTS_DIR/localization-stress/stress-pack-manifest.json" \
+            --format json \
+            --output "$REPORTS_DIR/mobile-layout-risk.json" \
+            --fail-on none
+          godot-mobile-ui-doctor overlays "$MOBILE_UI_METADATA" \
+            --layout-risk-report "$REPORTS_DIR/mobile-layout-risk.json" \
+            --output-dir "$REPORTS_DIR/mobile-ui-overlays" \
             --fail-on none
 
       - name: Upload mobile UI and localization reports

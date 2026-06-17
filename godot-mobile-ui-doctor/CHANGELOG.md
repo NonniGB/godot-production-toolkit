@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.11 - 2026-06-17
+
+- Added `--layout-risk-report` to `overlays` so PNG previews can mark controls with localized stress-text overflow risks.
+- Included localized layout-risk counts and findings in overlay JSON/text summaries.
+
 ## 0.1.10 - 2026-06-17
 
 - Added `layout-risk` to join exported mobile UI metadata with localization stress-pack catalogs.

@@ -12,7 +12,7 @@ from .readiness import build_combined_readiness, render_combined_readiness
 from .reporting import render_report
 from .visual_smoke import load_visual_smoke_viewports, merge_viewports
 
-VERSION_LABEL = "godot-mobile-ui-doctor 0.1.10"
+VERSION_LABEL = "godot-mobile-ui-doctor 0.1.11"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -103,22 +103,35 @@ def _overlays(argv: list[str]) -> int:
         "--screenshot-dir",
         help="Optional directory of captured PNG screenshots to use as overlay backgrounds.",
     )
+    parser.add_argument(
+        "--layout-risk-report",
+        help=(
+            "Optional JSON report from `godot-mobile-ui-doctor layout-risk --format json` "
+            "to mark localized text risks."
+        ),
+    )
     parser.add_argument("--format", choices=["text", "json"], default="text")
     parser.add_argument("--output", help="Write the overlay summary to this file instead of stdout.")
     parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
     args = parser.parse_args(argv)
 
     viewports, screens, thresholds = _load_inputs(args, parser)
-    report = render_overlays(
-        viewports,
-        screens,
-        thresholds,
-        OverlayOptions(
-            output_dir=Path(args.output_dir),
-            scale=args.scale,
-            screenshot_dir=Path(args.screenshot_dir) if args.screenshot_dir else None,
-        ),
-    )
+    try:
+        report = render_overlays(
+            viewports,
+            screens,
+            thresholds,
+            OverlayOptions(
+                output_dir=Path(args.output_dir),
+                scale=args.scale,
+                screenshot_dir=Path(args.screenshot_dir) if args.screenshot_dir else None,
+                layout_risk_report=(
+                    Path(args.layout_risk_report) if args.layout_risk_report else None
+                ),
+            ),
+        )
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
     _emit(_render_overlay_summary(report, args.format), args.output)
     return _exit_code(report, args.fail_on)
 
@@ -244,6 +257,7 @@ def _render_overlay_summary(report: dict[str, object], fmt: str) -> str:
             f"Screens: {summary['screens']} | Viewports: {summary['viewports']} | "
             f"Files: {summary['files']} | Screenshots: {summary['screenshots']}"
         ),
+        f"Layout risk findings: {summary['layout_risk_findings']}",
         f"Errors: {summary['errors']} | Warnings: {summary['warnings']}",
         "",
     ]

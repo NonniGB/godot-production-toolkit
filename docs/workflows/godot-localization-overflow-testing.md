@@ -22,6 +22,8 @@ python -m pip install godot-localization-qa-guard godot-mobile-ui-doctor godot-v
 godot-l10n-guard . --format markdown --output reports\localization.md
 godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format json --output reports\mobile-layout-risk.json
+godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports\mobile-layout-risk.json --output-dir reports\mobile-ui-overlays --fail-on none
 godot-mobile-ui-doctor readiness mobile-ui.json --localization-report reports\localization.json --format markdown --output reports\mobile-localization-readiness.md
 ```
 
@@ -51,5 +53,6 @@ godot-visual-smoke compare baselines\ui current\ui --format json --output report
 - Localization QA reports with placeholder, key, expansion, and glyph findings.
 - Stress-pack catalogs and a manifest for repeatable text-fit review.
 - Joined mobile layout-risk reports that identify the controls most likely to overflow.
+- Optional mobile UI overlay PNGs that mark localized overflow risks on the layout.
 - Mobile UI readiness reports that can be reviewed in Markdown or JSON.
 - Optional screenshot diff reports for UI states that need visual approval.

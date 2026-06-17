@@ -18,6 +18,7 @@ class OverlayOptions:
     output_dir: Path
     scale: float = 0.5
     screenshot_dir: Path | None = None
+    layout_risk_report: Path | None = None
 
 
 def render_overlays(
@@ -28,14 +29,15 @@ def render_overlays(
 ) -> dict[str, Any]:
     options.output_dir.mkdir(parents=True, exist_ok=True)
     audit_report = audit_mobile_ui(viewports, screens, thresholds)
-    findings = audit_report["findings"]
+    layout_risk_findings = _load_layout_risk_findings(options.layout_risk_report)
+    findings = audit_report["findings"] + layout_risk_findings
     files: list[dict[str, Any]] = []
 
     for screen in screens:
         viewport = viewports.get(screen.viewport)
         if viewport is None:
             continue
-        finding_map = _findings_by_node(findings, screen.name)
+        finding_map = _findings_by_node(findings, screen.name, viewport.name)
         screenshot = _find_screenshot(options.screenshot_dir, screen, viewport)
         image = _draw_screen(screen, viewport, thresholds, finding_map, options.scale, screenshot)
         path = options.output_dir / f"{_slug(screen.name)}__{_slug(viewport.name)}.png"
@@ -65,8 +67,11 @@ def render_overlays(
             "viewports": len(viewports),
             "files": len(files),
             "screenshots": sum(1 for item in files if item["screenshot"]),
-            "errors": audit_report["summary"]["errors"],
-            "warnings": audit_report["summary"]["warnings"],
+            "layout_risk_findings": len(layout_risk_findings),
+            "errors": audit_report["summary"]["errors"] + _count_severity(layout_risk_findings, "error"),
+            "warnings": audit_report["summary"]["warnings"] + _count_severity(
+                layout_risk_findings, "warning"
+            ),
         },
         "files": files,
         "findings": findings,
@@ -111,9 +116,11 @@ def _draw_screen(
         )
 
     header = f"{screen.name} / {viewport.name} / {viewport.width}x{viewport.height}"
-    legend = "yellow=review  red=error  blue=interactive  green=safe area"
+    legend = "yellow=review  red=error  pink=l10n text  blue=interactive"
+    legend_2 = "green=safe area"
     _label(draw, (8, max(8, height - 40)), header, "#e9eefc", title_font)
     _label(draw, (8, max(20, height - 26)), legend, "#c9d2e8", font)
+    _label(draw, (8, max(32, height - 14)), legend_2, "#c9d2e8", font)
     return image
 
 
@@ -143,6 +150,8 @@ def _draw_node(
     rules = {str(finding["rule_id"]) for finding in findings}
     if "node_outside_viewport" in rules:
         color = "#ff5d73"
+    elif "localized_text_overflow_risk" in rules:
+        color = "#ff8bd1"
     elif rules:
         color = "#ffc857"
     elif node.interactive:
@@ -163,13 +172,33 @@ def _draw_node(
 
     label = node.id if not rules else f"{node.id} ({len(rules)})"
     _label(draw, (rect[0] + 4, rect[1] + 4), label, "#ffffff", font)
-    if node.text:
+    has_room_for_details = (rect[2] - rect[0]) >= 72 and (rect[3] - rect[1]) >= 40
+    if node.text and has_room_for_details:
         _label(draw, (rect[0] + 4, rect[1] + 16), node.text[:36], "#c9d2e8", font)
+    if "text_expansion_overflow_risk" in rules and has_room_for_details:
+        _label(draw, (rect[0] + 4, rect[1] + 28), "expanded copy", "#ffe0a3", font)
+    layout_variants = sorted(
+        {
+            str(finding.get("variant"))
+            for finding in findings
+            if finding.get("rule_id") == "localized_text_overflow_risk" and finding.get("variant")
+        }
+    )
+    if layout_variants and has_room_for_details:
+        y_offset = 40 if "text_expansion_overflow_risk" in rules else 28
+        _label(
+            draw,
+            (rect[0] + 4, rect[1] + y_offset),
+            f"l10n: {', '.join(layout_variants)[:28]}",
+            "#ffb7e4",
+            font,
+        )
 
 
 def _with_alpha_hint(color: str) -> str:
     palette = {
         "#ff5d73": "#35151d",
+        "#ff8bd1": "#35152c",
         "#ffc857": "#352a14",
         "#59c2ff": "#112a38",
         "#8f9bb3": "#1d2434",
@@ -204,11 +233,13 @@ def _find_screenshot(root: Path | None, screen: Screen, viewport: Viewport) -> P
 
 
 def _findings_by_node(
-    findings: list[dict[str, Any]], screen_name: str
+    findings: list[dict[str, Any]], screen_name: str, viewport_name: str
 ) -> dict[str, list[dict[str, Any]]]:
     by_node: dict[str, list[dict[str, Any]]] = {}
     for finding in findings:
         if finding.get("screen") != screen_name:
+            continue
+        if finding.get("viewport") not in {None, viewport_name}:
             continue
         node = finding.get("node")
         if not isinstance(node, str):
@@ -233,3 +264,23 @@ def _label(
 def _slug(value: str) -> str:
     slug = re.sub(r"[^a-zA-Z0-9._-]+", "-", value.strip()).strip("-._")
     return slug or "screen"
+
+
+def _load_layout_risk_findings(path: Path | None) -> list[dict[str, Any]]:
+    if path is None:
+        return []
+    import json
+
+    report = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(report, dict):
+        raise ValueError("layout risk report must be a JSON object.")
+    if report.get("kind") != "mobile_ui_layout_risk":
+        raise ValueError("layout risk report kind must be mobile_ui_layout_risk.")
+    findings = report.get("findings", [])
+    if not isinstance(findings, list):
+        raise ValueError("layout risk report findings must be a list.")
+    return [finding for finding in findings if isinstance(finding, dict)]
+
+
+def _count_severity(findings: list[dict[str, Any]], severity: str) -> int:
+    return sum(1 for finding in findings if finding.get("severity") == severity)

@@ -28,6 +28,8 @@ run `layout-risk` to join those strings to exported UI rectangles:
 
 ```powershell
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format json --output reports\mobile-layout-risk.json
+godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports\mobile-layout-risk.json --output-dir reports\mobile-ui-overlays --fail-on none
 ```
 
 Reuse viewport data from a visual smoke plan when available:
@@ -40,11 +42,12 @@ godot-mobile-ui-doctor readiness mobile-ui.json --visual-smoke-plan reports\visu
 ## Expected inputs
 
 - `mobile-ui.json` with resolved `Control` rectangles, labels, viewports, and safe areas.
-- Optional screenshots for overlay output.
+- Optional screenshots and layout-risk JSON for overlay output.
 - Optional input, export, mobile performance, localization, or visual smoke reports.
 
 ## Expected outputs
 
 - Markdown or JSON findings for touch targets, spacing, safe areas, and overflow risk.
-- Optional PNG overlays in `reports\mobile-ui-overlays`.
+- Optional PNG overlays in `reports\mobile-ui-overlays`, including localized
+  text-risk markers when layout-risk JSON is supplied.
 - A readiness report that combines UI findings with other mobile checks.

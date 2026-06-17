@@ -1,0 +1,183 @@
+{
+  "findings": [
+    {
+      "available_width": 38.0,
+      "estimated_width": 79.2,
+      "help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "locale": "qps-long",
+      "message": "Node 'play' may overflow with long stress text from key 'MENU_START'.",
+      "node": "play",
+      "rule_help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "rule_id": "localized_text_overflow_risk",
+      "rule_title": "Localized text overflow risk",
+      "screen": "main_menu",
+      "severity": "warning",
+      "stress_text_length": 9,
+      "translation_key": "MENU_START",
+      "variant": "long",
+      "viewport": "portrait_phone"
+    },
+    {
+      "available_width": 38.0,
+      "estimated_width": 132.0,
+      "help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "locale": "qps-ploc",
+      "message": "Node 'play' may overflow with pseudo stress text from key 'MENU_START'.",
+      "node": "play",
+      "rule_help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "rule_id": "localized_text_overflow_risk",
+      "rule_title": "Localized text overflow risk",
+      "screen": "main_menu",
+      "severity": "warning",
+      "stress_text_length": 15,
+      "translation_key": "MENU_START",
+      "variant": "pseudo",
+      "viewport": "portrait_phone"
+    },
+    {
+      "available_width": 38.0,
+      "estimated_width": 61.6,
+      "help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "locale": "qps-rtl",
+      "message": "Node 'play' may overflow with rtl stress text from key 'MENU_START'.",
+      "node": "play",
+      "rule_help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "rule_id": "localized_text_overflow_risk",
+      "rule_title": "Localized text overflow risk",
+      "screen": "main_menu",
+      "severity": "warning",
+      "stress_text_length": 7,
+      "translation_key": "MENU_START",
+      "variant": "rtl",
+      "viewport": "portrait_phone"
+    },
+    {
+      "available_width": 76.0,
+      "estimated_width": 132.0,
+      "help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "locale": "qps-compact",
+      "message": "Node 'options' may overflow with compact stress text from key 'MENU_SETTINGS'.",
+      "node": "options",
+      "rule_help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "rule_id": "localized_text_overflow_risk",
+      "rule_title": "Localized text overflow risk",
+      "screen": "main_menu",
+      "severity": "warning",
+      "stress_text_length": 15,
+      "translation_key": "MENU_SETTINGS",
+      "variant": "compact",
+      "viewport": "portrait_phone"
+    },
+    {
+      "available_width": 76.0,
+      "estimated_width": 422.4,
+      "help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "locale": "qps-long",
+      "message": "Node 'options' may overflow with long stress text from key 'MENU_SETTINGS'.",
+      "node": "options",
+      "rule_help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "rule_id": "localized_text_overflow_risk",
+      "rule_title": "Localized text overflow risk",
+      "screen": "main_menu",
+      "severity": "warning",
+      "stress_text_length": 48,
+      "translation_key": "MENU_SETTINGS",
+      "variant": "long",
+      "viewport": "portrait_phone"
+    },
+    {
+      "available_width": 76.0,
+      "estimated_width": 387.2,
+      "help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "locale": "qps-ploc",
+      "message": "Node 'options' may overflow with pseudo stress text from key 'MENU_SETTINGS'.",
+      "node": "options",
+      "rule_help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "rule_id": "localized_text_overflow_risk",
+      "rule_title": "Localized text overflow risk",
+      "screen": "main_menu",
+      "severity": "warning",
+      "stress_text_length": 44,
+      "translation_key": "MENU_SETTINGS",
+      "variant": "pseudo",
+      "viewport": "portrait_phone"
+    },
+    {
+      "available_width": 76.0,
+      "estimated_width": 255.2,
+      "help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "locale": "qps-rtl",
+      "message": "Node 'options' may overflow with rtl stress text from key 'MENU_SETTINGS'.",
+      "node": "options",
+      "rule_help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+      "rule_id": "localized_text_overflow_risk",
+      "rule_title": "Localized text overflow risk",
+      "screen": "main_menu",
+      "severity": "warning",
+      "stress_text_length": 29,
+      "translation_key": "MENU_SETTINGS",
+      "variant": "rtl",
+      "viewport": "portrait_phone"
+    }
+  ],
+  "kind": "mobile_ui_layout_risk",
+  "metadata": {
+    "rules": {
+      "duplicate_node_id": {
+        "help": "Use stable unique ids so reports can track the same control across runs.",
+        "title": "Duplicate node id"
+      },
+      "localized_text_overflow_risk": {
+        "help": "Review this control with stress-pack strings, wrapping, or a wider layout.",
+        "title": "Localized text overflow risk"
+      },
+      "missing_viewport": {
+        "help": "Add the viewport to metadata.viewports or update the screen viewport name.",
+        "title": "Missing viewport"
+      },
+      "no_interactive_controls": {
+        "help": "Export buttons, menus, sliders, or touch zones so the screen can be checked.",
+        "title": "No interactive controls"
+      },
+      "node_outside_viewport": {
+        "help": "Keep UI rectangles inside the exported viewport bounds.",
+        "title": "Node outside viewport"
+      },
+      "safe_area_overlap": {
+        "help": "Move important controls and labels inside the safe-area rectangle.",
+        "title": "Safe-area overlap"
+      },
+      "text_expansion_overflow_risk": {
+        "help": "Reserve extra width for localized labels or verify expanded strings in this control.",
+        "title": "Text expansion overflow risk"
+      },
+      "text_overflow_risk": {
+        "help": "Allow wrapping, shorten the label, resize the control, or check localized strings.",
+        "title": "Text overflow risk"
+      },
+      "touch_target_too_small": {
+        "help": "Increase the clickable area or wrap the control in a larger touch zone.",
+        "title": "Touch target too small"
+      },
+      "touch_targets_too_close": {
+        "help": "Add spacing or make only one of the overlapping rectangles interactive.",
+        "title": "Touch targets too close"
+      }
+    },
+    "stress_pack": "docs\\assets\\sample-reports\\localization-stress\\stress-pack-manifest.json"
+  },
+  "schema_version": "1.1",
+  "summary": {
+    "errors": 0,
+    "matched_nodes": 2,
+    "screens": 1,
+    "stress_entries": 5,
+    "text_nodes": 3,
+    "unmatched_text_nodes": 1,
+    "viewports": 1,
+    "warnings": 7
+  },
+  "tool": "godot-mobile-ui-doctor",
+  "tool_version": "0.1.11",
+  "version": "0.1.11"
+}

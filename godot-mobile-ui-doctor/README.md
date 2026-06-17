@@ -57,6 +57,8 @@ Check which controls are likely to overflow under stress translations:
 ```powershell
 godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format json --output reports\mobile-layout-risk.json
+godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports\mobile-layout-risk.json --output-dir reports\mobile-ui-overlays --fail-on none
 ```
 
 Reuse viewport definitions from a visual smoke capture plan:
@@ -159,6 +161,7 @@ catalogs:
 ```powershell
 godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format json --output reports\mobile-layout-risk.json
 ```
 
 The expansion factor is a quick heuristic. `layout-risk` uses actual stress
@@ -175,6 +178,7 @@ reviewer can see the risky rectangles without opening the Godot project.
 ```powershell
 godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports\mobile-ui-overlays --scale 0.5 --fail-on none
 godot-mobile-ui-doctor overlays mobile-ui.json --screenshot-dir reports\screenshots --output-dir reports\mobile-ui-overlays --fail-on none
+godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports\mobile-layout-risk.json --output-dir reports\mobile-ui-overlays --fail-on none
 ```
 
 ![Mobile UI overlay preview](docs/images/mobile-ui-overlays/main_menu__portrait_phone.png)
@@ -183,6 +187,11 @@ If `--screenshot-dir` is supplied, the command looks for PNGs named
 `screen__viewport.png` or `screen.png` and draws the overlay on top of the
 captured screen. Screens without a matching screenshot still use the plain grid
 background.
+
+If `--layout-risk-report` points at JSON from `layout-risk`, overlay PNGs also
+mark controls with localized stress-text overflow risks. This is useful when a
+Markdown table says a label is risky but a reviewer needs to see where that
+control sits on the phone layout.
 
 ## Combined Readiness
 

@@ -91,8 +91,8 @@
     },
     {
       "name": "godot-mobile-ui-doctor",
-      "role": "Mobile UI metadata checks for safe areas, touch targets, spacing, text overflow, and localized layout risk.",
-      "interfaces": ["cli", "json", "markdown", "text", "localization-stress-pack"]
+      "role": "Mobile UI metadata checks for safe areas, touch targets, spacing, text overflow, localized layout risk, and overlay previews.",
+      "interfaces": ["cli", "json", "markdown", "text", "png-overlays", "localization-stress-pack"]
     },
     {
       "name": "godot-pack-mod-doctor",
@@ -175,6 +175,8 @@
     "docs/assets/sample-reports/mobile-ui.md",
     "docs/assets/sample-reports/mobile-ui-matrix.md",
     "docs/assets/sample-reports/mobile-ui-layout-risk.md",
+    "docs/assets/sample-reports/mobile-ui-layout-risk.json",
+    "docs/assets/sample-reports/mobile-ui-overlay-summary.json",
     "docs/assets/sample-reports/localization-stress/stress-pack-manifest.json",
     "docs/assets/sample-reports/runtime-telemetry-timeline.html",
     "docs/assets/sample-reports/runtime-telemetry-timeline.svg",
@@ -187,6 +189,7 @@
     "docs/assets/screenshots/scenario-coverage.png",
     "docs/assets/screenshots/architecture-guard-terminal.svg",
     "docs/assets/screenshots/mobile-ui-matrix.svg",
+    "godot-mobile-ui-doctor/docs/images/mobile-ui-overlays/main_menu__portrait_phone.png",
     "docs/assets/screenshots/runtime-telemetry-timeline.png"
   ],
   "verification_commands": [

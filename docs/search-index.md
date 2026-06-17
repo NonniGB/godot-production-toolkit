@@ -103,6 +103,10 @@ run `godot-mobile-ui-doctor layout-risk` with the generated stress-pack
 manifest. For a lighter heuristic, set `thresholds.text_expansion_factor` in
 `mobile-ui.json` and run `matrix` or `readiness`.
 
+When the layout-risk report is written as JSON, pass it to
+`godot-mobile-ui-doctor overlays --layout-risk-report` to draw the same risky
+controls onto PNG layout previews.
+
 ### "I need visual regression testing for scenes, menus, or HUDs"
 
 Use the [visual regression workflow](workflows/godot-visual-regression-testing.md)

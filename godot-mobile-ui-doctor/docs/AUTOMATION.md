@@ -38,11 +38,15 @@ captures its UI metadata:
 ```powershell
 godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format json --output reports\mobile-layout-risk.json
+godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports\mobile-layout-risk.json --output-dir reports\mobile-ui-overlays --fail-on none
 ```
 
 Use the stress catalogs in a project-owned UI capture step when possible. The
 joined `layout-risk` report is useful even before screenshot capture because it
 matches translation keys or source text to exported control rectangles.
+When JSON output is passed to `overlays`, the PNG previews mark the same risky
+controls so the layout issue is visible without reading a table first.
 
 The readiness report includes the linked reports' top findings and grouped rule
 counts in addition to the per-screen mobile UI matrix, which makes it suitable

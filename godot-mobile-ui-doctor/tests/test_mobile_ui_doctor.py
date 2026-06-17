@@ -23,7 +23,7 @@ class MobileUiDoctorTests(unittest.TestCase):
             viewports, screens, thresholds = load_metadata(path)
             report = audit_mobile_ui(viewports, screens, thresholds)
 
-            self.assertEqual(report["tool_version"], "0.1.10")
+            self.assertEqual(report["tool_version"], "0.1.11")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("touch_target_too_small", report["metadata"]["rules"])
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
@@ -135,7 +135,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.10", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.11", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -281,6 +281,71 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertTrue(overlay.exists())
             self.assertEqual(report["summary"]["screenshots"], 1)
             self.assertTrue(report["files"][0]["screenshot"].endswith("main_menu__portrait_phone.png"))
+
+    def test_overlay_command_can_mark_layout_risk_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            stress_manifest = _write_stress_pack_fixture(root)
+            layout_report = root / "layout-risk.json"
+            screenshots = root / "screenshots"
+            output_dir = root / "overlays"
+            summary = root / "overlay-summary.json"
+            screenshots.mkdir()
+            metadata.write_text(json.dumps(_layout_risk_metadata()), encoding="utf-8")
+            Image.new("RGB", (720, 1280), (20, 24, 30)).save(
+                screenshots / "pause_menu__portrait_phone.png"
+            )
+
+            layout_exit = main(
+                [
+                    "layout-risk",
+                    str(metadata),
+                    "--stress-pack",
+                    str(stress_manifest),
+                    "--format",
+                    "json",
+                    "--output",
+                    str(layout_report),
+                    "--fail-on",
+                    "none",
+                ]
+            )
+            overlay_exit = main(
+                [
+                    "overlays",
+                    str(metadata),
+                    "--layout-risk-report",
+                    str(layout_report),
+                    "--screenshot-dir",
+                    str(screenshots),
+                    "--output-dir",
+                    str(output_dir),
+                    "--output",
+                    str(summary),
+                    "--format",
+                    "json",
+                    "--fail-on",
+                    "none",
+                ]
+            )
+
+            report = json.loads(summary.read_text(encoding="utf-8"))
+            rule_ids = {finding["rule_id"] for finding in report["findings"]}
+            self.assertEqual(layout_exit, 0)
+            self.assertEqual(overlay_exit, 0)
+            self.assertEqual(report["summary"]["layout_risk_findings"], 1)
+            self.assertIn("localized_text_overflow_risk", rule_ids)
+            overlay = output_dir / "pause_menu__portrait_phone.png"
+            self.assertTrue(overlay.exists())
+            with Image.open(overlay) as image:
+                color_counts = {
+                    color: count
+                    for count, color in image.convert("RGB").getcolors(
+                        maxcolors=image.width * image.height
+                    )
+                }
+            self.assertGreater(color_counts.get((255, 139, 209), 0), 0)
 
     def test_readiness_combines_ui_matrix_with_linked_reports(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
