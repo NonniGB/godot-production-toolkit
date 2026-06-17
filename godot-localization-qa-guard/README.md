@@ -24,6 +24,7 @@ godot-l10n-guard . --format json --output localization-report.json
 godot-l10n-guard . --translations translations --max-expansion 1.35 --allowed-glyphs-file fonts\ui-glyphs.txt
 godot-l10n-guard . --translations translations --pseudo-output reports\pseudo-localized.csv --fail-on none
 godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 ```
 
 Run the sample:

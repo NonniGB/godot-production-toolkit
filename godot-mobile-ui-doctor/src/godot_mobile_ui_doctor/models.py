@@ -31,6 +31,7 @@ class UiNode:
     text: str = ""
     font_size: float = 16.0
     interactive: bool = False
+    translation_key: str = ""
 
 
 @dataclass(frozen=True)

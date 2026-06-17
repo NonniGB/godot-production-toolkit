@@ -9,6 +9,7 @@ from PIL import Image
 
 from godot_mobile_ui_doctor.audit import audit_mobile_ui, build_readiness_matrix
 from godot_mobile_ui_doctor.cli import main
+from godot_mobile_ui_doctor.layout_risk import build_layout_risk_report
 from godot_mobile_ui_doctor.loader import load_metadata
 from godot_mobile_ui_doctor.visual_smoke import load_visual_smoke_viewports
 
@@ -22,7 +23,7 @@ class MobileUiDoctorTests(unittest.TestCase):
             viewports, screens, thresholds = load_metadata(path)
             report = audit_mobile_ui(viewports, screens, thresholds)
 
-            self.assertEqual(report["tool_version"], "0.1.9")
+            self.assertEqual(report["tool_version"], "0.1.10")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("touch_target_too_small", report["metadata"]["rules"])
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
@@ -134,7 +135,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.9", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.10", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -428,6 +429,50 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertIn("| main_menu | portrait_phone | review |", rendered)
             self.assertIn("| Visual smoke | pass | 0 | 0 |", rendered)
 
+    def test_layout_risk_joins_stress_pack_by_translation_key(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            stress_manifest = _write_stress_pack_fixture(root)
+            metadata.write_text(json.dumps(_layout_risk_metadata()), encoding="utf-8")
+
+            viewports, screens, thresholds = load_metadata(metadata)
+            report = build_layout_risk_report(viewports, screens, thresholds, stress_manifest)
+
+            self.assertEqual(report["kind"], "mobile_ui_layout_risk")
+            self.assertEqual(report["summary"]["matched_nodes"], 1)
+            self.assertEqual(report["summary"]["warnings"], 1)
+            finding = report["findings"][0]
+            self.assertEqual(finding["rule_id"], "localized_text_overflow_risk")
+            self.assertEqual(finding["node"], "continue")
+            self.assertEqual(finding["translation_key"], "MENU_CONTINUE")
+
+    def test_layout_risk_cli_writes_markdown(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            stress_manifest = _write_stress_pack_fixture(root)
+            output = root / "layout-risk.md"
+            metadata.write_text(json.dumps(_layout_risk_metadata()), encoding="utf-8")
+
+            exit_code = main(
+                [
+                    "layout-risk",
+                    str(metadata),
+                    "--stress-pack",
+                    str(stress_manifest),
+                    "--output",
+                    str(output),
+                    "--fail-on",
+                    "none",
+                ]
+            )
+
+            rendered = output.read_text(encoding="utf-8")
+            self.assertEqual(exit_code, 0)
+            self.assertIn("# Godot Mobile UI Layout Risk", rendered)
+            self.assertIn("`MENU_CONTINUE`", rendered)
+
 
 def _sample_metadata() -> dict[str, object]:
     return {
@@ -537,6 +582,67 @@ def _localized_text_metadata() -> dict[str, object]:
             }
         ],
     }
+
+
+def _layout_risk_metadata() -> dict[str, object]:
+    return {
+        "thresholds": {"max_text_width_ratio": 0.95},
+        "viewports": [
+            {
+                "name": "portrait_phone",
+                "width": 720,
+                "height": 1280,
+                "safe_area": {"left": 0, "top": 0, "right": 0, "bottom": 0},
+            }
+        ],
+        "screens": [
+            {
+                "name": "pause_menu",
+                "viewport": "portrait_phone",
+                "nodes": [
+                    {
+                        "id": "continue",
+                        "kind": "button",
+                        "x": 24,
+                        "y": 96,
+                        "width": 96,
+                        "height": 44,
+                        "text": "Continue",
+                        "translation_key": "MENU_CONTINUE",
+                        "font_size": 22,
+                        "interactive": True,
+                    }
+                ],
+            }
+        ],
+    }
+
+
+def _write_stress_pack_fixture(root: Path) -> Path:
+    stress_dir = root / "localization-stress"
+    stress_dir.mkdir()
+    long_csv = stress_dir / "long.csv"
+    long_csv.write_text(
+        "keys,en,qps-long\nMENU_CONTINUE,Continue,Continue with the current game session now\n",
+        encoding="utf-8",
+    )
+    manifest = stress_dir / "stress-pack-manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "outputs": [
+                    {
+                        "variant": "long",
+                        "locale": "qps-long",
+                        "path": str(long_csv),
+                        "strings": 1,
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    return manifest
 
 
 if __name__ == "__main__":

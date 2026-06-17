@@ -35,6 +35,7 @@ godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports/input-map
 ```powershell
 godot-l10n-guard . --translations translations --require fr,es --scan-scripts --format markdown --output reports/localization.md
 godot-l10n-guard stress-pack . --translations translations --output-dir reports/localization-stress --format markdown --output reports/localization-stress.md
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format markdown --output reports/mobile-layout-risk.md
 godot-mobile-ui-doctor readiness mobile-ui.json --localization-report reports/localization.json --format markdown --output reports/localized-ui-readiness.md
 ```
 
@@ -86,7 +87,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Android, desktop, or web export settings are hard to review | `godot-export-preset-doctor`, `godot-mobile-perf-doctor` | `godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown` |
 | Exported build folders or file lists need reviewable artifact checks | `godot-export-preset-doctor` | `godot-export-doctor inspect-folder build/android --hash-files --format json` |
 | Godot mobile UI needs safe-area and touch-target checks | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
-| Godot mobile UI labels need localization expansion checks | `godot-mobile-ui-doctor`, `godot-localization-qa-guard` | `godot-mobile-ui-doctor matrix mobile-ui.json --format markdown` |
+| Godot mobile UI labels need localization expansion checks | `godot-mobile-ui-doctor`, `godot-localization-qa-guard` | `godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format markdown` |
 | Godot UI text needs pseudo, long, compact, or RTL-like stress catalogs | `godot-localization-qa-guard` | `godot-l10n-guard stress-pack . --translations translations --output-dir reports/localization-stress` |
 | Screenshots need regression testing | `godot-visual-smoke-test-kit` | `godot-visual-smoke compare baseline current --format json` |
 | Imported PNGs, pixel art, icons, or sprite anchors need review | `godot-asset-pipeline-doctor` | `godot-asset-doctor . --profile pixel-2d --format json` |

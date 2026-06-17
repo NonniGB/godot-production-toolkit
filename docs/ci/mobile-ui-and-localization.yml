@@ -76,6 +76,14 @@ jobs:
             --format markdown \
             --output "$REPORTS_DIR/localization-stress.md"
 
+      - name: Join localization stress with UI metadata
+        run: |
+          godot-mobile-ui-doctor layout-risk "$MOBILE_UI_METADATA" \
+            --stress-pack "$REPORTS_DIR/localization-stress/stress-pack-manifest.json" \
+            --format markdown \
+            --output "$REPORTS_DIR/mobile-layout-risk.md" \
+            --fail-on none
+
       - name: Upload mobile UI and localization reports
         if: always()
         uses: actions/upload-artifact@v4

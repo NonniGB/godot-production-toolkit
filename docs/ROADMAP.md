@@ -19,8 +19,7 @@ Suggested labels: `workflow: export`, `report schema`, `good first fixture`.
 
 Useful next work:
 
-- layout-risk reports that join translated text expansion with exported UI
-  rectangles;
+- overlay highlights that consume joined localization layout-risk reports;
 - more safe-area overlay examples for phone and tablet viewports;
 - font/glyph coverage examples for localized UI.
 

@@ -93,6 +93,9 @@ func _collect_controls_recursive(node: Node, rows: Array[Dictionary]) -> void:
         var text: String = _control_text(control)
         if not text.is_empty():
             row["text"] = text
+        var translation_key: String = _translation_key(control)
+        if not translation_key.is_empty():
+            row["translation_key"] = translation_key
         rows.append(row)
 
     for child: Node in node.get_children():
@@ -126,6 +129,14 @@ func _control_text(control: Control) -> String:
     if control is TextEdit:
         var text_edit: TextEdit = control as TextEdit
         return text_edit.text
+    return ""
+
+
+func _translation_key(control: Control) -> String:
+    if control.has_meta("translation_key"):
+        return str(control.get_meta("translation_key"))
+    if control.has_meta("text_key"):
+        return str(control.get_meta("text_key"))
     return ""
 
 

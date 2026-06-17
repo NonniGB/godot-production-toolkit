@@ -13,7 +13,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot exported folder or file-list inspection | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor inspect-folder build/android --hash-files --format json --output reports/exported-folder.json` |
 | Godot mobile performance static check | `python -m pip install godot-mobile-perf-doctor` | `godot-mobile-perf-doctor . --static --format markdown` |
 | Godot mobile UI safe area check | `python -m pip install godot-mobile-ui-doctor` | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
-| Godot mobile UI localization expansion check | `python -m pip install godot-mobile-ui-doctor godot-localization-qa-guard` | `godot-mobile-ui-doctor matrix mobile-ui.json --format markdown` |
+| Godot mobile UI localization expansion check | `python -m pip install godot-mobile-ui-doctor godot-localization-qa-guard` | `godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format markdown` |
 | Godot localization QA | `python -m pip install godot-localization-qa-guard` | `godot-l10n-guard . --translations translations --format markdown` |
 | Godot localization stress pack or text overflow review | `python -m pip install godot-localization-qa-guard` | `godot-l10n-guard stress-pack . --translations translations --output-dir reports/localization-stress --format markdown` |
 | Godot input map audit | `python -m pip install godot-input-map-auditor` | `godot-input-audit . --require keyboard,touch,controller --format markdown` |

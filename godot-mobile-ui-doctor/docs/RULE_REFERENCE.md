@@ -10,10 +10,13 @@
 | `touch_targets_too_close` | warning | Two interactive controls are closer than the configured spacing. |
 | `text_overflow_risk` | warning | The exported text may not fit in the node rectangle. |
 | `text_expansion_overflow_risk` | warning | The exported text fits now but may overflow after configured expansion. |
+| `localized_text_overflow_risk` | warning | A stress-pack localization variant may not fit in the node rectangle. |
 | `no_interactive_controls` | warning | A screen contains no interactive metadata. |
 
 These rules are intentionally conservative. They flag layout risks that deserve
 review; they do not try to judge whether a screen is well designed.
 
 The `matrix` command groups these rules by screen and viewport so a reviewer can
-quickly see which screens pass and which need a closer look.
+quickly see which screens pass and which need a closer look. The `layout-risk`
+command adds stress-pack evidence from localization files when a project exports
+stable `translation_key` values or source text.

@@ -1,7 +1,8 @@
 {
   "thresholds": {
     "min_touch_size": 44,
-    "min_touch_spacing": 8
+    "min_touch_spacing": 8,
+    "text_expansion_factor": 1.4
   },
   "viewports": [
     {
@@ -38,7 +39,8 @@
           "y": 96,
           "width": 40,
           "height": 40,
-          "text": "Play",
+          "text": "Start",
+          "translation_key": "MENU_START",
           "interactive": true
         },
         {
@@ -48,7 +50,8 @@
           "y": 96,
           "width": 80,
           "height": 44,
-          "text": "Options",
+          "text": "Graphics and sound settings",
+          "translation_key": "MENU_SETTINGS",
           "interactive": true
         }
       ]

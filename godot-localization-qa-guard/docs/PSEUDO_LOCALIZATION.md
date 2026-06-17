@@ -27,6 +27,18 @@ The RTL-like output is a layout stress tool, not a correctness check for any
 specific language. It helps find controls that assume left-to-right text before
 real translation review begins.
 
+## Use With Mobile UI Metadata
+
+When a project also exports mobile UI rectangles, feed the generated manifest to
+`godot-mobile-ui-doctor layout-risk`:
+
+```powershell
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
+```
+
+The mobile UI report matches controls by `translation_key` when available and
+falls back to visible source text when a key is not exported.
+
 Use a custom pseudo locale name when your project has a naming convention:
 
 ```powershell

@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-mobile-ui-doctor"
-version = "0.1.9"
-description = "Check Godot mobile UI metadata for safe areas, touch targets, text overflow, overlays, and readiness reports."
+version = "0.1.10"
+description = "Check Godot mobile UI metadata for safe areas, touch targets, text overflow, localized layout risk, overlays, and readiness reports."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Godot Mobile UI Doctor contributors" }]
-keywords = ["godot", "mobile", "ui", "touch", "safe-area", "gamedev", "ci"]
+keywords = ["godot", "mobile", "ui", "touch", "safe-area", "localization", "gamedev", "ci"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

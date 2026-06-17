@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.10 - 2026-06-17
+
+- Added `layout-risk` to join exported mobile UI metadata with localization stress-pack catalogs.
+- Added `translation_key` metadata support for direct UI node to translation-key matching.
+- Added JSON, Markdown, and text layout-risk reports for stress translation overflow review.
+
 ## 0.1.9 - 2026-06-16
 
 - Added `thresholds.text_expansion_factor` for flagging labels that fit current copy but may overflow after localization expansion.

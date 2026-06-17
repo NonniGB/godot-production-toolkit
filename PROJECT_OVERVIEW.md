@@ -2,7 +2,7 @@
 
 Godot Production Toolkit is a suite of CI-friendly production diagnostics for Godot 4 projects.
 
-The tools focus on repeated production risks that are easy to miss late in development: export preset mistakes, texture and import hygiene, mobile performance hazards, mobile UI layout risks, input coverage gaps, localization defects, save compatibility drift, scene signal issues, visual regressions, data-content reference errors, scenario evidence, runtime telemetry timelines and budgets, GDScript architecture coupling, pack/mod manifest checks, release dashboards, and pixel asset workflow checks.
+The tools focus on repeated production risks that are easy to miss late in development: export preset mistakes, texture and import hygiene, mobile performance hazards, mobile UI layout risks, localized text overflow, input coverage gaps, localization defects, save compatibility drift, scene signal issues, visual regressions, data-content reference errors, scenario evidence, runtime telemetry timelines and budgets, GDScript architecture coupling, pack/mod manifest checks, release dashboards, and pixel asset workflow checks.
 
 ## What Ships
 

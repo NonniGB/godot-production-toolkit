@@ -1,0 +1,44 @@
+{
+  "catalogs": [
+    "godot-localization-qa-guard/examples/tiny-godot-project/translations/strings.csv"
+  ],
+  "manifest_path": "docs/assets/sample-reports/localization-stress/stress-pack-manifest.json",
+  "metadata": {
+    "report_kind": "localization_stress_pack",
+    "schema_version": "1.0",
+    "tool_version": "0.1.4"
+  },
+  "outputs": [
+    {
+      "locale": "qps-ploc",
+      "path": "docs/assets/sample-reports/localization-stress/pseudo.csv",
+      "strings": 5,
+      "variant": "pseudo"
+    },
+    {
+      "locale": "qps-long",
+      "path": "docs/assets/sample-reports/localization-stress/long.csv",
+      "strings": 5,
+      "variant": "long"
+    },
+    {
+      "locale": "qps-compact",
+      "path": "docs/assets/sample-reports/localization-stress/compact.csv",
+      "strings": 5,
+      "variant": "compact"
+    },
+    {
+      "locale": "qps-rtl",
+      "path": "docs/assets/sample-reports/localization-stress/rtl.csv",
+      "strings": 5,
+      "variant": "rtl"
+    }
+  ],
+  "source_language": "en",
+  "summary": {
+    "catalogs": 1,
+    "strings": 5,
+    "variants": 4
+  },
+  "tool": "godot-localization-qa-guard"
+}

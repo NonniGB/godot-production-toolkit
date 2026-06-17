@@ -186,6 +186,7 @@ godot-export-doctor leaks godot-export-preset-doctor\examples\bad-export-project
 godot-export-doctor diff godot-export-preset-doctor\examples\bad-export-project --baseline godot-export-preset-doctor\examples\bad-export-project --format markdown --fail-on none
 godot-export-doctor inspect-folder build\android --hash-files --format json --output reports\exported-folder.json --fail-on none
 godot-l10n-guard stress-pack godot-localization-qa-guard\examples\tiny-godot-project --translations godot-localization-qa-guard\examples\tiny-godot-project\translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
+godot-mobile-ui-doctor layout-risk godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 godot-scenario-report manifest coverage godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --results godot-scenario-report-kit\examples\tiny-scenario-runs\current --format html --output reports\scenario-coverage.html
 godot-scenario-report bundle godot-scenario-report-kit\examples\tiny-scenario-runs\current --manifest godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --evidence log=godot-scenario-report-kit\examples\tiny-scenario-runs\run.log --evidence junit=godot-scenario-report-kit\examples\tiny-scenario-runs\junit.xml --format json --output reports\scenario-bundle.json
 godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-architecture-project --config architecture-guard.toml --format markdown
@@ -261,7 +262,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-scene-signal-auditor` | Scene signal connection and autoload coupling analysis. | JSON, Mermaid |
 | `godot-visual-smoke-test-kit` | Screenshot diffing, approval, and Godot capture command planning. | JSON, PNG diffs |
 | `godot-mobile-perf-doctor` | Static mobile performance diagnostics. | JSON, SARIF, Markdown |
-| `godot-mobile-ui-doctor` | Mobile UI safe-area, touch-target, spacing, text-overflow, overlay previews, and combined mobile readiness reports. | JSON, Markdown, PNG, text |
+| `godot-mobile-ui-doctor` | Mobile UI safe-area, touch-target, spacing, localized layout-risk, overlay previews, and combined mobile readiness reports. | JSON, Markdown, PNG, text |
 | `godot-pack-mod-doctor` | Pack, DLC, mod, and patch manifest generation, validation, diffing, and load-order checks. | JSON, Markdown, text |
 | `godot-release-dashboard-kit` | Static dashboard builder for toolkit reports. | HTML, JSON |
 | `godot-runtime-telemetry-lab` | Runtime telemetry summaries, timelines, named budgets, and baseline comparisons. | JSON, Markdown, text, HTML, SVG |
@@ -366,7 +367,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.4` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
-| [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.9` |
+| [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.10` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.2` |
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.3` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.2` |

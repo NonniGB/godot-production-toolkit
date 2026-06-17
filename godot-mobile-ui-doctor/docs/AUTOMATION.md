@@ -37,10 +37,12 @@ captures its UI metadata:
 
 ```powershell
 godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 ```
 
-Use the stress catalogs in a project-owned UI capture step, then run `matrix`,
-`overlays`, or `readiness` on the exported metadata.
+Use the stress catalogs in a project-owned UI capture step when possible. The
+joined `layout-risk` report is useful even before screenshot capture because it
+matches translation keys or source text to exported control rectangles.
 
 The readiness report includes the linked reports' top findings and grouped rule
 counts in addition to the per-screen mobile UI matrix, which makes it suitable

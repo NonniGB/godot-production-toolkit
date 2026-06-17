@@ -23,7 +23,12 @@ godot-mobile-ui-doctor overlays mobile-ui.json --output-dir reports\mobile-ui-ov
 
 If the UI is being prepared for localization, set
 `thresholds.text_expansion_factor` in `mobile-ui.json` and include the matrix or
-readiness report in the same review.
+readiness report in the same review. When localization stress output exists,
+run `layout-risk` to join those strings to exported UI rectangles:
+
+```powershell
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
+```
 
 Reuse viewport data from a visual smoke plan when available:
 

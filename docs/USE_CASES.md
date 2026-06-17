@@ -71,6 +71,7 @@ touch screens:
 
 ```powershell
 godot-mobile-ui-doctor mobile-ui.json --format markdown --output reports\mobile-ui.md
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 ```
 
 This helps catch:
@@ -88,6 +89,7 @@ Use this before exporting a localized build:
 ```powershell
 godot-l10n-guard . --translations translations --require fr,es --scan-scripts --format markdown --output reports\localization.md
 godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 ```
 
 This helps catch:

@@ -5,13 +5,14 @@ from pathlib import Path
 import sys
 
 from .audit import audit_mobile_ui, build_readiness_matrix
+from .layout_risk import build_layout_risk_report, render_layout_risk_report
 from .loader import load_metadata
 from .overlays import OverlayOptions, render_overlays
 from .readiness import build_combined_readiness, render_combined_readiness
 from .reporting import render_report
 from .visual_smoke import load_visual_smoke_viewports, merge_viewports
 
-VERSION_LABEL = "godot-mobile-ui-doctor 0.1.9"
+VERSION_LABEL = "godot-mobile-ui-doctor 0.1.10"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -22,6 +23,8 @@ def main(argv: list[str] | None = None) -> int:
         return _overlays(argv[1:])
     if argv and argv[0] == "readiness":
         return _readiness(argv[1:])
+    if argv and argv[0] == "layout-risk":
+        return _layout_risk(argv[1:])
     parser = _build_parser()
     args = parser.parse_args(argv)
 
@@ -144,6 +147,35 @@ def _readiness(argv: list[str]) -> int:
     linked = _linked_report_paths(args)
     report = build_combined_readiness(viewports, screens, thresholds, linked)
     _emit(render_combined_readiness(report, args.format), args.output)
+    return _exit_code(report, args.fail_on)
+
+
+def _layout_risk(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="godot-mobile-ui-doctor layout-risk",
+        description="Join mobile UI metadata with localization stress-pack catalogs.",
+    )
+    parser.add_argument("metadata", help="JSON file containing exported UI viewport and node metadata.")
+    parser.add_argument(
+        "--stress-pack",
+        required=True,
+        help="stress-pack-manifest.json written by godot-l10n-guard stress-pack.",
+    )
+    parser.add_argument(
+        "--visual-smoke-plan",
+        help="Optional JSON output from `godot-visual-smoke plan --format json` used to supply viewport metadata.",
+    )
+    parser.add_argument("--format", choices=["text", "json", "markdown"], default="markdown")
+    parser.add_argument("--output", help="Write output to this file instead of stdout.")
+    parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
+    args = parser.parse_args(argv)
+
+    viewports, screens, thresholds = _load_inputs(args, parser)
+    try:
+        report = build_layout_risk_report(viewports, screens, thresholds, Path(args.stress_pack))
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
+    _emit(render_layout_risk_report(report, args.format), args.output)
     return _exit_code(report, args.fail_on)
 
 

@@ -3,7 +3,8 @@
 `godot-mobile-ui-doctor` checks exported Godot UI metadata for common mobile
 layout risks: small touch targets, cramped controls, safe-area overlap,
 off-screen nodes, duplicate ids, and text that is likely to overflow its
-rectangle.
+rectangle. It can also join exported UI rectangles with localization stress
+catalogs from `godot-l10n-guard stress-pack`.
 
 The first version reads JSON metadata, so it can run in CI without opening the
 Godot editor. Projects can generate the metadata from their own debug tools,
@@ -51,6 +52,13 @@ Combine the UI matrix with nearby mobile release reports:
 godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports\input-map.json --export-report reports\export.json --mobile-perf-report reports\mobile-perf.json --format markdown --output reports\mobile-readiness.md
 ```
 
+Check which controls are likely to overflow under stress translations:
+
+```powershell
+godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
+```
+
 Reuse viewport definitions from a visual smoke capture plan:
 
 ```powershell
@@ -90,6 +98,7 @@ godot-mobile-ui-doctor readiness mobile-ui.json --visual-smoke-plan reports\visu
           "width": 44,
           "height": 44,
           "text": "Play",
+          "translation_key": "MENU_PLAY",
           "interactive": true
         }
       ]
@@ -116,6 +125,7 @@ still take precedence.
 - `touch_targets_too_close`: interactive rectangles are too close together.
 - `text_overflow_risk`: text is unlikely to fit in the exported rectangle.
 - `text_expansion_overflow_risk`: text fits current copy but may overflow after the configured expansion factor.
+- `localized_text_overflow_risk`: stress-pack text is unlikely to fit in the exported rectangle.
 - `no_interactive_controls`: a screen has no interactive controls in the metadata.
 
 ## Outputs
@@ -143,15 +153,17 @@ localized label growth. For example, `1.4` checks whether each current label
 still fits after a 40% width expansion while keeping the input format as plain
 JSON metadata.
 
-For a stronger localization pass, generate stress catalogs first:
+For a stronger localization pass, run `layout-risk` after generating stress
+catalogs:
 
 ```powershell
 godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress
+godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 ```
 
-Then load or capture those project-side strings before exporting UI metadata.
-The expansion factor is a quick heuristic; project-captured stress text gives
-better evidence for screens with tight labels or direction-sensitive layout.
+The expansion factor is a quick heuristic. `layout-risk` uses actual stress
+catalog strings and matches them by `translation_key` when available, falling
+back to visible text matches for a first pass.
 
 ## Overlay Previews
 
@@ -195,7 +207,8 @@ mix of unrelated issues.
 
 The tool deliberately keeps the input format simple. A project-specific exporter
 can walk visible `Control` nodes after layout and write each node's id, class,
-global rectangle, visible text, font size, and whether it is interactive.
+global rectangle, visible text, optional `translation_key`, font size, and
+whether it is interactive.
 
 Good ids are stable names such as `cargo_buy_button` or `settings_back`, not
 generated scene-instance paths. Stable ids make reports easier to compare across

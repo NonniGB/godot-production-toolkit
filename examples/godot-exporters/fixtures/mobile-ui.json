@@ -1,7 +1,8 @@
 {
   "thresholds": {
     "min_touch_size": 44,
-    "min_touch_spacing": 8
+    "min_touch_spacing": 8,
+    "text_expansion_factor": 1.4
   },
   "viewports": [
     {
@@ -29,7 +30,8 @@
           "width": 240,
           "height": 32,
           "interactive": false,
-          "text": "Main Menu"
+          "text": "Main Menu",
+          "translation_key": "MENU_TITLE"
         },
         {
           "id": "/root/MainMenu/PlayButton",
@@ -39,7 +41,8 @@
           "width": 160,
           "height": 48,
           "interactive": true,
-          "text": "Play"
+          "text": "Start",
+          "translation_key": "MENU_START"
         }
       ]
     }

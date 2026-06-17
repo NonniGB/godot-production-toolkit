@@ -17,9 +17,13 @@ write a `mobile-ui.json` file for `godot-mobile-ui-doctor`.
 godot --headless --path C:\Projects\MyGame --script res://tools/toolkit_exporters/mobile_ui_metadata_exporter.gd -- --scene res://ui/main_menu.tscn --output reports\mobile-ui.json --width 720 --height 1280 --safe-top 48 --safe-bottom 24
 godot-mobile-ui-doctor reports\mobile-ui.json --format markdown --output reports\mobile-ui.md
 godot-mobile-ui-doctor matrix reports\mobile-ui.json --format markdown --output reports\mobile-ui-matrix.md
+godot-mobile-ui-doctor layout-risk reports\mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 ```
 
 If `--scene` is omitted, the exporter uses the project's configured main scene.
+Set `translation_key` or `text_key` metadata on controls when you want the
+layout-risk report to join UI rectangles to localization stress-pack strings
+without relying on visible-text matching.
 
 ## Runtime Telemetry Snapshot
 

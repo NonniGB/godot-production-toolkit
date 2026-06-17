@@ -47,7 +47,7 @@
       "command": "godot-l10n-guard <project> --translations translations --pseudo-output reports/pseudo-localized.csv --fail-on none"
     },
     {
-      "purpose": "Localization stress pack for UI layout review",
+      "purpose": "Localization stress pack for downstream UI layout checks",
       "command": "godot-l10n-guard stress-pack <project> --translations translations --output-dir reports/localization-stress --format markdown --output reports/localization-stress.md"
     }
   ]

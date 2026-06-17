@@ -8,6 +8,7 @@
     "machine_output": ["json"],
     "human_output": ["text", "markdown", "png"],
     "visual_smoke_plan_input": true,
+    "localization_stress_pack_input": true,
     "visual_interface": "Markdown mobile UI readiness report and PNG overlay previews"
   },
   "run_behavior": {
@@ -37,6 +38,10 @@
     {
       "purpose": "Create a readiness matrix using visual-smoke viewport definitions",
       "command": "godot-mobile-ui-doctor matrix mobile-ui.json --visual-smoke-plan reports/visual-plan.json --format markdown --output reports/mobile-ui-matrix.md"
+    },
+    {
+      "purpose": "Join mobile UI metadata with localization stress-pack output",
+      "command": "godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format markdown --output reports/mobile-layout-risk.md"
     },
     {
       "purpose": "Render mobile UI overlay previews",

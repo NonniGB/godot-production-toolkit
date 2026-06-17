@@ -92,15 +92,16 @@ Start with the [localization overflow workflow](workflows/godot-localization-ove
 Use [`godot-localization-qa-guard`](../godot-localization-qa-guard/README.md) for
 translation files, script key usage, and `stress-pack` catalogs, then use
 [`godot-mobile-ui-doctor`](../godot-mobile-ui-doctor/README.md) for exported UI
-rectangles, text lengths, and safe-area layout.
+rectangles, text lengths, and `layout-risk` reports.
 
 The [mobile UI and localization CI recipe](ci/mobile-ui-and-localization.yml)
 is the best copy point when both translation quality and visible layout fit
 matter in the same review.
 
 For a quick layout stress check without generating pseudo-localized screenshots,
-set `thresholds.text_expansion_factor` in `mobile-ui.json` and run
-`godot-mobile-ui-doctor matrix` or `readiness`.
+run `godot-mobile-ui-doctor layout-risk` with the generated stress-pack
+manifest. For a lighter heuristic, set `thresholds.text_expansion_factor` in
+`mobile-ui.json` and run `matrix` or `readiness`.
 
 ### "I need visual regression testing for scenes, menus, or HUDs"
 

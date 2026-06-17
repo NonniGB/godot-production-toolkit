@@ -100,6 +100,7 @@ def _node(raw: object, label: str) -> UiNode:
         text=str(raw.get("text", "")),
         font_size=_positive_float(raw.get("font_size", 16), f"{label}.font_size"),
         interactive=bool(raw.get("interactive", False)),
+        translation_key=str(raw.get("translation_key", raw.get("translationKey", raw.get("text_key", "")))),
     )
 
 
