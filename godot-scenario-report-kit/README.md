@@ -59,7 +59,7 @@ Bundle scenario evidence with nearby telemetry and visual reports:
 
 ```powershell
 godot-telemetry-lab timeline reports\runtime --format json --output reports\runtime-timeline.json
-godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --telemetry reports\runtime-timeline.json --visual reports\visual-smoke.json --evidence log=reports\scenario-run.log --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
+godot-scenario-report bundle examples\tiny-scenario-runs\current --manifest examples\tiny-scenario-runs\scenario-manifest.json --telemetry reports\runtime-timeline.json --visual examples\tiny-scenario-runs\visual-smoke.json --evidence log=examples\tiny-scenario-runs\run.log --evidence junit=examples\tiny-scenario-runs\junit.xml --format json --output reports\scenario-bundle.json
 ```
 
 ## Result Shape
@@ -145,6 +145,11 @@ When `--telemetry` points at JSON from `godot-runtime-telemetry-lab`, the bundle
 adds a compact `telemetry_summary` with sample count, frame p95, frame max,
 memory max, spike count, and finding counts. Raw telemetry samples are not
 copied into the bundle.
+
+When `--visual` points at JSON from a visual smoke or screenshot comparison
+tool, the bundle adds a compact `visual_summary` with capture count, comparison
+count, changed comparisons, warnings, and errors. The bundle links screenshots
+or diff reports by path; it does not copy or embed images.
 
 Use `--evidence KIND=PATH` for extra files that help a human review the run,
 such as `log=reports\run.log`, `junit=reports\junit.xml`, or

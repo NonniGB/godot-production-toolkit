@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.8 - 2026-06-18
+
+- Scenario bundles now summarize linked visual smoke JSON reports with capture,
+  comparison, changed-comparison, warning, and error counts.
+- Markdown and HTML bundle reports show compact visual evidence metrics beside
+  telemetry summaries and linked evidence tables.
+- Added a tiny visual-smoke fixture and tests for release review bundles that
+  include screenshot comparison evidence.
+
 ## 0.1.7 - 2026-06-17
 
 - `flake compare` now groups repeated attempts of the same scenario inside a

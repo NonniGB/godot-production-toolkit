@@ -100,6 +100,10 @@ RULES: dict[str, dict[str, str]] = {
         "title": "Telemetry summary could not be read",
         "help": "Check that linked telemetry JSON or Markdown is complete before using it as review evidence.",
     },
+    "bundle_visual_unreadable": {
+        "title": "Visual summary could not be read",
+        "help": "Check that linked visual evidence JSON is complete before using it as review evidence.",
+    },
 }
 
 

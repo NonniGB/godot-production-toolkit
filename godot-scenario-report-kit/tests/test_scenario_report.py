@@ -36,7 +36,7 @@ class ScenarioReportTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.7")
+            self.assertEqual(report["tool_version"], "0.1.8")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("scenario_failed", report["metadata"]["rules"])
             self.assertEqual(report["summary"]["scenarios"], 1)
@@ -471,6 +471,80 @@ class ScenarioReportTests(unittest.TestCase):
             self.assertEqual(telemetry_summary["kind"], "runtime_telemetry_markdown")
             self.assertEqual(telemetry_summary["frame_p95_ms"], 24.5)
             self.assertEqual(telemetry_summary["frame_max_ms"], 35.0)
+
+    def test_bundle_summarizes_visual_smoke_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            results = root / "results"
+            results.mkdir()
+            visual = root / "visual-smoke.json"
+            visual.write_text(
+                json.dumps(
+                    {
+                        "kind": "visual_smoke_report",
+                        "summary": {
+                            "captures": 4,
+                            "comparisons": 3,
+                            "changed": 1,
+                            "warnings": 2,
+                            "errors": 0,
+                        },
+                        "screenshots": [
+                            {"path": "captures/menu.png"},
+                            {"path": "captures/market.png"},
+                        ],
+                        "findings": [{"severity": "warning", "rule_id": "pixel_delta"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (results / "menu.json").write_text(
+                json.dumps({"scenario": "menu", "status": "passed"}),
+                encoding="utf-8",
+            )
+
+            json_stdout = StringIO()
+            with redirect_stdout(json_stdout):
+                json_exit = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--visual",
+                        str(visual),
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            markdown_stdout = StringIO()
+            with redirect_stdout(markdown_stdout):
+                markdown_exit = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--visual",
+                        str(visual),
+                        "--format",
+                        "markdown",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(json_stdout.getvalue())
+            self.assertEqual(json_exit, 0)
+            self.assertEqual(markdown_exit, 0)
+            visual_summary = report["bundle"]["visual_summary"]
+            self.assertEqual(report["summary"]["visual_captures"], 4)
+            self.assertEqual(report["summary"]["visual_warnings"], 2)
+            self.assertEqual(visual_summary["kind"], "visual_smoke_report")
+            self.assertEqual(visual_summary["captures"], 4)
+            self.assertEqual(visual_summary["comparisons"], 3)
+            self.assertEqual(visual_summary["changed"], 1)
+            self.assertEqual(visual_summary["warnings"], 2)
+            self.assertIn("| Visual captures | 4 |", markdown_stdout.getvalue())
 
     def test_bundle_enriches_unreadable_telemetry_finding(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

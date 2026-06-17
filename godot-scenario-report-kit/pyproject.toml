@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-scenario-report-kit"
-version = "0.1.7"
-description = "Validate, summarize, compare, and publish Godot scenario evidence from JSON and JUnit XML."
+version = "0.1.8"
+description = "Validate, summarize, compare, and bundle Godot scenario, telemetry, and visual evidence."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

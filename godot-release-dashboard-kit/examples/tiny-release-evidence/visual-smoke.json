@@ -1,0 +1,21 @@
+{
+  "kind": "visual_smoke_report",
+  "summary": {
+    "captures": 2,
+    "comparisons": 2,
+    "changed": 1,
+    "warnings": 1,
+    "errors": 0
+  },
+  "screenshots": [
+    {"path": "screenshots/menu.png"},
+    {"path": "screenshots/trade-flow.png"}
+  ],
+  "findings": [
+    {
+      "severity": "warning",
+      "rule_id": "pixel_delta",
+      "message": "trade_flow changed beyond the configured visual threshold."
+    }
+  ]
+}

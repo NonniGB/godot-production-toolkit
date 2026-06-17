@@ -336,6 +336,20 @@ def _bundle_markdown(bundle: dict[str, Any]) -> list[str]:
                 "",
             ]
         )
+    visual = bundle.get("visual_summary")
+    if isinstance(visual, dict):
+        lines.extend(
+            [
+                "| Visual evidence | Value |",
+                "|---|---:|",
+                f"| Visual captures | {visual.get('captures', 0)} |",
+                f"| Visual comparisons | {visual.get('comparisons', 0)} |",
+                f"| Changed comparisons | {visual.get('changed', 0)} |",
+                f"| Visual warnings | {visual.get('warnings', 0)} |",
+                f"| Visual errors | {visual.get('errors', 0)} |",
+                "",
+            ]
+        )
     evidence = _bundle_evidence_rows(bundle)
     if evidence:
         lines.extend(["| Kind | Path | Exists | Size bytes |", "|---|---|---:|---:|"])
@@ -372,6 +386,7 @@ def _bundle_html(bundle: Any) -> list[str]:
     rows = [
         "<h2>Bundle Evidence</h2>",
         *_telemetry_summary_html(bundle.get("telemetry_summary")),
+        *_visual_summary_html(bundle.get("visual_summary")),
         "<table><thead><tr><th>Kind</th><th>Path</th><th>Exists</th><th>Size bytes</th></tr></thead><tbody>",
     ]
     if evidence:
@@ -450,6 +465,20 @@ def _telemetry_summary_html(telemetry: Any) -> list[str]:
         f"<tr><td>Frame max ms</td><td>{escape(_number_cell(telemetry.get('frame_max_ms')))}</td></tr>",
         f"<tr><td>Memory max MB</td><td>{escape(_number_cell(telemetry.get('memory_max_mb')))}</td></tr>",
         f"<tr><td>Spikes</td><td>{escape(str(telemetry.get('spikes', 0)))}</td></tr>",
+        "</tbody></table>",
+    ]
+
+
+def _visual_summary_html(visual: Any) -> list[str]:
+    if not isinstance(visual, dict):
+        return []
+    return [
+        "<table><thead><tr><th>Visual evidence</th><th>Value</th></tr></thead><tbody>",
+        f"<tr><td>Visual captures</td><td>{escape(str(visual.get('captures', 0)))}</td></tr>",
+        f"<tr><td>Visual comparisons</td><td>{escape(str(visual.get('comparisons', 0)))}</td></tr>",
+        f"<tr><td>Changed comparisons</td><td>{escape(str(visual.get('changed', 0)))}</td></tr>",
+        f"<tr><td>Visual warnings</td><td>{escape(str(visual.get('warnings', 0)))}</td></tr>",
+        f"<tr><td>Visual errors</td><td>{escape(str(visual.get('errors', 0)))}</td></tr>",
         "</tbody></table>",
     ]
 

@@ -1,11 +1,11 @@
 {
   "tool": "godot-scenario-report-kit",
-  "tool_version": "0.1.6",
+  "tool_version": "0.1.8",
   "schema_version": "1.1",
   "kind": "scenario_bundle",
   "workflow": "Runtime evidence",
   "category": "Scenario evidence",
-  "command": "godot-scenario-report bundle reports/scenarios --manifest scenario-manifest.json --telemetry reports/runtime-timeline.json --evidence log=reports/run.log --evidence junit=reports/junit.xml --format json",
+  "command": "godot-scenario-report bundle reports/scenarios --manifest scenario-manifest.json --telemetry reports/runtime-timeline.json --visual reports/visual-smoke.json --evidence log=reports/run.log --evidence junit=reports/junit.xml --format json",
   "summary": {
     "scenarios": 2,
     "passed": 1,
@@ -13,12 +13,17 @@
     "skipped": 0,
     "errors": 0,
     "warnings": 1,
-    "linked_evidence": 3,
+    "linked_evidence": 4,
     "artifacts": 2,
     "telemetry_samples": 18,
     "telemetry_spikes": 2,
     "telemetry_warnings": 1,
-    "telemetry_errors": 0
+    "telemetry_errors": 0,
+    "visual_captures": 2,
+    "visual_comparisons": 2,
+    "visual_changed": 1,
+    "visual_warnings": 1,
+    "visual_errors": 0
   },
   "bundle": {
     "telemetry_summary": {
@@ -33,12 +38,27 @@
       "warnings": 1,
       "errors": 0
     },
+    "visual_summary": {
+      "kind": "visual_smoke_report",
+      "relative_path": "visual-smoke.json",
+      "captures": 2,
+      "comparisons": 2,
+      "changed": 1,
+      "warnings": 1,
+      "errors": 0
+    },
     "links": {
       "telemetry": {
         "kind": "telemetry",
         "relative_path": "runtime-timeline.json",
         "exists": true,
         "size_bytes": 993
+      },
+      "visual": {
+        "kind": "visual",
+        "relative_path": "visual-smoke.json",
+        "exists": true,
+        "size_bytes": 365
       }
     },
     "evidence_links": [

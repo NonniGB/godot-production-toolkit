@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-scenario-report-kit` scenario bundles with compact visual
+  smoke report summaries for screenshot/capture evidence.
 - Improved `godot-runtime-telemetry-lab` adapters for official Godot
   Performance monitor time and memory units.
 - Improved `godot-release-dashboard-kit` with export artifact evidence cards

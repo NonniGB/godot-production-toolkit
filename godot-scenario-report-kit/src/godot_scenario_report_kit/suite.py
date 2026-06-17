@@ -144,6 +144,7 @@ def bundle(
         "visual": _bundle_link(visual_path, base_dir, findings, "visual"),
     }
     telemetry_summary = _telemetry_summary(telemetry_path, base_dir, findings)
+    visual_summary = _visual_summary(visual_path, base_dir, findings)
     custom_evidence = [
         _bundle_link(path, base_dir, findings, kind)
         for kind, path in evidence_links or []
@@ -158,6 +159,8 @@ def bundle(
     }
     if telemetry_summary is not None:
         report["bundle"]["telemetry_summary"] = telemetry_summary
+    if visual_summary is not None:
+        report["bundle"]["visual_summary"] = visual_summary
     if manifest_path is not None:
         manifest_report = manifest_check(manifest_path, results_path)
         report["coverage"] = manifest_report.get("coverage")
@@ -171,6 +174,12 @@ def bundle(
         report["summary"]["telemetry_spikes"] = telemetry_summary.get("spikes", 0)
         report["summary"]["telemetry_warnings"] = telemetry_summary.get("warnings", 0)
         report["summary"]["telemetry_errors"] = telemetry_summary.get("errors", 0)
+    if visual_summary is not None:
+        report["summary"]["visual_captures"] = visual_summary.get("captures", 0)
+        report["summary"]["visual_comparisons"] = visual_summary.get("comparisons", 0)
+        report["summary"]["visual_changed"] = visual_summary.get("changed", 0)
+        report["summary"]["visual_warnings"] = visual_summary.get("warnings", 0)
+        report["summary"]["visual_errors"] = visual_summary.get("errors", 0)
     return report
 
 
@@ -286,6 +295,84 @@ def _telemetry_source(path: Path) -> Path | None:
     return None
 
 
+def _visual_summary(
+    path: Path | None,
+    base_dir: Path,
+    findings: list[Finding],
+) -> dict[str, Any] | None:
+    if path is None or not path.exists():
+        return None
+    source = _visual_source(path)
+    if source is None:
+        return None
+    try:
+        data = json.loads(source.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        findings.append(
+            Finding(
+                rule_id="bundle_visual_unreadable",
+                severity="warning",
+                source=str(source),
+                message=f"Linked visual evidence JSON could not be summarized: {exc}",
+            )
+        )
+        return None
+    summary = _compact_visual_summary(data)
+    if summary is None:
+        return None
+    return {
+        "path": str(source),
+        "relative_path": _relative_path(source, base_dir),
+        **summary,
+    }
+
+
+def _visual_source(path: Path) -> Path | None:
+    if path.is_file():
+        return path if path.suffix.lower() == ".json" else None
+    for candidate in sorted(path.glob("*.json")):
+        try:
+            data = json.loads(candidate.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if _compact_visual_summary(data) is not None:
+            return candidate
+    return None
+
+
+def _compact_visual_summary(data: object) -> dict[str, Any] | None:
+    if not isinstance(data, dict):
+        return None
+    summary = data.get("summary") if isinstance(data.get("summary"), dict) else {}
+    finding_rows = [item for item in data.get("findings", []) if isinstance(item, dict)]
+    screenshots = data.get("screenshots")
+    captures = data.get("captures")
+    comparisons = data.get("comparisons")
+    capture_count = _int_value(summary.get("captures") or summary.get("screenshots"))
+    if capture_count == 0:
+        capture_count = _list_count(screenshots) or _list_count(captures)
+    comparison_count = _int_value(summary.get("comparisons"))
+    if comparison_count == 0:
+        comparison_count = _list_count(comparisons)
+    changed = _int_value(summary.get("changed") or summary.get("changed_comparisons") or summary.get("diffs"))
+    warnings = _int_value(summary.get("warnings")) or sum(
+        1 for finding in finding_rows if finding.get("severity") == "warning"
+    )
+    errors = _int_value(summary.get("errors")) or sum(
+        1 for finding in finding_rows if finding.get("severity") == "error"
+    )
+    if capture_count == 0 and comparison_count == 0 and changed == 0 and warnings == 0 and errors == 0:
+        return None
+    return {
+        "kind": str(data.get("kind") or data.get("tool") or "visual_smoke_report"),
+        "captures": capture_count,
+        "comparisons": comparison_count,
+        "changed": changed,
+        "warnings": warnings,
+        "errors": errors,
+    }
+
+
 def _compact_telemetry_summary(data: object) -> dict[str, Any] | None:
     if isinstance(data, list):
         return _compact_raw_samples(data)
@@ -398,6 +485,10 @@ def _string_list(value: object) -> list[str]:
     if isinstance(value, str) and value.strip():
         return [value.strip()]
     return []
+
+
+def _list_count(value: object) -> int:
+    return len(value) if isinstance(value, list) else 0
 
 
 def _percentile(values: list[float], fraction: float) -> float:
