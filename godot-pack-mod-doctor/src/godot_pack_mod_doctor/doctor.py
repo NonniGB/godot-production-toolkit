@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 from . import __version__
@@ -265,7 +265,7 @@ def _path_policy(files: list[dict[str, Any]], findings: list[dict[str, str]]) ->
         path = str(item.get("path", "")).strip().replace("\\", "/")
         if not path:
             continue
-        if Path(path).is_absolute():
+        if _looks_absolute_path(path):
             findings.append(
                 {
                     "rule_id": "pack_absolute_path",
@@ -397,6 +397,12 @@ def _sha256(path: Path) -> str:
 def _normalize_extension(extension: str) -> str:
     value = extension.strip().lower()
     return value if value.startswith(".") else f".{value}"
+
+
+def _looks_absolute_path(path: str) -> bool:
+    if path.startswith("res://"):
+        return False
+    return Path(path).is_absolute() or PureWindowsPath(path).is_absolute()
 
 
 def _text(report: dict[str, Any]) -> str:
