@@ -7,6 +7,7 @@
     "cli": true,
     "machine_output": ["json", "sarif"],
     "human_output": ["text", "markdown", "mermaid"],
+    "module_owner_summary": true,
     "high_coupling_summary": true,
     "possible_unused_script_summary": true,
     "module_path_coverage": true,
@@ -29,7 +30,7 @@
       "command": "godot-architecture-guard . --config architecture-guard.toml --format json --output reports/architecture.json"
     },
     {
-      "purpose": "Write a refactor review report with high fan-in/fan-out and possible unused scripts",
+      "purpose": "Write a refactor review report with owner, high fan-in/fan-out, and possible unused script summaries",
       "command": "godot-architecture-guard . --config architecture-guard.toml --format markdown --output reports/architecture.md --fail-on none"
     },
     {

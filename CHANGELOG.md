@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-gdscript-architecture-guard` with module ownership summaries
+  for refactor review reports.
 - Improved `godot-save-schema-guard` with before-and-after migration comparison
   summaries for migrated fixtures.
 - Improved `godot-release-dashboard-kit` with typed report highlights for

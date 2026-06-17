@@ -62,10 +62,21 @@ def audit_project(
         project_references,
         class_name_files,
     )
+    owner_summaries = _build_owner_summaries(
+        root,
+        files,
+        modules,
+        module_by_file,
+        references_by_file,
+        autoload_references_by_file,
+        findings,
+        hotspots,
+        possible_unused_scripts,
+    )
 
     return {
         "tool": "godot-gdscript-architecture-guard",
-        "version": "0.1.2",
+        "version": "0.1.3",
         "metadata": {
             "schema_version": "1.1",
             "rule_count": len(RULE_HELP),
@@ -77,6 +88,7 @@ def audit_project(
             "dependencies": len(edges),
             "hotspots": len(hotspots),
             "possible_unused_scripts": len(possible_unused_scripts),
+            "owner_summaries": len(owner_summaries),
             "findings": len(findings),
             "errors": sum(1 for finding in findings if finding.severity == "error"),
             "warnings": sum(1 for finding in findings if finding.severity == "warning"),
@@ -91,6 +103,7 @@ def audit_project(
             for module in modules
         },
         "dependencies": [{"source": source, "target": target} for source, target in sorted(edges)],
+        "owner_summaries": owner_summaries,
         "hotspots": hotspots,
         "possible_unused_scripts": possible_unused_scripts,
         "findings": [enrich_finding(finding.to_dict()) for finding in findings],
@@ -295,6 +308,87 @@ def _build_possible_unused_scripts(
             }
         )
     return rows
+
+
+def _build_owner_summaries(
+    root: Path,
+    files: list[Path],
+    modules: tuple[ModulePolicy, ...],
+    module_by_file: dict[Path, ModulePolicy | None],
+    references_by_file: dict[Path, set[Path]],
+    autoload_references_by_file: dict[Path, int],
+    findings: list[Finding],
+    hotspots: list[dict[str, object]],
+    possible_unused_scripts: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    module_names = [module.name for module in modules]
+    if any(module_by_file[path] is None for path in files):
+        module_names.append("<unowned>")
+
+    rows: dict[str, dict[str, object]] = {
+        name: {
+            "module": name,
+            "configured_paths": 0,
+            "matched_scripts": 0,
+            "incoming_dependencies": 0,
+            "outgoing_dependencies": 0,
+            "autoload_references": 0,
+            "boundary_violations": 0,
+            "autoload_violations": 0,
+            "unmatched_path_patterns": 0,
+            "hotspots": 0,
+            "possible_unused_scripts": 0,
+        }
+        for name in module_names
+    }
+    for module in modules:
+        rows[module.name]["configured_paths"] = len(module.paths)
+
+    incoming_sources: dict[str, set[str]] = {name: set() for name in module_names}
+    outgoing_targets: dict[str, set[str]] = {name: set() for name in module_names}
+    for source, targets in references_by_file.items():
+        source_module = _module_name(module_by_file.get(source))
+        rows[source_module]["matched_scripts"] = int(rows[source_module]["matched_scripts"]) + 1
+        rows[source_module]["autoload_references"] = (
+            int(rows[source_module]["autoload_references"])
+            + autoload_references_by_file.get(source, 0)
+        )
+        source_rel = source.relative_to(root).as_posix()
+        for target in targets:
+            target_module = _module_name(module_by_file.get(target))
+            if target_module == source_module:
+                continue
+            outgoing_targets[source_module].add(target_module)
+            incoming_sources[target_module].add(source_rel)
+
+    for finding in findings:
+        module = finding.module or "<unowned>"
+        if module not in rows:
+            continue
+        if finding.rule_id == "module_boundary_violation":
+            rows[module]["boundary_violations"] = int(rows[module]["boundary_violations"]) + 1
+        elif finding.rule_id == "autoload_access_violation":
+            rows[module]["autoload_violations"] = int(rows[module]["autoload_violations"]) + 1
+        elif finding.rule_id == "module_path_without_scripts":
+            rows[module]["unmatched_path_patterns"] = int(rows[module]["unmatched_path_patterns"]) + 1
+
+    for row in hotspots:
+        module = str(row.get("module") or "<unowned>")
+        if module in rows:
+            rows[module]["hotspots"] = int(rows[module]["hotspots"]) + 1
+    for row in possible_unused_scripts:
+        module = str(row.get("module") or "<unowned>")
+        if module in rows:
+            rows[module]["possible_unused_scripts"] = int(rows[module]["possible_unused_scripts"]) + 1
+
+    for module in module_names:
+        rows[module]["incoming_dependencies"] = len(incoming_sources[module])
+        rows[module]["outgoing_dependencies"] = len(outgoing_targets[module])
+    return [rows[name] for name in module_names]
+
+
+def _module_name(module: ModulePolicy | None) -> str:
+    return module.name if module else "<unowned>"
 
 
 def _module_for_path(root: Path, path: Path, modules: tuple[ModulePolicy, ...]) -> ModulePolicy | None:

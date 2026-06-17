@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 - 2026-06-17
+
+- Added module ownership summaries for configured modules and unowned scripts.
+- Markdown and text reports now show per-module script counts, dependency direction, autoload references, violations, hotspots, and possible-unused counts.
+- JSON reports expose `owner_summaries` and an `owner_summaries` summary count for refactor review dashboards.
+
 ## 0.1.2 - 2026-06-17
 
 - Added advisory high fan-in/fan-out file summaries to JSON, text, and Markdown reports.

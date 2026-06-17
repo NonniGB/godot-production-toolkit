@@ -52,7 +52,7 @@ names = ["GameState"]
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("module_boundary_violation", rules)
             self.assertIn("autoload_access_violation", rules)
-            self.assertEqual(report["version"], "0.1.2")
+            self.assertEqual(report["version"], "0.1.3")
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
             self.assertIn("suggestion", report["findings"][0])
             self.assertIn("module_boundary_violation", report["rule_help"])
@@ -125,6 +125,14 @@ names = ["GameState"]
             self.assertNotIn("scripts/shared/global_type.gd", possible_unused_paths)
             self.assertNotIn("scripts/autoload/game_state.gd", possible_unused_paths)
             self.assertEqual(report["summary"]["possible_unused_scripts"], 2)
+            summaries = {row["module"]: row for row in report["owner_summaries"]}
+            self.assertEqual(report["summary"]["owner_summaries"], 4)
+            self.assertEqual(summaries["shared"]["matched_scripts"], 3)
+            self.assertEqual(summaries["shared"]["incoming_dependencies"], 2)
+            self.assertEqual(summaries["shared"]["possible_unused_scripts"], 1)
+            self.assertEqual(summaries["ui"]["outgoing_dependencies"], 1)
+            self.assertEqual(summaries["ui"]["autoload_references"], 2)
+            self.assertEqual(summaries["<unowned>"]["matched_scripts"], 1)
 
     def test_reports_module_paths_that_match_no_scripts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -295,6 +303,8 @@ may_depend_on = []
             self.assertIn("## Dependency Hotspots", markdown)
             self.assertIn("scripts/shared/formatting.gd", markdown)
             self.assertIn("## Possible Unused Scripts", markdown)
+            self.assertIn("## Module Ownership Summary", markdown)
+            self.assertIn("| ui | 1 |", markdown)
 
 
 if __name__ == "__main__":

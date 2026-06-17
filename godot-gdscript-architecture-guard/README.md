@@ -6,7 +6,8 @@ scripts, and feature modules can quietly become tangled during refactors.
 
 It does not run the Godot editor. It scans `.gd` files and reports dependency
 direction, autoload access, unresolved `res://` script/resource references,
-high fan-in/fan-out from visible script references, and possible unused scripts.
+module owner summaries, high fan-in/fan-out from visible script references, and
+possible unused scripts.
 
 ## Install
 
@@ -65,8 +66,9 @@ reports a module boundary violation unless `ui` may depend on `gameplay`.
 
 If a configured module path matches no scripts, the tool reports that stale
 policy path as a warning. JSON, text, and Markdown reports also include advisory
-sections for files with many visible script references and scripts that do not
-appear in visible `res://` references or `class_name` declarations.
+sections for module ownership, files with many visible script references, and
+scripts that do not appear in visible `res://` references or `class_name`
+declarations.
 
 ## Outputs
 
@@ -78,6 +80,6 @@ appear in visible `res://` references or `class_name` declarations.
 
 JSON reports include `metadata`, `rule_help`, and per-finding suggestions so CI
 jobs and small review scripts can explain the issue without hard-coding rule
-text. They also include `hotspots` and `possible_unused_scripts` arrays for
-refactor review.
+text. They also include `owner_summaries`, `hotspots`, and
+`possible_unused_scripts` arrays for refactor review.
 SARIF output carries rule descriptions for code scanning tools.

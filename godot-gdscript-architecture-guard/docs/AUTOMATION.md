@@ -21,6 +21,9 @@ annotations.
 
 For refactor review, JSON and Markdown output also include:
 
+- `owner_summaries`: configured module and unowned-script summaries with script
+  counts, incoming/outgoing dependencies, autoload references, violations,
+  hotspots, and possible-unused counts.
 - `hotspots`: scripts with higher fan-in, fan-out, or autoload references.
 - `possible_unused_scripts`: scripts with no visible `res://` reference or `class_name`
   declaration. Treat these as review candidates, not automatic deletion lists.
