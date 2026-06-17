@@ -1,0 +1,15 @@
+{
+  "tool": "godot-export-doctor",
+  "tool_version": "0.1.10",
+  "schema_version": "1.0",
+  "kind": "export_preset_check",
+  "workflow": "Export and packaging",
+  "category": "Android export",
+  "summary": {
+    "errors": 2,
+    "warnings": 3,
+    "presets": 1,
+    "risk_level": "blocked",
+    "risk_score": 160
+  }
+}

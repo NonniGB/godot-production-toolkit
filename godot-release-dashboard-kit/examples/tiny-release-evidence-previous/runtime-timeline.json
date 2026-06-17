@@ -1,0 +1,16 @@
+{
+  "tool": "godot-runtime-telemetry-lab",
+  "tool_version": "0.1.2",
+  "schema_version": "1.0",
+  "kind": "runtime_telemetry_timeline",
+  "workflow": "Runtime evidence",
+  "category": "Telemetry",
+  "summary": {
+    "errors": 0,
+    "warnings": 0,
+    "samples": 18,
+    "spikes": 0,
+    "frame_budget_ms": 16.67,
+    "memory_budget_mb": 768
+  }
+}

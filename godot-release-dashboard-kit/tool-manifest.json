@@ -20,8 +20,8 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Build a workflow-grouped static release dashboard with report metadata",
-      "command": "godot-release-dashboard build reports/godot-project-doctor --output reports/dashboard.html"
+      "purpose": "Build a workflow-grouped static release dashboard with report metadata and previous-run trends",
+      "command": "godot-release-dashboard build reports/current --previous-reports-dir reports/previous --output reports/dashboard.html"
     },
     {
       "purpose": "Build a machine-readable dashboard summary",

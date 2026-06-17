@@ -246,6 +246,8 @@ summarized into compact frame, memory, sample, and spike metrics inside the
 bundle.
 Optional `workflow` and `category` labels help reviewers scan related checks
 together in the generated dashboard.
+Add `--previous-reports-dir` when a pull request or release candidate should
+show what changed since the last run.
 
 The [report gallery](report-gallery/README.md) includes a dashboard demo, sample
 HTML, screenshot, fixture, and regeneration command.

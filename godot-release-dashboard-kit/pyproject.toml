@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-release-dashboard-kit"
-version = "0.1.6"
-description = "Build static workflow-grouped release dashboards from Godot Production Toolkit reports."
+version = "0.1.7"
+description = "Build static workflow-grouped release dashboards with baseline trend summaries."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Godot Release Dashboard Kit contributors" }]
-keywords = ["godot", "dashboard", "release", "qa", "workflow", "gamedev", "ci"]
+keywords = ["godot", "dashboard", "release", "qa", "workflow", "baseline", "gamedev", "ci"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

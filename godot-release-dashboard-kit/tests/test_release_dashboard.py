@@ -49,7 +49,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.6")
+            self.assertEqual(data["tool_version"], "0.1.7")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["summary"]["workflows"], 1)
@@ -309,6 +309,113 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertIn("0.1.4", html)
             self.assertIn("Risk", html)
             self.assertIn("attention (10)", html)
+
+    def test_builds_trend_cards_from_previous_report_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            previous = root / "previous"
+            current = root / "current"
+            previous.mkdir()
+            current.mkdir()
+            (previous / "export.json").write_text(
+                json.dumps({"tool": "godot-export-doctor", "summary": {"errors": 1, "warnings": 2}}),
+                encoding="utf-8",
+            )
+            (current / "export.json").write_text(
+                json.dumps({"tool": "godot-export-doctor", "summary": {"errors": 0, "warnings": 1}}),
+                encoding="utf-8",
+            )
+            (current / "new-check.json").write_text(
+                json.dumps({"tool": "godot-mobile-ui-doctor", "summary": {"errors": 0, "warnings": 1}}),
+                encoding="utf-8",
+            )
+            json_output = root / "dashboard.json"
+            html_output = root / "dashboard.html"
+
+            json_exit = main(
+                [
+                    "build",
+                    str(current),
+                    "--previous-reports-dir",
+                    str(previous),
+                    "--format",
+                    "json",
+                    "--output",
+                    str(json_output),
+                ]
+            )
+            html_exit = main(["build", str(current), "--baseline", str(previous), "--output", str(html_output)])
+
+            data = json.loads(json_output.read_text(encoding="utf-8"))
+            html = html_output.read_text(encoding="utf-8")
+            self.assertEqual(json_exit, 0)
+            self.assertEqual(html_exit, 0)
+            self.assertTrue(data["trends"]["enabled"])
+            self.assertEqual(data["previous_summary"]["blocked"], 1)
+            self.assertEqual(data["previous_summary"]["errors"], 1)
+            self.assertEqual(data["summary"]["trend_changes"], 2)
+            self.assertEqual(data["summary"]["trend_improvements"], 1)
+            self.assertEqual(data["summary"]["trend_regressions"], 1)
+            changes = {item["report_key"]: item for item in data["trends"]["changes"]}
+            self.assertEqual(changes["export.json"]["direction"], "improvement")
+            self.assertEqual(changes["export.json"]["error_delta"], -1)
+            self.assertEqual(changes["new-check.json"]["change"], "added")
+            self.assertIn("Changes Since Previous Reports", html)
+            self.assertIn("Changed reports: 2", html)
+            self.assertIn("improvement", html)
+            self.assertIn("regression", html)
+            self.assertNotIn(str(root), html)
+
+    def test_build_accepts_dashboard_description_and_project_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            (reports / "notes.md").write_text("# Ready", encoding="utf-8")
+            json_output = root / "dashboard.json"
+            html_output = root / "dashboard.html"
+
+            json_exit = main(
+                [
+                    "build",
+                    str(reports),
+                    "--title",
+                    "Release Candidate Evidence",
+                    "--description",
+                    "Android export and runtime checks",
+                    "--project",
+                    "Demo Game",
+                    "--format",
+                    "json",
+                    "--output",
+                    str(json_output),
+                ]
+            )
+            html_exit = main(
+                [
+                    "build",
+                    str(reports),
+                    "--title",
+                    "Release Candidate Evidence",
+                    "--description",
+                    "Android export and runtime checks",
+                    "--project",
+                    "Demo Game",
+                    "--output",
+                    str(html_output),
+                ]
+            )
+
+            data = json.loads(json_output.read_text(encoding="utf-8"))
+            html = html_output.read_text(encoding="utf-8")
+            self.assertEqual(json_exit, 0)
+            self.assertEqual(html_exit, 0)
+            self.assertEqual(data["title"], "Release Candidate Evidence")
+            self.assertEqual(data["description"], "Android export and runtime checks")
+            self.assertEqual(data["project"], "Demo Game")
+            self.assertIn("Release Candidate Evidence", html)
+            self.assertIn("Android export and runtime checks", html)
+            self.assertIn("Demo Game", html)
 
 
 if __name__ == "__main__":

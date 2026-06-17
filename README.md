@@ -207,7 +207,7 @@ godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdow
 godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown
 godot-save-guard generate-fixture --schema godot-save-schema-guard\examples\schema\save.schema.json --fixture-output reports\generated-save.json --set 'player.id="pilot-1"' --format markdown --fail-on none
 godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir reports\migrated-saves --schema schemas\save.schema.json --format json --output reports\save-migration.json
-godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --title "Godot Toolkit Release Evidence" --output reports\dashboard.html
+godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --previous-reports-dir godot-release-dashboard-kit\examples\tiny-release-evidence-previous --title "Godot Toolkit Release Evidence" --description "Synthetic release checks with scenario and runtime evidence" --output reports\dashboard.html
 ```
 
 `scenario-bundle.json` files from `godot-scenario-report-kit` can live in the
@@ -215,6 +215,8 @@ same reports folder as other dashboard inputs, so scenario results, compact
 telemetry summaries, logs, JUnit files, and screenshots are reviewed together.
 Dashboard inputs can also provide `workflow` and `category` metadata so related
 checks are grouped together in the static HTML report.
+For release-history review, pass `--previous-reports-dir` to show added,
+removed, and changed report cards with error and warning deltas.
 
 ![Content graph terminal report](docs/assets/screenshots/content-graph-terminal.svg)
 ![Export preset matrix report](docs/assets/screenshots/export-matrix.png)
@@ -272,7 +274,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-mobile-perf-doctor` | Static mobile performance diagnostics. | JSON, SARIF, Markdown |
 | `godot-mobile-ui-doctor` | Mobile UI safe-area, touch-target, spacing, localized layout-risk, overlay previews, and combined mobile readiness reports. | JSON, Markdown, PNG, text |
 | `godot-pack-mod-doctor` | Pack, DLC, mod, and patch manifest generation, validation, moved-resource diffing, content-id, dependency, and load-order checks. | JSON, Markdown, text |
-| `godot-release-dashboard-kit` | Static workflow-grouped dashboard builder for toolkit reports, visual artifacts, metadata, and reproduction commands. | HTML, JSON |
+| `godot-release-dashboard-kit` | Static workflow-grouped dashboard builder for toolkit reports, visual artifacts, metadata, reproduction commands, and previous-run trends. | HTML, JSON |
 | `godot-runtime-telemetry-lab` | Runtime telemetry summaries, timelines, named budgets, and baseline comparisons. | JSON, Markdown, text, HTML, SVG |
 | `pixel-space-asset-toolkit` | Deterministic pixel sci-fi asset utilities, galleries, and PNG image/directory diff checks. | JSON, PNG, HTML |
 
@@ -377,7 +379,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.11` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.4` |
-| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.6` |
+| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.7` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.2` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.5` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.6` |

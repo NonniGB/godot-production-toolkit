@@ -20,3 +20,9 @@ generated dashboard shows grouped release evidence.
 ```powershell
 godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --output reports\release-dashboard.html
 ```
+
+To show the trend cards, compare this fixture with the previous-run fixture:
+
+```powershell
+godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --previous-reports-dir godot-release-dashboard-kit\examples\tiny-release-evidence-previous --title "Godot Toolkit Release Evidence" --description "Synthetic release checks with scenario and runtime evidence" --project "Tiny Godot Fixture" --output reports\release-dashboard.html
+```

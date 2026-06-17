@@ -33,6 +33,12 @@ Write a machine-readable dashboard summary:
 godot-release-dashboard build reports\godot-project-doctor --format json --output reports\dashboard.json
 ```
 
+Compare the current reports with a previous report folder:
+
+```powershell
+godot-release-dashboard build reports\current --previous-reports-dir reports\previous --title "Release Candidate Evidence" --description "Android export and runtime checks" --project "Demo Game" --output reports\dashboard.html
+```
+
 Include scenario run evidence in the same dashboard:
 
 ```powershell
@@ -62,6 +68,11 @@ bundle; it does not run the game or rewrite those evidence files. If the bundle
 contains a compact telemetry summary, the dashboard also shows sample count,
 frame p95, frame max, memory max, and budget spike counts.
 
+When `--previous-reports-dir` is supplied, the dashboard scans the previous
+folder with the same report rules and adds a compact change section. The trend
+cards show added, removed, and changed report cards, including status changes
+and error/warning deltas. The `--baseline` flag is accepted as a shorter alias.
+
 ## Outputs
 
 - `html`: self-contained static dashboard with release readiness metrics, source
@@ -71,4 +82,6 @@ frame p95, frame max, memory max, and budget spike counts.
   `blocked`, `attention`, `ready`, workflow groups, scenario bundles, scenarios,
   and linked scenario evidence. Reports that include reproduction commands are
   counted in `summary.reports_with_commands`. Scenario-linked telemetry
-  summaries are rolled up as sample, spike, warning, and error counts.
+  summaries are rolled up as sample, spike, warning, and error counts. When a
+  previous folder is supplied, JSON output also includes `previous_summary`,
+  `trends`, and trend-related summary counts.

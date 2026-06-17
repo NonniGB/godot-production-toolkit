@@ -31,13 +31,25 @@ def build_dashboard(
     reports_dir: Path,
     title: str = "Godot Release Dashboard",
     output_dir: Path | None = None,
+    baseline_dir: Path | None = None,
+    description: str | None = None,
+    project: str | None = None,
 ) -> dict[str, Any]:
     link_base = output_dir or reports_dir
     reports = [
-        _report_card(path, link_base)
+        _report_card(path, link_base, reports_dir)
         for path in sorted(reports_dir.rglob("*"))
         if path.suffix.lower() in REPORT_EXTENSIONS
     ]
+    baseline_reports = (
+        [
+            _report_card(path, link_base, baseline_dir)
+            for path in sorted(baseline_dir.rglob("*"))
+            if path.suffix.lower() in REPORT_EXTENSIONS
+        ]
+        if baseline_dir is not None
+        else []
+    )
     images = [_image_card(path) for path in sorted(reports_dir.rglob("*")) if path.suffix.lower() in IMAGE_EXTENSIONS]
     status_counts = {
         "blocked": sum(1 for report in reports if report["status"] == "blocked"),
@@ -46,6 +58,7 @@ def build_dashboard(
     }
     scenario_counts = _scenario_summary_counts(reports)
     workflow_groups = _workflow_groups(reports)
+    trends = _trend_summary(reports, baseline_reports)
     summary = {
         "reports": len(reports),
         "images": len(images),
@@ -53,35 +66,53 @@ def build_dashboard(
         "warnings": sum(int(report.get("warnings", 0)) for report in reports),
         "reports_with_commands": sum(1 for report in reports if report.get("commands")),
         "workflows": len(workflow_groups),
+        "trend_changes": trends["summary"]["changes"],
+        "trend_regressions": trends["summary"]["regressions"],
+        "trend_improvements": trends["summary"]["improvements"],
         **status_counts,
         **scenario_counts,
     }
-    return {
+    dashboard = {
         "tool": "godot-release-dashboard-kit",
         "tool_version": __version__,
         "schema_version": "1.0",
         "kind": "release_dashboard",
         "title": title,
         "summary": summary,
+        "trends": trends,
         "workflows": workflow_groups,
         "reports": reports,
         "images": images,
     }
+    if description:
+        dashboard["description"] = description
+    if project:
+        dashboard["project"] = project
+    if baseline_dir is not None:
+        dashboard["previous_summary"] = _previous_summary(baseline_reports)
+    return dashboard
 
 
 def render_html(dashboard: dict[str, Any]) -> str:
     report_sections = _workflow_sections(dashboard.get("workflows", []))
     image_cards = "\n".join(_image(image) for image in dashboard.get("images", []))
+    trend_section = _trend_section(dashboard.get("trends"))
     summary = dashboard["summary"]
+    description = str(dashboard.get("description") or "").strip()
+    project = str(dashboard.get("project") or "").strip()
+    project_html = f"<p><strong>{escape(project)}</strong></p>" if project else ""
+    description_html = f"<p>{escape(description)}</p>" if description else ""
     return "\n".join(
         [
             "<!doctype html>",
             "<html lang=\"en\"><head><meta charset=\"utf-8\">",
             f"<title>{escape(str(dashboard['title']))}</title>",
             "<link rel=\"icon\" href=\"data:,\">",
-            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.workflow{margin-top:1.5rem}.workflow-summary{color:#4b5563}.ok,.ready{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked{color:#b42318}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}.tag{display:inline-block;background:#eef2f7;border-radius:999px;padding:.15rem .45rem;font-size:.85rem}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}</style>",
+            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.workflow{margin-top:1.5rem}.workflow-summary,.muted{color:#4b5563}.ok,.ready,.improvement{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked,.regression{color:#b42318}.neutral{color:#2754c5}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}.tag{display:inline-block;background:#eef2f7;border-radius:999px;padding:.15rem .45rem;font-size:.85rem}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}</style>",
             "</head><body>",
             f"<h1>{escape(str(dashboard['title']))}</h1>",
+            project_html,
+            description_html,
             "<h2>Release Readiness</h2>",
             "<div class=\"metrics\">",
             f"<div class=\"metric blocked\">Blocked: {summary['blocked']}</div>",
@@ -93,11 +124,15 @@ def render_html(dashboard: dict[str, Any]) -> str:
             f"<div class=\"metric err\">Errors: {summary['errors']}</div>",
             f"<div class=\"metric warn\">Warnings: {summary['warnings']}</div>",
             f"<div class=\"metric\">Reports with commands: {summary.get('reports_with_commands', 0)}</div>",
+            f"<div class=\"metric\">Changes: {summary.get('trend_changes', 0)}</div>",
+            f"<div class=\"metric err\">Regressions: {summary.get('trend_regressions', 0)}</div>",
+            f"<div class=\"metric ok\">Improvements: {summary.get('trend_improvements', 0)}</div>",
             f"<div class=\"metric\">Scenario bundles: {summary['scenario_bundles']}</div>",
             f"<div class=\"metric\">Scenarios: {summary['scenario_passed']}/{summary['scenarios']} passed</div>",
             f"<div class=\"metric\">Telemetry samples: {summary['scenario_telemetry_samples']}</div>",
             f"<div class=\"metric warn\">Telemetry spikes: {summary['scenario_telemetry_spikes']}</div>",
             "</div>",
+            trend_section,
             "<h2>Reports</h2>",
             report_sections or "<p>No JSON or Markdown reports found.</p>",
             "<h2>Visual Artifacts</h2>",
@@ -112,12 +147,13 @@ def render_json(dashboard: dict[str, Any]) -> str:
     return json.dumps(dashboard, indent=2, sort_keys=True)
 
 
-def _report_card(path: Path, link_base: Path) -> dict[str, Any]:
+def _report_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, Any]:
     if path.suffix.lower() == ".json":
-        return _json_card(path, link_base)
+        return _json_card(path, link_base, reports_root)
     text = path.read_text(encoding="utf-8", errors="ignore")
     return {
         "path": path.as_posix(),
+        "report_key": _report_key(path, reports_root),
         "source_href": _source_href(path, link_base),
         "tool": path.stem,
         "kind": "markdown",
@@ -129,12 +165,13 @@ def _report_card(path: Path, link_base: Path) -> dict[str, Any]:
     }
 
 
-def _json_card(path: Path, link_base: Path) -> dict[str, Any]:
+def _json_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, Any]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         return {
             "path": path.as_posix(),
+            "report_key": _report_key(path, reports_root),
             "source_href": _source_href(path, link_base),
             "tool": path.stem,
             "kind": "json",
@@ -150,6 +187,7 @@ def _json_card(path: Path, link_base: Path) -> dict[str, Any]:
     workflow, category = _explicit_grouping(data, summary) if isinstance(data, dict) else (None, None)
     card = {
         "path": path.as_posix(),
+        "report_key": _report_key(path, reports_root),
         "source_href": _source_href(path, link_base),
         "tool": str(data.get("tool") or data.get("name") or path.stem) if isinstance(data, dict) else path.stem,
         "kind": str(data.get("kind", "json")) if isinstance(data, dict) else "json",
@@ -281,6 +319,132 @@ def _workflow_groups(reports: list[dict[str, Any]]) -> list[dict[str, Any]]:
         grouped.values(),
         key=lambda group: (order.index(str(group["id"])) if str(group["id"]) in order else len(order), str(group["label"])),
     )
+
+
+def _trend_summary(current_reports: list[dict[str, Any]], previous_reports: list[dict[str, Any]]) -> dict[str, Any]:
+    if not previous_reports:
+        return {
+            "enabled": False,
+            "summary": {"changes": 0, "regressions": 0, "improvements": 0},
+            "changes": [],
+        }
+    previous_by_key = {str(report.get("report_key") or ""): report for report in previous_reports}
+    current_by_key = {str(report.get("report_key") or ""): report for report in current_reports}
+    changes: list[dict[str, Any]] = []
+    for key in sorted(set(previous_by_key) | set(current_by_key)):
+        if not key:
+            continue
+        previous = previous_by_key.get(key)
+        current = current_by_key.get(key)
+        change = _report_change(key, previous, current)
+        if change is not None:
+            changes.append(change)
+    return {
+        "enabled": True,
+        "previous_reports": len(previous_reports),
+        "current_reports": len(current_reports),
+        "summary": {
+            "changes": len(changes),
+            "regressions": sum(1 for change in changes if change["direction"] == "regression"),
+            "improvements": sum(1 for change in changes if change["direction"] == "improvement"),
+        },
+        "changes": changes[:25],
+    }
+
+
+def _previous_summary(reports: list[dict[str, Any]]) -> dict[str, int]:
+    status_counts = {
+        "blocked": sum(1 for report in reports if report["status"] == "blocked"),
+        "attention": sum(1 for report in reports if report["status"] == "attention"),
+        "ready": sum(1 for report in reports if report["status"] == "ready"),
+    }
+    return {
+        "reports": len(reports),
+        "errors": sum(int(report.get("errors", 0)) for report in reports),
+        "warnings": sum(int(report.get("warnings", 0)) for report in reports),
+        **status_counts,
+        **_scenario_summary_counts(reports),
+    }
+
+
+def _report_change(
+    key: str,
+    previous: dict[str, Any] | None,
+    current: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    if current is None and previous is not None:
+        return {
+            "report_key": key,
+            "tool": str(previous.get("tool") or key),
+            "workflow_label": str(previous.get("workflow_label") or DEFAULT_WORKFLOW["label"]),
+            "change": "removed",
+            "direction": "improvement" if previous.get("status") != "ready" else "neutral",
+            "previous_status": previous.get("status"),
+            "current_status": None,
+            "previous_errors": int(previous.get("errors", 0)),
+            "current_errors": 0,
+            "error_delta": -int(previous.get("errors", 0)),
+            "previous_warnings": int(previous.get("warnings", 0)),
+            "current_warnings": 0,
+            "warning_delta": -int(previous.get("warnings", 0)),
+        }
+    if previous is None and current is not None:
+        current_status = str(current.get("status") or "ready")
+        return {
+            "report_key": key,
+            "tool": str(current.get("tool") or key),
+            "workflow_label": str(current.get("workflow_label") or DEFAULT_WORKFLOW["label"]),
+            "change": "added",
+            "direction": "regression" if current_status != "ready" else "neutral",
+            "previous_status": None,
+            "current_status": current_status,
+            "previous_errors": 0,
+            "current_errors": int(current.get("errors", 0)),
+            "error_delta": int(current.get("errors", 0)),
+            "previous_warnings": 0,
+            "current_warnings": int(current.get("warnings", 0)),
+            "warning_delta": int(current.get("warnings", 0)),
+        }
+    if previous is None or current is None:
+        return None
+    previous_errors = int(previous.get("errors", 0))
+    current_errors = int(current.get("errors", 0))
+    previous_warnings = int(previous.get("warnings", 0))
+    current_warnings = int(current.get("warnings", 0))
+    previous_status = str(previous.get("status") or "ready")
+    current_status = str(current.get("status") or "ready")
+    error_delta = current_errors - previous_errors
+    warning_delta = current_warnings - previous_warnings
+    status_delta = _status_rank(current_status) - _status_rank(previous_status)
+    if error_delta == 0 and warning_delta == 0 and status_delta == 0:
+        return None
+    return {
+        "report_key": key,
+        "tool": str(current.get("tool") or previous.get("tool") or key),
+        "workflow_label": str(current.get("workflow_label") or previous.get("workflow_label") or DEFAULT_WORKFLOW["label"]),
+        "change": "changed",
+        "direction": _trend_direction(status_delta, error_delta, warning_delta),
+        "previous_status": previous_status,
+        "current_status": current_status,
+        "previous_errors": previous_errors,
+        "current_errors": current_errors,
+        "error_delta": error_delta,
+        "previous_warnings": previous_warnings,
+        "current_warnings": current_warnings,
+        "warning_delta": warning_delta,
+    }
+
+
+def _status_rank(status: str) -> int:
+    return {"ready": 0, "attention": 1, "blocked": 2}.get(status, 0)
+
+
+def _trend_direction(status_delta: int, error_delta: int, warning_delta: int) -> str:
+    if status_delta > 0 or error_delta > 0:
+        return "regression"
+    if status_delta < 0 or error_delta < 0 or warning_delta < 0:
+        return "improvement"
+    return "neutral"
 
 
 def _report_metadata(data: dict[str, Any], summary: object) -> dict[str, str]:
@@ -500,9 +664,71 @@ def _release_state(errors: int, warnings: int) -> str:
     return "ready"
 
 
+def _report_key(path: Path, reports_root: Path) -> str:
+    try:
+        return path.resolve().relative_to(reports_root.resolve()).as_posix()
+    except ValueError:
+        return path.name
+
+
 def _source_href(path: Path, link_base: Path) -> str:
     relative = os.path.relpath(path.resolve(), link_base.resolve())
     return Path(relative).as_posix()
+
+
+def _trend_section(trends: object) -> str:
+    if not isinstance(trends, dict) or not trends.get("enabled"):
+        return ""
+    changes = trends.get("changes", [])
+    summary = trends.get("summary", {})
+    if not isinstance(changes, list) or not isinstance(summary, dict):
+        return ""
+    parts = [
+        "<h2>Changes Since Previous Reports</h2>",
+        "<div class=\"metrics\">",
+        f"<div class=\"metric\">Changed reports: {int(summary.get('changes', 0))}</div>",
+        f"<div class=\"metric err\">Regressions: {int(summary.get('regressions', 0))}</div>",
+        f"<div class=\"metric ok\">Improvements: {int(summary.get('improvements', 0))}</div>",
+        "</div>",
+    ]
+    if not changes:
+        parts.append("<p class=\"muted\">No report status, error, or warning changes found.</p>")
+        return "".join(parts)
+    parts.append("<div class=\"grid\">")
+    for change in changes:
+        if isinstance(change, dict):
+            parts.append(_trend_card(change))
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def _trend_card(change: dict[str, Any]) -> str:
+    direction = str(change.get("direction") or "neutral")
+    tool = str(change.get("tool") or change.get("report_key") or "Report")
+    workflow = str(change.get("workflow_label") or DEFAULT_WORKFLOW["label"])
+    previous_status = change.get("previous_status") or "none"
+    current_status = change.get("current_status") or "none"
+    return (
+        f"<section class=\"card\"><h3>{escape(tool)}</h3>"
+        f"<p class=\"status {escape(direction)}\">{escape(direction)}</p>"
+        f"<p><span class=\"tag\">{escape(workflow)}</span> "
+        f"<span class=\"tag\">{escape(str(change.get('change', 'changed')))}</span></p>"
+        f"<p>Status: {escape(str(previous_status))} -> {escape(str(current_status))}</p>"
+        "<p>"
+        f"Errors: {int(change.get('previous_errors', 0))} -> {int(change.get('current_errors', 0))} "
+        f"({_signed_int(change.get('error_delta', 0))})"
+        "</p>"
+        "<p>"
+        f"Warnings: {int(change.get('previous_warnings', 0))} -> {int(change.get('current_warnings', 0))} "
+        f"({_signed_int(change.get('warning_delta', 0))})"
+        "</p>"
+        f"<p><code>{escape(str(change.get('report_key') or ''))}</code></p></section>"
+    )
+
+
+def _signed_int(value: object) -> str:
+    number = _int_or_default(value, 0)
+    return f"{number:+d}"
 
 
 def _workflow_sections(workflows: object) -> str:

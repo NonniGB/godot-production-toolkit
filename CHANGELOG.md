@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-release-dashboard-kit` with previous-report comparison cards
+  and optional dashboard project/description metadata.
 - Improved `godot-release-dashboard-kit` with workflow-grouped report sections
   and optional `workflow`/`category` metadata on source reports.
 - Improved `godot-scenario-report-kit` with direct JUnit XML ingestion for

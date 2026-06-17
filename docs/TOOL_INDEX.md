@@ -115,7 +115,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | A pack folder needs a manifest before review or CI | `godot-pack-mod-doctor` | `godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json` |
 | Pack updates need added/removed/changed/moved files or load-order conflicts reviewed | `godot-pack-mod-doctor` | `godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown` |
 | Mod or DLC packs need missing dependency or ordering checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown` |
-| Release reports and screenshots need one static review page | `godot-release-dashboard-kit` | `godot-release-dashboard build reports --output reports/dashboard.html` |
+| Release reports and screenshots need one static review page | `godot-release-dashboard-kit` | `godot-release-dashboard build reports --previous-reports-dir reports-previous --output reports/dashboard.html` |
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Pixel-art space assets need deterministic previews or PNG diffs | `pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
 | Several checks need one report | `godot-project-doctor` | `godot-project-doctor summarize reports --format html` |
@@ -135,7 +135,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | `godot-mobile-perf-doctor` | `godot-mobile-perf-doctor` | JSON, SARIF, Markdown |
 | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor` | JSON, Markdown, PNG |
 | `godot-pack-mod-doctor` | `godot-pack-mod-doctor` | JSON, Markdown, text |
-| `godot-release-dashboard-kit` | `godot-release-dashboard` | Workflow-grouped HTML, JSON |
+| `godot-release-dashboard-kit` | `godot-release-dashboard` | Workflow-grouped HTML, JSON, previous-run trends |
 | `godot-runtime-telemetry-lab` | `godot-telemetry-lab` | JSON, Markdown, text, HTML, SVG |
 | `godot-save-schema-guard` | `godot-save-guard` | JSON, Markdown |
 | `godot-scenario-report-kit` | `godot-scenario-report` | JSON, Markdown, HTML |

@@ -255,6 +255,8 @@ previews. Scenario bundle JSON can also show the logs, JUnit files, telemetry,
 profiler captures, or screenshots that explain a run.
 Reports can provide `workflow` and `category` metadata so related cards are
 grouped together in the generated HTML dashboard.
+Pass `--previous-reports-dir` when the dashboard should also show what changed
+since a previous report bundle.
 
 ## Visual Smoke Checks
 

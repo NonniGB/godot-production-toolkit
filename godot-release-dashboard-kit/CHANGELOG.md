@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.7 - 2026-06-17
+
+- Added `--previous-reports-dir` with `--baseline` as an alias for comparing a
+  current reports folder with a previous run.
+- HTML dashboards now show trend cards for added, removed, and changed reports,
+  including status and error/warning deltas.
+- JSON dashboards now include structured `trends` data and optional
+  `description` and `project` fields.
+
 ## 0.1.6 - 2026-06-17
 
 - Dashboard JSON now includes workflow groups and per-report workflow labels.

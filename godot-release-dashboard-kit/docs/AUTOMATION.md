@@ -6,6 +6,12 @@ Build an HTML dashboard artifact from existing reports:
 godot-release-dashboard build reports\godot-project-doctor --output reports\dashboard.html
 ```
 
+Compare a current reports folder with the previous run or previous release:
+
+```powershell
+godot-release-dashboard build reports\current --previous-reports-dir reports\previous --output reports\dashboard.html
+```
+
 Add scenario evidence that has already been produced by a runner:
 
 ```powershell
@@ -22,6 +28,9 @@ Workflow and category labels are read from report metadata and used only to
 organize the dashboard. Review generated dashboards before sharing them because
 source reports may contain local paths, branch names, machine names, or command
 arguments.
+Previous-report comparisons only read the previous folder. They are intended for
+small release-history summaries, not for storing private logs in the dashboard
+repository.
 
 Build a JSON summary for downstream scripts:
 
