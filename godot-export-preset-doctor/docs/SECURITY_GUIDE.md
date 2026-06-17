@@ -22,7 +22,9 @@ Also check `.gitignore` for local signing material:
 *.p12
 ```
 
-The tool redacts obvious credential values, but reports may still include preset names and local paths.
+The tool redacts obvious credential values, but reports may still include preset
+names, local paths, exported file names, and artifact-relative paths. Review
+exported-folder and exported-file-list reports before sharing them publicly.
 
 ## Placeholders
 

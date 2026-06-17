@@ -14,6 +14,9 @@ Install the package and run it before the export step:
 
 - name: Check export preset leak risks
   run: godot-export-doctor leaks . --format html --output export-leaks.html --fail-on warning
+
+- name: Inspect exported folder
+  run: godot-export-doctor inspect-folder build/android --hash-files --format json --output exported-folder.json --fail-on none
 ```
 
 Use `--fail-on error` if warnings are too noisy during initial adoption. For release branches, `--fail-on warning` is recommended.
@@ -34,3 +37,14 @@ Matrix and leak reports are useful as normal workflow artifacts. The matrix
 shows which presets exist for the expected release targets, while the leak
 report highlights broad filters and local-looking paths before those details
 end up in shared build logs.
+
+For projects that can emit an exported file list, `inspect-files` is a lighter
+alternative to scanning the built folder:
+
+```yaml
+- run: godot-export-doctor inspect-files reports/export-file-list.json --format markdown --output exported-files.md --fail-on none
+```
+
+Direct binary `.pck` parsing is intentionally not supported. Generate a file
+list during your export pipeline and inspect that reviewable text or JSON
+artifact instead.

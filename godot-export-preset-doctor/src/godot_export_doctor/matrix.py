@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import hashlib
 import json
+from collections import Counter
 from html import escape
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 from . import __version__
@@ -25,6 +27,15 @@ DEV_FILE_MARKERS = (
     ".log",
     ".pdb",
 )
+PRIVATE_EXPORT_EXTENSIONS = {
+    ".env",
+    ".jks",
+    ".key",
+    ".keystore",
+    ".mobileprovision",
+    ".pem",
+    ".pfx",
+}
 
 
 def matrix_report(
@@ -122,10 +133,12 @@ def diff_report(baseline: list[ExportPreset], current: list[ExportPreset]) -> di
     return payload
 
 
-def exported_folder_report(path: Path) -> dict[str, Any]:
+def exported_folder_report(path: Path, hash_files: bool = False) -> dict[str, Any]:
     findings: list[Finding] = []
-    files = sorted(item.relative_to(path).as_posix() for item in path.rglob("*") if item.is_file()) if path.exists() else []
-    for relative in files:
+    file_rows = _exported_file_rows(path, hash_files)
+    files = [row["path"] for row in file_rows]
+    for row in file_rows:
+        relative = str(row["path"])
         lowered = f"/{relative.lower()}"
         if any(marker in lowered for marker in DEV_FILE_MARKERS):
             findings.append(
@@ -137,10 +150,72 @@ def exported_folder_report(path: Path) -> dict[str, Any]:
                     message=f"Exported folder contains development-looking file {relative!r}.",
                 )
             )
+        if Path(relative).suffix.lower() in PRIVATE_EXPORT_EXTENSIONS:
+            findings.append(
+                Finding(
+                    rule_id="exported_folder_private_file",
+                    severity="warning",
+                    preset_index=None,
+                    preset_name=path.name,
+                    message=f"Exported folder contains private or signing-looking file {relative!r}.",
+                )
+            )
     payload = _matrix_payload("exported_folder_inspection", [], findings, [])
     payload["folder"] = str(path)
     payload["files"] = files
+    payload["file_manifest"] = file_rows
+    payload["extensions"] = _extension_counts(file_rows)
     payload["summary"]["files"] = len(files)
+    payload["summary"]["total_bytes"] = sum(int(row["size_bytes"]) for row in file_rows)
+    payload["summary"]["hashed_files"] = sum(1 for row in file_rows if row.get("sha256"))
+    return payload
+
+
+def exported_file_list_report(path: Path) -> dict[str, Any]:
+    raw_paths = _load_exported_paths(path)
+    file_rows = [_path_only_file_row(item) for item in raw_paths]
+    findings: list[Finding] = []
+    for row in file_rows:
+        relative = str(row["path"])
+        lowered = f"/{relative.lower()}"
+        if _looks_local_path(relative):
+            findings.append(
+                Finding(
+                    rule_id="exported_file_list_local_path",
+                    severity="warning",
+                    preset_index=None,
+                    preset_name=path.name,
+                    message=f"Exported file list contains local-looking path {relative!r}.",
+                )
+            )
+        if any(marker in lowered for marker in DEV_FILE_MARKERS):
+            findings.append(
+                Finding(
+                    rule_id="exported_file_list_dev_file",
+                    severity="warning",
+                    preset_index=None,
+                    preset_name=path.name,
+                    message=f"Exported file list contains development-looking file {relative!r}.",
+                )
+            )
+        if Path(relative).suffix.lower() in PRIVATE_EXPORT_EXTENSIONS:
+            findings.append(
+                Finding(
+                    rule_id="exported_file_list_private_file",
+                    severity="warning",
+                    preset_index=None,
+                    preset_name=path.name,
+                    message=f"Exported file list contains private or signing-looking file {relative!r}.",
+                )
+            )
+    payload = _matrix_payload("exported_file_list_inspection", [], findings, [])
+    payload["source"] = str(path)
+    payload["files"] = [row["path"] for row in file_rows]
+    payload["file_manifest"] = file_rows
+    payload["extensions"] = _extension_counts(file_rows)
+    payload["summary"]["files"] = len(file_rows)
+    payload["summary"]["total_bytes"] = 0
+    payload["summary"]["hashed_files"] = 0
     return payload
 
 
@@ -249,6 +324,82 @@ def _suspicious_project_files(project_root: Path) -> list[str]:
     return sorted(paths)
 
 
+def _exported_file_rows(path: Path, hash_files: bool) -> list[dict[str, Any]]:
+    if not path.exists() or not path.is_dir():
+        return []
+    rows: list[dict[str, Any]] = []
+    for file_path in path.rglob("*"):
+        if not file_path.is_file():
+            continue
+        relative = file_path.relative_to(path).as_posix()
+        row: dict[str, Any] = {
+            "path": relative,
+            "extension": file_path.suffix.lower() or "<none>",
+            "size_bytes": file_path.stat().st_size,
+        }
+        if hash_files:
+            row["sha256"] = _sha256(file_path)
+        rows.append(row)
+    return sorted(rows, key=lambda item: str(item["path"]).lower())
+
+
+def _path_only_file_row(path: str) -> dict[str, Any]:
+    normalized = path.strip().replace("\\", "/")
+    return {
+        "path": normalized,
+        "extension": Path(normalized).suffix.lower() or "<none>",
+    }
+
+
+def _load_exported_paths(path: Path) -> list[str]:
+    if not path.exists() or not path.is_file():
+        raise ValueError(f"{path} is not a file")
+    if path.suffix.lower() == ".pck":
+        raise ValueError("direct .pck binary inspection is not supported; pass a generated file list or manifest instead")
+    text = path.read_text(encoding="utf-8")
+    if path.suffix.lower() == ".json":
+        data = json.loads(text)
+        return _paths_from_json(data)
+    return [line.strip() for line in text.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+
+
+def _paths_from_json(data: Any) -> list[str]:
+    if isinstance(data, list):
+        return [str(item) for item in data if isinstance(item, str)]
+    if not isinstance(data, dict):
+        return []
+    for key in ("files", "paths"):
+        value = data.get(key)
+        if isinstance(value, list):
+            paths: list[str] = []
+            for item in value:
+                if isinstance(item, str):
+                    paths.append(item)
+                elif isinstance(item, dict) and item.get("path") is not None:
+                    paths.append(str(item["path"]))
+            return paths
+    return []
+
+
+def _extension_counts(file_rows: list[dict[str, Any]]) -> dict[str, int]:
+    counts = Counter(str(row["extension"]) for row in file_rows)
+    return dict(sorted(counts.items()))
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _looks_local_path(path: str) -> bool:
+    if path.startswith("res://"):
+        return False
+    return Path(path).is_absolute() or PureWindowsPath(path).is_absolute()
+
+
 def _text(report: dict[str, Any]) -> str:
     summary = report["summary"]
     lines = [
@@ -259,7 +410,9 @@ def _text(report: dict[str, Any]) -> str:
         diff = report["diff"]
         lines.append(f"Added: {len(diff['added'])} | Removed: {len(diff['removed'])} | Changed: {len(diff['changed'])}")
     if report.get("files") is not None:
-        lines.append(f"Files inspected: {summary.get('files', 0)}")
+        lines.append(
+            f"Files inspected: {summary.get('files', 0)} | Total bytes: {summary.get('total_bytes', 0)}"
+        )
     for row in report["matrix"]:
         lines.append(
             f"- preset.{row['index']} {row['name']} ({row['platform']}): {row['export_path'] or '<no export path>'}"
@@ -293,7 +446,22 @@ def _markdown(report: dict[str, Any]) -> str:
             ]
         )
     if report.get("files") is not None:
-        lines.extend(["## Exported Folder", "", f"- Files inspected: {summary.get('files', 0)}", ""])
+        lines.extend(
+            [
+                "## Exported Folder",
+                "",
+                f"- Files inspected: {summary.get('files', 0)}",
+                f"- Total bytes: {summary.get('total_bytes', 0)}",
+                f"- Files with SHA-256: {summary.get('hashed_files', 0)}",
+                "",
+            ]
+        )
+        extensions = report.get("extensions", {})
+        if extensions:
+            lines.extend(["| Extension | Files |", "|---|---:|"])
+            for extension, count in extensions.items():
+                lines.append(f"| `{extension}` | {count} |")
+            lines.append("")
     if report["matrix"]:
         lines.extend(
             [
@@ -452,4 +620,6 @@ def _report_title(report: dict[str, Any]) -> str:
         return "Godot Export Diff"
     if kind == "exported_folder_inspection":
         return "Godot Exported Folder Inspection"
+    if kind == "exported_file_list_inspection":
+        return "Godot Exported File List Inspection"
     return "Godot Export Matrix"

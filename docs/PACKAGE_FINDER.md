@@ -10,6 +10,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot Android export preset check | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor matrix . --expected-platform Android --format markdown` |
 | Godot export leak or debug file check | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor leaks . --format html --output reports/export-leaks.html` |
 | Godot export preset diff | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor diff . --baseline reports/baseline-export-presets --format markdown` |
+| Godot exported folder or file-list inspection | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor inspect-folder build/android --hash-files --format json --output reports/exported-folder.json` |
 | Godot mobile performance static check | `python -m pip install godot-mobile-perf-doctor` | `godot-mobile-perf-doctor . --static --format markdown` |
 | Godot mobile UI safe area check | `python -m pip install godot-mobile-ui-doctor` | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
 | Godot mobile UI localization expansion check | `python -m pip install godot-mobile-ui-doctor godot-localization-qa-guard` | `godot-mobile-ui-doctor matrix mobile-ui.json --format markdown` |
@@ -39,7 +40,8 @@ Each package is a small command-line tool for a specific Godot production check.
 
 - Start with `godot-export-preset-doctor` for export failures, release target
   drift, Android package identifiers, debug flags, broad export filters, and
-  local-looking paths in `export_presets.cfg`.
+  local-looking paths in `export_presets.cfg`. It can also inspect exported
+  folders or generated file lists for development-looking or private files.
 - Start with `godot-mobile-ui-doctor` for portrait UI, safe areas, small touch
   targets, crowded controls, localization expansion risk, and exported
   `Control` rectangle metadata.

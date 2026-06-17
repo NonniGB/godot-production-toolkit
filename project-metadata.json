@@ -41,7 +41,7 @@
     },
     {
       "name": "godot-export-preset-doctor",
-      "role": "Release-readiness, target matrix, and leak-risk checks for export_presets.cfg.",
+      "role": "Release-readiness, target matrix, preset diff, leak-risk, and exported artifact checks.",
       "interfaces": ["cli", "json", "sarif", "markdown", "html", "text"]
     },
     {

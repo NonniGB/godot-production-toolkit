@@ -15,7 +15,8 @@ godot-export-doctor . --format json --output reports/export.json
 godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown --output reports/export-matrix.md
 godot-export-doctor diff . --baseline reports/baseline-export-presets --format markdown --output reports/export-diff.md --fail-on none
 godot-export-doctor leaks . --format html --output reports/export-leaks.html --fail-on none
-godot-export-doctor inspect-folder build/android --format markdown --output reports/exported-folder.md --fail-on none
+godot-export-doctor inspect-folder build/android --hash-files --format markdown --output reports/exported-folder.md --fail-on none
+godot-export-doctor inspect-files reports/export-file-list.json --format markdown --output reports/exported-files.md --fail-on none
 godot-mobile-perf-doctor . --static --format markdown --output reports/mobile-perf.md
 godot-asset-doctor . --profile mobile --format json --output reports/assets.json
 ```
@@ -82,6 +83,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Problem | Use | Typical command |
 |---|---|---|
 | Android, desktop, or web export settings are hard to review | `godot-export-preset-doctor`, `godot-mobile-perf-doctor` | `godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown` |
+| Exported build folders or file lists need reviewable artifact checks | `godot-export-preset-doctor` | `godot-export-doctor inspect-folder build/android --hash-files --format json` |
 | Godot mobile UI needs safe-area and touch-target checks | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
 | Godot mobile UI labels need localization expansion checks | `godot-mobile-ui-doctor`, `godot-localization-qa-guard` | `godot-mobile-ui-doctor matrix mobile-ui.json --format markdown` |
 | Screenshots need regression testing | `godot-visual-smoke-test-kit` | `godot-visual-smoke compare baseline current --format json` |

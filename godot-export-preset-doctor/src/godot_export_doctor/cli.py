@@ -1,13 +1,21 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import tomllib
 from pathlib import Path
 from typing import Any
 
 from .models import ExportPreset, Finding
-from .matrix import diff_report, exported_folder_report, leak_report, matrix_report, render_matrix_report
+from .matrix import (
+    diff_report,
+    exported_file_list_report,
+    exported_folder_report,
+    leak_report,
+    matrix_report,
+    render_matrix_report,
+)
 from .preset_parser import parse_export_presets
 from .reporting import render_json_report, render_sarif_report, render_text_report
 from .rules import evaluate_presets, missing_export_presets_finding
@@ -72,7 +80,14 @@ def main(argv: list[str] | None = None) -> int:
         rendered = render_matrix_report(report, output_format)
         findings = _findings_from_report(report)
     elif command == "inspect-folder":
-        report = exported_folder_report(project)
+        report = exported_folder_report(project, hash_files=args.hash_files)
+        rendered = render_matrix_report(report, output_format)
+        findings = _findings_from_report(report)
+    elif command == "inspect-files":
+        try:
+            report = exported_file_list_report(project)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            parser.error(str(exc))
         rendered = render_matrix_report(report, output_format)
         findings = _findings_from_report(report)
     else:
@@ -96,8 +111,13 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-export-doctor",
         description="Audit Godot export_presets.cfg release readiness.",
     )
-    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.9")
-    parser.add_argument("command", nargs="?", choices=["check", "matrix", "leaks", "diff", "inspect-folder"], default="check")
+    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.10")
+    parser.add_argument(
+        "command",
+        nargs="?",
+        choices=["check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files"],
+        default="check",
+    )
     parser.add_argument("project", help="Godot project directory or export_presets.cfg path.")
     parser.add_argument("--baseline", help="Baseline project directory or export_presets.cfg path for diff reports.")
     parser.add_argument("--config", help=f"TOML config path. Defaults to {DEFAULT_CONFIG}.")
@@ -119,6 +139,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="append",
         default=None,
         help="Expected platform for matrix reports, such as Android or Web. Can be repeated.",
+    )
+    parser.add_argument(
+        "--hash-files",
+        action="store_true",
+        help="Include SHA-256 hashes in inspect-folder file manifests.",
     )
     parser.add_argument("--format", choices=["text", "json", "sarif", "markdown", "html"], help="Report format.")
     parser.add_argument("--output", help="Write the report to this file instead of stdout.")
@@ -212,10 +237,10 @@ def _findings_from_report(report: dict[str, Any]) -> list[Finding]:
 def _normalize_legacy_argv(argv: list[str] | None) -> list[str] | None:
     if argv is None:
         argv = sys.argv[1:]
-        if not argv or argv[0] in {"check", "matrix", "leaks", "diff", "inspect-folder"} or argv[0] in {"--version", "-h", "--help"}:
+        if not argv or argv[0] in {"check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files"} or argv[0] in {"--version", "-h", "--help"}:
             return None
         return _insert_default_command(argv)
-    if not argv or argv[0] in {"check", "matrix", "leaks", "diff", "inspect-folder"} or argv[0] in {"--version", "-h", "--help"}:
+    if not argv or argv[0] in {"check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files"} or argv[0] in {"--version", "-h", "--help"}:
         return argv
     return _insert_default_command(argv)
 
@@ -237,7 +262,7 @@ def _insert_default_command(argv: list[str]) -> list[str]:
         if skip_next:
             skip_next = False
             continue
-        if item in {"check", "matrix", "leaks", "diff", "inspect-folder"}:
+        if item in {"check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files"}:
             return argv
         if item in options_with_values:
             skip_next = True

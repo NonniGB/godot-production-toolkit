@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-export-doctor 0.1.9", stdout.getvalue())
+        self.assertIn("godot-export-doctor 0.1.10", stdout.getvalue())
 
     def test_cli_reports_findings_as_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -196,7 +196,7 @@ export_path="build/web/index.html"
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.9")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.10")
             self.assertEqual(report["summary"]["presets"], 1)
 
     def test_cli_matrix_reports_missing_expected_platform(self) -> None:
@@ -386,6 +386,82 @@ export_path="build/game.aab"
             self.assertEqual(exit_code, 0)
             self.assertEqual(report["metadata"]["report_kind"], "exported_folder_inspection")
             self.assertIn("exported_folder_dev_file", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_cli_inspect_folder_reports_manifest_hashes_and_private_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            export = Path(tmp) / "export"
+            export.mkdir()
+            (export / "game.pck").write_bytes(b"pack")
+            (export / "release.keystore").write_text("secret", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    ["inspect-folder", str(export), "--format", "json", "--hash-files", "--fail-on", "none"]
+                )
+
+            report = json.loads(stdout.getvalue())
+            rule_ids = {finding["rule_id"] for finding in report["findings"]}
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["files"], 2)
+            self.assertEqual(report["summary"]["total_bytes"], 10)
+            self.assertEqual(report["summary"]["hashed_files"], 2)
+            self.assertEqual(report["extensions"][".pck"], 1)
+            self.assertEqual(report["extensions"][".keystore"], 1)
+            self.assertEqual(len(report["file_manifest"][0]["sha256"]), 64)
+            self.assertIn("exported_folder_private_file", rule_ids)
+
+    def test_cli_inspect_files_accepts_text_and_json_lists(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            text_list = root / "export-files.txt"
+            text_list.write_text(
+                "\n".join(
+                    [
+                        "res://content/player.tscn",
+                        "res://tests/debug_scene.tscn",
+                        "C:\\Users\\dev\\build\\release.keystore",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            json_list = root / "export-files.json"
+            json_list.write_text(
+                json.dumps({"files": [{"path": "res://main.pck"}, {"path": "res://debug/run.log"}]}),
+                encoding="utf-8",
+            )
+
+            stdout = StringIO()
+            with redirect_stdout(stdout):
+                text_exit = main(["inspect-files", str(text_list), "--format", "json", "--fail-on", "none"])
+            text_report = json.loads(stdout.getvalue())
+
+            stdout = StringIO()
+            with redirect_stdout(stdout):
+                json_exit = main(["inspect-files", str(json_list), "--format", "json", "--fail-on", "none"])
+            json_report = json.loads(stdout.getvalue())
+
+            self.assertEqual(text_exit, 0)
+            self.assertEqual(json_exit, 0)
+            self.assertEqual(text_report["metadata"]["report_kind"], "exported_file_list_inspection")
+            self.assertEqual(text_report["summary"]["files"], 3)
+            self.assertEqual(text_report["extensions"][".tscn"], 2)
+            text_rules = {finding["rule_id"] for finding in text_report["findings"]}
+            json_rules = {finding["rule_id"] for finding in json_report["findings"]}
+            self.assertIn("exported_file_list_dev_file", text_rules)
+            self.assertIn("exported_file_list_local_path", text_rules)
+            self.assertIn("exported_file_list_private_file", text_rules)
+            self.assertIn("exported_file_list_dev_file", json_rules)
+
+    def test_cli_inspect_files_rejects_direct_pck_input(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            pck = Path(tmp) / "game.pck"
+            pck.write_bytes(b"binary")
+
+            with self.assertRaises(SystemExit) as raised:
+                main(["inspect-files", str(pck), "--format", "json"])
+
+            self.assertEqual(raised.exception.code, 2)
 
     def test_cli_diff_does_not_inherit_config_platform_filter(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

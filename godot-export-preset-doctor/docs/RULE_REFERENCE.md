@@ -26,5 +26,10 @@
 - `export_matrix_duplicate_platform`: a platform appears more than once in the matrix and CI should select the intended preset explicitly.
 - `export_leak_dev_file`: a broad export filter may include a development, debug, source-art, or temporary file.
 - `export_leak_local_path`: an export path, include filter, or exclude filter looks like a local workstation path.
+- `exported_folder_dev_file`: an exported folder contains a development, debug, source-art, log, or backup file.
+- `exported_folder_private_file`: an exported folder contains a signing, key, provisioning, or environment file.
+- `exported_file_list_dev_file`: an exported file list contains a development, debug, source-art, log, or backup file.
+- `exported_file_list_local_path`: an exported file list contains a local workstation path.
+- `exported_file_list_private_file`: an exported file list contains a signing, key, provisioning, or environment file.
 
 Credential findings redact values in every report format.

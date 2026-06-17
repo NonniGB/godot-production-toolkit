@@ -45,7 +45,11 @@
     },
     {
       "purpose": "Inspect an exported folder for development files",
-      "command": "godot-export-doctor inspect-folder build/android --format markdown --output exported-folder.md --fail-on none"
+      "command": "godot-export-doctor inspect-folder build/android --hash-files --format markdown --output exported-folder.md --fail-on none"
+    },
+    {
+      "purpose": "Inspect an exported file list or manifest",
+      "command": "godot-export-doctor inspect-files reports/export-file-list.json --format markdown --output exported-files.md --fail-on none"
     }
   ]
 }

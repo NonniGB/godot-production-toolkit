@@ -86,6 +86,22 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Development file in exported folder",
         "explanation": "An exported folder contains a test, debug, log, backup, or source-art file.",
     },
+    "exported_folder_private_file": {
+        "title": "Private file in exported folder",
+        "explanation": "An exported folder contains a signing, key, provisioning, or environment file that usually should not ship.",
+    },
+    "exported_file_list_dev_file": {
+        "title": "Development file in exported file list",
+        "explanation": "An exported file list contains a test, debug, log, backup, or source-art file.",
+    },
+    "exported_file_list_local_path": {
+        "title": "Local path in exported file list",
+        "explanation": "Exported file manifests should normally use project or artifact-relative paths rather than local machine paths.",
+    },
+    "exported_file_list_private_file": {
+        "title": "Private file in exported file list",
+        "explanation": "An exported file list contains a signing, key, provisioning, or environment file that usually should not ship.",
+    },
 }
 
 

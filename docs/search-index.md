@@ -26,6 +26,11 @@ target matrix for Android, web, desktop, or console-adjacent preset reviews. If
 the export report will feed a broader release page, see the
 [report gallery](report-gallery/README.md) for the release readiness sample.
 
+For already-built artifacts, use `godot-export-doctor inspect-folder` or
+`godot-export-doctor inspect-files` to review exported folder contents, generated
+file lists, extension summaries, file sizes, optional hashes, and development or
+private-looking files before sharing build artifacts.
+
 ### "A release target is missing from export_presets.cfg"
 
 Use `godot-export-doctor matrix` with the platforms your CI expects:
@@ -53,6 +58,10 @@ shows Android export, input, asset, and mobile performance reports used together
 Use `godot-export-doctor leaks` when a report needs to show whether broad export
 filters could include debug scenes, test folders, source-art files, temporary
 files, or local workstation paths.
+
+Use `godot-export-doctor inspect-files` when your build pipeline emits a text or
+JSON export file list. Direct `.pck` binary parsing is not part of this check;
+inspect a generated manifest or file list instead.
 
 ### "I need HTML5 or web export checks"
 
