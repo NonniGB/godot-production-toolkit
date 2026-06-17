@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.7 - 2026-06-17
+
+- Added package names and `pip install` guidance to `recommend`, `doctor`, and
+  generated first-run plans.
+- Guided plans now include a compact install section and per-check package
+  table before the run commands.
+
 ## 0.1.6 - 2026-06-17
 
 - Added `doctor --write-plan` for writing a Markdown first-run plan from a

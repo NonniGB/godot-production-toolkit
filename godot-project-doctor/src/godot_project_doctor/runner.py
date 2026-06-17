@@ -17,26 +17,107 @@ class ToolSpec:
     command: str
     output_name: str
     default_enabled: bool
+    package: str
     project_arg: bool = True
     required_config: tuple[str, ...] = ()
     base_args: tuple[str, ...] = ()
 
 
 TOOL_REGISTRY: tuple[ToolSpec, ...] = (
-    ToolSpec("assets", "Asset Pipeline Doctor", "godot-asset-doctor", "assets.json", True),
-    ToolSpec("export", "Export Preset Doctor", "godot-export-doctor", "export.json", True),
-    ToolSpec("api_comments", "GDScript API Comment Coverage", "gdscript-api-coverage", "api-comments.json", True),
-    ToolSpec("input", "Input Map Auditor", "godot-input-audit", "input-map.json", True),
-    ToolSpec("localization", "Localization QA Guard", "godot-l10n-guard", "localization.json", True),
-    ToolSpec("save_schema", "Save Schema Guard", "godot-save-guard", "save-schema.json", False, required_config=("fixtures", "schema")),
-    ToolSpec("signals", "Scene Signal Auditor", "godot-signal-audit", "signals.json", True),
-    ToolSpec("visual_smoke", "Visual Smoke Test Kit", "godot-visual-smoke", "visual-smoke-plan.json", False, required_config=("config",)),
-    ToolSpec("mobile_perf", "Mobile Perf Doctor", "godot-mobile-perf-doctor", "mobile-perf.json", True, base_args=("--static",)),
-    ToolSpec("mobile_ui", "Mobile UI Doctor", "godot-mobile-ui-doctor", "mobile-ui.json", False, required_config=("metadata",), project_arg=False),
-    ToolSpec("pixel_assets", "Pixel Space Asset Toolkit", "pixel-space-assets", "pixel-assets.json", False, required_config=("command",)),
-    ToolSpec("content_graph", "Content Graph Doctor", "godot-content-graph", "content-graph.json", False, required_config=("config",)),
-    ToolSpec("scenario_report", "Scenario Report Kit", "godot-scenario-report", "scenario-report.json", False, required_config=("path",), project_arg=False),
-    ToolSpec("architecture", "GDScript Architecture Guard", "godot-architecture-guard", "architecture.json", False, required_config=("config",)),
+    ToolSpec("assets", "Asset Pipeline Doctor", "godot-asset-doctor", "assets.json", True, "godot-asset-pipeline-doctor"),
+    ToolSpec("export", "Export Preset Doctor", "godot-export-doctor", "export.json", True, "godot-export-preset-doctor"),
+    ToolSpec(
+        "api_comments",
+        "GDScript API Comment Coverage",
+        "gdscript-api-coverage",
+        "api-comments.json",
+        True,
+        "gdscript-api-comment-coverage",
+    ),
+    ToolSpec("input", "Input Map Auditor", "godot-input-audit", "input-map.json", True, "godot-input-map-auditor"),
+    ToolSpec(
+        "localization",
+        "Localization QA Guard",
+        "godot-l10n-guard",
+        "localization.json",
+        True,
+        "godot-localization-qa-guard",
+    ),
+    ToolSpec(
+        "save_schema",
+        "Save Schema Guard",
+        "godot-save-guard",
+        "save-schema.json",
+        False,
+        "godot-save-schema-guard",
+        required_config=("fixtures", "schema"),
+    ),
+    ToolSpec("signals", "Scene Signal Auditor", "godot-signal-audit", "signals.json", True, "godot-scene-signal-auditor"),
+    ToolSpec(
+        "visual_smoke",
+        "Visual Smoke Test Kit",
+        "godot-visual-smoke",
+        "visual-smoke-plan.json",
+        False,
+        "godot-visual-smoke-test-kit",
+        required_config=("config",),
+    ),
+    ToolSpec(
+        "mobile_perf",
+        "Mobile Perf Doctor",
+        "godot-mobile-perf-doctor",
+        "mobile-perf.json",
+        True,
+        "godot-mobile-perf-doctor",
+        base_args=("--static",),
+    ),
+    ToolSpec(
+        "mobile_ui",
+        "Mobile UI Doctor",
+        "godot-mobile-ui-doctor",
+        "mobile-ui.json",
+        False,
+        "godot-mobile-ui-doctor",
+        required_config=("metadata",),
+        project_arg=False,
+    ),
+    ToolSpec(
+        "pixel_assets",
+        "Pixel Space Asset Toolkit",
+        "pixel-space-assets",
+        "pixel-assets.json",
+        False,
+        "pixel-space-asset-toolkit",
+        required_config=("command",),
+    ),
+    ToolSpec(
+        "content_graph",
+        "Content Graph Doctor",
+        "godot-content-graph",
+        "content-graph.json",
+        False,
+        "godot-content-graph-doctor",
+        required_config=("config",),
+    ),
+    ToolSpec(
+        "scenario_report",
+        "Scenario Report Kit",
+        "godot-scenario-report",
+        "scenario-report.json",
+        False,
+        "godot-scenario-report-kit",
+        required_config=("path",),
+        project_arg=False,
+    ),
+    ToolSpec(
+        "architecture",
+        "GDScript Architecture Guard",
+        "godot-architecture-guard",
+        "architecture.json",
+        False,
+        "godot-gdscript-architecture-guard",
+        required_config=("config",),
+    ),
 )
 
 CHECK_GUIDANCE: dict[str, dict[str, str]] = {
@@ -312,15 +393,19 @@ def build_guided_plan(profile: dict[str, Any]) -> dict[str, Any]:
     checks = [str(task["id"]) for task in profile["tasks"]]
     ready_tasks = [task for task in profile["tasks"] if task["ready"]]
     missing_tasks = [task for task in profile["tasks"] if not task["ready"]]
+    packages = _packages_for_checks(checks)
     config_preview = render_starter_config(project, reports_dir)
     check_list = ",".join(checks)
     return {
         "format": "markdown",
         "path_hint": f"reports/godot-project-doctor/{profile['profile']}-plan.md",
         "ready_checks": [str(task["id"]) for task in ready_tasks],
+        "packages": packages,
+        "install_commands": _install_commands(packages),
         "needs_setup": [
             {
                 "id": str(task["id"]),
+                "package": str(task.get("package", "")),
                 "expected_inputs": list(task["expected_inputs"]),
                 "setup": str(task["setup"]),
             }
@@ -403,15 +488,38 @@ def render_guided_plan_markdown(profile: dict[str, Any]) -> str:
         "",
         str(profile["description"]),
         "",
-        "## Checks",
+        "## Install",
+        "",
+        "Install the package set for this profile in the Python environment that will run the checks:",
         "",
     ]
+    if guided["install_commands"]:
+        lines.extend(f"```powershell\n{command}\n```" for command in guided["install_commands"])
+    else:
+        lines.append("No standalone package installs are required for this profile.")
+    lines.extend(
+        [
+            "",
+            "| Check | Package | Command |",
+            "|---|---|---|",
+        ]
+    )
+    for package in guided["packages"]:
+        lines.append(f"| `{package['check']}` | `{package['package']}` | `{package['command']}` |")
+    lines.extend(
+        [
+            "",
+            "## Checks",
+            "",
+        ]
+    )
     for task in profile["tasks"]:
         lines.extend(
             [
                 f"### {task['title']}",
                 "",
                 f"- Check id: `{task['id']}`",
+                f"- Package: `{task['package']}`",
                 f"- Status: `{task['status']}`",
                 f"- Why: {task['why']}",
                 f"- Output: `{_display_path(Path(str(task['output'])), project)}`",
@@ -489,6 +597,8 @@ def _doctor_task(plan_item: dict[str, Any], project: Path) -> dict[str, Any]:
         "why": guidance["why"],
         "when": guidance["when"],
         "expected_inputs": expected_inputs,
+        "package": _package_for_check(check_id),
+        "install": _install_command(_package_for_check(check_id)),
         "output": str(plan_item["report"]),
         "command": _shell_join([_display_input(part, project) for part in plan_item["argv"]]),
         "setup": _profile_setup_note(check_id, expected_inputs),
@@ -527,6 +637,50 @@ def _profile_setup_note(check_id: str, expected_inputs: list[str]) -> str:
     if config_hint == "ready from project path":
         return "No extra config is usually needed; run the command and review the report."
     return f"Provide {', '.join(expected_inputs) if expected_inputs else config_hint}."
+
+
+def _package_for_check(check_id: str) -> str:
+    for spec in TOOL_REGISTRY:
+        if spec.id == check_id:
+            return spec.package
+    return ""
+
+
+def _packages_for_checks(checks: list[str]) -> list[dict[str, str]]:
+    packages: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for check_id in checks:
+        package = _package_for_check(check_id)
+        if not package or package in seen:
+            continue
+        seen.add(package)
+        packages.append(
+            {
+                "check": check_id,
+                "package": package,
+                "command": _command_for_check(check_id),
+                "install": _install_command(package),
+            }
+        )
+    return packages
+
+
+def _install_commands(packages: list[dict[str, str]]) -> list[str]:
+    if not packages:
+        return []
+    package_names = [str(item["package"]) for item in packages]
+    return [_shell_join(["python", "-m", "pip", "install", *package_names])]
+
+
+def _install_command(package: str) -> str:
+    return _shell_join(["python", "-m", "pip", "install", package]) if package else ""
+
+
+def _command_for_check(check_id: str) -> str:
+    for spec in TOOL_REGISTRY:
+        if spec.id == check_id:
+            return spec.command
+    return ""
 
 
 def _display_path(path: Path, project: Path) -> str:
@@ -1001,6 +1155,8 @@ def _recommendation(check_id: str, reason: str, project: str | None) -> dict[str
         "why": guidance["why"],
         "when": guidance["when"],
         "config": config_hint,
+        "package": _package_for_check(check_id),
+        "install": _install_command(_package_for_check(check_id)),
         "command": f"godot-project-doctor run --project {command_project} --checks {check_id} --dry-run",
     }
 

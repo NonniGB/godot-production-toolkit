@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-project-doctor` with package names and compact `pip install`
+  guidance in recommendations, profile output, and generated first-run plans.
 - Improved `godot-project-doctor` with profile-based Markdown first-run plans
   that include setup notes, commands, config preview, workflow preview, and
   dashboard handoff.

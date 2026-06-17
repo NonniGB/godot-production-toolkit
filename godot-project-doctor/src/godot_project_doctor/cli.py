@@ -59,7 +59,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-project-doctor",
         description="Plan, run, and summarize the Godot production toolkit.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.6")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.7")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")
@@ -368,6 +368,7 @@ def _render_recommend_text(payload: dict[str, object]) -> str:
                 f"  Reason: {item['reason']}",
                 f"  Why it helps: {item['why']}",
                 f"  Use it: {item['when']}",
+                f"  Install: {item.get('install', '')}",
                 f"  Setup: {item.get('config', 'ready from project path')}",
                 f"  Try: {item.get('command', 'godot-project-doctor run --project <project> --checks ' + item['id'] + ' --dry-run')}",
             ]
@@ -385,12 +386,19 @@ def _render_doctor_text(payload: dict[str, object]) -> str:
         "",
         str(payload["description"]),
         "",
-        "Tasks:",
     ]
+    guided_plan = payload.get("guided_plan", {})
+    install_commands = guided_plan.get("install_commands", []) if isinstance(guided_plan, dict) else []
+    if install_commands:
+        lines.extend(["Install:"])
+        lines.extend(f"- {command}" for command in install_commands)
+        lines.append("")
+    lines.append("Tasks:")
     for task in payload["tasks"]:
         lines.extend(
             [
                 f"- {task['id']} ({task['status']}): {task['title']}",
+                f"  Package: {task.get('package', '')}",
                 f"  Why: {task['why']}",
                 f"  Input: {', '.join(task['expected_inputs']) if task['expected_inputs'] else 'project path'}",
                 f"  Output: {task['output']}",

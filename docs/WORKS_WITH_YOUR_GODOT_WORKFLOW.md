@@ -103,7 +103,7 @@ the package command requires the Godot executable in order to run.
 
 | Package | Godot required to run the package? | Notes |
 |---|---:|---|
-| `godot-project-doctor` | No | Runs and summarizes toolkit checks from a source checkout, and can write profile-based Markdown setup plans. It may inspect a Godot project directory, but the CLI itself does not launch Godot. |
+| `godot-project-doctor` | No | Recommends package installs, runs and summarizes toolkit checks from a source checkout, and can write profile-based Markdown setup plans. It may inspect a Godot project directory, but the CLI itself does not launch Godot. |
 | `godot-ci-doctor-action` | No | Runs in GitHub Actions around your existing workflow. It can consume the project files and reports you provide. |
 | `godot-export-preset-doctor` | No | Reads `export_presets.cfg` and reports export-readiness issues. It does not perform the export. |
 | `godot-asset-pipeline-doctor` | No | Reads PNG/audio files, `.import` files, and optional sprite manifests. |

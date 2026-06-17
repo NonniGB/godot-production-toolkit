@@ -135,6 +135,8 @@ window/handheld/orientation=1
             self.assertIn("scenario_report", recommended)
             export = next(item for item in recommendation_payload["recommendations"] if item["id"] == "export")
             self.assertEqual(export["priority"], "high")
+            self.assertEqual(export["package"], "godot-export-preset-doctor")
+            self.assertEqual(export["install"], "python -m pip install godot-export-preset-doctor")
             self.assertIn("godot-project-doctor run --project", export["command"])
             mobile_ui = next(item for item in recommendation_payload["recommendations"] if item["id"] == "mobile_ui")
             self.assertIn("needs config", mobile_ui["config"])
@@ -198,10 +200,32 @@ metadata = "reports/mobile-ui.json"
             mobile_ui = next(task for task in payload["tasks"] if task["id"] == "mobile_ui")
             self.assertEqual(mobile_ui["status"], "needs_setup")
             self.assertIn("mobile UI metadata", " ".join(mobile_ui["expected_inputs"]))
+            self.assertEqual(mobile_ui["package"], "godot-mobile-ui-doctor")
+            self.assertEqual(mobile_ui["install"], "python -m pip install godot-mobile-ui-doctor")
             self.assertIn("godot-mobile-ui-doctor", mobile_ui["command"])
             self.assertIn("guided_plan", payload)
+            self.assertIn(
+                "python -m pip install godot-export-preset-doctor godot-mobile-perf-doctor godot-input-map-auditor godot-mobile-ui-doctor godot-visual-smoke-test-kit",
+                payload["guided_plan"]["install_commands"],
+            )
+            profile_packages = {item["package"] for item in payload["guided_plan"]["packages"]}
+            self.assertIn("godot-visual-smoke-test-kit", profile_packages)
             self.assertIn("godot-release-dashboard build", " ".join(payload["guided_plan"]["commands"]))
             self.assertFalse((root / "reports" / "godot-project-doctor" / "mobile-plan.md").exists())
+
+    def test_doctor_profile_text_outputs_install_guidance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.godot").write_text("[application]\nconfig/name=\"Tiny\"\n", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                self.assertEqual(main(["doctor", str(root), "--profile", "release"]), 0)
+
+            rendered = stdout.getvalue()
+            self.assertIn("Install:", rendered)
+            self.assertIn("python -m pip install godot-export-preset-doctor", rendered)
+            self.assertIn("Package: godot-export-preset-doctor", rendered)
 
     def test_doctor_profile_writes_workflow_only_when_requested(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -261,6 +285,13 @@ metadata = "reports/mobile-ui.json"
             self.assertTrue(plan_path.exists())
             plan_text = plan_path.read_text(encoding="utf-8")
             self.assertIn("# Mobile review First-Run Plan", plan_text)
+            self.assertIn("## Install", plan_text)
+            self.assertIn(
+                "python -m pip install godot-export-preset-doctor godot-mobile-perf-doctor godot-input-map-auditor godot-mobile-ui-doctor godot-visual-smoke-test-kit",
+                plan_text,
+            )
+            self.assertIn("| `mobile_ui` | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor` |", plan_text)
+            self.assertIn("- Package: `godot-mobile-ui-doctor`", plan_text)
             self.assertIn("## Suggested Commands", plan_text)
             self.assertIn("godot-project-doctor run --project", plan_text)
             self.assertIn('--reports-dir "reports/mobile checks"', plan_text)
@@ -457,7 +488,7 @@ metadata = "reports/mobile-ui.json"
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.1.6", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.1.7", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -472,7 +503,7 @@ metadata = "reports/mobile-ui.json"
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.1.6", completed.stdout)
+        self.assertIn("godot-project-doctor 0.1.7", completed.stdout)
 
 
 if __name__ == "__main__":

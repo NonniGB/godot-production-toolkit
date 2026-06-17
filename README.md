@@ -259,7 +259,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 
 | Tool | Purpose | Script/CI Outputs |
 |---|---|---|
-| `godot-project-doctor` | Umbrella CLI for planning, first-run checklists, running, summarizing, and comparing the suite. | JSON, Markdown, HTML |
+| `godot-project-doctor` | Umbrella CLI for package install guidance, planning, first-run checklists, running, summarizing, and comparing the suite. | JSON, Markdown, HTML |
 | `godot-ci-doctor-action` | GitHub composite action wrapper. | JSON, Markdown, HTML artifacts |
 | `godot-asset-pipeline-doctor` | PNG/audio and `.import` checks for pixel art, mobile memory, and package-size risks. | JSON, SARIF |
 | `godot-content-graph-doctor` | Data-driven content id, reference, and numeric outlier checks. | JSON, Markdown, Mermaid |

@@ -21,7 +21,7 @@
   "tools": [
     {
       "name": "godot-project-doctor",
-      "role": "Umbrella CLI for planning, profile checklists, Markdown first-run plans, running, and summarizing the suite.",
+      "role": "Umbrella CLI for package install guidance, planning, profile checklists, Markdown first-run plans, running, and summarizing the suite.",
       "interfaces": ["cli", "json", "markdown", "html"]
     },
     {

@@ -1,6 +1,6 @@
 # Godot Project Doctor
 
-`godot-project-doctor` is an umbrella CLI for the Godot production toolkit. It plans, runs, summarizes, compares, and collects the standalone tools without hiding their individual commands.
+`godot-project-doctor` is an umbrella CLI for the Godot production toolkit. It recommends package installs, plans, runs, summarizes, compares, and collects the standalone tools without hiding their individual commands.
 
 ## Install
 
@@ -8,7 +8,10 @@
 python -m pip install -e .
 ```
 
-Install the standalone tools you want to run in the same environment.
+Install the standalone tools you want to run in the same environment. `recommend`
+and `doctor --write-plan` list the package set for each check/profile, so a new
+project can start with one focused install command instead of reading every
+package README first.
 
 ## Quick Start
 
@@ -24,10 +27,10 @@ godot-project-doctor doctor path\to\godot-project --profile release --write-plan
 `inspect` reports the project shape, detected Godot signals, sample files, and
 the short check list it would start with. `recommend` adds priority, setup
 notes, and a dry-run command for each suggested check. `doctor` groups checks
-into practical profiles and shows expected inputs, output paths, commands, and
-setup notes. Add `--write-plan` when you want a Markdown first-run plan with
-the selected commands, missing inputs, starter config preview, workflow preview,
-and dashboard handoff.
+into practical profiles and shows package installs, expected inputs, output
+paths, commands, and setup notes. Add `--write-plan` when you want a Markdown
+first-run plan with the selected package set, commands, missing inputs, starter
+config preview, workflow preview, and dashboard handoff.
 
 Preview a starter config and workflow without writing files:
 
@@ -85,10 +88,10 @@ passed. The current profiles are:
 - `qa`: scenario, visual smoke, mobile UI, architecture, and signal checks.
 
 `--write-plan` writes a Markdown checklist for the selected profile. The plan
-includes ready checks, setup notes for missing inputs, suggested run/collect
-commands, a starter config preview, a GitHub Actions preview, and a
-`godot-release-dashboard` command for turning the resulting reports into a
-static review page.
+includes a compact `pip install` command for the profile's standalone packages,
+ready checks, setup notes for missing inputs, suggested run/collect commands, a
+starter config preview, a GitHub Actions preview, and a `godot-release-dashboard`
+command for turning the resulting reports into a static review page.
 
 `recommend` is intentionally conservative. It looks for common project signals
 such as `export_presets.cfg`, GDScript files, PNG/import files, localization

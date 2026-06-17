@@ -43,6 +43,18 @@ Each package is a small command-line tool for a specific Godot production check.
 | Pixel-art asset import and texture checks | `python -m pip install godot-asset-pipeline-doctor` | `godot-asset-doctor . --profile pixel-2d --format json` |
 | Pixel space asset previews and image diffs | `python -m pip install pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
 
+## Profile Package Sets
+
+Use these when `godot-project-doctor doctor . --profile <name> --write-plan`
+is your starting point from a source checkout.
+
+| Profile | Install | Covers |
+|---|---|---|
+| `release` | `python -m pip install godot-export-preset-doctor godot-asset-pipeline-doctor godot-input-map-auditor godot-localization-qa-guard godot-mobile-perf-doctor` | Export presets, asset imports, input map coverage, localization, and static mobile performance. |
+| `mobile` | `python -m pip install godot-export-preset-doctor godot-mobile-perf-doctor godot-input-map-auditor godot-mobile-ui-doctor godot-visual-smoke-test-kit` | Android/export readiness, mobile performance, touch/input coverage, mobile UI metadata, and visual smoke planning. |
+| `content` | `python -m pip install godot-content-graph-doctor godot-save-schema-guard godot-scenario-report-kit godot-asset-pipeline-doctor` | Content graph checks, save fixtures/schema checks, scenario evidence, and asset import review. |
+| `qa` | `python -m pip install godot-scenario-report-kit godot-visual-smoke-test-kit godot-mobile-ui-doctor godot-gdscript-architecture-guard godot-scene-signal-auditor` | Scenario evidence, screenshot checks, mobile UI reports, architecture checks, and scene signal review. |
+
 ## Which Package Should I Start With?
 
 - Start with `godot-export-preset-doctor` for export failures, release target

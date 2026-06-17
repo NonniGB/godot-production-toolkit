@@ -4,7 +4,7 @@ Start here by release workflow or review task. Each tool can run locally or in
 CI, and most standalone tools are available from PyPI.
 
 If you already know the problem and only need a package name, install command,
-and first command, use the [Package Finder](PACKAGE_FINDER.md).
+profile package set, and first command, use the [Package Finder](PACKAGE_FINDER.md).
 
 ## Good First Workflows
 
@@ -119,7 +119,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Pixel-art space assets need deterministic previews or PNG diffs | `pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
 | Several checks need one report | `godot-project-doctor` | `godot-project-doctor summarize reports --format html` |
-| A first-run checklist is needed for release, mobile, content, or QA work | `godot-project-doctor` | `godot-project-doctor doctor . --profile release --write-plan` |
+| A first-run checklist with package installs is needed for release, mobile, content, or QA work | `godot-project-doctor` | `godot-project-doctor doctor . --profile release --write-plan` |
 
 ## Package Names
 
