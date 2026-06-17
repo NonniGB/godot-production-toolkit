@@ -49,7 +49,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.8")
+            self.assertEqual(data["tool_version"], "0.1.9")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["summary"]["workflows"], 1)
@@ -263,6 +263,69 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertIn("../run.log", html)
             self.assertIn("screenshots/menu.png", html)
             self.assertIn("Missing evidence: 1", html)
+
+    def test_scenario_flake_reports_show_retry_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            flake_report = reports / "scenario-flakes.json"
+            flake_report.write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-scenario-report-kit",
+                        "kind": "flake_compare",
+                        "summary": {
+                            "scenarios": 2,
+                            "passed": 1,
+                            "failed": 0,
+                            "warnings": 2,
+                            "errors": 0,
+                            "flaky": 1,
+                            "retried": 1,
+                        },
+                        "flake_groups": [
+                            {
+                                "scenario": "menu_startup",
+                                "statuses": ["passed", "failed"],
+                                "observations": [{"status": "passed"}, {"status": "failed"}],
+                            }
+                        ],
+                        "retry_groups": [
+                            {
+                                "scenario": "trade_flow",
+                                "run": "reports/retry-run",
+                                "attempts": 2,
+                                "statuses": ["failed", "passed"],
+                                "final_status": "passed",
+                                "observations": [{"status": "failed"}, {"status": "passed"}],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            dashboard = build_dashboard(reports)
+            output = root / "dashboard.html"
+            exit_code = main(["build", str(reports), "--output", str(output)])
+
+            html = output.read_text(encoding="utf-8")
+            report = dashboard["reports"][0]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(dashboard["summary"]["scenario_flake_reports"], 1)
+            self.assertEqual(dashboard["summary"]["scenario_flaky"], 1)
+            self.assertEqual(dashboard["summary"]["scenario_retried"], 1)
+            self.assertEqual(report["status"], "attention")
+            self.assertEqual(report["scenario_flakes"]["flaky"], 1)
+            self.assertEqual(report["scenario_flakes"]["retried"], 1)
+            self.assertIn("Scenario Flake and Retry Evidence", html)
+            self.assertIn("Flaky scenarios: 1", html)
+            self.assertIn("Retried scenarios: 1", html)
+            self.assertIn("menu_startup", html)
+            self.assertIn("trade_flow", html)
+            self.assertIn("reports/retry-run", html)
+            self.assertIn("Final status", html)
 
     def test_json_reports_surface_reproduction_commands_and_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

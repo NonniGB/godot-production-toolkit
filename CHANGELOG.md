@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-release-dashboard-kit` with scenario flake and retry evidence
+  sections for `godot-scenario-report-kit` flake comparison reports.
 - Improved `godot-scenario-report-kit` flake reports with retry grouping for
   repeated scenario attempts inside a single run folder or result file.
 - Improved `godot-gdscript-architecture-guard` with module ownership summaries

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.9 - 2026-06-17
+
+- Scenario flake comparison reports now get their own dashboard section with
+  flaky scenario groups, retry attempts, status sequences, and final statuses.
+- Dashboard summaries now roll up scenario flake and retry counts alongside
+  scenario bundle and telemetry evidence.
+- The tiny release evidence fixture now includes a synthetic scenario retry
+  report so generated dashboards demonstrate the new section.
+
 ## 0.1.8 - 2026-06-17
 
 - Dashboard cards now show typed highlights for common toolkit report shapes,

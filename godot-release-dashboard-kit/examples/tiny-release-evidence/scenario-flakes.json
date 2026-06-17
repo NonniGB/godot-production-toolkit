@@ -1,0 +1,41 @@
+{
+  "tool": "godot-scenario-report-kit",
+  "tool_version": "0.1.7",
+  "schema_version": "1.1",
+  "kind": "flake_compare",
+  "workflow": "Runtime evidence",
+  "category": "Scenario retries",
+  "command": "godot-scenario-report flake compare reports/retry-run --format json --output reports/scenario-flakes.json",
+  "summary": {
+    "scenarios": 2,
+    "passed": 1,
+    "failed": 0,
+    "errors": 0,
+    "warnings": 2,
+    "flaky": 1,
+    "retried": 1
+  },
+  "flake_groups": [
+    {
+      "scenario": "menu_startup",
+      "statuses": ["passed", "failed"],
+      "observations": [
+        {"status": "passed"},
+        {"status": "failed"}
+      ]
+    }
+  ],
+  "retry_groups": [
+    {
+      "scenario": "trade_flow",
+      "run": "reports/retry-run",
+      "attempts": 2,
+      "statuses": ["failed", "passed"],
+      "final_status": "passed",
+      "observations": [
+        {"status": "failed"},
+        {"status": "passed"}
+      ]
+    }
+  ]
+}

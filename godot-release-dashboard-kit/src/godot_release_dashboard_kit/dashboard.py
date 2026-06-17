@@ -129,6 +129,8 @@ def render_html(dashboard: dict[str, Any]) -> str:
             f"<div class=\"metric ok\">Improvements: {summary.get('trend_improvements', 0)}</div>",
             f"<div class=\"metric\">Scenario bundles: {summary['scenario_bundles']}</div>",
             f"<div class=\"metric\">Scenarios: {summary['scenario_passed']}/{summary['scenarios']} passed</div>",
+            f"<div class=\"metric warn\">Flaky scenarios: {summary.get('scenario_flaky', 0)}</div>",
+            f"<div class=\"metric warn\">Retried scenarios: {summary.get('scenario_retried', 0)}</div>",
             f"<div class=\"metric\">Telemetry samples: {summary['scenario_telemetry_samples']}</div>",
             f"<div class=\"metric warn\">Telemetry spikes: {summary['scenario_telemetry_spikes']}</div>",
             "</div>",
@@ -216,6 +218,9 @@ def _json_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, Any
     if isinstance(data, dict) and data.get("kind") == "scenario_bundle":
         card.update(_scenario_bundle_details(data))
         _apply_scenario_bundle_state(card)
+    if isinstance(data, dict) and data.get("kind") == "flake_compare":
+        card.update(_scenario_flake_details(data))
+        _apply_scenario_flake_state(card)
     return card
 
 
@@ -522,6 +527,13 @@ def _report_highlights(data: dict[str, Any], summary: object) -> list[dict[str, 
         )
     if "save" in haystack:
         rows.extend(_summary_metric_highlights(summary_dict, ("fixtures", "migrations", "validated", "redacted")))
+    if "godot-scenario-report-kit" in tool or kind in {"scenario_bundle", "flake_compare"}:
+        rows.extend(
+            _summary_metric_highlights(
+                summary_dict,
+                ("scenarios", "passed", "failed", "flaky", "retried", "linked_evidence", "artifacts"),
+            )
+        )
     if not rows:
         rows.extend(_summary_metric_highlights(summary_dict, ("findings", "reports", "scenarios", "samples")))
 
@@ -660,6 +672,11 @@ def _scenario_summary_counts(reports: list[dict[str, Any]]) -> dict[str, int]:
         for report in reports
         if isinstance(report.get("scenario_bundle"), dict)
     ]
+    flake_reports = [
+        report["scenario_flakes"]
+        for report in reports
+        if isinstance(report.get("scenario_flakes"), dict)
+    ]
     telemetry = [
         bundle["telemetry_summary"]
         for bundle in bundles
@@ -676,6 +693,9 @@ def _scenario_summary_counts(reports: list[dict[str, Any]]) -> dict[str, int]:
         "scenario_telemetry_spikes": sum(int(item.get("spikes", 0)) for item in telemetry),
         "scenario_telemetry_warnings": sum(int(item.get("warnings", 0)) for item in telemetry),
         "scenario_telemetry_errors": sum(int(item.get("errors", 0)) for item in telemetry),
+        "scenario_flake_reports": len(flake_reports),
+        "scenario_flaky": sum(int(item.get("flaky", 0)) for item in flake_reports),
+        "scenario_retried": sum(int(item.get("retried", 0)) for item in flake_reports),
     }
 
 
@@ -686,6 +706,81 @@ def _apply_scenario_bundle_state(card: dict[str, Any]) -> None:
     if int(bundle.get("failed", 0)) > 0:
         card["status"] = "blocked"
     elif int(bundle.get("missing_evidence", 0)) + int(bundle.get("missing_artifacts", 0)) > 0:
+        card["status"] = "attention"
+
+
+def _scenario_flake_details(data: dict[str, Any]) -> dict[str, Any]:
+    summary = data.get("summary", {})
+    summary_dict = summary if isinstance(summary, dict) else {}
+    flake_groups = _scenario_flake_rows(data.get("flake_groups", []))
+    retry_groups = _scenario_retry_rows(data.get("retry_groups", []))
+    return {
+        "scenario_flakes": {
+            "scenarios": _int_or_default(summary_dict.get("scenarios"), 0),
+            "passed": _int_or_default(summary_dict.get("passed"), 0),
+            "failed": _int_or_default(summary_dict.get("failed"), 0),
+            "flaky": _int_or_default(summary_dict.get("flaky"), len(flake_groups)),
+            "retried": _int_or_default(summary_dict.get("retried"), len(retry_groups)),
+            "errors": _int_or_default(summary_dict.get("errors"), 0),
+            "warnings": _int_or_default(summary_dict.get("warnings"), 0),
+            "flake_groups": flake_groups,
+            "retry_groups": retry_groups,
+        }
+    }
+
+
+def _scenario_flake_rows(groups: object) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    if not isinstance(groups, list):
+        return rows
+    for group in groups:
+        if not isinstance(group, dict):
+            continue
+        observations = group.get("observations", [])
+        rows.append(
+            {
+                "scenario": str(group.get("scenario") or group.get("name") or ""),
+                "statuses": _string_list(group.get("statuses")),
+                "observations": len(observations) if isinstance(observations, list) else 0,
+            }
+        )
+    return rows
+
+
+def _scenario_retry_rows(groups: object) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    if not isinstance(groups, list):
+        return rows
+    for group in groups:
+        if not isinstance(group, dict):
+            continue
+        observations = group.get("observations", [])
+        attempts = _int_or_default(group.get("attempts"), len(observations) if isinstance(observations, list) else 0)
+        rows.append(
+            {
+                "scenario": str(group.get("scenario") or group.get("name") or ""),
+                "run": str(group.get("run") or ""),
+                "attempts": attempts,
+                "statuses": _string_list(group.get("statuses")),
+                "final_status": str(group.get("final_status") or ""),
+            }
+        )
+    return rows
+
+
+def _string_list(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item not in (None, "")]
+
+
+def _apply_scenario_flake_state(card: dict[str, Any]) -> None:
+    details = card.get("scenario_flakes")
+    if not isinstance(details, dict):
+        return
+    if int(details.get("errors", 0)) > 0:
+        card["status"] = "blocked"
+    elif int(details.get("flaky", 0)) + int(details.get("retried", 0)) > 0 and card.get("status") == "ready":
         card["status"] = "attention"
 
 
@@ -886,6 +981,7 @@ def _card(report: dict[str, Any]) -> str:
     highlights = _highlights_html(report.get("highlights"))
     commands = _commands_html(report.get("commands"))
     scenario_bundle = _scenario_bundle_html(report.get("scenario_bundle"))
+    scenario_flakes = _scenario_flake_html(report.get("scenario_flakes"))
     workflow = str(report.get("workflow_label") or DEFAULT_WORKFLOW["label"])
     category = str(report.get("category") or "").strip()
     category_html = f" <span class=\"tag\">{escape(category)}</span>" if category else ""
@@ -895,7 +991,8 @@ def _card(report: dict[str, Any]) -> str:
         f"<p><span class=\"tag\">{escape(workflow)}</span>{category_html}</p>"
         f"<p><a href=\"{escape(source_href)}\"><code>{escape(source_href)}</code></a></p>"
         f"<p class=\"{level}\">Errors: {report['errors']} | Warnings: {report['warnings']}</p>"
-        f"<p>{escape(str(report.get('summary', '')))}</p>{highlights}{metadata}{commands}{scenario_bundle}</section>"
+        f"<p>{escape(str(report.get('summary', '')))}</p>"
+        f"{highlights}{metadata}{commands}{scenario_bundle}{scenario_flakes}</section>"
     )
 
 
@@ -993,6 +1090,58 @@ def _scenario_bundle_html(bundle: object) -> str:
                     f"<td>{escape(str(item.get('scenario', '')))}</td>"
                     f"<td><code>{escape(str(item.get('path', '')))}</code></td>"
                     f"<td>{escape(str(item.get('exists', False)).lower())}</td>"
+                    "</tr>"
+                )
+        parts.append("</tbody></table>")
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def _scenario_flake_html(details: object) -> str:
+    if not isinstance(details, dict):
+        return ""
+    flake_groups = details.get("flake_groups", [])
+    retry_groups = details.get("retry_groups", [])
+    parts = [
+        "<div class=\"bundle-details\">",
+        "<h3>Scenario Flake and Retry Evidence</h3>",
+        "<p>"
+        f"Scenarios: {int(details.get('passed', 0))} passed / {int(details.get('scenarios', 0))} total | "
+        f"Failed: {int(details.get('failed', 0))} | "
+        f"Flaky scenarios: {int(details.get('flaky', 0))} | "
+        f"Retried scenarios: {int(details.get('retried', 0))}"
+        "</p>",
+    ]
+    if isinstance(flake_groups, list) and flake_groups:
+        parts.append("<table><thead><tr><th>Scenario</th><th>Statuses</th><th>Observations</th></tr></thead><tbody>")
+        for item in flake_groups:
+            if isinstance(item, dict):
+                statuses = item.get("statuses", [])
+                status_text = ", ".join(str(status) for status in statuses) if isinstance(statuses, list) else ""
+                parts.append(
+                    "<tr>"
+                    f"<td>{escape(str(item.get('scenario', '')))}</td>"
+                    f"<td>{escape(status_text)}</td>"
+                    f"<td>{int(item.get('observations', 0))}</td>"
+                    "</tr>"
+                )
+        parts.append("</tbody></table>")
+    if isinstance(retry_groups, list) and retry_groups:
+        parts.append(
+            "<table><thead><tr><th>Scenario</th><th>Run</th><th>Attempts</th>"
+            "<th>Statuses</th><th>Final status</th></tr></thead><tbody>"
+        )
+        for item in retry_groups:
+            if isinstance(item, dict):
+                statuses = item.get("statuses", [])
+                status_text = ", ".join(str(status) for status in statuses) if isinstance(statuses, list) else ""
+                parts.append(
+                    "<tr>"
+                    f"<td>{escape(str(item.get('scenario', '')))}</td>"
+                    f"<td><code>{escape(str(item.get('run', '')))}</code></td>"
+                    f"<td>{int(item.get('attempts', 0))}</td>"
+                    f"<td>{escape(status_text)}</td>"
+                    f"<td>{escape(str(item.get('final_status', '')))}</td>"
                     "</tr>"
                 )
         parts.append("</tbody></table>")

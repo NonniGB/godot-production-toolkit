@@ -250,8 +250,9 @@ shows the timeline report and screenshot.
 ### "Several reports need one release dashboard"
 
 Use [`godot-release-dashboard-kit`](../godot-release-dashboard-kit/README.md) to
-turn JSON, Markdown, screenshots, overlays, diffs, and telemetry artifacts into
-one static HTML dashboard. The [release dashboard CI recipe](ci/release-dashboard-artifact.yml)
+turn JSON, Markdown, screenshots, overlays, diffs, telemetry artifacts, and
+scenario retry summaries into one static HTML dashboard. The
+[release dashboard CI recipe](ci/release-dashboard-artifact.yml)
 shows how to publish it as a workflow artifact.
 
 Scenario bundle JSON from `godot-scenario-report-kit` is a dashboard-friendly

@@ -8,6 +8,7 @@ It includes:
 - `mobile-ui.md`: a Markdown note card.
 - `mobile-ui-overlay.svg`: a visual artifact preview.
 - `scenario-bundle.json`: synthetic scenario evidence with reviewer links.
+- `scenario-flakes.json`: synthetic flaky/retried scenario evidence.
 - `runtime-timeline.json`: a tiny telemetry summary linked from the scenario bundle.
 - `run.log` and `junit.xml`: tiny linked files referenced by the scenario bundle.
 

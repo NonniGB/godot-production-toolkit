@@ -101,7 +101,7 @@
     },
     {
       "name": "godot-release-dashboard-kit",
-      "role": "Workflow-grouped static dashboard builder for toolkit reports, typed report highlights, visual artifacts, scenario evidence, report metadata, reproduction commands, compact telemetry summaries, and previous-run trends.",
+      "role": "Workflow-grouped static dashboard builder for toolkit reports, typed report highlights, visual artifacts, scenario evidence, retry evidence, report metadata, reproduction commands, compact telemetry summaries, and previous-run trends.",
       "interfaces": ["cli", "html", "json"]
     },
     {
@@ -182,6 +182,7 @@
     "docs/assets/sample-reports/runtime-telemetry-timeline.svg",
     "docs/assets/sample-reports/pack-mod.json",
     "godot-release-dashboard-kit/examples/tiny-release-evidence/runtime-timeline.json",
+    "godot-release-dashboard-kit/examples/tiny-release-evidence/scenario-flakes.json",
     "docs/assets/sample-reports/sprite-manifest.txt",
     "docs/assets/screenshots/project-doctor-html-report.png",
     "docs/assets/screenshots/project-doctor-terminal.png",
