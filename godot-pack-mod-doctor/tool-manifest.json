@@ -33,11 +33,11 @@
       "command": "godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format json"
     },
     {
-      "purpose": "Compare two pack manifests",
+      "purpose": "Compare two pack manifests and classify moved resources",
       "command": "godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown"
     },
     {
-      "purpose": "Check load order dependencies and conflicts across packs",
+      "purpose": "Check load order dependencies, content ids, and conflicts across packs",
       "command": "godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown"
     },
     {

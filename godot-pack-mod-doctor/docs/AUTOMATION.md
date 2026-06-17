@@ -30,6 +30,16 @@ Review content-pack load order before publishing a mod set:
 godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown --output reports\pack-load-order.md
 ```
 
+Review what changed between two pack releases:
+
+```powershell
+godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown --output reports\pack-diff.md
+```
+
+The JSON reports include `summary.risk_level`, `summary.risk_score`, and a
+`risk` object so dashboards can highlight blocked or attention-needed pack
+reports without custom parsing.
+
 Exit codes:
 
 - `0`: no findings at the selected fail threshold.

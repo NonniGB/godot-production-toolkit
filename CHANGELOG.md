@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-pack-mod-doctor` diffs with moved-resource classification,
+  content ID conflict checks, and dashboard-friendly risk summaries.
 - Added mobile UI overlay support for localized layout-risk JSON reports.
 - Added compact telemetry summaries to scenario evidence bundles and release dashboard cards.
 - Added dependency and load-order checks for Godot pack/mod manifests.

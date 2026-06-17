@@ -41,6 +41,7 @@ so later `diff` reports can show exactly which shipped resources changed.
   "files": [
     {
       "path": "res://content/items/sword.tres",
+      "content_id": "iron_sword",
       "references": ["iron_ingot"],
       "overrides": false,
       "size": 128,
@@ -53,11 +54,15 @@ so later `diff` reports can show exactly which shipped resources changed.
 The optional base manifest can contain `content` entries with `id` fields.
 Dependencies can be written as objects with an `id` field, or as simple id
 strings when version constraints are tracked elsewhere.
+File entries can also include `id`, `content_id`, or `content_ids` when the
+pack wants the report to catch duplicate gameplay/content identifiers as well
+as duplicate file paths.
 
 ## Checks
 
 - missing pack id or version;
 - malformed or duplicated dependency entries;
+- duplicate content IDs inside a pack manifest;
 - file entries without paths;
 - duplicate shipped paths;
 - unexpected overrides;
@@ -66,9 +71,11 @@ strings when version constraints are tracked elsewhere.
 - case-only path collisions that can break on Windows or macOS;
 - script, native binary, archive, packed-project, debug, backup, cache, or key
   files that commonly need manual review before public distribution;
-- added, removed, and changed files between two pack manifests;
+- added, removed, changed, and clearly moved files between two pack manifests;
 - duplicate pack ids, missing dependencies, dependency order problems, and
-  undeclared override conflicts across ordered packs.
+  undeclared override conflicts across ordered packs;
+- duplicate content IDs across ordered packs when a later pack does not mark
+  the file as an intentional override.
 
 Scripted mods and native extensions can be legitimate. These file policy checks
 are warnings by default; use `--fail-on warning` in CI if your project wants a
@@ -81,9 +88,15 @@ stricter content-pack gate.
 - `markdown`: PR comments and release notes.
 
 `diff` is useful before publishing a patch or DLC update. It compares shipped
-paths and stable file metadata so changed resources are visible in review.
+paths and stable file metadata so changed resources are visible in review. When
+stable hashes or content IDs show that a resource moved, the report lists it
+under `moved` instead of treating the update as an unrelated add and remove.
 
 `load-order` reads packs in the order supplied on the command line. If a later
 pack ships the same resource path without setting `overrides: true`, the report
 flags the conflict so the intended ownership is explicit. It also checks that
 dependencies listed by each pack are present earlier in the supplied load order.
+
+All JSON reports include a small `risk` block plus `summary.risk_level` and
+`summary.risk_score` fields so release dashboards and CI scripts can sort pack
+reports without parsing every finding.

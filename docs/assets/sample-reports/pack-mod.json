@@ -1,0 +1,51 @@
+{
+  "tool": "godot-pack-mod-doctor",
+  "tool_version": "0.1.4",
+  "schema_version": "1.0",
+  "kind": "pack_load_order",
+  "summary": {
+    "packs": 2,
+    "files": 3,
+    "dependencies": 1,
+    "content_ids": 2,
+    "errors": 0,
+    "warnings": 1,
+    "risk_score": 10,
+    "risk_level": "attention"
+  },
+  "packs": [
+    {
+      "id": "base_pack",
+      "path": "base-pack.json",
+      "files": 2,
+      "dependencies": [],
+      "dependency_count": 0,
+      "content_ids": ["iron_sword"],
+      "content_id_count": 1,
+      "order": 0
+    },
+    {
+      "id": "balance_patch",
+      "path": "balance-patch.json",
+      "files": 1,
+      "dependencies": ["base_pack"],
+      "dependency_count": 1,
+      "content_ids": ["iron_sword"],
+      "content_id_count": 1,
+      "order": 1
+    }
+  ],
+  "risk": {
+    "level": "attention",
+    "score": 10,
+    "reasons": ["content_id_conflict"]
+  },
+  "findings": [
+    {
+      "rule_id": "content_id_conflict",
+      "severity": "warning",
+      "message": "balance_patch ships content id 'iron_sword' in 'res://items/iron_sword.tres' after base_pack already used it in 'res://items/iron_sword.tres'.",
+      "rule_help": "Use a unique content id, mark the file as an intentional override, or adjust the pack order."
+    }
+  ]
+}

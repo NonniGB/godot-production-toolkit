@@ -10,6 +10,7 @@ SAMPLE_REPORTS = [
     ROOT / "docs" / "assets" / "sample-reports" / "export.json",
     ROOT / "docs" / "assets" / "sample-reports" / "input-map.json",
     ROOT / "docs" / "assets" / "sample-reports" / "mobile-perf.json",
+    ROOT / "docs" / "assets" / "sample-reports" / "pack-mod.json",
 ]
 
 

@@ -37,7 +37,7 @@ class PackModDoctorTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.3")
+            self.assertEqual(report["tool_version"], "0.1.4")
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("duplicate_file_path", rules)
             self.assertIn("override_not_allowed", rules)
@@ -185,7 +185,36 @@ class PackModDoctorTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertEqual(report["findings"][0]["rule_id"], "unknown_base_reference")
 
-    def test_diff_reports_added_removed_and_changed_files(self) -> None:
+    def test_check_reports_duplicate_content_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "pack.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "id": "demo",
+                        "version": "1",
+                        "files": [
+                            {"path": "res://items/sword.tres", "content_id": "sword"},
+                            {"path": "res://items/sword_icon.png", "content_ids": ["sword", "sword_icon"]},
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["check", str(manifest), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["content_ids"], 3)
+            self.assertEqual(report["summary"]["risk_level"], "blocked")
+            self.assertGreater(report["summary"]["risk_score"], 0)
+            self.assertEqual(report["risk"]["level"], "blocked")
+            self.assertIn("duplicate_content_id", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_diff_reports_added_removed_changed_and_moved_files(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             baseline = root / "baseline.json"
@@ -198,6 +227,7 @@ class PackModDoctorTests(unittest.TestCase):
                         "files": [
                             {"path": "res://items/sword.tres", "references": ["iron"]},
                             {"path": "res://items/old.tres"},
+                            {"path": "res://items/moved_old.tres", "content_id": "moved", "sha256": "abc", "size": 10},
                         ],
                     }
                 ),
@@ -211,6 +241,7 @@ class PackModDoctorTests(unittest.TestCase):
                         "files": [
                             {"path": "res://items/sword.tres", "references": ["steel"]},
                             {"path": "res://items/new.tres"},
+                            {"path": "res://items/moved_new.tres", "content_id": "moved", "sha256": "abc", "size": 10},
                         ],
                     }
                 ),
@@ -227,6 +258,12 @@ class PackModDoctorTests(unittest.TestCase):
             self.assertEqual(report["diff"]["added"], ["res://items/new.tres"])
             self.assertEqual(report["diff"]["removed"], ["res://items/old.tres"])
             self.assertEqual(report["diff"]["changed"], ["res://items/sword.tres"])
+            self.assertEqual(
+                report["diff"]["moved"],
+                [{"from": "res://items/moved_old.tres", "to": "res://items/moved_new.tres"}],
+            )
+            self.assertEqual(report["summary"]["moved"], 1)
+            self.assertEqual(report["summary"]["risk_level"], "attention")
 
     def test_load_order_reports_undeclared_override_conflicts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -308,6 +345,7 @@ class PackModDoctorTests(unittest.TestCase):
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
             self.assertEqual(report["summary"]["dependencies"], 5)
+            self.assertEqual(report["summary"]["content_ids"], 0)
             self.assertEqual(report["summary"]["errors"], 4)
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("duplicate_pack_id", rules)
@@ -316,6 +354,43 @@ class PackModDoctorTests(unittest.TestCase):
             self.assertIn("pack_dependency_order", rules)
             early_pack = report["packs"][0]
             self.assertEqual(early_pack["dependencies"], ["patch", "missing_pack"])
+
+    def test_load_order_reports_content_id_conflicts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            base = root / "base.json"
+            patch = root / "patch.json"
+            base.write_text(
+                json.dumps(
+                    {
+                        "id": "base",
+                        "version": "1",
+                        "files": [{"path": "res://items/sword.tres", "content_id": "sword"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            patch.write_text(
+                json.dumps(
+                    {
+                        "id": "patch",
+                        "version": "1",
+                        "dependencies": ["base"],
+                        "files": [{"path": "res://items/sword_plus.tres", "id": "sword"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["load-order", str(base), str(patch), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["content_ids"], 2)
+            self.assertEqual(report["packs"][1]["content_ids"], ["sword"])
+            self.assertIn("content_id_conflict", {finding["rule_id"] for finding in report["findings"]})
 
     def test_load_order_text_and_markdown_include_dependency_summary(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -349,8 +424,10 @@ class PackModDoctorTests(unittest.TestCase):
             self.assertEqual(text_exit, 0)
             self.assertEqual(markdown_exit, 0)
             self.assertIn("Dependencies: 1", text_stdout.getvalue())
+            self.assertIn("Risk: ready (0)", text_stdout.getvalue())
             self.assertIn("| Order | Pack | Files | Dependencies |", markdown_stdout.getvalue())
             self.assertIn("| 1 | patch | 1 | base |", markdown_stdout.getvalue())
+            self.assertIn("| Risk | ready (0) |", markdown_stdout.getvalue())
 
 
 if __name__ == "__main__":

@@ -96,7 +96,7 @@
     },
     {
       "name": "godot-pack-mod-doctor",
-      "role": "Pack, DLC, mod, and patch manifest generation, validation, dependency, diffing, and load-order checks.",
+      "role": "Pack, DLC, mod, and patch manifest generation, validation, moved-resource diffing, content-id, dependency, and load-order checks.",
       "interfaces": ["cli", "json", "markdown", "text"]
     },
     {
@@ -180,6 +180,7 @@
     "docs/assets/sample-reports/localization-stress/stress-pack-manifest.json",
     "docs/assets/sample-reports/runtime-telemetry-timeline.html",
     "docs/assets/sample-reports/runtime-telemetry-timeline.svg",
+    "docs/assets/sample-reports/pack-mod.json",
     "godot-release-dashboard-kit/examples/tiny-release-evidence/runtime-timeline.json",
     "docs/assets/sample-reports/sprite-manifest.txt",
     "docs/assets/screenshots/project-doctor-html-report.png",

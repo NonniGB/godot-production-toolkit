@@ -4,7 +4,8 @@ Use this before shipping a Godot patch, DLC pack, mod package, or optional
 content bundle. It checks the pack manifest for identity fields, dependency
 entries, duplicate paths, unexpected overrides, and references that do not
 exist in the base manifest. It can also generate a reviewable manifest from a
-folder before the check step runs.
+folder before the check step runs. When manifests include stable hashes or
+content IDs, diffs can separate moved resources from true adds/removals.
 
 Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 
@@ -43,6 +44,8 @@ godot-content-graph . --preset packs --format markdown --output reports\pack-con
 - Generated manifests with `res://` paths, file sizes, and SHA-256 hashes.
 - Findings for duplicate paths, missing identity fields, non-portable paths,
   case-only collisions, files that need manual review, unexpected overrides,
-  missing references, pack diffs, missing dependencies, dependency order
-  problems, duplicate pack ids, and load-order conflicts.
+  missing references, pack diffs, moved resources, duplicate content IDs,
+  missing dependencies, dependency order problems, duplicate pack ids, and
+  load-order conflicts.
+- Compact risk levels and scores for dashboards or release checklists.
 - A CI-friendly exit code based on the selected failure threshold.

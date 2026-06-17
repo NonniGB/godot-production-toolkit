@@ -40,6 +40,7 @@ def check_manifest(
     _require_string(data, "id", "missing_pack_id", findings)
     _require_string(data, "version", "missing_pack_version", findings)
     _dependency_policy(data, findings)
+    _content_id_policy(files, findings)
     _duplicate_paths(files, findings)
     _override_policy(files, allow_overrides, findings)
     _reference_policy(files, base_ids, findings)
@@ -49,12 +50,16 @@ def check_manifest(
         configured_unsafe_extensions.update(unsafe_extensions)
     _unsafe_file_policy(files, configured_unsafe_extensions, findings)
 
+    risk = _risk_summary(findings)
     summary = {
         "packs": 1,
         "files": len(files),
         "dependencies": len(data.get("dependencies", []) if isinstance(data.get("dependencies"), list) else []),
+        "content_ids": _content_id_count(files),
         "errors": sum(1 for finding in findings if finding["severity"] == "error"),
         "warnings": sum(1 for finding in findings if finding["severity"] == "warning"),
+        "risk_score": risk["score"],
+        "risk_level": risk["level"],
     }
     return {
         "tool": "godot-pack-mod-doctor",
@@ -66,6 +71,7 @@ def check_manifest(
             "id": str(data.get("id", "")),
             "version": str(data.get("version", "")),
         },
+        "risk": risk,
         "findings": findings,
     }
 
@@ -101,8 +107,13 @@ def diff_manifests(baseline: Path, current: Path) -> dict[str, Any]:
     current_data = _load_manifest(current)
     baseline_files = _files_by_path(baseline_data)
     current_files = _files_by_path(current_data)
-    added = sorted(set(current_files) - set(baseline_files))
-    removed = sorted(set(baseline_files) - set(current_files))
+    added_candidates = sorted(set(current_files) - set(baseline_files))
+    removed_candidates = sorted(set(baseline_files) - set(current_files))
+    moved = _moved_files(removed_candidates, added_candidates, baseline_files, current_files)
+    moved_from = {item["from"] for item in moved}
+    moved_to = {item["to"] for item in moved}
+    added = [path for path in added_candidates if path not in moved_to]
+    removed = [path for path in removed_candidates if path not in moved_from]
     changed = [
         path
         for path in sorted(set(baseline_files) & set(current_files))
@@ -118,15 +129,20 @@ def diff_manifests(baseline: Path, current: Path) -> dict[str, Any]:
                 "rule_help": "Check whether the removal is intended before publishing the pack update.",
             }
         )
+    risk = _risk_summary(findings)
     summary = {
         "packs": 2,
         "files": len(current_files),
         "dependencies": len(current_data.get("dependencies", []) if isinstance(current_data.get("dependencies"), list) else []),
+        "content_ids": _content_id_count(list(current_files.values())),
         "added": len(added),
         "removed": len(removed),
         "changed": len(changed),
+        "moved": len(moved),
         "errors": 0,
         "warnings": len(findings),
+        "risk_score": risk["score"],
+        "risk_level": risk["level"],
     }
     return {
         "tool": "godot-pack-mod-doctor",
@@ -136,7 +152,8 @@ def diff_manifests(baseline: Path, current: Path) -> dict[str, Any]:
         "summary": summary,
         "baseline": str(baseline),
         "current": str(current),
-        "diff": {"added": added, "removed": removed, "changed": changed},
+        "diff": {"added": added, "removed": removed, "changed": changed, "moved": moved},
+        "risk": risk,
         "findings": findings,
     }
 
@@ -144,14 +161,18 @@ def diff_manifests(baseline: Path, current: Path) -> dict[str, Any]:
 def load_order(manifests: list[Path]) -> dict[str, Any]:
     findings: list[dict[str, str]] = []
     owners: dict[str, str] = {}
+    content_owners: dict[str, tuple[str, str]] = {}
     pack_positions: dict[str, int] = {}
     packs: list[dict[str, Any]] = []
     for index, manifest in enumerate(manifests):
         data = _load_manifest(manifest)
         pack_id = str(data.get("id") or manifest.stem)
+        files = [item for item in data.get("files", []) if isinstance(item, dict)]
         _dependency_policy(data, findings)
+        _content_id_policy(files, findings)
         dependencies = _dependency_ids(data.get("dependencies"))
         dependency_count = _dependency_entry_count(data.get("dependencies"))
+        content_ids = [content_id for item in files for content_id in _file_content_ids(item)]
         previous_index = pack_positions.get(pack_id)
         if previous_index is not None:
             findings.append(
@@ -166,7 +187,6 @@ def load_order(manifests: list[Path]) -> dict[str, Any]:
                 }
             )
         pack_positions.setdefault(pack_id, index)
-        files = [item for item in data.get("files", []) if isinstance(item, dict)]
         packs.append(
             {
                 "id": pack_id,
@@ -174,6 +194,8 @@ def load_order(manifests: list[Path]) -> dict[str, Any]:
                 "files": len(files),
                 "dependencies": dependencies,
                 "dependency_count": dependency_count,
+                "content_ids": content_ids,
+                "content_id_count": len(content_ids),
                 "order": index,
             }
         )
@@ -192,9 +214,30 @@ def load_order(manifests: list[Path]) -> dict[str, Any]:
                     }
                 )
             owners[path] = pack_id
+            for content_id in _file_content_ids(item):
+                previous_content_owner = content_owners.get(content_id)
+                if previous_content_owner and not item.get("overrides"):
+                    previous_pack, previous_path = previous_content_owner
+                    if previous_pack != pack_id:
+                        findings.append(
+                            {
+                                "rule_id": "content_id_conflict",
+                                "severity": "warning",
+                                "message": (
+                                    f"{pack_id} ships content id {content_id!r} in {path!r} "
+                                    f"after {previous_pack} already used it in {previous_path!r}."
+                                ),
+                                "rule_help": (
+                                    "Use a unique content id, mark the file as an intentional override, "
+                                    "or adjust the pack order."
+                                ),
+                            }
+                        )
+                content_owners[content_id] = (pack_id, path)
     _load_order_dependency_findings(packs, pack_positions, findings)
     errors = sum(1 for finding in findings if finding["severity"] == "error")
     warnings = sum(1 for finding in findings if finding["severity"] == "warning")
+    risk = _risk_summary(findings)
     return {
         "tool": "godot-pack-mod-doctor",
         "tool_version": __version__,
@@ -204,10 +247,14 @@ def load_order(manifests: list[Path]) -> dict[str, Any]:
             "packs": len(packs),
             "files": len(owners),
             "dependencies": sum(int(pack["dependency_count"]) for pack in packs),
+            "content_ids": sum(int(pack["content_id_count"]) for pack in packs),
             "errors": errors,
             "warnings": warnings,
+            "risk_score": risk["score"],
+            "risk_level": risk["level"],
         },
         "packs": packs,
+        "risk": risk,
         "findings": findings,
     }
 
@@ -278,6 +325,30 @@ def _dependency_policy(data: dict[str, Any], findings: list[dict[str, str]]) -> 
                 }
             )
         seen.add(dependency_id)
+
+
+def _content_id_policy(files: list[dict[str, Any]], findings: list[dict[str, str]]) -> None:
+    seen: dict[str, str] = {}
+    for item in files:
+        path = str(item.get("path", "<missing>")).strip() or "<missing>"
+        for content_id in _file_content_ids(item):
+            previous_path = seen.get(content_id)
+            if previous_path:
+                findings.append(
+                    {
+                        "rule_id": "duplicate_content_id",
+                        "severity": "error",
+                        "message": (
+                            f"Content id {content_id!r} is declared by both "
+                            f"{previous_path!r} and {path!r}."
+                        ),
+                        "rule_help": (
+                            "Keep content ids unique inside a pack so saves, references, "
+                            "and patch reviews do not become ambiguous."
+                        ),
+                    }
+                )
+            seen[content_id] = path
 
 
 def _load_order_dependency_findings(
@@ -469,6 +540,41 @@ def _load_manifest(path: Path) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def _moved_files(
+    removed: list[str],
+    added: list[str],
+    baseline_files: dict[str, dict[str, Any]],
+    current_files: dict[str, dict[str, Any]],
+) -> list[dict[str, str]]:
+    moved: list[dict[str, str]] = []
+    used_added: set[str] = set()
+    for removed_path in removed:
+        removed_signature = _move_signature(baseline_files[removed_path])
+        if removed_signature is None:
+            continue
+        for added_path in added:
+            if added_path in used_added:
+                continue
+            if removed_signature == _move_signature(current_files[added_path]):
+                moved.append({"from": removed_path, "to": added_path})
+                used_added.add(added_path)
+                break
+    return moved
+
+
+def _move_signature(item: dict[str, Any]) -> tuple[Any, ...] | None:
+    content_ids = tuple(_file_content_ids(item))
+    sha256 = str(item.get("sha256", "")).strip()
+    size = item.get("size")
+    if sha256:
+        return ("sha256", sha256, size)
+    if content_ids and size is not None:
+        return ("content", content_ids, size)
+    if content_ids and _stable_file_payload(item):
+        return ("content", content_ids, tuple(sorted(_stable_file_payload(item).items())))
+    return None
+
+
 def _dependency_ids(value: object) -> list[str]:
     if not isinstance(value, list):
         return []
@@ -490,6 +596,25 @@ def _dependency_id(value: object) -> str:
     if isinstance(value, dict):
         return str(value.get("id") or "").strip()
     return ""
+
+
+def _content_id_count(files: list[dict[str, Any]]) -> int:
+    return sum(len(_file_content_ids(item)) for item in files)
+
+
+def _file_content_ids(item: dict[str, Any]) -> list[str]:
+    ids: list[str] = []
+    for key in ("id", "content_id"):
+        value = str(item.get(key, "")).strip()
+        if value and value not in ids:
+            ids.append(value)
+    content_ids = item.get("content_ids", [])
+    if isinstance(content_ids, list):
+        for value in content_ids:
+            content_id = str(value).strip()
+            if content_id and content_id not in ids:
+                ids.append(content_id)
+    return ids
 
 
 def _files_by_path(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -540,6 +665,21 @@ def _looks_absolute_path(path: str) -> bool:
     return Path(path).is_absolute() or PureWindowsPath(path).is_absolute()
 
 
+def _risk_summary(findings: list[dict[str, str]]) -> dict[str, Any]:
+    errors = sum(1 for finding in findings if finding["severity"] == "error")
+    warnings = sum(1 for finding in findings if finding["severity"] == "warning")
+    level = "blocked" if errors else "attention" if warnings else "ready"
+    score = errors * 100 + warnings * 10
+    reasons: list[str] = []
+    for finding in findings:
+        rule_id = finding["rule_id"]
+        if rule_id not in reasons:
+            reasons.append(rule_id)
+        if len(reasons) == 5:
+            break
+    return {"level": level, "score": score, "reasons": reasons}
+
+
 def _text(report: dict[str, Any]) -> str:
     summary = report["summary"]
     lines = [
@@ -548,10 +688,14 @@ def _text(report: dict[str, Any]) -> str:
             f"Files: {summary['files']} | Dependencies: {summary['dependencies']} | "
             f"Errors: {summary['errors']} | Warnings: {summary['warnings']}"
         ),
+        f"Risk: {summary.get('risk_level', 'ready')} ({summary.get('risk_score', 0)})",
     ]
     if report.get("kind") == "pack_manifest_diff":
         diff = report["diff"]
-        lines.append(f"Added: {len(diff['added'])} | Removed: {len(diff['removed'])} | Changed: {len(diff['changed'])}")
+        lines.append(
+            f"Added: {len(diff['added'])} | Removed: {len(diff['removed'])} | "
+            f"Changed: {len(diff['changed'])} | Moved: {len(diff.get('moved', []))}"
+        )
     if report.get("kind") == "pack_load_order":
         lines.append(f"Packs: {summary['packs']}")
     for finding in report["findings"]:
@@ -568,8 +712,10 @@ def _markdown(report: dict[str, Any]) -> str:
         "|---|---:|",
         f"| Files | {summary['files']} |",
         f"| Dependencies | {summary['dependencies']} |",
+        f"| Content IDs | {summary.get('content_ids', 0)} |",
         f"| Errors | {summary['errors']} |",
         f"| Warnings | {summary['warnings']} |",
+        f"| Risk | {summary.get('risk_level', 'ready')} ({summary.get('risk_score', 0)}) |",
         "",
     ]
     if report.get("kind") == "pack_manifest_diff":
@@ -581,6 +727,7 @@ def _markdown(report: dict[str, Any]) -> str:
                 f"- Added: {', '.join(diff['added']) or '-'}",
                 f"- Removed: {', '.join(diff['removed']) or '-'}",
                 f"- Changed: {', '.join(diff['changed']) or '-'}",
+                f"- Moved: {_moved_summary(diff.get('moved', []))}",
                 "",
             ]
         )
@@ -598,3 +745,14 @@ def _markdown(report: dict[str, Any]) -> str:
         for finding in report["findings"]:
             lines.append(f"| {finding['severity']} | `{finding['rule_id']}` | {finding['message']} |")
     return "\n".join(lines)
+
+
+def _moved_summary(moved: object) -> str:
+    if not isinstance(moved, list) or not moved:
+        return "-"
+    pairs = []
+    for item in moved:
+        if not isinstance(item, dict):
+            continue
+        pairs.append(f"{item.get('from', '?')} -> {item.get('to', '?')}")
+    return ", ".join(pairs) or "-"

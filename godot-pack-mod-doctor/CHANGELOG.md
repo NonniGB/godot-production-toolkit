@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 - 2026-06-17
+
+- `diff` now separates moved resources from true added and removed files when stable hashes or content IDs make the rename clear.
+- Added optional content ID checks for pack manifests and load-order reviews.
+- JSON, text, and Markdown reports now include a compact risk level and score for dashboard use.
+
 ## 0.1.3 - 2026-06-17
 
 - Added dependency shape checks for pack manifests, including missing and duplicate dependency IDs.

@@ -109,7 +109,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Runtime telemetry needs budgets, timelines, or baseline comparison | `godot-runtime-telemetry-lab` | `godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html` |
 | Pack, patch, DLC, or mod manifests need release checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
 | A pack folder needs a manifest before review or CI | `godot-pack-mod-doctor` | `godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json` |
-| Pack updates need added/removed/changed files or load-order conflicts reviewed | `godot-pack-mod-doctor` | `godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown` |
+| Pack updates need added/removed/changed/moved files or load-order conflicts reviewed | `godot-pack-mod-doctor` | `godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown` |
 | Mod or DLC packs need missing dependency or ordering checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown` |
 | Release reports and screenshots need one static review page | `godot-release-dashboard-kit` | `godot-release-dashboard build reports --output reports/dashboard.html` |
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
