@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 - 2026-06-17
+
+- Added `stress-pack` for deterministic pseudo, long, compact, and RTL-like CSV catalogs.
+- Added a stress-pack manifest and text, JSON, and Markdown summary output.
+- Documented localization stress packs for mobile UI overflow review and CI artifacts.
+
 ## 0.1.3 - 2026-06-09
 
 - Added optional string expansion and glyph allow-list checks.

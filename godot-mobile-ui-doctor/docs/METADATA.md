@@ -20,6 +20,11 @@ Optional `thresholds.text_expansion_factor` enables localized-label layout risk
 checks. Values above `1.0` multiply the estimated text width before comparing it
 with the node rectangle; for example, `1.4` checks a 40% expansion.
 
+This expansion factor is a useful first pass when the metadata contains only
+current source text. For tighter UI review, generate localization stress
+catalogs with `godot-l10n-guard stress-pack`, load those strings in a
+project-owned capture step, and export metadata from the stressed screens.
+
 Viewport definitions can also come from `godot-visual-smoke plan --format json`
 by passing `--visual-smoke-plan`. In that workflow, `mobile-ui.json` can focus on
 screens and nodes while the visual smoke config owns shared phone and tablet

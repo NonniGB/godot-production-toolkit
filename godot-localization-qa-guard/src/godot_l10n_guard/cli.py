@@ -10,14 +10,19 @@ from .models import CsvTable, PoCatalog
 from .po_parser import parse_po_file
 from .pseudo import write_pseudo_csv
 from .reporting import render_json_report, render_markdown_report, render_sarif_report, render_text_report
+from .stress import render_stress_report, write_stress_pack
 from .usage_scanner import scan_project_keys
 
 Catalog = CsvTable | PoCatalog
 
 
 def main(argv: list[str] | None = None) -> int:
+    raw_args = list(sys.argv[1:] if argv is None else argv)
+    if raw_args and raw_args[0] == "stress-pack":
+        return _run_stress_pack(raw_args[1:])
+
     parser = _build_parser()
-    args = parser.parse_args(argv)
+    args = parser.parse_args(raw_args)
     project = Path(args.project)
     scan_scripts = args.scan_scripts or args.scan_all
     scan_scenes = args.scan_scenes or args.scan_all
@@ -65,7 +70,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-l10n-guard",
         description="Audit Godot CSV and PO localization files.",
     )
-    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.3")
+    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.4")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--translations", help="Directory containing CSV and PO translation files.")
     parser.add_argument("--csv", action="append", default=[], help="Godot CSV translation file.")
@@ -85,6 +90,50 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output", help="Write report to a file instead of stdout.")
     parser.add_argument("--fail-on", choices=["warning", "error", "none"], default="warning")
     return parser
+
+
+def _run_stress_pack(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="godot-l10n-guard stress-pack",
+        description="Generate synthetic localization catalogs for UI layout stress testing.",
+    )
+    parser.add_argument("project", help="Godot project directory.")
+    parser.add_argument("--translations", help="Directory containing CSV and PO translation files.")
+    parser.add_argument("--csv", action="append", default=[], help="Godot CSV translation file.")
+    parser.add_argument("--po", action="append", default=[], help="PO file or directory.")
+    parser.add_argument("--source-lang", default="en", help="Source language column. Default: en.")
+    parser.add_argument(
+        "--variants",
+        default="pseudo,long,compact,rtl",
+        help="Comma-separated variants to write: pseudo,long,compact,rtl.",
+    )
+    parser.add_argument("--output-dir", required=True, help="Directory for generated stress CSV files.")
+    parser.add_argument("--pseudo-expansion", type=float, default=0.3, help="Extra padding ratio for pseudo text.")
+    parser.add_argument("--long-multiplier", type=float, default=1.8, help="Target ratio for long-string stress text.")
+    parser.add_argument("--format", choices=["text", "json", "markdown"], default="text")
+    parser.add_argument("--output", help="Write the stress-pack report to a file instead of stdout.")
+    args = parser.parse_args(argv)
+
+    catalogs = _load_catalogs(parser, args)
+    if not catalogs:
+        parser.error("no CSV or PO catalogs were found")
+
+    manifest = write_stress_pack(
+        catalogs,
+        Path(args.output_dir),
+        source_language=args.source_lang,
+        variants=_parse_variants(parser, args.variants),
+        pseudo_expansion=args.pseudo_expansion,
+        long_multiplier=args.long_multiplier,
+    )
+    rendered = render_stress_report(manifest, args.format)
+    if args.output:
+        output = Path(args.output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(rendered + "\n", encoding="utf-8")
+    else:
+        print(rendered)
+    return 0
 
 
 def _load_catalogs(parser: argparse.ArgumentParser, args: argparse.Namespace) -> list[Catalog]:
@@ -125,6 +174,17 @@ def _load_catalogs(parser: argparse.ArgumentParser, args: argparse.Namespace) ->
 
 def _parse_languages(raw: str) -> set[str]:
     return {part.strip() for part in raw.split(",") if part.strip()}
+
+
+def _parse_variants(parser: argparse.ArgumentParser, raw: str) -> list[str]:
+    allowed = {"pseudo", "long", "compact", "rtl"}
+    variants = [part.strip() for part in raw.split(",") if part.strip()]
+    unknown = sorted({variant for variant in variants if variant not in allowed})
+    if unknown:
+        parser.error(f"unknown stress-pack variant(s): {', '.join(unknown)}")
+    if not variants:
+        parser.error("at least one stress-pack variant is required")
+    return variants
 
 
 def _load_allowed_glyphs(parser: argparse.ArgumentParser, args: argparse.Namespace) -> set[str] | None:

@@ -90,7 +90,7 @@ layout reports, a readiness matrix, and screenshots.
 
 Start with the [localization overflow workflow](workflows/godot-localization-overflow-testing.md).
 Use [`godot-localization-qa-guard`](../godot-localization-qa-guard/README.md) for
-translation files and script key usage, then use
+translation files, script key usage, and `stress-pack` catalogs, then use
 [`godot-mobile-ui-doctor`](../godot-mobile-ui-doctor/README.md) for exported UI
 rectangles, text lengths, and safe-area layout.
 

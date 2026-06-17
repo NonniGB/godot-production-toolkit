@@ -17,7 +17,7 @@ at project-owned files.
 - `html5-export.yml`: checks the Web export preset, builds an HTML5 export, and
   uploads the static web build.
 - `mobile-ui-and-localization.yml`: runs touch-layout metadata checks,
-  pseudo-localization output, and localization QA together.
+  localization stress-pack output, and localization QA together.
 - `runtime-telemetry-budget.yml`: turns project-owned runtime telemetry samples
   into budgeted Markdown, JSON, and HTML reports.
 - `content-pack-validation.yml`: checks content graph data and pack/mod
@@ -34,4 +34,3 @@ at project-owned files.
 - Add required repository secrets before enabling signing or deploy steps.
 - Keep generated reports under a stable directory such as `reports/` so they can
   be uploaded as workflow artifacts.
-

@@ -9,6 +9,24 @@ to spot.
 godot-l10n-guard . --translations translations --pseudo-output reports\pseudo-localized.csv --fail-on none
 ```
 
+For a fuller UI stress pass, generate a stress pack:
+
+```powershell
+godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
+```
+
+The stress pack writes:
+
+- `pseudo.csv`: accented pseudo-localized text with padding.
+- `long.csv`: source text with heavier length padding for overflow checks.
+- `compact.csv`: shortened text for narrow-label and icon-adjacent layouts.
+- `rtl.csv`: right-to-left wrapped text for direction-sensitive layout checks.
+- `stress-pack-manifest.json`: a machine-readable index of generated files.
+
+The RTL-like output is a layout stress tool, not a correctness check for any
+specific language. It helps find controls that assume left-to-right text before
+real translation review begins.
+
 Use a custom pseudo locale name when your project has a naming convention:
 
 ```powershell

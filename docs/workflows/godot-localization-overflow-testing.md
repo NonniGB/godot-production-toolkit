@@ -20,7 +20,7 @@ Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 ```powershell
 python -m pip install godot-localization-qa-guard godot-mobile-ui-doctor godot-visual-smoke-test-kit
 godot-l10n-guard . --format markdown --output reports\localization.md
-godot-l10n-guard pseudo translations\en.csv --output reports\pseudo-en.csv
+godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
 godot-mobile-ui-doctor readiness mobile-ui.json --localization-report reports\localization.json --format markdown --output reports\mobile-localization-readiness.md
 ```
 
@@ -38,6 +38,7 @@ godot-visual-smoke compare baselines\ui current\ui --format json --output report
 ## Expected inputs
 
 - Localization files such as `*.csv`, `*.po`, or `*.pot`.
+- Optional stress-pack catalogs such as pseudo, long, compact, and RTL-like CSVs.
 - Exported UI metadata such as `mobile-ui.json`.
 - Optional screenshot folders from a project-owned capture command.
 - Optional font or glyph allow-list configuration.
@@ -45,5 +46,6 @@ godot-visual-smoke compare baselines\ui current\ui --format json --output report
 ## Expected outputs
 
 - Localization QA reports with placeholder, key, expansion, and glyph findings.
+- Stress-pack catalogs and a manifest for repeatable text-fit review.
 - Mobile UI readiness reports that can be reviewed in Markdown or JSON.
 - Optional screenshot diff reports for UI states that need visual approval.

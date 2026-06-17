@@ -67,13 +67,14 @@ jobs:
             --format json \
             --output "$REPORTS_DIR/localization.json"
 
-      - name: Write pseudo-localization preview
+      - name: Write localization stress pack
         run: |
-          # Keep this artifact for layout testing; it is not meant to ship.
-          godot-l10n-guard "$GODOT_PROJECT_DIR" \
+          # Keep these artifacts for layout testing; they may contain source UI text.
+          godot-l10n-guard stress-pack "$GODOT_PROJECT_DIR" \
             --translations "$TRANSLATIONS_DIR" \
-            --pseudo-output "$REPORTS_DIR/pseudo-localized.csv" \
-            --fail-on none
+            --output-dir "$REPORTS_DIR/localization-stress" \
+            --format markdown \
+            --output "$REPORTS_DIR/localization-stress.md"
 
       - name: Upload mobile UI and localization reports
         if: always()
@@ -81,4 +82,3 @@ jobs:
         with:
           name: mobile-ui-localization-reports
           path: ${{ env.REPORTS_DIR }}
-

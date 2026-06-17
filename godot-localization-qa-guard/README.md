@@ -1,8 +1,6 @@
 # Godot Localization QA Guard
 
-A CI-friendly localization QA checker for Godot CSV and PO translation files. It catches missing strings, duplicate keys, broken placeholders, UTF-8 BOM issues, fuzzy PO entries, unchanged target strings, missing project keys, and unused catalog keys.
-
-This is intentionally safe to publish as a standalone tool: examples are generic and the functionality does not reveal private game systems.
+A CI-friendly localization QA checker for Godot CSV and PO translation files. It catches missing strings, duplicate keys, broken placeholders, UTF-8 BOM issues, fuzzy PO entries, unchanged target strings, missing project keys, unused catalog keys, and layout-sensitive text risks.
 
 ## Install
 
@@ -25,6 +23,7 @@ godot-l10n-guard . --po locale --format markdown --output docs\LOCALIZATION_QA.m
 godot-l10n-guard . --format json --output localization-report.json
 godot-l10n-guard . --translations translations --max-expansion 1.35 --allowed-glyphs-file fonts\ui-glyphs.txt
 godot-l10n-guard . --translations translations --pseudo-output reports\pseudo-localized.csv --fail-on none
+godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
 ```
 
 Run the sample:
@@ -48,6 +47,7 @@ godot-l10n-guard examples\tiny-godot-project --translations examples\tiny-godot-
 - Uppercase key-like scene text values.
 - Missing and unused keys when scanning is enabled.
 - Pseudo-localized CSV previews for UI stress testing.
+- Synthetic pseudo, long, compact, and RTL-like CSV catalogs for layout review.
 - Report metadata and plain-language rule explanations for easier CI review.
 
 ## Documentation

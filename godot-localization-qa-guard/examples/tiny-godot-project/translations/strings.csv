@@ -2,4 +2,5 @@ keys,en,fr,es
 MENU_START,Start,Demarrer,Iniciar
 MENU_EXIT,Exit,,Salir
 MENU_COUNT,{count} items,{count} elements,{total} objetos
+MENU_SETTINGS,Graphics and sound settings,Parametres graphiques et audio,Ajustes de graficos y sonido
 MENU_UNUSED,Unused,Inutilise,Sin usar

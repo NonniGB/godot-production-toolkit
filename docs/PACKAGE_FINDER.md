@@ -15,6 +15,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot mobile UI safe area check | `python -m pip install godot-mobile-ui-doctor` | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
 | Godot mobile UI localization expansion check | `python -m pip install godot-mobile-ui-doctor godot-localization-qa-guard` | `godot-mobile-ui-doctor matrix mobile-ui.json --format markdown` |
 | Godot localization QA | `python -m pip install godot-localization-qa-guard` | `godot-l10n-guard . --translations translations --format markdown` |
+| Godot localization stress pack or text overflow review | `python -m pip install godot-localization-qa-guard` | `godot-l10n-guard stress-pack . --translations translations --output-dir reports/localization-stress --format markdown` |
 | Godot input map audit | `python -m pip install godot-input-map-auditor` | `godot-input-audit . --require keyboard,touch,controller --format markdown` |
 | Godot visual regression test | `python -m pip install godot-visual-smoke-test-kit` | `godot-visual-smoke compare baseline current --diff reports/diff.png --format json` |
 | Godot save schema validation | `python -m pip install godot-save-schema-guard` | `godot-save-guard validate saves/fixtures --schema schemas/save.schema.json` |
@@ -46,7 +47,8 @@ Each package is a small command-line tool for a specific Godot production check.
   targets, crowded controls, localization expansion risk, and exported
   `Control` rectangle metadata.
 - Start with `godot-localization-qa-guard` for CSV/PO translation checks,
-  missing keys, placeholder mismatches, and script key usage.
+  missing keys, placeholder mismatches, script key usage, and stress catalogs
+  for layout review.
 - Start with `godot-visual-smoke-test-kit` when screenshots need a repeatable
   baseline/diff/approval flow.
 - Start with `godot-scenario-report-kit` and `godot-runtime-telemetry-lab` when

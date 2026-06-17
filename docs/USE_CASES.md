@@ -87,6 +87,7 @@ Use this before exporting a localized build:
 
 ```powershell
 godot-l10n-guard . --translations translations --require fr,es --scan-scripts --format markdown --output reports\localization.md
+godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
 ```
 
 This helps catch:
@@ -96,6 +97,7 @@ This helps catch:
 - Placeholder mismatches, such as `{count}` versus `{total}`.
 - Keys used by scripts but absent from translation files.
 - Translation keys that are no longer used.
+- Buttons, menus, and HUD labels that are sensitive to longer or direction-changing text.
 
 ## Data-Driven Content Graphs
 

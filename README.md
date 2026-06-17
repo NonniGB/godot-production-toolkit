@@ -42,7 +42,7 @@ Use the toolkit when you want repeatable checks around practical Godot release w
 
 - **Before an Android release:** verify export presets, icons, version fields, debug flags, mobile renderer settings, and texture size risks.
 - **Before merging a UI/input change:** check that actions still cover keyboard, touch, mouse, and controller targets.
-- **Before localizing a build:** catch missing translations, placeholder mismatches, unchanged strings, and unused keys.
+- **Before localizing a build:** catch missing translations, placeholder mismatches, unchanged strings, unused keys, and UI text that may overflow under stress translations.
 - **Before changing save data:** validate save fixtures against a schema and document migration commands.
 - **Before shipping visual changes:** compare screenshots against approved baselines.
 - **Before reviewing a PR:** produce JSON, Markdown, HTML, and SARIF reports that make failures easier to reproduce.
@@ -185,6 +185,7 @@ godot-export-doctor matrix godot-export-preset-doctor\examples\bad-export-projec
 godot-export-doctor leaks godot-export-preset-doctor\examples\bad-export-project --format html --output reports\export-leaks.html --fail-on none
 godot-export-doctor diff godot-export-preset-doctor\examples\bad-export-project --baseline godot-export-preset-doctor\examples\bad-export-project --format markdown --fail-on none
 godot-export-doctor inspect-folder build\android --hash-files --format json --output reports\exported-folder.json --fail-on none
+godot-l10n-guard stress-pack godot-localization-qa-guard\examples\tiny-godot-project --translations godot-localization-qa-guard\examples\tiny-godot-project\translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
 godot-scenario-report manifest coverage godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --results godot-scenario-report-kit\examples\tiny-scenario-runs\current --format html --output reports\scenario-coverage.html
 godot-scenario-report bundle godot-scenario-report-kit\examples\tiny-scenario-runs\current --manifest godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --evidence log=godot-scenario-report-kit\examples\tiny-scenario-runs\run.log --evidence junit=godot-scenario-report-kit\examples\tiny-scenario-runs\junit.xml --format json --output reports\scenario-bundle.json
 godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-architecture-project --config architecture-guard.toml --format markdown
@@ -254,7 +255,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `gdscript-api-comment-coverage` | Public GDScript API docs and comment coverage gate. | JSON, Markdown |
 | `godot-gdscript-architecture-guard` | GDScript module boundaries, autoload access, and dependency policy checks. | JSON, SARIF, Markdown, Mermaid |
 | `godot-input-map-auditor` | Input device coverage and duplicate binding checks. | JSON, SARIF, Markdown |
-| `godot-localization-qa-guard` | CSV/PO localization QA and translation-key usage scan. | JSON, SARIF, Markdown |
+| `godot-localization-qa-guard` | CSV/PO localization QA, stress translation packs, and translation-key usage scan. | JSON, SARIF, Markdown, CSV |
 | `godot-save-schema-guard` | Save fixture schema validation and migration command checks. | JSON, Markdown |
 | `godot-scenario-report-kit` | Scenario run evidence summaries, manifests, coverage checks, flake comparison, and baseline comparison. | JSON, Markdown, HTML |
 | `godot-scene-signal-auditor` | Scene signal connection and autoload coupling analysis. | JSON, Mermaid |
@@ -281,6 +282,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | Several reports need one static review page | `godot-release-dashboard-kit` |
 | GDScript modules or autoloads are becoming tangled | `godot-gdscript-architecture-guard` |
 | Translation imports keep breaking placeholders or keys | `godot-localization-qa-guard` |
+| Translated text may overflow buttons, HUDs, or mobile menus | `godot-localization-qa-guard`, `godot-mobile-ui-doctor` |
 | Save data changes need fixture coverage | `godot-save-schema-guard` |
 | Scene refactors break signal wiring | `godot-scene-signal-auditor` |
 | UI or rendering changes need screenshot evidence | `godot-visual-smoke-test-kit` |
@@ -362,7 +364,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.10` |
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.1` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
-| [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.3` |
+| [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.4` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.9` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.2` |

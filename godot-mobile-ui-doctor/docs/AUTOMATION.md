@@ -32,6 +32,16 @@ To bring related mobile checks into one review artifact:
 godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports\input-map.json --export-report reports\export.json --localization-report reports\localization.json --mobile-perf-report reports\mobile-perf.json --format markdown --output reports\mobile-readiness.md
 ```
 
+For localization-sensitive UI, generate stress catalogs before the project
+captures its UI metadata:
+
+```powershell
+godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress
+```
+
+Use the stress catalogs in a project-owned UI capture step, then run `matrix`,
+`overlays`, or `readiness` on the exported metadata.
+
 The readiness report includes the linked reports' top findings and grouped rule
 counts in addition to the per-screen mobile UI matrix, which makes it suitable
 for pull-request artifacts and CI summaries.

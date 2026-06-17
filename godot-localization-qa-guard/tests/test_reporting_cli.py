@@ -19,7 +19,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-l10n-guard 0.1.3", stdout.getvalue())
+        self.assertIn("godot-l10n-guard 0.1.4", stdout.getvalue())
 
     def test_markdown_report_lists_findings(self) -> None:
         markdown = render_markdown_report(
@@ -45,7 +45,7 @@ class ReportingCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.3")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.4")
             self.assertEqual(report["summary"]["errors"], 1)
             self.assertEqual(report["rules"]["empty_translation"]["title"], "Empty translation")
             self.assertEqual(report["findings"][0]["title"], "Empty translation")

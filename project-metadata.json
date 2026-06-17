@@ -61,8 +61,8 @@
     },
     {
       "name": "godot-localization-qa-guard",
-      "role": "CSV/PO translation checks and project key usage scan.",
-      "interfaces": ["cli", "json", "sarif", "markdown"]
+      "role": "CSV/PO translation checks, project key usage scan, and localization stress-pack generation.",
+      "interfaces": ["cli", "json", "sarif", "markdown", "csv-stress-pack"]
     },
     {
       "name": "godot-save-schema-guard",

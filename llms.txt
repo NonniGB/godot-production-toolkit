@@ -25,7 +25,7 @@ validation, and GDScript architecture checks.
 - Check release target drift or export filter leak risks: use `godot-export-doctor matrix` and `godot-export-doctor leaks`.
 - Check mobile UI safe areas and touch targets: use `godot-mobile-ui-doctor`.
 - Check screenshot regressions: use `godot-visual-smoke-test-kit`.
-- Check Godot localization files: use `godot-localization-qa-guard`.
+- Check Godot localization files or generate text stress catalogs: use `godot-localization-qa-guard`.
 - Check asset imports and pixel-art textures: use `godot-asset-pipeline-doctor`.
 - Compare generated pixel-art PNGs: use `pixel-space-asset-toolkit`.
 - Check data-driven content references: use `godot-content-graph-doctor`.
@@ -40,6 +40,7 @@ godot-project-doctor recommend path\to\godot-project
 godot-project-doctor summarize reports\godot-project-doctor --format html
 godot-scenario-report manifest coverage scenario-manifest.json --results reports\scenarios --format html
 godot-mobile-ui-doctor readiness mobile-ui.json --format markdown
+godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress --format markdown
 godot-telemetry-lab timeline reports\runtime --format html --output reports\runtime-timeline.html
 godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown
 godot-visual-smoke compare baseline current --format json

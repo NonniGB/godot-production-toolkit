@@ -143,6 +143,16 @@ localized label growth. For example, `1.4` checks whether each current label
 still fits after a 40% width expansion while keeping the input format as plain
 JSON metadata.
 
+For a stronger localization pass, generate stress catalogs first:
+
+```powershell
+godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress
+```
+
+Then load or capture those project-side strings before exporting UI metadata.
+The expansion factor is a quick heuristic; project-captured stress text gives
+better evidence for screens with tight labels or direction-sensitive layout.
+
 ## Overlay Previews
 
 The `overlays` command writes one PNG per screen and viewport. It draws the
