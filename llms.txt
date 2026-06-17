@@ -29,6 +29,7 @@ validation, and GDScript architecture checks.
 - Check asset imports and pixel-art textures: use `godot-asset-pipeline-doctor`.
 - Compare generated pixel-art PNGs: use `pixel-space-asset-toolkit`.
 - Check data-driven content references: use `godot-content-graph-doctor`.
+- Generate save fixtures, validate save schemas, and check migration chains: use `godot-save-schema-guard`.
 - Summarize scenario evidence, manifests, coverage, flaky runs, and bundle reviewer links: use `godot-scenario-report-kit`.
 - Review frame/runtime telemetry, budget spikes, and timelines: use `godot-runtime-telemetry-lab`.
 

@@ -1,5 +1,17 @@
 # Migration Workflow
 
+Create a small baseline fixture when the schema changed but fixture coverage has
+not caught up yet:
+
+```powershell
+godot-save-guard generate-fixture --schema schemas\save.schema.json --fixture-output saves\fixtures\generated_v3.json --set 'player.id="pilot-1"' --format markdown
+```
+
+By default, generated fixtures include required properties. Add
+`--include-optional` when you want a fuller sample that also covers optional
+schema properties. Use repeated `--set dotted.path=json_value` flags for stable
+IDs or values that make the fixture easier to recognize in reports.
+
 Build command templates with `{input}` and `{output}`:
 
 ```powershell
@@ -36,11 +48,13 @@ godot-save-guard migration-graph --chain migrations.toml --current 3 --supported
 Run the chain:
 
 ```powershell
-godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir migrated --format json --output reports\migration-chain.json
+godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir migrated --schema schemas\save.schema.json --format json --output reports\migration-chain.json
 ```
 
 Each step writes an intermediate output named after the original fixture and
 target version, such as `save.v2.json` and `save.v3.json`.
 
-After running the chain, validate the migrated output with the normal
-`validate` command and the target schema.
+When `--schema` is provided, the command validates the final migrated output
+with the same save-compatibility rules used by `validate`. That catches cases
+where a migration script exits cleanly but writes a save shape the current game
+cannot load.

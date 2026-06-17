@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-save-schema-guard"
-version = "0.1.4"
-description = "Validate Godot save-game fixtures, JSON schemas, migration commands, and compatibility drift before release."
+version = "0.1.5"
+description = "Validate Godot save-game fixtures, generate schema samples, check migration chains, and catch compatibility drift before release."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Godot Save Schema Guard contributors" }]
-keywords = ["godot", "save", "schema", "json", "migration", "ci", "gamedev"]
+keywords = ["godot", "save", "schema", "json", "migration", "fixtures", "ci", "gamedev"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

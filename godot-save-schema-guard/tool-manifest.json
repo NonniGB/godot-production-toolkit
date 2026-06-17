@@ -9,7 +9,9 @@
     "human_output": ["text", "markdown report"],
     "migration_chain_config": true,
     "migration_graph_check": true,
+    "fixture_generation": true,
     "fixture_redaction": true,
+    "final_migration_schema_validation": true,
     "report_metadata": true,
     "plain_language_rule_help": true,
     "visual_interface": "none"
@@ -35,8 +37,16 @@
       "command": "godot-save-guard validate <fixtures> --schema <schema.json> --format markdown --output docs/SAVE_COMPATIBILITY.md"
     },
     {
+      "purpose": "Generate a baseline save fixture from a schema",
+      "command": "godot-save-guard generate-fixture --schema <schema.json> --fixture-output <fixtures/generated-save.json> --set 'player.id=\"pilot-1\"' --format markdown"
+    },
+    {
       "purpose": "Review an ordered migration chain",
       "command": "godot-save-guard migrate-chain <fixtures> --chain migrations.toml --output-dir migrated --dry-run --format json --output migration-chain.json"
+    },
+    {
+      "purpose": "Run a migration chain and validate the final saves",
+      "command": "godot-save-guard migrate-chain <fixtures> --chain migrations.toml --output-dir migrated --schema <schema.json> --format json --output migration-chain.json"
     },
     {
       "purpose": "Verify supported save versions can reach the current format",

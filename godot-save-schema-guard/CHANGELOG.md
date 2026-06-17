@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 - 2026-06-17
+
+- Added `generate-fixture` to create deterministic JSON save fixtures from schema defaults, required fields, and explicit overrides.
+- Added `migrate-chain --schema` so final migrated fixtures can be validated in the same report after migration commands succeed.
+- Added rule help and tests for fixture generation and final migrated-output validation.
+
 ## 0.1.4 - 2026-06-17
 
 - Added `redact` to write sanitized copies of selected save fixture paths.

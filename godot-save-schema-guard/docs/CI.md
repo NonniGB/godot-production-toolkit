@@ -8,6 +8,21 @@
   run: godot-save-guard validate saves/fixtures --schema schemas/save.schema.json --format markdown --output docs/SAVE_COMPATIBILITY.md
 ```
 
+When a schema changed and you need a quick fixture to review or extend:
+
+```yaml
+- name: Generate baseline save fixture
+  run: godot-save-guard generate-fixture --schema schemas/save.schema.json --fixture-output saves/fixtures/generated-current.json --format markdown --output reports/save-fixture-generation.md
+```
+
+When migration commands are part of the release, validate the final migrated
+save shape in the same job:
+
+```yaml
+- name: Run save migrations and validate output
+  run: godot-save-guard migrate-chain saves/v1 --chain migrations.toml --output-dir reports/migrated-saves --schema schemas/save.schema.json --format json --output reports/save-migration.json
+```
+
 When CI uploads sample fixtures as artifacts, write sanitized copies first:
 
 ```yaml

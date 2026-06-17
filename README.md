@@ -43,7 +43,7 @@ Use the toolkit when you want repeatable checks around practical Godot release w
 - **Before an Android release:** verify export presets, icons, version fields, debug flags, mobile renderer settings, and texture size risks.
 - **Before merging a UI/input change:** check that actions still cover keyboard, touch, mouse, and controller targets.
 - **Before localizing a build:** catch missing translations, placeholder mismatches, unchanged strings, unused keys, and UI text that may overflow under stress translations.
-- **Before changing save data:** validate save fixtures against a schema and document migration commands.
+- **Before changing save data:** generate baseline fixtures, validate saves against a schema, and document migration commands.
 - **Before shipping visual changes:** compare screenshots against approved baselines.
 - **Before reviewing a PR:** produce JSON, Markdown, HTML, and SARIF reports that make failures easier to reproduce.
 
@@ -123,7 +123,7 @@ Pick the package that matches the risk you are trying to reduce:
 - `godot-pack-mod-doctor`: before publishing pack, DLC, mod, or patch manifests.
 - `godot-release-dashboard-kit`: when turning toolkit reports into one static review page.
 - `godot-runtime-telemetry-lab`: after scenario or soak runs produce frame/runtime samples, timelines, or budget checks.
-- `godot-save-schema-guard`: before changing save data, save fixtures, or migration commands.
+- `godot-save-schema-guard`: before changing save data, generating save fixtures, or migration commands.
 - `godot-scenario-report-kit`: after scenario, smoke, or regression runs produce JSON evidence.
 - `godot-scene-signal-auditor`: before refactoring scenes, signals, or autoload event wiring.
 - `godot-visual-smoke-test-kit`: before approving UI, scene, or rendering changes with screenshot baselines.
@@ -204,6 +204,8 @@ godot-pack-mod-doctor manifest from-folder addons\demo_pack --id demo_pack --ver
 godot-pack-mod-doctor check pack-manifest.json --format markdown
 godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown
 godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown
+godot-save-guard generate-fixture --schema godot-save-schema-guard\examples\schema\save.schema.json --fixture-output reports\generated-save.json --set 'player.id="pilot-1"' --format markdown --fail-on none
+godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir reports\migrated-saves --schema schemas\save.schema.json --format json --output reports\save-migration.json
 godot-release-dashboard build godot-release-dashboard-kit\examples\tiny-release-evidence --title "Godot Toolkit Release Evidence" --output reports\dashboard.html
 ```
 
@@ -260,7 +262,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-gdscript-architecture-guard` | GDScript module boundaries, autoload access, and dependency policy checks. | JSON, SARIF, Markdown, Mermaid |
 | `godot-input-map-auditor` | Input device coverage and duplicate binding checks. | JSON, SARIF, Markdown |
 | `godot-localization-qa-guard` | CSV/PO localization QA, stress translation packs, and translation-key usage scan. | JSON, SARIF, Markdown, CSV |
-| `godot-save-schema-guard` | Save fixture schema validation and migration command checks. | JSON, Markdown |
+| `godot-save-schema-guard` | Save fixture generation, schema validation, and migration command checks. | JSON, Markdown |
 | `godot-scenario-report-kit` | Scenario run evidence summaries, manifests, coverage checks, flake comparison, and baseline comparison. | JSON, Markdown, HTML |
 | `godot-scene-signal-auditor` | Scene signal connection and autoload coupling analysis. | JSON, Mermaid |
 | `godot-visual-smoke-test-kit` | Screenshot diffing, approval, and Godot capture command planning. | JSON, PNG diffs |
@@ -287,7 +289,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | GDScript modules or autoloads are becoming tangled | `godot-gdscript-architecture-guard` |
 | Translation imports keep breaking placeholders or keys | `godot-localization-qa-guard` |
 | Translated text may overflow buttons, HUDs, or mobile menus | `godot-localization-qa-guard`, `godot-mobile-ui-doctor` |
-| Save data changes need fixture coverage | `godot-save-schema-guard` |
+| Save data changes need fixture coverage or migration proof | `godot-save-schema-guard` |
 | Scene refactors break signal wiring | `godot-scene-signal-auditor` |
 | UI or rendering changes need screenshot evidence | `godot-visual-smoke-test-kit` |
 
@@ -374,7 +376,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.4` |
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.5` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.2` |
-| [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.4` |
+| [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.5` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.5` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.3` |
 | [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.2` |

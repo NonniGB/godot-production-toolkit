@@ -8,7 +8,21 @@ Script-friendly validation command:
 godot-save-guard validate <fixtures> --schema <schema.json> --format json --output save-report.json --fail-on none
 ```
 
-The `migrate` command executes a user-supplied command template. Use validation mode unless you intentionally want to run migrations.
+Generate a deterministic baseline fixture when a schema change needs a new
+sample before hand-authored fixtures exist:
+
+```powershell
+godot-save-guard generate-fixture --schema <schema.json> --fixture-output <fixtures/generated-save.json> --set 'player.id="pilot-1"' --format json --output fixture-generation.json
+```
+
+The `migrate` and `migrate-chain` commands execute user-supplied command
+templates. Use validation mode unless you intentionally want to run migrations.
+When running a migration chain for real, pass `--schema` to validate each final
+migrated fixture in the same report:
+
+```powershell
+godot-save-guard migrate-chain <fixtures> --chain migrations.toml --output-dir migrated --schema <schema.json> --format json --output migration-chain.json
+```
 
 Before sharing fixtures outside your project, create reviewed sanitized copies:
 

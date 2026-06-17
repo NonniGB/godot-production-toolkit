@@ -19,8 +19,10 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot localization stress pack or text overflow review | `python -m pip install godot-localization-qa-guard` | `godot-l10n-guard stress-pack . --translations translations --output-dir reports/localization-stress --format markdown` |
 | Godot input map audit | `python -m pip install godot-input-map-auditor` | `godot-input-audit . --require keyboard,touch,controller --format markdown` |
 | Godot visual regression test | `python -m pip install godot-visual-smoke-test-kit` | `godot-visual-smoke compare baseline current --diff reports/diff.png --format json` |
+| Godot save fixture generation | `python -m pip install godot-save-schema-guard` | `godot-save-guard generate-fixture --schema schemas/save.schema.json --fixture-output saves/fixtures/generated.json --set 'player.id="pilot-1"'` |
 | Godot save schema validation | `python -m pip install godot-save-schema-guard` | `godot-save-guard validate saves/fixtures --schema schemas/save.schema.json` |
 | Godot save migration path check | `python -m pip install godot-save-schema-guard` | `godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1 --supported 2 --format markdown` |
+| Godot save migration output validation | `python -m pip install godot-save-schema-guard` | `godot-save-guard migrate-chain saves/v1 --chain migrations.toml --output-dir reports/migrated-saves --schema schemas/save.schema.json --format json` |
 | Godot save fixture redaction | `python -m pip install godot-save-schema-guard` | `godot-save-guard redact saves/fixtures --path player.name --output-dir sanitized-saves --dry-run` |
 | Godot scene signal audit | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --format json` |
 | Godot scene contract check before refactoring | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |

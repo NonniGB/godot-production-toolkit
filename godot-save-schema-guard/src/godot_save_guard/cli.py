@@ -5,7 +5,7 @@ import json
 import sys
 from pathlib import Path
 
-from .fixtures import validate_fixtures
+from .fixtures import generate_fixture, validate_fixtures
 from .migration import (
     analyze_migration_graph,
     build_chain_commands,
@@ -23,6 +23,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "validate":
         return _validate(args)
+    if args.command == "generate-fixture":
+        return _generate_fixture(args)
     if args.command == "migrate":
         return _migrate(args)
     if args.command == "migrate-chain":
@@ -44,13 +46,31 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-save-guard",
         description="Validate Godot save fixtures and migration compatibility.",
     )
-    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.4")
+    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.5")
     subparsers = parser.add_subparsers(dest="command")
 
     validate = subparsers.add_parser("validate", help="Validate JSON save fixtures.")
     validate.add_argument("fixtures", help="JSON fixture file or directory.")
     validate.add_argument("--schema", required=True, help="JSON schema file.")
     _add_report_args(validate)
+
+    generate = subparsers.add_parser("generate-fixture", help="Generate a deterministic JSON fixture from a schema.")
+    generate.add_argument("--schema", required=True, help="JSON schema file.")
+    generate.add_argument("--fixture-output", required=True, help="Fixture JSON path to write.")
+    generate.add_argument(
+        "--include-optional",
+        action="store_true",
+        help="Include optional schema properties as well as required properties.",
+    )
+    generate.add_argument(
+        "--set",
+        dest="overrides",
+        action="append",
+        default=[],
+        help='Override a dotted object path with a JSON value, such as --set \'player.name="Ada"\'.',
+    )
+    generate.add_argument("--overwrite", action="store_true", help="Replace an existing generated fixture.")
+    _add_report_args(generate)
 
     migrate = subparsers.add_parser("migrate", help="Run a migration command for fixtures.")
     migrate.add_argument("fixtures", help="JSON fixture file or directory.")
@@ -62,6 +82,10 @@ def _build_parser() -> argparse.ArgumentParser:
     migrate_chain.add_argument("fixtures", help="JSON fixture file or directory.")
     migrate_chain.add_argument("--chain", required=True, help="TOML file containing ordered migration steps.")
     migrate_chain.add_argument("--output-dir", required=True, help="Directory for migrated fixtures.")
+    migrate_chain.add_argument(
+        "--schema",
+        help="Validate each final migrated fixture against this JSON schema after the chain succeeds.",
+    )
     migrate_chain.add_argument("--dry-run", action="store_true", help="Plan commands without executing them.")
     _add_report_args(migrate_chain)
 
@@ -118,6 +142,19 @@ def _validate(args: argparse.Namespace) -> int:
     return _exit_code(results, args.fail_on)
 
 
+def _generate_fixture(args: argparse.Namespace) -> int:
+    schema = json.loads(Path(args.schema).read_text(encoding="utf-8"))
+    result = generate_fixture(
+        schema,
+        Path(args.fixture_output),
+        include_optional=args.include_optional,
+        overwrite=args.overwrite,
+        overrides=args.overrides,
+    )
+    _write_report(args, [result])
+    return _exit_code([result], args.fail_on)
+
+
 def _migrate(args: argparse.Namespace) -> int:
     fixtures_path = Path(args.fixtures)
     files = [fixtures_path] if fixtures_path.is_file() else sorted(fixtures_path.rglob("*.json"))
@@ -146,6 +183,7 @@ def _migrate_chain(args: argparse.Namespace) -> int:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     steps = load_migration_chain(Path(args.chain))
+    schema = json.loads(Path(args.schema).read_text(encoding="utf-8")) if args.schema and not args.dry_run else None
     results: list[FixtureResult] = []
     if not files:
         results.append(
@@ -187,6 +225,20 @@ def _migrate_chain(args: argparse.Namespace) -> int:
                         )
                     )
                     break
+            if schema is not None and commands and not any(finding.severity == "error" for finding in findings):
+                final_output = commands[-1][2]
+                if final_output.exists():
+                    validated = validate_fixtures(final_output, schema)
+                    results.extend(validated)
+                else:
+                    findings.append(
+                        Finding(
+                            "migration_output_missing",
+                            "error",
+                            "$",
+                            f"Final migrated fixture was not written: {final_output}.",
+                        )
+                    )
         results.append(FixtureResult(fixture, findings))
     _write_report(args, results)
     return _exit_code(results, args.fail_on)

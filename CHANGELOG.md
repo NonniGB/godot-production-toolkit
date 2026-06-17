@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Improved `godot-save-schema-guard` with schema-based fixture generation and final migrated-output validation for migration chains.
 - Improved `godot-release-dashboard-kit` cards with report metadata and
   copyable reproduction commands when reports provide them.
 - Improved `godot-pack-mod-doctor` diffs with moved-resource classification,

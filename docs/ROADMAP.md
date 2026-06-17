@@ -41,8 +41,8 @@ Suggested labels: `workflow: runtime-evidence`, `workflow: dashboard`,
 
 Useful next work:
 
-- save migration lab reports that show source fixture, migration command, and
-  destination validation together;
+- richer save migration report examples that show source fixture, generated
+  baseline fixture, migration command, and destination validation together;
 - pack diff and load-order checks;
 - content graph presets for more common Godot data shapes.
 

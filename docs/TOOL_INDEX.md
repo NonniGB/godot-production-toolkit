@@ -52,9 +52,11 @@ godot-visual-smoke compare screenshots/baseline/menu.png screenshots/current/men
 ### Save Migration
 
 ```powershell
+godot-save-guard generate-fixture --schema schemas/save.schema.json --fixture-output saves/fixtures/generated_v3.json --set 'player.id="pilot-1"' --format markdown --output reports/save-fixture-generation.md
 godot-save-guard validate saves/fixtures --schema schemas/save.schema.json --format markdown --output reports/save-validation.md
 godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1 --supported 2 --format markdown --output reports/save-migration-graph.md
 godot-save-guard redact saves/fixtures --path player.name --path players.*.email --output-dir reports/sanitized-saves --dry-run --format markdown --output reports/save-redaction-plan.md
+godot-save-guard migrate-chain saves/v1 --chain migrations.toml --output-dir reports/migrated-saves --schema schemas/save.schema.json --format json --output reports/save-migration.json
 ```
 
 ### Runtime Performance
@@ -97,8 +99,10 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Imported PNGs, pixel art, icons, or sprite anchors need review | `godot-asset-pipeline-doctor` | `godot-asset-doctor . --profile pixel-2d --format json` |
 | Input actions need keyboard, mouse, touch, and controller coverage | `godot-input-map-auditor` | `godot-input-audit . --format markdown` |
 | CSV or PO localization imports need QA | `godot-localization-qa-guard` | `godot-l10n-guard . --format markdown` |
+| Save fixtures need a baseline sample from the current schema | `godot-save-schema-guard` | `godot-save-guard generate-fixture --schema schemas/save.schema.json --fixture-output fixtures/generated.json` |
 | Save data needs schema and migration checks | `godot-save-schema-guard` | `godot-save-guard validate fixtures --schema save.schema.json` |
 | Supported save versions need migration path checks | `godot-save-schema-guard` | `godot-save-guard migration-graph --chain migrations.toml --current 3 --supported 1` |
+| Migration commands should prove final saves match the current schema | `godot-save-schema-guard` | `godot-save-guard migrate-chain fixtures/v1 --chain migrations.toml --output-dir migrated --schema save.schema.json` |
 | Save fixtures need selected-field redaction before sharing | `godot-save-schema-guard` | `godot-save-guard redact fixtures --path player.name --output-dir sanitized-fixtures --dry-run` |
 | Scene refactors risk broken signal wiring | `godot-scene-signal-auditor` | `godot-signal-audit . --format json` |
 | Scene refactors need required nodes, handlers, or signals kept stable | `godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |

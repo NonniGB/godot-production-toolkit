@@ -66,8 +66,8 @@
     },
     {
       "name": "godot-save-schema-guard",
-      "role": "Save fixture schema validation and migration command checks.",
-      "interfaces": ["cli", "json", "markdown"]
+      "role": "Save fixture generation, schema validation, migration-chain checks, final migrated-output validation, and fixture redaction.",
+      "interfaces": ["cli", "json", "markdown", "migration-chain-config", "fixture-generation", "fixture-redaction"]
     },
     {
       "name": "godot-scenario-report-kit",

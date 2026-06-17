@@ -115,7 +115,7 @@ the package command requires the Godot executable in order to run.
 | `godot-pack-mod-doctor` | No | Reads pack, DLC, mod, or patch manifests. |
 | `godot-release-dashboard-kit` | No | Builds static HTML dashboards from existing toolkit reports and visual artifacts. |
 | `godot-runtime-telemetry-lab` | No | Reads telemetry files emitted by your own runtime or scenario runs. |
-| `godot-save-schema-guard` | No | Reads save fixtures, schemas, and migration command metadata. |
+| `godot-save-schema-guard` | No | Reads save fixtures, schemas, and migration command metadata; writes generated or migrated fixtures only when requested. |
 | `godot-scenario-report-kit` | No | Reads scenario manifests and result artifacts from your own test runner. |
 | `godot-scene-signal-auditor` | No | Statically reads scenes, scripts, signal connections, and autoload usage. |
 | `godot-visual-smoke-test-kit` | No for compare/report commands | Screenshot comparison and approval use existing PNGs. If you choose to generate fresh screenshots as part of the same workflow, that capture step can use your installed Godot executable. |

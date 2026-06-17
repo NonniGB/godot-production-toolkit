@@ -6,6 +6,18 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Invalid JSON fixture",
         "explanation": "The fixture cannot be parsed, so compatibility checks cannot inspect its saved data.",
     },
+    "fixture_generated": {
+        "title": "Fixture generated",
+        "explanation": "A deterministic save fixture was written from the schema so validation and migration tests have a baseline sample.",
+    },
+    "fixture_output_exists": {
+        "title": "Fixture output exists",
+        "explanation": "The generated fixture would replace an existing file. Use overwrite only after reviewing the target path.",
+    },
+    "fixture_override_invalid": {
+        "title": "Fixture override invalid",
+        "explanation": "A fixture override could not be applied because the path or JSON value was not valid.",
+    },
     "migration_chain_empty": {
         "title": "Migration chain is empty",
         "explanation": "The chain file did not define any usable migration steps from older saves to newer saves.",
@@ -21,6 +33,10 @@ RULE_HELP: dict[str, dict[str, str]] = {
     "migration_path_missing": {
         "title": "Migration path missing",
         "explanation": "A supported save version needs a complete path of migration steps to the current save format.",
+    },
+    "migration_output_missing": {
+        "title": "Migration output missing",
+        "explanation": "The migration command succeeded but did not write the expected migrated fixture for validation.",
     },
     "missing_required_property": {
         "title": "Required property missing",

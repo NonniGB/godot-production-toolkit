@@ -11,7 +11,7 @@ keystore/release_password="$GODOT_ANDROID_KEYSTORE_PASSWORD"
 Avoid:
 
 ```text
-keystore/release_password="actual-password"
+keystore/release_password=<real signing password>
 ```
 
 Also check `.gitignore` for local signing material:
