@@ -5,7 +5,8 @@ small architecture policy. It is aimed at projects where autoloads, shared
 scripts, and feature modules can quietly become tangled during refactors.
 
 It does not run the Godot editor. It scans `.gd` files and reports dependency
-direction, autoload access, and unresolved `res://` script/resource references.
+direction, autoload access, unresolved `res://` script/resource references,
+high fan-in/fan-out from visible script references, and possible unused scripts.
 
 ## Install
 
@@ -29,6 +30,12 @@ Write SARIF for code scanning:
 
 ```powershell
 godot-architecture-guard . --config architecture-guard.toml --format sarif --output reports\architecture.sarif
+```
+
+Write a Markdown refactor note:
+
+```powershell
+godot-architecture-guard . --config architecture-guard.toml --format markdown --output reports\architecture.md --fail-on none
 ```
 
 ## Policy Example
@@ -56,6 +63,11 @@ names = ["GameState", "Settings"]
 If `scripts/ui/menu.gd` preloads `res://scripts/gameplay/inventory.gd`, the tool
 reports a module boundary violation unless `ui` may depend on `gameplay`.
 
+If a configured module path matches no scripts, the tool reports that stale
+policy path as a warning. JSON, text, and Markdown reports also include advisory
+sections for files with many visible script references and scripts that do not
+appear in visible `res://` references or `class_name` declarations.
+
 ## Outputs
 
 - `text`: local terminal report.
@@ -66,4 +78,6 @@ reports a module boundary violation unless `ui` may depend on `gameplay`.
 
 JSON reports include `metadata`, `rule_help`, and per-finding suggestions so CI
 jobs and small review scripts can explain the issue without hard-coding rule
-text. SARIF output carries the same rule descriptions for code scanning tools.
+text. They also include `hotspots` and `possible_unused_scripts` arrays for
+refactor review.
+SARIF output carries rule descriptions for code scanning tools.

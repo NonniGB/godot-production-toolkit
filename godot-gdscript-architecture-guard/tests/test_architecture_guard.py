@@ -52,10 +52,155 @@ names = ["GameState"]
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("module_boundary_violation", rules)
             self.assertIn("autoload_access_violation", rules)
-            self.assertEqual(report["version"], "0.1.1")
+            self.assertEqual(report["version"], "0.1.2")
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
             self.assertIn("suggestion", report["findings"][0])
             self.assertIn("module_boundary_violation", report["rule_help"])
+
+    def test_reports_hotspots_and_likely_unreferenced_scripts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scenes").mkdir()
+            (root / "scripts" / "ui").mkdir(parents=True)
+            (root / "scripts" / "gameplay").mkdir(parents=True)
+            (root / "scripts" / "shared").mkdir(parents=True)
+            (root / "scripts" / "autoload").mkdir(parents=True)
+            (root / "scripts" / "ui" / "menu.gd").write_text(
+                'extends Control\nconst Format = preload("res://scripts/shared/formatting.gd")\nfunc _ready() -> void:\n    GameState.reset()\n    GameState.save()\n',
+                encoding="utf-8",
+            )
+            (root / "scripts" / "gameplay" / "inventory.gd").write_text(
+                'extends RefCounted\nconst Format = preload("res://scripts/shared/formatting.gd")\n',
+                encoding="utf-8",
+            )
+            (root / "scripts" / "shared" / "formatting.gd").write_text("extends RefCounted\n", encoding="utf-8")
+            (root / "scripts" / "shared" / "orphan.gd").write_text("extends RefCounted\n", encoding="utf-8")
+            (root / "scripts" / "shared" / "global_type.gd").write_text(
+                "class_name GlobalType\nextends RefCounted\n",
+                encoding="utf-8",
+            )
+            (root / "scripts" / "autoload" / "game_state.gd").write_text("extends Node\n", encoding="utf-8")
+            (root / "project.godot").write_text(
+                '[autoload]\nGameState="*res://scripts/autoload/game_state.gd"\n',
+                encoding="utf-8",
+            )
+            (root / "scenes" / "menu.tscn").write_text(
+                '[gd_scene load_steps=2 format=3]\n[ext_resource type="Script" path="res://scripts/ui/menu.gd" id="1"]\n[node name="Menu" type="Control"]\nscript = ExtResource("1")\n',
+                encoding="utf-8",
+            )
+            config = root / "architecture-guard.toml"
+            config.write_text(
+                """
+[modules.ui]
+paths = ["scripts/ui/**"]
+may_depend_on = ["shared"]
+allowed_autoloads = ["GameState"]
+
+[modules.gameplay]
+paths = ["scripts/gameplay/**"]
+may_depend_on = ["shared"]
+allowed_autoloads = []
+
+[modules.shared]
+paths = ["scripts/shared/**"]
+may_depend_on = []
+allowed_autoloads = []
+
+[autoloads]
+names = ["GameState"]
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--config", str(config), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            hotspot_paths = [row["path"] for row in report["hotspots"]]
+            possible_unused_paths = [row["path"] for row in report["possible_unused_scripts"]]
+            self.assertEqual(exit_code, 0)
+            self.assertIn("scripts/shared/formatting.gd", hotspot_paths)
+            self.assertIn("scripts/shared/orphan.gd", possible_unused_paths)
+            self.assertNotIn("scripts/shared/global_type.gd", possible_unused_paths)
+            self.assertNotIn("scripts/autoload/game_state.gd", possible_unused_paths)
+            self.assertEqual(report["summary"]["possible_unused_scripts"], 2)
+
+    def test_reports_module_paths_that_match_no_scripts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scripts" / "ui").mkdir(parents=True)
+            (root / "scripts" / "ui" / "menu.gd").write_text("extends Control\n", encoding="utf-8")
+            config = root / "architecture-guard.toml"
+            config.write_text(
+                """
+[modules.ui]
+paths = ["scripts/ui/**", "scripts/deleted_ui/**"]
+may_depend_on = []
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--config", str(config), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            finding = next(item for item in report["findings"] if item["rule_id"] == "module_path_without_scripts")
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(finding["module"], "ui")
+            self.assertEqual(finding["path"], "architecture-guard.toml")
+            self.assertEqual(finding["target"], "scripts/deleted_ui/**")
+            self.assertIn("suggestion", finding)
+
+    def test_module_path_warning_sarif_points_to_policy_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scripts" / "ui").mkdir(parents=True)
+            (root / "scripts" / "ui" / "menu.gd").write_text("extends Control\n", encoding="utf-8")
+            config = root / "architecture-guard.toml"
+            config.write_text(
+                """
+[modules.ui]
+paths = ["scripts/missing/**"]
+may_depend_on = []
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--config", str(config), "--format", "sarif", "--fail-on", "none"])
+
+            payload = json.loads(stdout.getvalue())
+            uri = payload["runs"][0]["results"][0]["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(uri, "architecture-guard.toml")
+
+    def test_module_path_warning_only_fails_on_warning_threshold(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scripts" / "ui").mkdir(parents=True)
+            (root / "scripts" / "ui" / "menu.gd").write_text("extends Control\n", encoding="utf-8")
+            config = root / "architecture-guard.toml"
+            config.write_text(
+                """
+[modules.ui]
+paths = ["scripts/missing/**"]
+may_depend_on = []
+""",
+                encoding="utf-8",
+            )
+
+            stdout = StringIO()
+            with redirect_stdout(stdout):
+                error_exit = main([str(root), "--config", str(config), "--format", "json", "--fail-on", "error"])
+            stdout = StringIO()
+            with redirect_stdout(stdout):
+                warning_exit = main([str(root), "--config", str(config), "--format", "json", "--fail-on", "warning"])
+
+            self.assertEqual(error_exit, 0)
+            self.assertEqual(warning_exit, 1)
 
     def test_sarif_includes_rule_descriptions(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -116,6 +261,40 @@ may_depend_on = []
             self.assertEqual(exit_code, 0)
             self.assertIn("flowchart LR", stdout.getvalue())
             self.assertIn("ui --> shared", stdout.getvalue())
+
+    def test_markdown_lists_hotspots_and_likely_unreferenced_scripts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scripts" / "ui").mkdir(parents=True)
+            (root / "scripts" / "shared").mkdir(parents=True)
+            (root / "scripts" / "ui" / "menu.gd").write_text(
+                'const Format = preload("res://scripts/shared/formatting.gd")\n',
+                encoding="utf-8",
+            )
+            (root / "scripts" / "shared" / "formatting.gd").write_text("extends RefCounted\n", encoding="utf-8")
+            config = root / "architecture-guard.toml"
+            config.write_text(
+                """
+[modules.ui]
+paths = ["scripts/ui/**"]
+may_depend_on = ["shared"]
+
+[modules.shared]
+paths = ["scripts/shared/**"]
+may_depend_on = []
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--config", str(config), "--format", "markdown", "--fail-on", "none"])
+
+            markdown = stdout.getvalue()
+            self.assertEqual(exit_code, 0)
+            self.assertIn("## Dependency Hotspots", markdown)
+            self.assertIn("scripts/shared/formatting.gd", markdown)
+            self.assertIn("## Possible Unused Scripts", markdown)
 
 
 if __name__ == "__main__":

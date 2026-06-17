@@ -162,6 +162,7 @@ need clear dependency direction:
 
 ```powershell
 godot-architecture-guard . --config architecture-guard.toml --format sarif --output reports\architecture.sarif
+godot-architecture-guard . --config architecture-guard.toml --format markdown --output reports\architecture.md --fail-on none
 ```
 
 This helps catch:
@@ -169,6 +170,8 @@ This helps catch:
 - Feature modules depending on folders they should not reach into.
 - Scripts that use autoloads outside the module policy.
 - `preload()` or `load()` paths that no longer exist.
+- High fan-in/fan-out files that deserve extra review before refactoring.
+- Possible unused scripts and stale module path patterns.
 - Dependency graphs that are useful during refactors.
 
 ## Scenario Evidence Reports

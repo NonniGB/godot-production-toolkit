@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-gdscript-architecture-guard"
-version = "0.1.1"
-description = "Check Godot GDScript module boundaries, autoload access, dependency direction, and architecture drift."
+version = "0.1.2"
+description = "Check Godot GDScript module boundaries, autoload access, dependency direction, high fan-in/fan-out files, and possible unused scripts."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Godot GDScript Architecture Guard contributors" }]
-keywords = ["godot", "gdscript", "architecture", "autoload", "signals", "ci", "gamedev"]
+keywords = ["godot", "gdscript", "architecture", "autoload", "refactor", "ci", "gamedev"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

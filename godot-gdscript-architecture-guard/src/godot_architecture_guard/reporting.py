@@ -20,6 +20,17 @@ def _text(report: dict[str, Any]) -> str:
         "Godot GDScript Architecture Guard",
         f"Scanned {summary['scripts']} script(s), {summary['modules']} module(s): {summary['errors']} error(s), {summary['warnings']} warning(s).",
     ]
+    if report.get("hotspots"):
+        lines.append("Hotspots:")
+        for row in report["hotspots"][:5]:
+            lines.append(
+                f"  {row['path']} score={row['score']} incoming={row['incoming']} "
+                f"outgoing={row['outgoing']} autoload_refs={row['autoload_references']}"
+            )
+    if report.get("possible_unused_scripts"):
+        lines.append("Possible unused scripts:")
+        for row in report["possible_unused_scripts"][:5]:
+            lines.append(f"  {row['path']} ({row.get('module') or 'unowned'})")
     for finding in report["findings"]:
         title = finding.get("title", finding["rule_id"])
         lines.append(
@@ -39,6 +50,8 @@ def _markdown(report: dict[str, Any]) -> str:
         f"- Scripts: {summary['scripts']}",
         f"- Modules: {summary['modules']}",
         f"- Dependencies: {summary['dependencies']}",
+        f"- Hotspots: {summary.get('hotspots', 0)}",
+        f"- Possible unused scripts: {summary.get('possible_unused_scripts', 0)}",
         f"- Errors: {summary['errors']}",
         f"- Warnings: {summary['warnings']}",
         "",
@@ -53,7 +66,44 @@ def _markdown(report: dict[str, Any]) -> str:
             )
     else:
         lines.append("| info | clean |  | No findings. | |")
+    lines.extend(_markdown_hotspots(report))
+    lines.extend(_markdown_possible_unused_scripts(report))
     return "\n".join(lines)
+
+
+def _markdown_hotspots(report: dict[str, Any]) -> list[str]:
+    rows = report.get("hotspots", [])
+    if not rows:
+        return ["", "## Dependency Hotspots", "", "No dependency hotspots found."]
+    lines = [
+        "",
+        "## Dependency Hotspots",
+        "",
+        "| Score | Path | Module | Incoming | Outgoing | Autoload refs |",
+        "|---:|---|---|---:|---:|---:|",
+    ]
+    for row in rows:
+        lines.append(
+            f"| {row['score']} | {row['path']} | {row.get('module') or ''} | "
+            f"{row['incoming']} | {row['outgoing']} | {row['autoload_references']} |"
+        )
+    return lines
+
+
+def _markdown_possible_unused_scripts(report: dict[str, Any]) -> list[str]:
+    rows = report.get("possible_unused_scripts", [])
+    if not rows:
+        return ["", "## Possible Unused Scripts", "", "No possible unused scripts found."]
+    lines = [
+        "",
+        "## Possible Unused Scripts",
+        "",
+        "| Path | Module | Reason |",
+        "|---|---|---|",
+    ]
+    for row in rows:
+        lines.append(f"| {row['path']} | {row.get('module') or ''} | {row['reason']} |")
+    return lines
 
 
 def _sarif(report: dict[str, Any]) -> str:

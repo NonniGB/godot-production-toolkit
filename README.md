@@ -6,11 +6,11 @@
 
 CI-friendly production diagnostics for Godot 4 projects.
 
-Godot Production Toolkit helps solo developers and small teams catch release risks before they become late-stage debugging work: export preset mistakes, texture/import problems, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, and visual regressions.
+Godot Production Toolkit helps catch recurring Godot release risks before they become late-stage debugging work: export preset mistakes, texture/import problems, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, and visual regressions.
 
 It is built as seventeen standalone command-line tools, one umbrella CLI, and one GitHub Action. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
 
-**Fastest path:** choose the workflow closest to the problem in front of you,
+**Quick start:** choose the workflow closest to the problem in front of you,
 copy the command, and keep the report as a local or CI artifact. Install a
 single PyPI package when you need one focused check, use the GitHub Action for
 pull request reports, or use a source checkout when you want the umbrella
@@ -115,7 +115,7 @@ Pick the package that matches the risk you are trying to reduce:
 - `godot-export-preset-doctor`: before an Android, Windows, Linux, or web export job.
 - `godot-asset-pipeline-doctor`: before merging new sprites, UI art, icons, or large textures.
 - `godot-content-graph-doctor`: before merging data-driven items, recipes, quests, levels, or content packs.
-- `godot-gdscript-architecture-guard`: before refactoring modules, autoloads, or shared GDScript code.
+- `godot-gdscript-architecture-guard`: before refactoring modules, autoloads, shared scripts, or high fan-in/fan-out files.
 - `godot-input-map-auditor`: before merging input, controller, or mobile-touch changes.
 - `godot-localization-qa-guard`: before shipping translated builds or importing new localization files.
 - `godot-mobile-perf-doctor`: before testing a Godot 4 project on Android hardware.
@@ -192,7 +192,7 @@ godot-mobile-ui-doctor overlays godot-mobile-ui-doctor\examples\tiny-mobile-ui-p
 godot-scenario-report manifest coverage godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --results godot-scenario-report-kit\examples\tiny-scenario-runs\current --format html --output reports\scenario-coverage.html
 godot-telemetry-lab timeline godot-runtime-telemetry-lab\examples\tiny-runtime-run --format json --output reports\runtime-timeline.json
 godot-scenario-report bundle godot-scenario-report-kit\examples\tiny-scenario-runs\current --manifest godot-scenario-report-kit\examples\tiny-scenario-runs\scenario-manifest.json --telemetry reports\runtime-timeline.json --evidence log=godot-scenario-report-kit\examples\tiny-scenario-runs\run.log --evidence junit=godot-scenario-report-kit\examples\tiny-scenario-runs\junit.xml --format json --output reports\scenario-bundle.json
-godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-architecture-project --config architecture-guard.toml --format markdown
+godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-architecture-project --config architecture-guard.toml --format markdown --output reports\architecture.md --fail-on none
 godot-mobile-ui-doctor matrix godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown
 godot-mobile-ui-doctor overlays godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
 godot-mobile-ui-doctor readiness godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown --fail-on none
@@ -259,7 +259,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-content-graph-doctor` | Data-driven content id, reference, and numeric outlier checks. | JSON, Markdown, Mermaid |
 | `godot-export-preset-doctor` | Release-readiness, target matrix, preset diff, leak-risk, and exported artifact checks. | JSON, SARIF, Markdown, HTML |
 | `gdscript-api-comment-coverage` | Public GDScript API docs and comment coverage gate. | JSON, Markdown |
-| `godot-gdscript-architecture-guard` | GDScript module boundaries, autoload access, and dependency policy checks. | JSON, SARIF, Markdown, Mermaid |
+| `godot-gdscript-architecture-guard` | GDScript module boundaries, autoload access, high fan-in/fan-out files, possible unused scripts, and dependency policy checks. | JSON, SARIF, Markdown, Mermaid |
 | `godot-input-map-auditor` | Input device coverage and duplicate binding checks. | JSON, SARIF, Markdown |
 | `godot-localization-qa-guard` | CSV/PO localization QA, stress translation packs, and translation-key usage scan. | JSON, SARIF, Markdown, CSV |
 | `godot-save-schema-guard` | Save fixture generation, schema validation, and migration command checks. | JSON, Markdown |
@@ -286,7 +286,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | Runtime frame or memory samples need budget checks or timeline reports | `godot-runtime-telemetry-lab` |
 | Pack, DLC, mod, or patch manifests need generation or release checks | `godot-pack-mod-doctor` |
 | Several reports need one static review page | `godot-release-dashboard-kit` |
-| GDScript modules or autoloads are becoming tangled | `godot-gdscript-architecture-guard` |
+| GDScript modules, autoloads, or high fan-in/fan-out files are becoming tangled | `godot-gdscript-architecture-guard` |
 | Translation imports keep breaking placeholders or keys | `godot-localization-qa-guard` |
 | Translated text may overflow buttons, HUDs, or mobile menus | `godot-localization-qa-guard`, `godot-mobile-ui-doctor` |
 | Save data changes need fixture coverage or migration proof | `godot-save-schema-guard` |
@@ -368,7 +368,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.10` |
 | [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.3` |
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.10` |
-| [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.1` |
+| [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.2` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.4` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |

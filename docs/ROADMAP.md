@@ -53,8 +53,8 @@ Suggested labels: `workflow: content-data`, `good first fixture`.
 Useful next work:
 
 - scene contract checks for required child nodes, groups, signals, and methods;
-- architecture dead-zone reports for likely unused scripts/resources;
-- ownership and hotspot summaries for larger projects.
+- richer possible-unused-script examples that include scenes and class names;
+- configured module owner summaries for larger projects.
 
 Suggested labels: `workflow: gdscript-architecture`, `good first fixture`.
 

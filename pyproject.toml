@@ -20,6 +20,7 @@ keywords = [
   "content-validation",
   "scenario-testing",
   "gdscript",
+  "refactor-safety",
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -52,6 +53,7 @@ repository_topics = [
   "content-validation",
   "scenario-testing",
   "gdscript",
+  "refactor-safety",
 ]
 
 [tool.ruff]

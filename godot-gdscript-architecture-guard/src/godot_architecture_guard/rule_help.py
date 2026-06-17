@@ -19,6 +19,11 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "explanation": "A script loaded another module that is not listed in its allowed dependencies.",
         "suggestion": "Move shared code to an allowed module or update the policy if the dependency is intentional.",
     },
+    "module_path_without_scripts": {
+        "title": "Module path matched no scripts",
+        "explanation": "A configured module path did not match any GDScript files in the project.",
+        "suggestion": "Remove stale module paths or update the pattern after moving scripts.",
+    },
     "autoload_access_violation": {
         "title": "Autoload access is not allowed",
         "explanation": "A module referenced an autoload that is not listed in its allowed autoloads.",

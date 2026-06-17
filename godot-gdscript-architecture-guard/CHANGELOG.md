@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 - 2026-06-17
+
+- Added advisory high fan-in/fan-out file summaries to JSON, text, and Markdown reports.
+- Added possible unused script summaries based on visible `res://` references and `class_name` declarations.
+- Added warnings for configured module path patterns that match no GDScript files.
+
 ## 0.1.1 - 2026-06-15
 
 - Added report metadata and rule explanations to JSON output.

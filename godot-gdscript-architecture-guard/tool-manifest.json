@@ -7,6 +7,9 @@
     "cli": true,
     "machine_output": ["json", "sarif"],
     "human_output": ["text", "markdown", "mermaid"],
+    "high_coupling_summary": true,
+    "possible_unused_script_summary": true,
+    "module_path_coverage": true,
     "visual_interface": "Mermaid dependency graph"
   },
   "run_behavior": {
@@ -26,9 +29,12 @@
       "command": "godot-architecture-guard . --config architecture-guard.toml --format json --output reports/architecture.json"
     },
     {
+      "purpose": "Write a refactor review report with high fan-in/fan-out and possible unused scripts",
+      "command": "godot-architecture-guard . --config architecture-guard.toml --format markdown --output reports/architecture.md --fail-on none"
+    },
+    {
       "purpose": "Generate a dependency graph",
       "command": "godot-architecture-guard . --config architecture-guard.toml --format mermaid --output reports/architecture.mmd --fail-on none"
     }
   ]
 }
-

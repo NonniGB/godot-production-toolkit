@@ -14,10 +14,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     project = Path(args.project)
     try:
-        modules, autoloads = load_policy(_resolve_config(project, Path(args.config)))
+        config_path = _resolve_config(project, Path(args.config))
+        modules, autoloads = load_policy(config_path)
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
-    report = audit_project(project, modules, autoloads)
+    report = audit_project(project, modules, autoloads, config_path)
     rendered = render_mermaid(report) if args.format == "mermaid" else render_report(report, args.format)
     _emit(rendered, args.output)
     return _exit_code(report, args.fail_on)
@@ -32,7 +33,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-architecture-guard",
         description="Check GDScript module boundaries and autoload access policy.",
     )
-    parser.add_argument("--version", action="version", version="godot-architecture-guard 0.1.1")
+    parser.add_argument("--version", action="version", version="godot-architecture-guard 0.1.2")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--config", required=True, help="Architecture policy TOML file.")
     parser.add_argument("--format", choices=["text", "json", "markdown", "sarif", "mermaid"], default="text")

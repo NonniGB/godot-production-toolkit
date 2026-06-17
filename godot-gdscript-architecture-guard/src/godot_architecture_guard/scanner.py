@@ -9,14 +9,28 @@ from .models import Finding, ModulePolicy
 from .rule_help import RULE_HELP, enrich_finding
 
 RESOURCE_RE = re.compile(r"""(?:preload|load)\(\s*["'](res://[^"']+)["']\s*\)""")
+RESOURCE_PATH_RE = re.compile(r"""["']\*?(res://[^"']+\.gd)["']""")
+CLASS_NAME_RE = re.compile(r"^\s*class_name\s+\w+", re.MULTILINE)
+TEXT_REFERENCE_SUFFIXES = {".gd", ".tscn", ".tres", ".cfg", ".godot"}
+HOTSPOT_LIMIT = 10
 
 
-def audit_project(project: Path, modules: tuple[ModulePolicy, ...], autoloads: tuple[str, ...]) -> dict[str, Any]:
+def audit_project(
+    project: Path,
+    modules: tuple[ModulePolicy, ...],
+    autoloads: tuple[str, ...],
+    policy_path: Path | None = None,
+) -> dict[str, Any]:
     root = project.resolve()
+    policy_report_path = _display_path(root, policy_path) if policy_path else "architecture-guard.toml"
     files = sorted(path for path in root.rglob("*.gd") if ".godot" not in path.parts)
     module_by_file = {path: _module_for_path(root, path, modules) for path in files}
+    references_by_file: dict[Path, set[Path]] = {path: set() for path in files}
+    autoload_references_by_file: dict[Path, int] = {path: 0 for path in files}
+    class_name_files: set[Path] = set()
     findings: list[Finding] = []
     edges: set[tuple[str, str]] = set()
+    _check_module_path_coverage(root, files, modules, findings, policy_report_path)
 
     for path in files:
         rel = path.relative_to(root).as_posix()
@@ -31,12 +45,27 @@ def audit_project(project: Path, modules: tuple[ModulePolicy, ...], autoloads: t
                 )
             )
         text = path.read_text(encoding="utf-8", errors="ignore")
+        if CLASS_NAME_RE.search(text):
+            class_name_files.add(path)
+        references_by_file[path].update(_existing_script_targets(root, text))
+        autoload_references_by_file[path] = _count_autoload_references(text, autoloads)
         _check_resource_dependencies(root, rel, text, module, modules, findings, edges)
         _check_autoload_access(rel, text, module, autoloads, findings)
 
+    project_references = _project_script_references(root)
+    hotspots = _build_hotspots(root, files, module_by_file, references_by_file, autoload_references_by_file)
+    possible_unused_scripts = _build_possible_unused_scripts(
+        root,
+        files,
+        module_by_file,
+        references_by_file,
+        project_references,
+        class_name_files,
+    )
+
     return {
         "tool": "godot-gdscript-architecture-guard",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "metadata": {
             "schema_version": "1.1",
             "rule_count": len(RULE_HELP),
@@ -46,6 +75,8 @@ def audit_project(project: Path, modules: tuple[ModulePolicy, ...], autoloads: t
             "scripts": len(files),
             "modules": len(modules),
             "dependencies": len(edges),
+            "hotspots": len(hotspots),
+            "possible_unused_scripts": len(possible_unused_scripts),
             "findings": len(findings),
             "errors": sum(1 for finding in findings if finding.severity == "error"),
             "warnings": sum(1 for finding in findings if finding.severity == "warning"),
@@ -60,6 +91,8 @@ def audit_project(project: Path, modules: tuple[ModulePolicy, ...], autoloads: t
             for module in modules
         },
         "dependencies": [{"source": source, "target": target} for source, target in sorted(edges)],
+        "hotspots": hotspots,
+        "possible_unused_scripts": possible_unused_scripts,
         "findings": [enrich_finding(finding.to_dict()) for finding in findings],
     }
 
@@ -73,6 +106,40 @@ def render_mermaid(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _check_module_path_coverage(
+    root: Path,
+    files: list[Path],
+    modules: tuple[ModulePolicy, ...],
+    findings: list[Finding],
+    policy_report_path: str,
+) -> None:
+    rel_files = [path.relative_to(root).as_posix() for path in files]
+    for module in modules:
+        for pattern in module.paths:
+            if any(fnmatch.fnmatch(rel, pattern) for rel in rel_files):
+                continue
+            findings.append(
+                Finding(
+                    rule_id="module_path_without_scripts",
+                    severity="warning",
+                    path=policy_report_path,
+                    module=module.name,
+                    target=pattern,
+                    message=f"Module {module.name} path pattern {pattern} did not match any GDScript files.",
+                )
+            )
+
+
+def _display_path(root: Path, path: Path | None) -> str:
+    if path is None:
+        return "architecture-guard.toml"
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(root).as_posix()
+    except ValueError:
+        return path.name
+
+
 def _check_resource_dependencies(
     root: Path,
     rel: str,
@@ -82,8 +149,7 @@ def _check_resource_dependencies(
     findings: list[Finding],
     edges: set[tuple[str, str]],
 ) -> None:
-    for match in RESOURCE_RE.finditer(text):
-        target_res = match.group(1)
+    for target_res in _load_targets(text):
         target_path = root / target_res.removeprefix("res://")
         target_module = _module_for_res_path(target_res, modules)
         if not target_path.exists():
@@ -137,6 +203,98 @@ def _check_autoload_access(
                     message=f"{module.name} accesses autoload {name}, which is not allowed by policy.",
                 )
             )
+
+
+def _load_targets(text: str) -> list[str]:
+    return [match.group(1) for match in RESOURCE_RE.finditer(text)]
+
+
+def _existing_script_targets(root: Path, text: str) -> set[Path]:
+    targets: set[Path] = set()
+    for match in RESOURCE_PATH_RE.finditer(text):
+        target = root / match.group(1).removeprefix("res://")
+        if target.exists() and target.suffix == ".gd":
+            targets.add(target.resolve())
+    return targets
+
+
+def _count_autoload_references(text: str, autoloads: tuple[str, ...]) -> int:
+    return sum(len(re.findall(rf"\b{re.escape(name)}\b", text)) for name in autoloads)
+
+
+def _project_script_references(root: Path) -> set[Path]:
+    references: set[Path] = set()
+    for path in root.rglob("*"):
+        if not path.is_file() or ".godot" in path.parts:
+            continue
+        if path.suffix not in TEXT_REFERENCE_SUFFIXES and path.name != "project.godot":
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        references.update(_existing_script_targets(root, text))
+    return references
+
+
+def _build_hotspots(
+    root: Path,
+    files: list[Path],
+    module_by_file: dict[Path, ModulePolicy | None],
+    references_by_file: dict[Path, set[Path]],
+    autoload_references_by_file: dict[Path, int],
+) -> list[dict[str, object]]:
+    incoming_counts = {path: 0 for path in files}
+    for source, targets in references_by_file.items():
+        for target in targets:
+            if target != source and target in incoming_counts:
+                incoming_counts[target] += 1
+
+    rows: list[dict[str, object]] = []
+    for path in files:
+        outgoing = len({target for target in references_by_file[path] if target != path})
+        incoming = incoming_counts[path]
+        autoload_refs = autoload_references_by_file[path]
+        score = incoming * 2 + outgoing + autoload_refs
+        if score <= 0:
+            continue
+        module = module_by_file[path]
+        rows.append(
+            {
+                "path": path.relative_to(root).as_posix(),
+                "module": module.name if module else None,
+                "incoming": incoming,
+                "outgoing": outgoing,
+                "autoload_references": autoload_refs,
+                "score": score,
+            }
+        )
+    rows.sort(key=lambda item: (-int(item["score"]), str(item["path"])))
+    return rows[:HOTSPOT_LIMIT]
+
+
+def _build_possible_unused_scripts(
+    root: Path,
+    files: list[Path],
+    module_by_file: dict[Path, ModulePolicy | None],
+    references_by_file: dict[Path, set[Path]],
+    project_references: set[Path],
+    class_name_files: set[Path],
+) -> list[dict[str, object]]:
+    referenced = set(project_references)
+    for targets in references_by_file.values():
+        referenced.update(targets)
+
+    rows: list[dict[str, object]] = []
+    for path in files:
+        if path in referenced or path in class_name_files:
+            continue
+        module = module_by_file[path]
+        rows.append(
+            {
+                "path": path.relative_to(root).as_posix(),
+                "module": module.name if module else None,
+                "reason": "No res:// reference or class_name declaration was found.",
+            }
+        )
+    return rows
 
 
 def _module_for_path(root: Path, path: Path, modules: tuple[ModulePolicy, ...]) -> ModulePolicy | None:
