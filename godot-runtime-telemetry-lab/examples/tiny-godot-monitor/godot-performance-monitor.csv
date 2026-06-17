@@ -1,0 +1,3 @@
+scenario,phase,Performance.TIME_PROCESS,Performance.TIME_PHYSICS_PROCESS,Performance.RENDER_VIDEO_MEM_USED,Performance.OBJECT_NODE_COUNT,Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME
+flight,launch,0.012,0.003,188743680,64,9
+flight,combat,0.026,0.006,209715200,80,12

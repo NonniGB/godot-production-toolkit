@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-runtime-telemetry-lab` adapters for official Godot
+  Performance monitor time and memory units.
 - Improved `godot-release-dashboard-kit` with export artifact evidence cards
   for exported-folder and exported-file-list reports.
 - Improved `godot-release-dashboard-kit` with scenario flake and retry evidence

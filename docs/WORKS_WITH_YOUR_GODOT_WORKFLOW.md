@@ -83,8 +83,8 @@ Several packages are useful even when they never open a Godot project directly:
 
 - `godot-scenario-report-kit` summarizes JSON or JUnit XML outputs from your own
   scenario or test runner.
-- `godot-runtime-telemetry-lab` compares runtime samples, budgets, and timelines
-  that your project already emitted.
+- `godot-runtime-telemetry-lab` adapts and compares runtime samples, budgets,
+  and timelines that your project already emitted.
 - `godot-visual-smoke-test-kit` compares screenshots and manages visual baselines.
 - `godot-mobile-ui-doctor` checks exported UI rectangle metadata.
 - `godot-release-dashboard-kit` turns existing reports and screenshots into a
@@ -115,7 +115,7 @@ the package command requires the Godot executable in order to run.
 | `godot-mobile-ui-doctor` | No | Reads exported UI metadata such as `mobile-ui.json`. Your project may use Godot to produce that file, but the doctor reads the artifact. |
 | `godot-pack-mod-doctor` | No | Reads pack, DLC, mod, or patch manifests. |
 | `godot-release-dashboard-kit` | No | Builds workflow-grouped static HTML dashboards from existing toolkit reports and visual artifacts, with optional previous-run comparison cards. |
-| `godot-runtime-telemetry-lab` | No | Reads telemetry files emitted by your own runtime or scenario runs. |
+| `godot-runtime-telemetry-lab` | No | Reads telemetry files emitted by your own runtime or scenario runs, including normalized Godot `Performance` monitor CSV/JSON. |
 | `godot-save-schema-guard` | No | Reads save fixtures, schemas, and migration command metadata; writes generated or migrated fixtures only when requested. |
 | `godot-scenario-report-kit` | No | Reads scenario manifests, JSON results, JUnit XML, and result artifacts from your own test runner. |
 | `godot-scene-signal-auditor` | No | Statically reads scenes, scripts, signal connections, and autoload usage. |

@@ -24,6 +24,7 @@ godot-telemetry-lab summarize reports\runtime --format markdown --output reports
 godot-telemetry-lab compare reports\baseline reports\current --format json --output reports\runtime-compare.json
 godot-telemetry-lab timeline reports\runtime --format html --output reports\runtime-timeline.html
 godot-telemetry-lab adapt reports\godot-monitor.csv --format json --output reports\runtime-normalized.json
+godot-telemetry-lab adapt godot-runtime-telemetry-lab\examples\tiny-godot-monitor\godot-performance-monitor.csv --format json --output reports\runtime-normalized.json
 godot-telemetry-lab budget init --profile android-high --output reports\runtime-budget.json
 ```
 
@@ -49,6 +50,12 @@ Use `adapt` when a project-owned Godot exporter writes monitor names such as
 `fps`, `Performance.MEMORY_STATIC`, `Performance.OBJECT_NODE_COUNT`, or
 `Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME`. The command emits normalized
 `samples` that can be fed back into `summarize`, `compare`, or `timeline`.
+For official Godot `Performance` monitors, `adapt` treats
+`Performance.TIME_PROCESS` and `Performance.TIME_PHYSICS_PROCESS` as seconds
+and converts them to milliseconds. Memory monitors such as
+`Performance.MEMORY_STATIC`, `Performance.RENDER_VIDEO_MEM_USED`,
+`Performance.RENDER_TEXTURE_MEM_USED`, and
+`Performance.RENDER_BUFFER_MEM_USED` are treated as bytes and converted to MiB.
 
 ## Commands
 
@@ -81,4 +88,10 @@ The package includes a tiny runtime fixture:
 
 ```powershell
 godot-telemetry-lab timeline godot-runtime-telemetry-lab\examples\tiny-runtime-run --format html --output reports\runtime-timeline.html
+```
+
+It also includes a tiny Godot monitor CSV fixture:
+
+```powershell
+godot-telemetry-lab adapt godot-runtime-telemetry-lab\examples\tiny-godot-monitor\godot-performance-monitor.csv --format json --output reports\runtime-normalized.json
 ```

@@ -242,6 +242,9 @@ summaries, budget checks, baseline comparisons, and HTML timelines.
 
 Use `godot-telemetry-lab adapt` first when a project-owned Godot exporter writes
 common monitor names rather than the toolkit's normalized field names.
+The adapter understands official Godot `Performance` time monitors as seconds
+and memory monitors as bytes, then emits milliseconds and MiB for the rest of
+the toolkit.
 
 For CI, start with the [runtime telemetry budget recipe](ci/runtime-telemetry-budget.yml).
 The [runtime telemetry gallery sample](report-gallery/README.md#start-here)

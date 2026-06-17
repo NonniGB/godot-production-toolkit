@@ -201,12 +201,26 @@ def _adapt_sample(sample: dict[str, Any], index: int) -> dict[str, Any]:
         "frame_time_ms",
         "delta_ms",
         "process_ms",
-        "Performance.TIME_PROCESS",
     )
+    performance_process_s = _first_number(sample, "Performance.TIME_PROCESS")
+    if frame_ms is None and performance_process_s is not None:
+        frame_ms = performance_process_s * 1000.0
     if frame_ms is None and fps and fps > 0:
         frame_ms = 1000.0 / fps
-    physics_ms = _first_number(sample, "physics_ms", "physics_frame_ms", "physics_process_ms", "Performance.TIME_PHYSICS_PROCESS")
-    memory_mb = _first_number(sample, "memory_mb", "static_memory_mb", "memory_static_mb", "Performance.MEMORY_STATIC")
+    physics_ms = _first_number(sample, "physics_ms", "physics_frame_ms", "physics_process_ms")
+    performance_physics_s = _first_number(sample, "Performance.TIME_PHYSICS_PROCESS")
+    if physics_ms is None and performance_physics_s is not None:
+        physics_ms = performance_physics_s * 1000.0
+    memory_mb = _first_number(
+        sample,
+        "memory_mb",
+        "static_memory_mb",
+        "memory_static_mb",
+        "Performance.MEMORY_STATIC",
+        "Performance.RENDER_VIDEO_MEM_USED",
+        "Performance.RENDER_TEXTURE_MEM_USED",
+        "Performance.RENDER_BUFFER_MEM_USED",
+    )
     if memory_mb is not None and memory_mb > 4096:
         memory_mb = memory_mb / 1048576.0
     return {

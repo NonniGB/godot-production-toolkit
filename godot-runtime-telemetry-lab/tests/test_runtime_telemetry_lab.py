@@ -28,7 +28,7 @@ class RuntimeTelemetryLabTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.2")
+            self.assertEqual(report["tool_version"], "0.1.3")
             self.assertEqual(report["summary"]["samples"], 2)
             self.assertEqual(report["findings"][0]["rule_id"], "frame_p95_over_budget")
 
@@ -115,6 +115,31 @@ class RuntimeTelemetryLabTests(unittest.TestCase):
             self.assertAlmostEqual(report["samples"][0]["memory_mb"], 100.0)
             self.assertEqual(report["samples"][0]["nodes"], 42)
             self.assertEqual(report["samples"][0]["draw_calls"], 8)
+
+    def test_adapt_converts_godot_performance_seconds_and_memory_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "godot-performance.csv"
+            path.write_text(
+                "scenario,Performance.TIME_PROCESS,Performance.TIME_PHYSICS_PROCESS,"
+                "Performance.RENDER_VIDEO_MEM_USED,Performance.OBJECT_NODE_COUNT,"
+                "Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME\n"
+                "flight,0.018,0.004,209715200,80,12\n",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["adapt", str(path), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            sample = report["samples"][0]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(sample["scenario"], "flight")
+            self.assertAlmostEqual(sample["frame_ms"], 18.0)
+            self.assertAlmostEqual(sample["physics_ms"], 4.0)
+            self.assertAlmostEqual(sample["memory_mb"], 200.0)
+            self.assertEqual(sample["nodes"], 80)
+            self.assertEqual(sample["draw_calls"], 12)
 
 
 if __name__ == "__main__":

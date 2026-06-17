@@ -33,7 +33,7 @@
       "command": "godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html"
     },
     {
-      "purpose": "Normalize common Godot monitor output",
+      "purpose": "Normalize common Godot monitor output, including Performance monitor seconds and byte counters",
       "command": "godot-telemetry-lab adapt reports/godot-monitor.csv --format json --output reports/runtime-normalized.json"
     },
     {
