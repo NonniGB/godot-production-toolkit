@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.7 - 2026-06-17
+
+- `flake compare` now groups repeated attempts of the same scenario inside a
+  run folder or result file.
+- JSON, text, Markdown, and HTML reports include retried scenario counts,
+  attempt totals, ordered statuses, and the final status for each retry group.
+- Added a tiny retry fixture and tests for runners that retry failed scenarios
+  before producing a final pass/fail result.
+
 ## 0.1.6 - 2026-06-17
 
 - `summarize`, `compare`, `manifest`, `flake`, and `bundle` now read JUnit XML

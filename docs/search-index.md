@@ -221,9 +221,9 @@ on changed findings rather than re-reading every report from scratch.
 
 Use [`godot-scenario-report-kit`](../godot-scenario-report-kit/README.md) for
 scenario evidence, manifest coverage, flake comparison, baseline comparison,
-JUnit XML summaries, and HTML summaries. It is designed for JSON output from
-scenario runners, smoke tests, custom harnesses, and JUnit XML from existing
-Godot test runners.
+retry grouping, JUnit XML summaries, and HTML summaries. It is designed for
+JSON output from scenario runners, smoke tests, custom harnesses, and JUnit XML
+from existing Godot test runners.
 
 Use `godot-scenario-report bundle` when scenario results should point reviewers
 to the nearby files that explain the run: screenshots, logs, JUnit XML, runtime

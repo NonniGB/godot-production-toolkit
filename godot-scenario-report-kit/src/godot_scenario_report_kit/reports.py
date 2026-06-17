@@ -148,6 +148,8 @@ def _text(report: dict[str, Any]) -> str:
         )
     if report.get("flake_groups"):
         lines.append(f"Flaky scenarios: {len(report['flake_groups'])}")
+    if report.get("retry_groups"):
+        lines.append(f"Retried scenarios: {len(report['retry_groups'])}")
     if report.get("bundle"):
         lines.append(
             "Bundle: "
@@ -210,6 +212,21 @@ def _markdown(report: dict[str, Any]) -> str:
             lines.append(
                 f"| {group['scenario']} | {', '.join(group['statuses'])} | {len(group['observations'])} |"
             )
+    if report.get("retry_groups"):
+        lines.extend(
+            [
+                "",
+                "## Retried Scenarios",
+                "",
+                "| Scenario | Run | Attempts | Statuses | Final status |",
+                "|---|---|---:|---|---|",
+            ]
+        )
+        for group in report["retry_groups"]:
+            lines.append(
+                f"| {group['scenario']} | {group['run']} | {group['attempts']} | "
+                f"{', '.join(group['statuses'])} | {group['final_status']} |"
+            )
     if report.get("bundle"):
         lines.extend(_bundle_markdown(report["bundle"]))
     return "\n".join(lines)
@@ -260,6 +277,22 @@ def _html(report: dict[str, Any]) -> str:
                 "</tr>"
             )
         flake_rows.append("</tbody></table>")
+    retry_rows: list[str] = []
+    if report.get("retry_groups"):
+        retry_rows = [
+            "<h2>Retried Scenarios</h2><table><thead><tr><th>Scenario</th><th>Run</th><th>Attempts</th><th>Statuses</th><th>Final status</th></tr></thead><tbody>"
+        ]
+        for group in report["retry_groups"]:
+            retry_rows.append(
+                "<tr>"
+                f"<td>{escape(str(group['scenario']))}</td>"
+                f"<td>{escape(str(group['run']))}</td>"
+                f"<td>{int(group['attempts'])}</td>"
+                f"<td>{escape(', '.join(group['statuses']))}</td>"
+                f"<td>{escape(str(group['final_status']))}</td>"
+                "</tr>"
+            )
+        retry_rows.append("</tbody></table>")
     bundle_rows = _bundle_html(report.get("bundle"))
     return "\n".join(
         [
@@ -280,6 +313,7 @@ def _html(report: dict[str, Any]) -> str:
             "</tbody></table>",
             *coverage_rows,
             *flake_rows,
+            *retry_rows,
             *bundle_rows,
             "</body></html>",
         ]

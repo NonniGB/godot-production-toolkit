@@ -1,0 +1,27 @@
+{
+  "results": [
+    {
+      "scenario": "trade_flow",
+      "status": "failed",
+      "duration_ms": 1510,
+      "assertions": [
+        {
+          "name": "trade completed",
+          "status": "failed",
+          "message": "The buy order did not complete before timeout."
+        }
+      ]
+    },
+    {
+      "scenario": "trade_flow",
+      "status": "passed",
+      "duration_ms": 1320,
+      "assertions": [
+        {
+          "name": "trade completed",
+          "status": "passed"
+        }
+      ]
+    }
+  ]
+}

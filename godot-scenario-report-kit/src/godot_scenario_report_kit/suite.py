@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from .loader import load_results
 from .models import Finding, ScenarioResult
@@ -41,15 +41,33 @@ def flake_compare(paths: list[Path]) -> dict[str, Any]:
     findings: list[Finding] = []
     runs: list[dict[str, Any]] = []
     by_scenario: dict[str, list[dict[str, Any]]] = {}
+    retry_groups: list[dict[str, Any]] = []
     for path in paths:
         results, result_findings = load_results(path)
         findings.extend(result_findings)
         run = {"path": str(path), "scenarios": len(results)}
         runs.append(run)
+        by_run_scenario: dict[str, list[dict[str, Any]]] = {}
         for result in results:
-            by_scenario.setdefault(result.name, []).append(
-                {"status": result.status, "duration_ms": result.duration_ms, "source": result.source}
+            observation = {"status": result.status, "duration_ms": result.duration_ms, "source": result.source}
+            by_scenario.setdefault(result.name, []).append(observation)
+            by_run_scenario.setdefault(result.name, []).append(observation)
+        run_retries = 0
+        for name, observations in sorted(by_run_scenario.items()):
+            if len(observations) <= 1:
+                continue
+            run_retries += 1
+            retry_groups.append(
+                {
+                    "scenario": name,
+                    "run": str(path),
+                    "attempts": len(observations),
+                    "statuses": _unique_in_order(str(item["status"]) for item in observations),
+                    "final_status": str(observations[-1]["status"]),
+                    "observations": observations,
+                }
             )
+        run["retried_scenarios"] = run_retries
     flake_groups: list[dict[str, Any]] = []
     scenario_rows: list[ScenarioResult] = []
     for name, observations in sorted(by_scenario.items()):
@@ -78,8 +96,18 @@ def flake_compare(paths: list[Path]) -> dict[str, Any]:
     report = _report("flake_compare", scenario_rows, findings)
     report["runs"] = runs
     report["flake_groups"] = flake_groups
+    report["retry_groups"] = retry_groups
     report["summary"]["flaky"] = len(flake_groups)
+    report["summary"]["retried"] = len(retry_groups)
     return report
+
+
+def _unique_in_order(values: Iterable[str]) -> list[str]:
+    unique: list[str] = []
+    for value in values:
+        if value not in unique:
+            unique.append(value)
+    return unique
 
 
 def bundle(

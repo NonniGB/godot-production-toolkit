@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-scenario-report-kit` flake reports with retry grouping for
+  repeated scenario attempts inside a single run folder or result file.
 - Improved `godot-gdscript-architecture-guard` with module ownership summaries
   for refactor review reports.
 - Improved `godot-save-schema-guard` with before-and-after migration comparison

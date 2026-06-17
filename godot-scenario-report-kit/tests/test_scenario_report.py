@@ -36,7 +36,7 @@ class ScenarioReportTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.6")
+            self.assertEqual(report["tool_version"], "0.1.7")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("scenario_failed", report["metadata"]["rules"])
             self.assertEqual(report["summary"]["scenarios"], 1)
@@ -260,6 +260,36 @@ class ScenarioReportTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertIn("flaky_scenario", markdown)
             self.assertIn("Flaky Scenarios", markdown)
+
+    def test_flake_compare_groups_retried_scenario_attempts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            run = root / "retry-run"
+            run.mkdir()
+            (run / "attempts.json").write_text(
+                json.dumps(
+                    {
+                        "results": [
+                            {"scenario": "trade_loop", "status": "failed", "duration_ms": 140},
+                            {"scenario": "trade_loop", "status": "passed", "duration_ms": 120},
+                            {"scenario": "dock_menu", "status": "passed", "duration_ms": 50},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["flake", "compare", str(run), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["retried"], 1)
+            self.assertEqual(report["retry_groups"][0]["scenario"], "trade_loop")
+            self.assertEqual(report["retry_groups"][0]["attempts"], 2)
+            self.assertEqual(report["retry_groups"][0]["statuses"], ["failed", "passed"])
+            self.assertEqual(report["retry_groups"][0]["final_status"], "passed")
 
     def test_bundle_links_telemetry_visual_and_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

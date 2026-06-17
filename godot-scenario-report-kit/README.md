@@ -48,6 +48,13 @@ Compare repeated runs for flaky status changes:
 godot-scenario-report flake compare examples\tiny-scenario-runs\baseline examples\tiny-scenario-runs\current examples\tiny-scenario-runs\repeat-run --format markdown
 ```
 
+Group retries from a runner that records multiple attempts in one result file
+or folder:
+
+```powershell
+godot-scenario-report flake compare examples\tiny-scenario-runs\retry-run --format markdown
+```
+
 Bundle scenario evidence with nearby telemetry and visual reports:
 
 ```powershell
@@ -90,7 +97,9 @@ produce skipped scenarios.
 - duration regressions compared with a baseline.
 - manifest entries without results, owners, tags, or expected artifacts;
 - missing required tag, platform, or critical-flow coverage;
-- scenarios whose status changes across repeated runs.
+- scenarios whose status changes across repeated runs;
+- retried scenarios, including attempt count, ordered statuses, and final
+  status.
 - missing artifacts or linked evidence paths in a bundle report, including
   telemetry, visual smoke, logs, JUnit XML, profiler captures, or other review
   files.

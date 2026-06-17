@@ -30,6 +30,7 @@ Compare repeated runs before trusting a newly passing suite:
 
 ```powershell
 godot-scenario-report flake compare reports\run-1 reports\run-2 reports\run-3 --format markdown --output reports\scenario-flakes.md
+godot-scenario-report flake compare reports\retry-run --format markdown --output reports\scenario-retries.md
 ```
 
 Build a review bundle for PR or release artifacts:

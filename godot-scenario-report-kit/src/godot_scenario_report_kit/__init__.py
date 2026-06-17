@@ -1,3 +1,3 @@
 """Scenario evidence reports for Godot projects."""
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"

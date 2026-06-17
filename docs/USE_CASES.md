@@ -203,6 +203,7 @@ godot-scenario-report summarize reports\junit.xml --format markdown --output rep
 godot-scenario-report compare reports\baseline reports\current --format markdown --output reports\scenario-compare.md
 godot-scenario-report manifest coverage scenario-manifest.json --results reports\scenarios --format html --output reports\scenario-coverage.html
 godot-scenario-report flake compare reports\run-1 reports\run-2 reports\run-3 --format markdown --output reports\scenario-flakes.md
+godot-scenario-report flake compare reports\retry-run --format markdown --output reports\scenario-retries.md
 godot-scenario-report bundle reports\scenarios --telemetry reports\runtime-timeline.html --visual reports\visual-smoke.json --evidence log=reports\scenario-run.log --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
 ```
 

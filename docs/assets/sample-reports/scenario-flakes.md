@@ -9,7 +9,7 @@
 | Scenario | Status | Duration ms | Assertions |
 |---|---|---:|---:|
 | menu_startup | warning | 2710.0 | 0 |
-| trade_flow | warning | 3720.0 | 0 |
+| trade_flow | warning | 6550.0 | 0 |
 
 ## Findings
 
@@ -23,4 +23,10 @@
 | Scenario | Statuses | Observations |
 |---|---|---:|
 | menu_startup | failed, passed | 3 |
-| trade_flow | failed, passed | 2 |
+| trade_flow | failed, passed | 4 |
+
+## Retried Scenarios
+
+| Scenario | Run | Attempts | Statuses | Final status |
+|---|---|---:|---|---|
+| trade_flow | godot-scenario-report-kit\examples\tiny-scenario-runs\retry-run | 2 | failed, passed | passed |
