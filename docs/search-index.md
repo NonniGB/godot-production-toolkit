@@ -237,7 +237,9 @@ shows how to publish it as a workflow artifact.
 
 Scenario bundle JSON from `godot-scenario-report-kit` is a dashboard-friendly
 input when scenario results should point to the logs, JUnit XML, screenshots, or
-telemetry files that explain a run.
+telemetry files that explain a run. Runtime telemetry JSON or Markdown can be
+summarized into compact frame, memory, sample, and spike metrics inside the
+bundle.
 
 The [report gallery](report-gallery/README.md) includes a dashboard demo, sample
 HTML, screenshot, fixture, and regeneration command.

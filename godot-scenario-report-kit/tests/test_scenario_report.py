@@ -36,7 +36,7 @@ class ScenarioReportTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.4")
+            self.assertEqual(report["tool_version"], "0.1.5")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("scenario_failed", report["metadata"]["rules"])
             self.assertEqual(report["summary"]["scenarios"], 1)
@@ -231,7 +231,168 @@ class ScenarioReportTests(unittest.TestCase):
             self.assertEqual(report["summary"]["artifacts"], 2)
             self.assertIn("telemetry", report["bundle"]["links"])
             self.assertIn("visual", report["bundle"]["links"])
+            self.assertEqual(report["bundle"]["telemetry_summary"]["samples"], 1)
+            self.assertEqual(report["bundle"]["telemetry_summary"]["frame_max_ms"], 12.0)
             self.assertIn("bundle_missing_artifact", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_bundle_summarizes_runtime_telemetry_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            results = root / "results"
+            results.mkdir()
+            telemetry = root / "runtime-summary.json"
+            telemetry.write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-runtime-telemetry-lab",
+                        "kind": "runtime_telemetry_timeline",
+                        "summary": {
+                            "samples": 3,
+                            "scenarios": ["menu"],
+                            "frame_ms": {"p95": 21.5, "max": 33.1},
+                            "memory_mb": {"max": 256.0},
+                            "spikes": 2,
+                            "warnings": 1,
+                            "errors": 0,
+                        },
+                        "samples": [{"frame_ms": 12}, {"frame_ms": 21.5}, {"frame_ms": 33.1}],
+                        "findings": [{"severity": "warning", "rule_id": "frame_over_budget"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (results / "menu.json").write_text(
+                json.dumps({"scenario": "menu", "status": "passed"}),
+                encoding="utf-8",
+            )
+
+            json_stdout = StringIO()
+            with redirect_stdout(json_stdout):
+                json_exit = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--telemetry",
+                        str(telemetry),
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            markdown_stdout = StringIO()
+            with redirect_stdout(markdown_stdout):
+                markdown_exit = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--telemetry",
+                        str(telemetry),
+                        "--format",
+                        "markdown",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(json_stdout.getvalue())
+            self.assertEqual(json_exit, 0)
+            self.assertEqual(markdown_exit, 0)
+            telemetry_summary = report["bundle"]["telemetry_summary"]
+            self.assertEqual(report["summary"]["telemetry_samples"], 3)
+            self.assertEqual(report["summary"]["telemetry_warnings"], 1)
+            self.assertEqual(telemetry_summary["kind"], "runtime_telemetry_timeline")
+            self.assertEqual(telemetry_summary["frame_p95_ms"], 21.5)
+            self.assertEqual(telemetry_summary["frame_max_ms"], 33.1)
+            self.assertEqual(telemetry_summary["memory_max_mb"], 256.0)
+            self.assertEqual(telemetry_summary["spikes"], 2)
+            self.assertIn("| Frame p95 ms | 21.50 |", markdown_stdout.getvalue())
+
+    def test_bundle_summarizes_runtime_telemetry_markdown(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            results = root / "results"
+            results.mkdir()
+            telemetry = root / "runtime.md"
+            telemetry.write_text(
+                "\n".join(
+                    [
+                        "# Godot Runtime Telemetry Timeline",
+                        "",
+                        "| Metric | Value |",
+                        "|---|---:|",
+                        "| Samples | 5 |",
+                        "| Frame p95 ms | 24.50 |",
+                        "| Frame max ms | 35.00 |",
+                        "| Spikes | 2 |",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (results / "menu.json").write_text(
+                json.dumps({"scenario": "menu", "status": "passed"}),
+                encoding="utf-8",
+            )
+
+            stdout = StringIO()
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--telemetry",
+                        str(telemetry),
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            telemetry_summary = report["bundle"]["telemetry_summary"]
+            self.assertEqual(report["summary"]["telemetry_samples"], 5)
+            self.assertEqual(report["summary"]["telemetry_spikes"], 2)
+            self.assertEqual(telemetry_summary["kind"], "runtime_telemetry_markdown")
+            self.assertEqual(telemetry_summary["frame_p95_ms"], 24.5)
+            self.assertEqual(telemetry_summary["frame_max_ms"], 35.0)
+
+    def test_bundle_enriches_unreadable_telemetry_finding(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            results = root / "results"
+            results.mkdir()
+            telemetry = root / "runtime.json"
+            telemetry.write_text("{broken", encoding="utf-8")
+            (results / "menu.json").write_text(
+                json.dumps({"scenario": "menu", "status": "passed"}),
+                encoding="utf-8",
+            )
+
+            stdout = StringIO()
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--telemetry",
+                        str(telemetry),
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            finding = next(
+                item for item in report["findings"] if item["rule_id"] == "bundle_telemetry_unreadable"
+            )
+            self.assertEqual(finding["rule_title"], "Telemetry summary could not be read")
+            self.assertIn("Linked telemetry JSON", finding["message"])
 
     def test_bundle_accepts_custom_evidence_links(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

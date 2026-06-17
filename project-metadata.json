@@ -71,7 +71,7 @@
     },
     {
       "name": "godot-scenario-report-kit",
-      "role": "Scenario run evidence validation, manifests, coverage checks, flake comparison, reviewer bundles, summary, and baseline comparison.",
+      "role": "Scenario run evidence validation, manifests, coverage checks, flake comparison, reviewer bundles, telemetry summaries, and baseline comparison.",
       "interfaces": ["cli", "json", "markdown", "html"]
     },
     {
@@ -101,7 +101,7 @@
     },
     {
       "name": "godot-release-dashboard-kit",
-      "role": "Static dashboard builder for toolkit reports, visual artifacts, and scenario evidence folders.",
+      "role": "Static dashboard builder for toolkit reports, visual artifacts, scenario evidence, and compact telemetry summaries.",
       "interfaces": ["cli", "html", "json"]
     },
     {
@@ -180,6 +180,7 @@
     "docs/assets/sample-reports/localization-stress/stress-pack-manifest.json",
     "docs/assets/sample-reports/runtime-telemetry-timeline.html",
     "docs/assets/sample-reports/runtime-telemetry-timeline.svg",
+    "godot-release-dashboard-kit/examples/tiny-release-evidence/runtime-timeline.json",
     "docs/assets/sample-reports/sprite-manifest.txt",
     "docs/assets/screenshots/project-doctor-html-report.png",
     "docs/assets/screenshots/project-doctor-terminal.png",

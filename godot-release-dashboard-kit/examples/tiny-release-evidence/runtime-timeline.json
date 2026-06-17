@@ -1,0 +1,31 @@
+{
+  "tool": "godot-runtime-telemetry-lab",
+  "tool_version": "0.1.2",
+  "schema_version": "1.0",
+  "kind": "runtime_telemetry_timeline",
+  "summary": {
+    "samples": 18,
+    "scenarios": ["menu_startup", "trade_flow"],
+    "errors": 0,
+    "warnings": 1,
+    "frame_ms": {"min": 11.8, "avg": 15.7, "p95": 21.5, "max": 33.1},
+    "physics_ms": {"min": 1.2, "avg": 2.4, "p95": 4.1, "max": 5.0},
+    "memory_mb": {"min": 190.0, "avg": 218.4, "p95": 252.0, "max": 256.0},
+    "nodes": {"min": 120, "avg": 148, "p95": 170, "max": 174},
+    "draw_calls": {"min": 22, "avg": 30, "p95": 39, "max": 42},
+    "frame_budget_ms": 16.67,
+    "memory_budget_mb": 768,
+    "phases": [
+      {"name": "startup", "start_index": 0, "end_index": 5},
+      {"name": "trade", "start_index": 6, "end_index": 17}
+    ],
+    "spikes": 2
+  },
+  "findings": [
+    {
+      "rule_id": "frame_p95_over_budget",
+      "severity": "warning",
+      "message": "Frame p95 is 21.50 ms, above the 16.67 ms budget."
+    }
+  ]
+}

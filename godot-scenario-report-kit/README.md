@@ -45,7 +45,8 @@ godot-scenario-report flake compare examples\tiny-scenario-runs\baseline example
 Bundle scenario evidence with nearby telemetry and visual reports:
 
 ```powershell
-godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --telemetry reports\runtime-timeline.html --visual reports\visual-smoke.json --evidence log=reports\scenario-run.log --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
+godot-telemetry-lab timeline reports\runtime --format json --output reports\runtime-timeline.json
+godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --telemetry reports\runtime-timeline.json --visual reports\visual-smoke.json --evidence log=reports\scenario-run.log --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
 ```
 
 ## Result Shape
@@ -117,6 +118,11 @@ The `bundle` command is intended for release dashboards and PR artifacts. It
 does not rewrite project-owned evidence; it builds a compact manifest of
 scenario results, listed artifacts, and optional telemetry or visual-smoke
 reports so reviewers can see which files belong together.
+
+When `--telemetry` points at JSON from `godot-runtime-telemetry-lab`, the bundle
+adds a compact `telemetry_summary` with sample count, frame p95, frame max,
+memory max, spike count, and finding counts. Raw telemetry samples are not
+copied into the bundle.
 
 Use `--evidence KIND=PATH` for extra files that help a human review the run,
 such as `log=reports\run.log`, `junit=reports\junit.xml`, or

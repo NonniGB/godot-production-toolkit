@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 - 2026-06-17
+
+- Scenario bundles now summarize linked JSON runtime telemetry reports with samples, scenarios, frame p95, frame max, memory max, spike, warning, and error counts.
+- Markdown and HTML bundle reports show compact telemetry metrics without copying raw telemetry samples into the bundle.
+- Raw JSON sample files passed through `--telemetry` now get a small summary when possible.
+
 ## 0.1.4 - 2026-06-17
 
 - Added repeatable `--evidence KIND=PATH` links for scenario bundles, so run logs, JUnit XML, profiler captures, crash reports, or other review files can be listed beside scenario results.

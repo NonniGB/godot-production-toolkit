@@ -76,6 +76,8 @@ def render_html(dashboard: dict[str, Any]) -> str:
             f"<div class=\"metric warn\">Warnings: {summary['warnings']}</div>",
             f"<div class=\"metric\">Scenario bundles: {summary['scenario_bundles']}</div>",
             f"<div class=\"metric\">Scenarios: {summary['scenario_passed']}/{summary['scenarios']} passed</div>",
+            f"<div class=\"metric\">Telemetry samples: {summary['scenario_telemetry_samples']}</div>",
+            f"<div class=\"metric warn\">Telemetry spikes: {summary['scenario_telemetry_spikes']}</div>",
             "</div>",
             "<h2>Reports</h2>",
             "<div class=\"grid\">",
@@ -189,6 +191,7 @@ def _scenario_bundle_details(data: dict[str, Any]) -> dict[str, Any]:
             **scenario_counts,
             "evidence_links": evidence,
             "artifacts": artifacts,
+            "telemetry_summary": _bundle_telemetry_summary(bundle),
             "evidence": len(evidence),
             "evidence_count": len(evidence),
             "artifact_count": len(artifacts),
@@ -215,12 +218,22 @@ def _scenario_summary_counts(reports: list[dict[str, Any]]) -> dict[str, int]:
         for report in reports
         if isinstance(report.get("scenario_bundle"), dict)
     ]
+    telemetry = [
+        bundle["telemetry_summary"]
+        for bundle in bundles
+        if isinstance(bundle.get("telemetry_summary"), dict)
+    ]
     return {
         "scenario_bundles": len(bundles),
         "scenarios": sum(int(bundle.get("scenarios", 0)) for bundle in bundles),
         "scenario_passed": sum(int(bundle.get("passed", 0)) for bundle in bundles),
         "scenario_failed": sum(int(bundle.get("failed", 0)) for bundle in bundles),
         "scenario_evidence": sum(int(bundle.get("evidence", 0)) for bundle in bundles),
+        "scenario_telemetry_bundles": len(telemetry),
+        "scenario_telemetry_samples": sum(int(item.get("samples", 0)) for item in telemetry),
+        "scenario_telemetry_spikes": sum(int(item.get("spikes", 0)) for item in telemetry),
+        "scenario_telemetry_warnings": sum(int(item.get("warnings", 0)) for item in telemetry),
+        "scenario_telemetry_errors": sum(int(item.get("errors", 0)) for item in telemetry),
     }
 
 
@@ -299,6 +312,30 @@ def _bundle_artifact_rows(bundle: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+def _bundle_telemetry_summary(bundle: dict[str, Any]) -> dict[str, Any] | None:
+    telemetry = bundle.get("telemetry_summary")
+    if not isinstance(telemetry, dict):
+        return None
+    return {
+        "path": str(telemetry.get("relative_path") or telemetry.get("path") or ""),
+        "kind": str(telemetry.get("kind") or ""),
+        "samples": _int_or_default(telemetry.get("samples"), 0),
+        "frame_p95_ms": _float_or_default(telemetry.get("frame_p95_ms"), 0.0),
+        "frame_max_ms": _float_or_default(telemetry.get("frame_max_ms"), 0.0),
+        "memory_max_mb": _float_or_default(telemetry.get("memory_max_mb"), 0.0),
+        "spikes": _int_or_default(telemetry.get("spikes"), 0),
+        "warnings": _int_or_default(telemetry.get("warnings"), 0),
+        "errors": _int_or_default(telemetry.get("errors"), 0),
+    }
+
+
+def _float_or_default(value: object, default: float) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def _release_state(errors: int, warnings: int) -> str:
     if errors:
         return "blocked"
@@ -330,6 +367,7 @@ def _scenario_bundle_html(bundle: object) -> str:
         return ""
     evidence = bundle.get("evidence_links", [])
     artifacts = bundle.get("artifacts", [])
+    telemetry = bundle.get("telemetry_summary")
     parts = [
         "<div class=\"bundle-details\">",
         "<h3>Scenario Bundle Evidence</h3>",
@@ -345,6 +383,17 @@ def _scenario_bundle_html(bundle: object) -> str:
         f"Missing artifacts: {int(bundle.get('missing_artifacts', 0))}"
         "</p>",
     ]
+    if isinstance(telemetry, dict):
+        parts.extend(
+            [
+                "<p>"
+                f"Telemetry: {int(telemetry.get('samples', 0))} samples | "
+                f"frame p95 {_format_number(telemetry.get('frame_p95_ms'))} ms | "
+                f"max {_format_number(telemetry.get('frame_max_ms'))} ms | "
+                f"spikes {int(telemetry.get('spikes', 0))}"
+                "</p>",
+            ]
+        )
     if isinstance(evidence, list) and evidence:
         parts.append("<table><thead><tr><th>Kind</th><th>Path</th><th>Exists</th><th>Size</th></tr></thead><tbody>")
         for item in evidence:
@@ -372,6 +421,13 @@ def _scenario_bundle_html(bundle: object) -> str:
         parts.append("</tbody></table>")
     parts.append("</div>")
     return "".join(parts)
+
+
+def _format_number(value: object) -> str:
+    try:
+        return f"{float(value):.2f}"
+    except (TypeError, ValueError):
+        return "0.00"
 
 
 def _image(image: dict[str, Any]) -> str:

@@ -49,7 +49,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.3")
+            self.assertEqual(data["tool_version"], "0.1.4")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["images"][0]["mime"], "image/svg+xml")
@@ -113,6 +113,17 @@ class ReleaseDashboardTests(unittest.TestCase):
                             "artifacts": 2,
                         },
                         "bundle": {
+                            "telemetry_summary": {
+                                "kind": "runtime_telemetry_timeline",
+                                "relative_path": "../runtime-summary.json",
+                                "samples": 18,
+                                "frame_p95_ms": 21.5,
+                                "frame_max_ms": 33.1,
+                                "memory_max_mb": 256,
+                                "spikes": 2,
+                                "warnings": 1,
+                                "errors": 0,
+                            },
                             "links": {
                                 "telemetry": {
                                     "kind": "telemetry",
@@ -151,6 +162,10 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertEqual(dashboard["summary"]["scenario_passed"], 1)
             self.assertEqual(dashboard["summary"]["scenario_failed"], 1)
             self.assertEqual(dashboard["summary"]["scenario_evidence"], 3)
+            self.assertEqual(dashboard["summary"]["scenario_telemetry_bundles"], 1)
+            self.assertEqual(dashboard["summary"]["scenario_telemetry_samples"], 18)
+            self.assertEqual(dashboard["summary"]["scenario_telemetry_spikes"], 2)
+            self.assertEqual(dashboard["summary"]["scenario_telemetry_warnings"], 1)
             self.assertEqual(dashboard["reports"][0]["status"], "blocked")
             scenario_bundle = dashboard["reports"][0]["scenario_bundle"]
             self.assertEqual(scenario_bundle["scenarios"], 2)
@@ -160,8 +175,14 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertEqual(scenario_bundle["artifact_count"], 2)
             self.assertEqual(scenario_bundle["missing_evidence"], 1)
             self.assertEqual(scenario_bundle["missing_artifacts"], 1)
+            self.assertEqual(scenario_bundle["telemetry_summary"]["samples"], 18)
+            self.assertEqual(scenario_bundle["telemetry_summary"]["frame_p95_ms"], 21.5)
             self.assertIn("Scenario Bundle Evidence", html)
             self.assertIn("Scenarios: 1 passed / 2 total", html)
+            self.assertIn("Telemetry samples: 18", html)
+            self.assertIn("Telemetry spikes: 2", html)
+            self.assertIn("Telemetry: 18 samples", html)
+            self.assertIn("frame p95 21.50 ms", html)
             self.assertIn("../runtime-timeline.html", html)
             self.assertIn("../run.log", html)
             self.assertIn("screenshots/menu.png", html)

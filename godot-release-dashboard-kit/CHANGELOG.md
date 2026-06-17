@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 - 2026-06-17
+
+- Scenario bundle cards now show compact runtime telemetry summaries when the bundle includes them.
+- Dashboard JSON now rolls up scenario-linked telemetry sample, spike, warning, and error counts.
+- The tiny release evidence fixture now includes telemetry summary fields for dashboard examples.
+
 ## 0.1.3 - 2026-06-17
 
 - Added scenario bundle awareness for `godot-scenario-report-kit` reports.

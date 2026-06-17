@@ -39,7 +39,7 @@
     },
     {
       "purpose": "Bundle scenario evidence with reviewer links",
-      "command": "godot-scenario-report bundle reports/scenarios --telemetry reports/runtime-timeline.html --visual reports/visual-smoke.json --evidence log=reports/run.log --format json --output reports/scenario-bundle.json"
+      "command": "godot-scenario-report bundle reports/scenarios --telemetry reports/runtime-timeline.json --visual reports/visual-smoke.json --evidence log=reports/run.log --format json --output reports/scenario-bundle.json"
     }
   ]
 }

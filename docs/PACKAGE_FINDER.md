@@ -31,7 +31,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot mod, DLC, or patch manifest check | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
 | Godot mod or DLC pack diff | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown` |
 | Godot scenario evidence report | `python -m pip install godot-scenario-report-kit` | `godot-scenario-report manifest coverage scenario-manifest.json --results reports/current --format html` |
-| Godot scenario evidence bundle | `python -m pip install godot-scenario-report-kit` | `godot-scenario-report bundle reports/scenarios --telemetry reports/runtime.html --visual reports/visual.json --evidence log=reports/run.log --format json` |
+| Godot scenario evidence bundle | `python -m pip install godot-scenario-report-kit` | `godot-scenario-report bundle reports/scenarios --telemetry reports/runtime-timeline.json --visual reports/visual.json --evidence log=reports/run.log --format json` |
 | Godot runtime telemetry timeline | `python -m pip install godot-runtime-telemetry-lab` | `godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html` |
 | Godot runtime telemetry adapter | `python -m pip install godot-runtime-telemetry-lab` | `godot-telemetry-lab adapt reports/godot-monitor.csv --format json --output reports/runtime-normalized.json` |
 | Godot release dashboard | `python -m pip install godot-release-dashboard-kit` | `godot-release-dashboard build reports --output reports/dashboard.html` |

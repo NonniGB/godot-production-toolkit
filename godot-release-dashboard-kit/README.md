@@ -36,7 +36,7 @@ godot-release-dashboard build reports\godot-project-doctor --format json --outpu
 Include scenario run evidence in the same dashboard:
 
 ```powershell
-godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --evidence log=reports\run.log --evidence junit=reports\junit.xml --format json --output reports\release-evidence\scenario-bundle.json
+godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --telemetry reports\runtime-timeline.json --evidence log=reports\run.log --evidence junit=reports\junit.xml --format json --output reports\release-evidence\scenario-bundle.json
 godot-release-dashboard build reports\release-evidence --output reports\dashboard.html
 ```
 
@@ -52,7 +52,9 @@ Scenario bundle JSON from `godot-scenario-report-kit` is shown as a release
 evidence card with scenario pass/fail counts plus the nearby files a reviewer
 should open next, such as logs, JUnit XML, runtime telemetry, profiler captures,
 visual-smoke reports, or screenshots. The dashboard shows link metadata from the
-bundle; it does not run the game or rewrite those evidence files.
+bundle; it does not run the game or rewrite those evidence files. If the bundle
+contains a compact telemetry summary, the dashboard also shows sample count,
+frame p95, frame max, memory max, and budget spike counts.
 
 ## Outputs
 
@@ -60,4 +62,5 @@ bundle; it does not run the game or rewrite those evidence files.
   report links, report cards, scenario evidence sections, and image previews.
 - `json`: summary for scripts or later dashboard tooling, including counts for
   `blocked`, `attention`, `ready`, scenario bundles, scenarios, and linked
-  scenario evidence.
+  scenario evidence. Scenario-linked telemetry summaries are rolled up as
+  sample, spike, warning, and error counts.

@@ -28,8 +28,10 @@ godot-scenario-report flake compare reports\run-1 reports\run-2 reports\run-3 --
 Build a review bundle for PR or release artifacts:
 
 ```powershell
-godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --evidence log=reports\run.log --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
+godot-telemetry-lab timeline reports\runtime --format json --output reports\runtime-timeline.json
+godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --telemetry reports\runtime-timeline.json --evidence log=reports\run.log --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
 ```
 
 The tool is runner-neutral. Any Godot test harness can emit the small JSON shape
-described in the README.
+described in the README. Linked telemetry JSON or Markdown is summarized into
+small counters for review; raw samples stay in the original telemetry artifact.

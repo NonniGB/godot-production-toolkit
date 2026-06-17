@@ -8,21 +8,24 @@
 <h2>Release Readiness</h2>
 <div class="metrics">
 <div class="metric blocked">Blocked: 2</div>
-<div class="metric attention">Needs attention: 2</div>
+<div class="metric attention">Needs attention: 3</div>
 <div class="metric ready">Ready: 0</div>
-<div class="metric">Reports: 4</div>
+<div class="metric">Reports: 5</div>
 <div class="metric">Images: 1</div>
 <div class="metric err">Errors: 1</div>
-<div class="metric warn">Warnings: 5</div>
+<div class="metric warn">Warnings: 6</div>
 <div class="metric">Scenario bundles: 1</div>
 <div class="metric">Scenarios: 1/2 passed</div>
+<div class="metric">Telemetry samples: 18</div>
+<div class="metric warn">Telemetry spikes: 2</div>
 </div>
 <h2>Reports</h2>
 <div class="grid">
 <section class="card"><h2>godot-export-doctor</h2><p class="status blocked">blocked</p><p><a href="../../../godot-release-dashboard-kit/examples/tiny-release-evidence/export.json"><code>../../../godot-release-dashboard-kit/examples/tiny-release-evidence/export.json</code></a></p><p class="err">Errors: 1 | Warnings: 2</p><p>errors: 1, presets: 1, warnings: 2</p></section>
 <section class="card"><h2>mobile-ui</h2><p class="status attention">attention</p><p><a href="../../../godot-release-dashboard-kit/examples/tiny-release-evidence/mobile-ui.md"><code>../../../godot-release-dashboard-kit/examples/tiny-release-evidence/mobile-ui.md</code></a></p><p class="warn">Errors: 0 | Warnings: 1</p><p># Mobile UI Review</p></section>
 <section class="card"><h2>README</h2><p class="status attention">attention</p><p><a href="../../../godot-release-dashboard-kit/examples/tiny-release-evidence/README.md"><code>../../../godot-release-dashboard-kit/examples/tiny-release-evidence/README.md</code></a></p><p class="warn">Errors: 0 | Warnings: 1</p><p># Tiny Release Evidence</p></section>
-<section class="card"><h2>godot-scenario-report-kit</h2><p class="status blocked">blocked</p><p><a href="../../../godot-release-dashboard-kit/examples/tiny-release-evidence/scenario-bundle.json"><code>../../../godot-release-dashboard-kit/examples/tiny-release-evidence/scenario-bundle.json</code></a></p><p class="warn">Errors: 0 | Warnings: 1</p><p>artifacts: 2, errors: 0, failed: 1, linked_evidence: 3, passed: 1</p><div class="bundle-details"><h3>Scenario Bundle Evidence</h3><p>Scenarios: 1 passed / 2 total | Failed: 1 | Evidence: 3</p><p>Evidence: 3 | Missing evidence: 1 | Artifacts: 2 | Missing artifacts: 2</p><table><thead><tr><th>Kind</th><th>Path</th><th>Exists</th><th>Size</th></tr></thead><tbody><tr><td>telemetry</td><td><code>runtime-timeline.html</code></td><td>false</td><td>-</td></tr><tr><td>log</td><td><code>run.log</code></td><td>true</td><td>94</td></tr><tr><td>junit</td><td><code>junit.xml</code></td><td>true</td><td>323</td></tr></tbody></table><table><thead><tr><th>Scenario</th><th>Artifact</th><th>Exists</th></tr></thead><tbody><tr><td>menu_startup</td><td><code>screenshots/menu.png</code></td><td>false</td></tr><tr><td>trade_flow</td><td><code>logs/trade-flow.txt</code></td><td>false</td></tr></tbody></table></div></section>
+<section class="card"><h2>godot-runtime-telemetry-lab</h2><p class="status attention">attention</p><p><a href="../../../godot-release-dashboard-kit/examples/tiny-release-evidence/runtime-timeline.json"><code>../../../godot-release-dashboard-kit/examples/tiny-release-evidence/runtime-timeline.json</code></a></p><p class="warn">Errors: 0 | Warnings: 1</p><p>errors: 0, frame_budget_ms: 16.67, memory_budget_mb: 768, samples: 18, spikes: 2</p></section>
+<section class="card"><h2>godot-scenario-report-kit</h2><p class="status blocked">blocked</p><p><a href="../../../godot-release-dashboard-kit/examples/tiny-release-evidence/scenario-bundle.json"><code>../../../godot-release-dashboard-kit/examples/tiny-release-evidence/scenario-bundle.json</code></a></p><p class="warn">Errors: 0 | Warnings: 1</p><p>artifacts: 2, errors: 0, failed: 1, linked_evidence: 3, passed: 1</p><div class="bundle-details"><h3>Scenario Bundle Evidence</h3><p>Scenarios: 1 passed / 2 total | Failed: 1 | Evidence: 3</p><p>Evidence: 3 | Missing evidence: 0 | Artifacts: 2 | Missing artifacts: 2</p><p>Telemetry: 18 samples | frame p95 21.50 ms | max 33.10 ms | spikes 2</p><table><thead><tr><th>Kind</th><th>Path</th><th>Exists</th><th>Size</th></tr></thead><tbody><tr><td>telemetry</td><td><code>runtime-timeline.json</code></td><td>true</td><td>993</td></tr><tr><td>log</td><td><code>run.log</code></td><td>true</td><td>94</td></tr><tr><td>junit</td><td><code>junit.xml</code></td><td>true</td><td>323</td></tr></tbody></table><table><thead><tr><th>Scenario</th><th>Artifact</th><th>Exists</th></tr></thead><tbody><tr><td>menu_startup</td><td><code>screenshots/menu.png</code></td><td>false</td></tr><tr><td>trade_flow</td><td><code>logs/trade-flow.txt</code></td><td>false</td></tr></tbody></table></div></section>
 </div>
 <h2>Visual Artifacts</h2>
 <div class="gallery">

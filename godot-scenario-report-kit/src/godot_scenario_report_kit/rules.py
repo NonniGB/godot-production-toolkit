@@ -92,6 +92,10 @@ RULES: dict[str, dict[str, str]] = {
         "title": "Bundle linked evidence missing",
         "help": "Check the telemetry or visual evidence path before attaching the bundle to a release review.",
     },
+    "bundle_telemetry_unreadable": {
+        "title": "Telemetry summary could not be read",
+        "help": "Check that linked telemetry JSON or Markdown is complete before using it as review evidence.",
+    },
 }
 
 

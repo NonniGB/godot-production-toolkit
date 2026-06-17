@@ -1,6 +1,6 @@
 {
   "tool": "godot-scenario-report-kit",
-  "tool_version": "0.1.4",
+  "tool_version": "0.1.5",
   "schema_version": "1.1",
   "kind": "scenario_bundle",
   "summary": {
@@ -11,14 +11,31 @@
     "errors": 0,
     "warnings": 1,
     "linked_evidence": 3,
-    "artifacts": 2
+    "artifacts": 2,
+    "telemetry_samples": 18,
+    "telemetry_spikes": 2,
+    "telemetry_warnings": 1,
+    "telemetry_errors": 0
   },
   "bundle": {
+    "telemetry_summary": {
+      "kind": "runtime_telemetry_timeline",
+      "relative_path": "runtime-timeline.json",
+      "samples": 18,
+      "scenarios": ["menu_startup", "trade_flow"],
+      "frame_p95_ms": 21.5,
+      "frame_max_ms": 33.1,
+      "memory_max_mb": 256.0,
+      "spikes": 2,
+      "warnings": 1,
+      "errors": 0
+    },
     "links": {
       "telemetry": {
         "kind": "telemetry",
-        "relative_path": "runtime-timeline.html",
-        "exists": false
+        "relative_path": "runtime-timeline.json",
+        "exists": true,
+        "size_bytes": 993
       }
     },
     "evidence_links": [

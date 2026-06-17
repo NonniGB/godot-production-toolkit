@@ -288,6 +288,20 @@ def _html(report: dict[str, Any]) -> str:
 
 def _bundle_markdown(bundle: dict[str, Any]) -> list[str]:
     lines = ["", "## Bundle Evidence", ""]
+    telemetry = bundle.get("telemetry_summary")
+    if isinstance(telemetry, dict):
+        lines.extend(
+            [
+                "| Telemetry | Value |",
+                "|---|---:|",
+                f"| Samples | {telemetry.get('samples', 0)} |",
+                f"| Frame p95 ms | {_number_cell(telemetry.get('frame_p95_ms'))} |",
+                f"| Frame max ms | {_number_cell(telemetry.get('frame_max_ms'))} |",
+                f"| Memory max MB | {_number_cell(telemetry.get('memory_max_mb'))} |",
+                f"| Spikes | {telemetry.get('spikes', 0)} |",
+                "",
+            ]
+        )
     evidence = _bundle_evidence_rows(bundle)
     if evidence:
         lines.extend(["| Kind | Path | Exists | Size bytes |", "|---|---|---:|---:|"])
@@ -323,6 +337,7 @@ def _bundle_html(bundle: Any) -> list[str]:
     evidence = _bundle_evidence_rows(bundle)
     rows = [
         "<h2>Bundle Evidence</h2>",
+        *_telemetry_summary_html(bundle.get("telemetry_summary")),
         "<table><thead><tr><th>Kind</th><th>Path</th><th>Exists</th><th>Size bytes</th></tr></thead><tbody>",
     ]
     if evidence:
@@ -389,6 +404,27 @@ def _bundle_evidence_rows(bundle: dict[str, Any]) -> list[dict[str, Any]]:
                 }
             )
     return rows
+
+
+def _telemetry_summary_html(telemetry: Any) -> list[str]:
+    if not isinstance(telemetry, dict):
+        return []
+    return [
+        "<table><thead><tr><th>Telemetry</th><th>Value</th></tr></thead><tbody>",
+        f"<tr><td>Samples</td><td>{escape(str(telemetry.get('samples', 0)))}</td></tr>",
+        f"<tr><td>Frame p95 ms</td><td>{escape(_number_cell(telemetry.get('frame_p95_ms')))}</td></tr>",
+        f"<tr><td>Frame max ms</td><td>{escape(_number_cell(telemetry.get('frame_max_ms')))}</td></tr>",
+        f"<tr><td>Memory max MB</td><td>{escape(_number_cell(telemetry.get('memory_max_mb')))}</td></tr>",
+        f"<tr><td>Spikes</td><td>{escape(str(telemetry.get('spikes', 0)))}</td></tr>",
+        "</tbody></table>",
+    ]
+
+
+def _number_cell(value: object) -> str:
+    try:
+        return f"{float(value):.2f}"
+    except (TypeError, ValueError):
+        return "0.00"
 
 
 def _md_cell(value: object) -> str:

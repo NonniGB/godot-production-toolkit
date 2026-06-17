@@ -115,6 +115,7 @@ def bundle(
         "telemetry": _bundle_link(telemetry_path, base_dir, findings, "telemetry"),
         "visual": _bundle_link(visual_path, base_dir, findings, "visual"),
     }
+    telemetry_summary = _telemetry_summary(telemetry_path, base_dir, findings)
     custom_evidence = [
         _bundle_link(path, base_dir, findings, kind)
         for kind, path in evidence_links or []
@@ -127,6 +128,8 @@ def bundle(
         "links": {key: value for key, value in links.items() if value is not None},
         "evidence_links": custom_evidence,
     }
+    if telemetry_summary is not None:
+        report["bundle"]["telemetry_summary"] = telemetry_summary
     if manifest_path is not None:
         manifest_report = manifest_check(manifest_path, results_path)
         report["coverage"] = manifest_report.get("coverage")
@@ -135,6 +138,11 @@ def bundle(
     report["summary"]["linked_evidence"] = sum(1 for value in links.values() if value is not None) + len(
         custom_evidence
     )
+    if telemetry_summary is not None:
+        report["summary"]["telemetry_samples"] = telemetry_summary.get("samples", 0)
+        report["summary"]["telemetry_spikes"] = telemetry_summary.get("spikes", 0)
+        report["summary"]["telemetry_warnings"] = telemetry_summary.get("warnings", 0)
+        report["summary"]["telemetry_errors"] = telemetry_summary.get("errors", 0)
     return report
 
 
@@ -174,6 +182,203 @@ def _relative_path(path: Path, base_dir: Path) -> str:
         return path.resolve().relative_to(base_dir.resolve()).as_posix()
     except ValueError:
         return path.as_posix()
+
+
+def _telemetry_summary(
+    path: Path | None,
+    base_dir: Path,
+    findings: list[Finding],
+) -> dict[str, Any] | None:
+    if path is None or not path.exists():
+        return None
+    source = _telemetry_source(path)
+    if source is None:
+        return None
+    if source.suffix.lower() in {".md", ".markdown"}:
+        try:
+            summary = _compact_telemetry_markdown(source.read_text(encoding="utf-8"))
+        except OSError as exc:
+            findings.append(
+                Finding(
+                    rule_id="bundle_telemetry_unreadable",
+                    severity="warning",
+                    source=str(source),
+                    message=f"Linked telemetry Markdown could not be summarized: {exc}",
+                )
+            )
+            return None
+        if summary is None:
+            return None
+        return {
+            "path": str(source),
+            "relative_path": _relative_path(source, base_dir),
+            **summary,
+        }
+    try:
+        data = json.loads(source.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        findings.append(
+            Finding(
+                rule_id="bundle_telemetry_unreadable",
+                severity="warning",
+                source=str(source),
+                message=f"Linked telemetry JSON could not be summarized: {exc}",
+            )
+        )
+        return None
+    summary = _compact_telemetry_summary(data)
+    if summary is None:
+        return None
+    return {
+        "path": str(source),
+        "relative_path": _relative_path(source, base_dir),
+        **summary,
+    }
+
+
+def _telemetry_source(path: Path) -> Path | None:
+    supported = {".json", ".md", ".markdown"}
+    if path.is_file():
+        return path if path.suffix.lower() in supported else None
+    for candidate in sorted(path.glob("*.json")):
+        try:
+            data = json.loads(candidate.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(data, dict) and str(data.get("kind", "")).startswith("runtime_telemetry_"):
+            return candidate
+    markdown_candidates = sorted(path.glob("*.md")) + sorted(path.glob("*.markdown"))
+    for candidate in markdown_candidates:
+        try:
+            text = candidate.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if "Runtime Telemetry" in text or "Frame p95" in text:
+            return candidate
+    return None
+
+
+def _compact_telemetry_summary(data: object) -> dict[str, Any] | None:
+    if isinstance(data, list):
+        return _compact_raw_samples(data)
+    if not isinstance(data, dict):
+        return None
+    kind = str(data.get("kind") or "runtime_telemetry_samples")
+    if kind == "runtime_telemetry_compare":
+        metric_source = data.get("current") if isinstance(data.get("current"), dict) else {}
+        count_source = data.get("summary") if isinstance(data.get("summary"), dict) else {}
+    elif isinstance(data.get("summary"), dict):
+        metric_source = data["summary"]
+        count_source = data["summary"]
+    elif isinstance(data.get("samples"), list):
+        return _compact_raw_samples(data["samples"], kind=kind)
+    else:
+        return None
+    findings = data.get("findings", [])
+    finding_rows = [item for item in findings if isinstance(item, dict)]
+    return {
+        "kind": kind,
+        "samples": _int_value(count_source.get("samples")),
+        "scenarios": _string_list(metric_source.get("scenarios")),
+        "frame_p95_ms": _metric_value(metric_source, "frame_ms", "p95"),
+        "frame_max_ms": _metric_value(metric_source, "frame_ms", "max"),
+        "memory_max_mb": _metric_value(metric_source, "memory_mb", "max"),
+        "spikes": _int_value(count_source.get("spikes")),
+        "warnings": _int_value(count_source.get("warnings"))
+        or sum(1 for finding in finding_rows if finding.get("severity") == "warning"),
+        "errors": _int_value(count_source.get("errors"))
+        or sum(1 for finding in finding_rows if finding.get("severity") == "error"),
+    }
+
+
+def _compact_raw_samples(samples: object, kind: str = "runtime_telemetry_samples") -> dict[str, Any] | None:
+    if not isinstance(samples, list):
+        return None
+    rows = [item for item in samples if isinstance(item, dict)]
+    frame_values = sorted(_number(item.get("frame_ms")) for item in rows if _number(item.get("frame_ms")) is not None)
+    memory_values = sorted(_number(item.get("memory_mb")) for item in rows if _number(item.get("memory_mb")) is not None)
+    return {
+        "kind": kind,
+        "samples": len(rows),
+        "scenarios": sorted({str(item.get("scenario") or "default") for item in rows}),
+        "frame_p95_ms": _percentile(frame_values, 0.95),
+        "frame_max_ms": frame_values[-1] if frame_values else 0.0,
+        "memory_max_mb": memory_values[-1] if memory_values else 0.0,
+        "spikes": 0,
+        "warnings": 0,
+        "errors": 0,
+    }
+
+
+def _compact_telemetry_markdown(text: str) -> dict[str, Any] | None:
+    values: dict[str, str] = {}
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line.startswith("|") or "---" in line:
+            continue
+        cells = [cell.strip().strip("`") for cell in line.strip("|").split("|")]
+        if len(cells) < 2:
+            continue
+        values[cells[0].lower()] = cells[1]
+    if not values:
+        return None
+    samples = _int_value(values.get("samples"))
+    frame_p95 = _number(values.get("frame p95 ms")) or 0.0
+    frame_max = _number(values.get("frame max ms")) or 0.0
+    memory_max = _number(values.get("memory max mb")) or 0.0
+    spikes = _int_value(values.get("spikes"))
+    warnings = _int_value(values.get("warnings"))
+    if samples == 0 and frame_p95 == 0 and frame_max == 0 and spikes == 0:
+        return None
+    return {
+        "kind": "runtime_telemetry_markdown",
+        "samples": samples,
+        "scenarios": [],
+        "frame_p95_ms": frame_p95,
+        "frame_max_ms": frame_max,
+        "memory_max_mb": memory_max,
+        "spikes": spikes,
+        "warnings": warnings,
+        "errors": _int_value(values.get("errors")),
+    }
+
+
+def _metric_value(summary: dict[str, Any], metric: str, field: str) -> float:
+    value = summary.get(metric)
+    if not isinstance(value, dict):
+        return 0.0
+    return _number(value.get(field)) or 0.0
+
+
+def _number(value: object) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _int_value(value: object) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _string_list(value: object) -> list[str]:
+    if isinstance(value, list):
+        return sorted(str(item) for item in value if str(item).strip())
+    if isinstance(value, str) and value.strip():
+        return [value.strip()]
+    return []
+
+
+def _percentile(values: list[float], fraction: float) -> float:
+    if not values:
+        return 0.0
+    if len(values) == 1:
+        return values[0]
+    index = round((len(values) - 1) * fraction)
+    return values[index]
 
 
 def _load_manifest(path: Path) -> tuple[dict[str, Any], list[Finding]]:
