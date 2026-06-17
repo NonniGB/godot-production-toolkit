@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 import json
 from pathlib import Path
@@ -36,7 +36,7 @@ class ScenarioReportTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.3")
+            self.assertEqual(report["tool_version"], "0.1.4")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("scenario_failed", report["metadata"]["rules"])
             self.assertEqual(report["summary"]["scenarios"], 1)
@@ -232,6 +232,130 @@ class ScenarioReportTests(unittest.TestCase):
             self.assertIn("telemetry", report["bundle"]["links"])
             self.assertIn("visual", report["bundle"]["links"])
             self.assertIn("bundle_missing_artifact", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_bundle_accepts_custom_evidence_links(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            results = root / "results"
+            results.mkdir()
+            log = root / "run.log"
+            junit = root / "junit.xml"
+            captures = root / "captures"
+            captures.mkdir()
+            log.write_text("scenario run log", encoding="utf-8")
+            junit.write_text("<testsuite />", encoding="utf-8")
+            (results / "menu.json").write_text(
+                json.dumps({"scenario": "menu", "status": "passed"}),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--evidence",
+                        f"log={log}",
+                        "--evidence",
+                        f"junit={junit}",
+                        "--evidence",
+                        f"captures={captures}",
+                        "--evidence",
+                        f"coverage={root / 'missing-coverage.json'}",
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["linked_evidence"], 4)
+            evidence = report["bundle"]["evidence_links"]
+            self.assertEqual([item["kind"] for item in evidence], ["log", "junit", "captures", "coverage"])
+            self.assertEqual(evidence[0]["size_bytes"], len("scenario run log"))
+            self.assertTrue(evidence[2]["is_dir"])
+            self.assertNotIn("size_bytes", evidence[2])
+            self.assertFalse(evidence[3]["exists"])
+            self.assertIn("bundle_link_missing", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_bundle_markdown_and_html_show_linked_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            results = root / "results"
+            results.mkdir()
+            (results / "menu.json").write_text(
+                json.dumps({"scenario": "menu", "status": "passed", "artifacts": ["menu.png"]}),
+                encoding="utf-8",
+            )
+            (results / "menu.png").write_bytes(b"png")
+            log = root / "run.log"
+            log.write_text("log", encoding="utf-8")
+
+            markdown_stdout = StringIO()
+            with redirect_stdout(markdown_stdout):
+                markdown_exit = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--evidence",
+                        f"run|log={log}",
+                        "--format",
+                        "markdown",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            html_stdout = StringIO()
+            with redirect_stdout(html_stdout):
+                html_exit = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--evidence",
+                        f"run|log={log}",
+                        "--format",
+                        "html",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            self.assertEqual(markdown_exit, 0)
+            self.assertEqual(html_exit, 0)
+            self.assertIn("## Bundle Evidence", markdown_stdout.getvalue())
+            self.assertIn("| run\\|log |", markdown_stdout.getvalue())
+            self.assertIn("## Bundle Artifacts", markdown_stdout.getvalue())
+            self.assertIn("<h2>Bundle Evidence</h2>", html_stdout.getvalue())
+            self.assertIn("menu.png", html_stdout.getvalue())
+
+    def test_bundle_rejects_invalid_custom_evidence_argument(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            results = root / "results"
+            results.mkdir()
+            (results / "menu.json").write_text(
+                json.dumps({"scenario": "menu", "status": "passed"}),
+                encoding="utf-8",
+            )
+
+            stderr = StringIO()
+            with redirect_stderr(stderr), self.assertRaises(SystemExit) as raised:
+                main(["bundle", str(results), "--evidence", "not-a-pair"])
+
+            self.assertEqual(raised.exception.code, 2)
+            self.assertIn("KIND=PATH", stderr.getvalue())
+
+            with redirect_stderr(StringIO()), self.assertRaises(SystemExit) as empty_kind:
+                main(["bundle", str(results), "--evidence", f"={root / 'run.log'}"])
+            self.assertEqual(empty_kind.exception.code, 2)
+
+            with redirect_stderr(StringIO()), self.assertRaises(SystemExit) as empty_path:
+                main(["bundle", str(results), "--evidence", "log="])
+            self.assertEqual(empty_path.exception.code, 2)
 
 
 if __name__ == "__main__":

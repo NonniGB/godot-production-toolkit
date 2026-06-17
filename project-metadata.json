@@ -71,7 +71,7 @@
     },
     {
       "name": "godot-scenario-report-kit",
-      "role": "Scenario run evidence validation, manifests, coverage checks, flake comparison, summary, and baseline comparison.",
+      "role": "Scenario run evidence validation, manifests, coverage checks, flake comparison, reviewer bundles, summary, and baseline comparison.",
       "interfaces": ["cli", "json", "markdown", "html"]
     },
     {

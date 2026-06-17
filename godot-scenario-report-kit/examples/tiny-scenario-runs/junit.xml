@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="tiny-scenario-runs" tests="2" failures="1">
+  <testcase classname="scenario" name="menu_startup" time="0.812" />
+  <testcase classname="scenario" name="trade_flow" time="1.45">
+    <failure message="expected cargo transfer event was not observed" />
+  </testcase>
+</testsuite>

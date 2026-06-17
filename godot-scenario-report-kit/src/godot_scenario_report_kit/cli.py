@@ -7,7 +7,7 @@ import sys
 from .reports import compare, render, summarize
 from .suite import bundle, coverage, flake_compare, manifest_check
 
-VERSION_LABEL = "godot-scenario-report 0.1.3"
+VERSION_LABEL = "godot-scenario-report 0.1.4"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -29,6 +29,7 @@ def main(argv: list[str] | None = None) -> int:
             manifest_path=Path(args.manifest) if args.manifest else None,
             telemetry_path=Path(args.telemetry) if args.telemetry else None,
             visual_path=Path(args.visual) if args.visual else None,
+            evidence_links=args.evidence,
         )
     else:
         parser.print_help()
@@ -82,6 +83,14 @@ def _build_parser() -> argparse.ArgumentParser:
     bundle_parser.add_argument("--manifest", help="Optional scenario manifest used for coverage context.")
     bundle_parser.add_argument("--telemetry", help="Optional runtime telemetry report or directory to link.")
     bundle_parser.add_argument("--visual", help="Optional visual smoke report or screenshot directory to link.")
+    bundle_parser.add_argument(
+        "--evidence",
+        action="append",
+        default=[],
+        type=_evidence_arg,
+        metavar="KIND=PATH",
+        help="Additional evidence to link, such as log=reports/run.log or junit=reports/junit.xml.",
+    )
     _add_output_args(bundle_parser)
     return parser
 
@@ -99,6 +108,19 @@ def _emit(rendered: str, output: str | None) -> None:
         output_path.write_text(rendered + "\n", encoding="utf-8")
     else:
         print(rendered)
+
+
+def _evidence_arg(value: str) -> tuple[str, Path]:
+    if "=" not in value:
+        raise argparse.ArgumentTypeError("evidence links must use KIND=PATH.")
+    kind, raw_path = value.split("=", 1)
+    kind = kind.strip()
+    raw_path = raw_path.strip()
+    if not kind:
+        raise argparse.ArgumentTypeError("evidence kind must not be empty.")
+    if not raw_path:
+        raise argparse.ArgumentTypeError("evidence path must not be empty.")
+    return kind, Path(raw_path)
 
 
 def _exit_code(report: dict[str, object], fail_on: str) -> int:

@@ -38,8 +38,8 @@
       "command": "godot-scenario-report flake compare reports/run-1 reports/run-2 reports/run-3 --format markdown"
     },
     {
-      "purpose": "Bundle scenario evidence with telemetry and visual links",
-      "command": "godot-scenario-report bundle reports/scenarios --telemetry reports/runtime-timeline.html --visual reports/visual-smoke.json --format json --output reports/scenario-bundle.json"
+      "purpose": "Bundle scenario evidence with reviewer links",
+      "command": "godot-scenario-report bundle reports/scenarios --telemetry reports/runtime-timeline.html --visual reports/visual-smoke.json --evidence log=reports/run.log --format json --output reports/scenario-bundle.json"
     }
   ]
 }

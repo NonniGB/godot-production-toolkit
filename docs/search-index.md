@@ -201,9 +201,9 @@ scenario evidence, manifest coverage, flake comparison, baseline comparison, and
 HTML summaries. It is designed for JSON output from scenario runners, smoke
 tests, or custom harnesses.
 
-Use `godot-scenario-report bundle` when scenario results, screenshots, runtime
-telemetry, and visual smoke reports should be handed to a dashboard or release
-review as one evidence manifest.
+Use `godot-scenario-report bundle` when scenario results should point reviewers
+to the nearby files that explain the run: screenshots, logs, JUnit XML, runtime
+telemetry, profiler captures, or visual smoke reports.
 
 The [scenario gallery entries](report-gallery/README.md#start-here) show
 comparison reports, coverage HTML, screenshots, fixtures, and commands used to

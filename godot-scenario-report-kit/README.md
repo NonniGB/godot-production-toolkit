@@ -45,7 +45,7 @@ godot-scenario-report flake compare examples\tiny-scenario-runs\baseline example
 Bundle scenario evidence with nearby telemetry and visual reports:
 
 ```powershell
-godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --telemetry reports\runtime-timeline.html --visual reports\visual-smoke.json --format json --output reports\scenario-bundle.json
+godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --telemetry reports\runtime-timeline.html --visual reports\visual-smoke.json --evidence log=reports\scenario-run.log --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
 ```
 
 ## Result Shape
@@ -77,7 +77,9 @@ the source file and ignored by the report kit.
 - manifest entries without results, owners, tags, or expected artifacts;
 - missing required tag, platform, or critical-flow coverage;
 - scenarios whose status changes across repeated runs.
-- missing artifacts or linked telemetry/visual evidence in a bundle report.
+- missing artifacts or linked evidence paths in a bundle report, including
+  telemetry, visual smoke, logs, JUnit XML, profiler captures, or other review
+  files.
 
 ## Manifest Shape
 
@@ -115,6 +117,13 @@ The `bundle` command is intended for release dashboards and PR artifacts. It
 does not rewrite project-owned evidence; it builds a compact manifest of
 scenario results, listed artifacts, and optional telemetry or visual-smoke
 reports so reviewers can see which files belong together.
+
+Use `--evidence KIND=PATH` for extra files that help a human review the run,
+such as `log=reports\run.log`, `junit=reports\junit.xml`, or
+`profile=reports\frame-profile.html`. The bundle links these files; it does not
+copy, rewrite, or inline them. Keep paths relative to the review artifact folder
+when possible, and check that logs or reports do not include private machine
+paths before sharing them.
 
 Reports include the package version, a schema version, and a small rule catalog.
 Each finding includes a stable `rule_id` plus a short `rule_help` field so CI

@@ -87,6 +87,7 @@ def bundle(
     manifest_path: Path | None = None,
     telemetry_path: Path | None = None,
     visual_path: Path | None = None,
+    evidence_links: list[tuple[str, Path]] | None = None,
 ) -> dict[str, Any]:
     results, findings = load_results(results_path)
     base_dir = results_path if results_path.is_dir() else results_path.parent
@@ -114,19 +115,26 @@ def bundle(
         "telemetry": _bundle_link(telemetry_path, base_dir, findings, "telemetry"),
         "visual": _bundle_link(visual_path, base_dir, findings, "visual"),
     }
+    custom_evidence = [
+        _bundle_link(path, base_dir, findings, kind)
+        for kind, path in evidence_links or []
+    ]
     report = _report("scenario_bundle", results, findings)
     report["results"] = str(results_path)
     report["bundle"] = {
         "base_dir": str(base_dir),
         "scenarios": scenario_rows,
         "links": {key: value for key, value in links.items() if value is not None},
+        "evidence_links": custom_evidence,
     }
     if manifest_path is not None:
         manifest_report = manifest_check(manifest_path, results_path)
         report["coverage"] = manifest_report.get("coverage")
         report["manifest_findings"] = manifest_report.get("findings", [])
     report["summary"]["artifacts"] = sum(len(row["bundle_artifacts"]) for row in scenario_rows)
-    report["summary"]["linked_evidence"] = sum(1 for value in links.values() if value is not None)
+    report["summary"]["linked_evidence"] = sum(1 for value in links.values() if value is not None) + len(
+        custom_evidence
+    )
     return report
 
 
@@ -148,7 +156,17 @@ def _bundle_link(
                 message=f"Linked {kind} evidence path {str(path)!r} does not exist.",
             )
         )
-    return {"path": str(path), "relative_path": _relative_path(path, base_dir), "exists": exists}
+    link: dict[str, Any] = {
+        "kind": kind,
+        "path": str(path),
+        "relative_path": _relative_path(path, base_dir),
+        "exists": exists,
+    }
+    if exists:
+        link["is_dir"] = path.is_dir()
+        if path.is_file():
+            link["size_bytes"] = path.stat().st_size
+    return link
 
 
 def _relative_path(path: Path, base_dir: Path) -> str:

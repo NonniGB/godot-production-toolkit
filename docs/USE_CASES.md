@@ -169,6 +169,7 @@ godot-scenario-report summarize reports\scenarios --format html --output reports
 godot-scenario-report compare reports\baseline reports\current --format markdown --output reports\scenario-compare.md
 godot-scenario-report manifest coverage scenario-manifest.json --results reports\scenarios --format html --output reports\scenario-coverage.html
 godot-scenario-report flake compare reports\run-1 reports\run-2 reports\run-3 --format markdown --output reports\scenario-flakes.md
+godot-scenario-report bundle reports\scenarios --telemetry reports\runtime-timeline.html --visual reports\visual-smoke.json --evidence log=reports\scenario-run.log --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
 ```
 
 This helps catch:
@@ -179,6 +180,7 @@ This helps catch:
 - Duration regressions that make test runs or gameplay flows slower.
 - Missing coverage for required tags, platforms, or critical flows.
 - Scenarios whose status changes across repeated runs.
+- The log, JUnit, profiler, or crash files a reviewer should open next.
 
 ## Runtime Telemetry Evidence
 

@@ -98,7 +98,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | GDScript modules or autoload access are becoming tangled | `godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml` |
 | Data files reference missing ids, recipes, quests, or levels | `godot-content-graph-doctor` | `godot-content-graph . --preset recipes --format markdown` |
 | Runtime scenario runs need manifests, coverage, flake checks, or baseline comparison | `godot-scenario-report-kit` | `godot-scenario-report manifest coverage scenario-manifest.json --results reports/current --format html` |
-| Scenario runs, screenshots, telemetry, and visual reports need one evidence manifest | `godot-scenario-report-kit` | `godot-scenario-report bundle reports/scenarios --telemetry reports/runtime.html --visual reports/visual.json --format json` |
+| Scenario runs, logs, screenshots, telemetry, and visual reports need one evidence manifest | `godot-scenario-report-kit` | `godot-scenario-report bundle reports/scenarios --telemetry reports/runtime.html --visual reports/visual.json --evidence log=reports/run.log --format json` |
 | Runtime telemetry needs budgets, timelines, or baseline comparison | `godot-runtime-telemetry-lab` | `godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html` |
 | Pack, patch, DLC, or mod manifests need release checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
 | A pack folder needs a manifest before review or CI | `godot-pack-mod-doctor` | `godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json` |

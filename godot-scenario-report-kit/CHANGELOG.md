@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 - 2026-06-17
+
+- Added repeatable `--evidence KIND=PATH` links for scenario bundles, so run logs, JUnit XML, profiler captures, crash reports, or other review files can be listed beside scenario results.
+- Markdown and HTML bundle reports now include linked evidence and scenario artifact tables.
+- Bundle evidence reports include metadata only; linked file contents are not copied, parsed, summarized, or embedded.
+
 ## 0.1.3 - 2026-06-16
 
 - Added `bundle` reports that collect scenario results, listed artifacts, and optional manifest, telemetry, and visual evidence links.

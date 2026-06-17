@@ -148,6 +148,12 @@ def _text(report: dict[str, Any]) -> str:
         )
     if report.get("flake_groups"):
         lines.append(f"Flaky scenarios: {len(report['flake_groups'])}")
+    if report.get("bundle"):
+        lines.append(
+            "Bundle: "
+            f"{summary.get('linked_evidence', 0)} linked evidence item(s), "
+            f"{summary.get('artifacts', 0)} scenario artifact(s)."
+        )
     return "\n".join(lines)
 
 
@@ -204,6 +210,8 @@ def _markdown(report: dict[str, Any]) -> str:
             lines.append(
                 f"| {group['scenario']} | {', '.join(group['statuses'])} | {len(group['observations'])} |"
             )
+    if report.get("bundle"):
+        lines.extend(_bundle_markdown(report["bundle"]))
     return "\n".join(lines)
 
 
@@ -252,6 +260,7 @@ def _html(report: dict[str, Any]) -> str:
                 "</tr>"
             )
         flake_rows.append("</tbody></table>")
+    bundle_rows = _bundle_html(report.get("bundle"))
     return "\n".join(
         [
             "<!doctype html>",
@@ -271,6 +280,116 @@ def _html(report: dict[str, Any]) -> str:
             "</tbody></table>",
             *coverage_rows,
             *flake_rows,
+            *bundle_rows,
             "</body></html>",
         ]
     )
+
+
+def _bundle_markdown(bundle: dict[str, Any]) -> list[str]:
+    lines = ["", "## Bundle Evidence", ""]
+    evidence = _bundle_evidence_rows(bundle)
+    if evidence:
+        lines.extend(["| Kind | Path | Exists | Size bytes |", "|---|---|---:|---:|"])
+        for item in evidence:
+            lines.append(
+                f"| {_md_cell(item['kind'])} | {_md_cell(item['path'])} | "
+                f"{str(item['exists']).lower()} | {item.get('size_bytes', '-')} |"
+            )
+    else:
+        lines.append("No linked evidence.")
+
+    artifact_rows = [
+        {
+            "scenario": row.get("scenario", ""),
+            "path": artifact.get("path", ""),
+            "exists": artifact.get("exists", False),
+        }
+        for row in bundle.get("scenarios", [])
+        for artifact in row.get("bundle_artifacts", [])
+    ]
+    if artifact_rows:
+        lines.extend(["", "## Bundle Artifacts", "", "| Scenario | Path | Exists |", "|---|---|---:|"])
+        for item in artifact_rows:
+            lines.append(
+                f"| {_md_cell(item['scenario'])} | {_md_cell(item['path'])} | {str(item['exists']).lower()} |"
+            )
+    return lines
+
+
+def _bundle_html(bundle: Any) -> list[str]:
+    if not isinstance(bundle, dict):
+        return []
+    evidence = _bundle_evidence_rows(bundle)
+    rows = [
+        "<h2>Bundle Evidence</h2>",
+        "<table><thead><tr><th>Kind</th><th>Path</th><th>Exists</th><th>Size bytes</th></tr></thead><tbody>",
+    ]
+    if evidence:
+        for item in evidence:
+            rows.append(
+                "<tr>"
+                f"<td>{escape(str(item['kind']))}</td>"
+                f"<td>{escape(str(item['path']))}</td>"
+                f"<td>{escape(str(item['exists']).lower())}</td>"
+                f"<td>{escape(str(item.get('size_bytes', '-')))}</td>"
+                "</tr>"
+            )
+    else:
+        rows.append("<tr><td colspan=\"4\">No linked evidence.</td></tr>")
+    rows.append("</tbody></table>")
+
+    artifact_rows = [
+        {
+            "scenario": row.get("scenario", ""),
+            "path": artifact.get("path", ""),
+            "exists": artifact.get("exists", False),
+        }
+        for row in bundle.get("scenarios", [])
+        for artifact in row.get("bundle_artifacts", [])
+    ]
+    if artifact_rows:
+        rows.append(
+            "<h2>Bundle Artifacts</h2><table><thead><tr><th>Scenario</th><th>Path</th><th>Exists</th></tr></thead><tbody>"
+        )
+        for item in artifact_rows:
+            rows.append(
+                "<tr>"
+                f"<td>{escape(str(item['scenario']))}</td>"
+                f"<td>{escape(str(item['path']))}</td>"
+                f"<td>{escape(str(item['exists']).lower())}</td>"
+                "</tr>"
+            )
+        rows.append("</tbody></table>")
+    return rows
+
+
+def _bundle_evidence_rows(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    links = bundle.get("links", {})
+    if isinstance(links, dict):
+        for kind, item in sorted(links.items()):
+            if isinstance(item, dict):
+                rows.append(
+                    {
+                        "kind": str(item.get("kind") or kind),
+                        "path": str(item.get("relative_path") or item.get("path") or ""),
+                        "exists": bool(item.get("exists")),
+                        **({"size_bytes": item["size_bytes"]} if "size_bytes" in item else {}),
+                    }
+                )
+    for item in bundle.get("evidence_links", []):
+        if isinstance(item, dict):
+            rows.append(
+                {
+                    "kind": str(item.get("kind") or "evidence"),
+                    "path": str(item.get("relative_path") or item.get("path") or ""),
+                    "exists": bool(item.get("exists")),
+                    **({"size_bytes": item["size_bytes"]} if "size_bytes" in item else {}),
+                }
+            )
+    return rows
+
+
+def _md_cell(value: object) -> str:
+    return str(value).replace("|", "\\|").replace("\n", " ")

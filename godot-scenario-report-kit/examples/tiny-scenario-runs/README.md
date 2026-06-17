@@ -9,6 +9,7 @@ godot-scenario-report compare baseline current --format markdown
 godot-scenario-report manifest check scenario-manifest.json --results current --format markdown
 godot-scenario-report manifest coverage scenario-manifest.json --results current --format html --output scenario-coverage.html
 godot-scenario-report flake compare baseline current repeat-run --format markdown
+godot-scenario-report bundle current --manifest scenario-manifest.json --evidence log=run.log --evidence junit=junit.xml --format markdown
 ```
 
 The manifest lists the scenarios expected for a small release check, the tags
