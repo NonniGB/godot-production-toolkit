@@ -8,6 +8,13 @@ profile package set, and first command, use the [Package Finder](PACKAGE_FINDER.
 
 ## Good First Workflows
 
+### Starter Project Audit
+
+```powershell
+godot-project-doctor run godot-project-doctor.toml --format markdown --output reports/starter-audit.md
+godot-release-dashboard build reports/starter-audit --title "Starter Audit" --project "My Godot Project" --output reports/starter-audit-dashboard.html
+```
+
 ### Android Release
 
 ```powershell

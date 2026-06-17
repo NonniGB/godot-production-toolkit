@@ -2,6 +2,23 @@
 
 Godot Production Toolkit is meant to sit beside normal unit tests, scene tests, and manual playtesting. It checks the release checks that are easy to forget until late in a build.
 
+## Starter Project Audit
+
+Use this when a Godot project is new to you and you want a practical first pass
+before writing custom CI:
+
+```powershell
+godot-project-doctor run godot-project-doctor.toml --format markdown --output reports\starter-audit.md
+godot-release-dashboard build reports\starter-audit --title "Starter Audit" --project "My Godot Project" --output reports\starter-audit-dashboard.html
+```
+
+This helps catch:
+
+- Missing export preset fields.
+- Input actions without the device coverage you expect.
+- Texture import settings that do not match the art style.
+- Mobile renderer, viewport, and stretch settings that need a deliberate choice.
+
 ## Android Release Readiness
 
 Use this before cutting an Android build:

@@ -9,6 +9,19 @@ If you are choosing a PyPI package for one check, the
 [Package Finder](PACKAGE_FINDER.md) gives install commands and first-run
 commands by task.
 
+## New And Unfamiliar Projects
+
+### "I just opened a Godot project and want a quick audit"
+
+Start with the [starter project audit workflow](workflows/godot-starter-project-audit.md)
+and the [`godot-project-doctor` README](../godot-project-doctor/README.md).
+The starter audit runs export preset, input map, asset import, and mobile
+settings checks together, then hands the reports to the release dashboard.
+
+Use this before writing custom CI, or when reviewing a small project you have
+not worked on before. The [starter project sample](assets/sample-reports/starter-project-audit.md)
+shows a realistic first report with both passing areas and warnings.
+
 ## Export And Platform Builds
 
 ### "My Godot export preset keeps breaking CI"

@@ -6,6 +6,7 @@ to keep from a local run or CI job.
 
 | Workflow | Use when | Main inputs | Useful output |
 |---|---|---|---|
+| [Starter project audit](godot-starter-project-audit.md) | A new or unfamiliar Godot project needs a first-pass audit before custom CI exists. | Godot project folder and a small `godot-project-doctor.toml`. | Project doctor summary, individual JSON reports, and optional dashboard. |
 | [Android export CI](godot-android-export-ci.md) | Android release presets, package identity, ABIs, icons, or signing placeholders need review. | `export_presets.cfg`, `project.godot`, optional asset imports. | SARIF, JSON, Markdown, or HTML export reports. |
 | [HTML5 web export checklist](godot-html5-web-export-checklist.md) | A browser build needs preset, asset, and visual smoke checks. | `export_presets.cfg`, web export folder, screenshots. | Export report plus optional screenshot diff artifacts. |
 | [Release checklist](godot-ci-release-checklist.md) | A pull request or release branch needs a compact production preflight. | Godot project folder and optional tool config. | `godot-project-doctor` summary and dashboard inputs. |

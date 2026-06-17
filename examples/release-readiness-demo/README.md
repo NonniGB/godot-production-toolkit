@@ -2,6 +2,10 @@
 
 This tiny Godot fixture intentionally contains common release risks so the toolkit can show useful output quickly.
 
+It is also used by the [starter project audit workflow](../../docs/workflows/godot-starter-project-audit.md),
+which is the fastest way to see how the toolkit behaves on a small project
+before writing custom CI.
+
 Run from the repository root after installing the local packages:
 
 ```powershell

@@ -28,7 +28,7 @@ pull request reports, or use a source checkout when you want the umbrella
 | Scenario, telemetry, and release evidence | [`godot-scenario-report-kit`](godot-scenario-report-kit/README.md), [`godot-runtime-telemetry-lab`](godot-runtime-telemetry-lab/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) | `godot-release-dashboard build reports --output reports/dashboard.html` |
 | Data, saves, and content packs | [`godot-content-graph-doctor`](godot-content-graph-doctor/README.md), [`godot-save-schema-guard`](godot-save-schema-guard/README.md), [`godot-pack-mod-doctor`](godot-pack-mod-doctor/README.md) | `godot-content-graph . --preset recipes --format markdown` |
 | GDScript refactor safety | [`godot-gdscript-architecture-guard`](godot-gdscript-architecture-guard/README.md), [`godot-scene-signal-auditor`](godot-scene-signal-auditor/README.md), [`gdscript-api-comment-coverage`](gdscript-api-comment-coverage/README.md) | `godot-architecture-guard . --config architecture-guard.toml --format markdown` |
-| First pass on an unfamiliar project | [`godot-project-doctor`](godot-project-doctor/README.md) | `godot-project-doctor doctor . --profile android --write-plan` |
+| First pass on an unfamiliar project | [Starter project audit](docs/workflows/godot-starter-project-audit.md), [`godot-project-doctor`](godot-project-doctor/README.md) | `godot-project-doctor run godot-project-doctor.toml --format markdown` |
 
 For a wider problem-to-tool map, see the [Tool Index](docs/TOOL_INDEX.md).
 For practical search phrases such as "Godot export preset CI" or "Godot visual
@@ -57,6 +57,7 @@ Start with these files when evaluating or extending the suite:
 
 - `PROJECT_OVERVIEW.md`
 - `docs/workflows/README.md`
+- `docs/workflows/godot-starter-project-audit.md`
 - `docs/TOOL_INDEX.md`
 - `docs/PACKAGE_FINDER.md`
 - `docs/USE_CASES.md`
