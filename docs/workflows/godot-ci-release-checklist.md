@@ -20,7 +20,7 @@ Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 ```powershell
 python -m pip install godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-mobile-perf-doctor godot-release-dashboard-kit godot-scenario-report-kit
 python -m pip install -e .\godot-project-doctor
-godot-project-doctor doctor . --profile release
+godot-project-doctor doctor . --profile release --write-plan --plan-path docs/release-checks.md
 godot-project-doctor run --project . --checks assets,export,input,mobile_perf --reports-dir reports\godot-project-doctor --format json --output reports\godot-project-doctor\summary.json
 godot-scenario-report summarize reports\junit.xml --format markdown --output reports\scenario-junit-summary.md
 godot-scenario-report bundle reports\scenarios --telemetry reports\runtime-timeline.html --visual reports\visual-smoke.json --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
@@ -49,5 +49,6 @@ godot-project-doctor run --project . --checks assets,export,input,mobile_perf --
 ## Expected outputs
 
 - JSON or Markdown release check summaries in `reports\godot-project-doctor`.
+- An optional Markdown first-run plan such as `docs\release-checks.md`.
 - An optional static HTML report at `reports\godot-project-doctor\index.html`.
 - A non-zero exit code when findings meet the selected `--fail-on` level.

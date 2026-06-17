@@ -1,6 +1,6 @@
 # Godot Project Doctor
 
-`godot-project-doctor` is an umbrella CLI for the Godot production toolkit. It plans, runs, summarizes, and compares the standalone tools without hiding their individual commands.
+`godot-project-doctor` is an umbrella CLI for the Godot production toolkit. It plans, runs, summarizes, compares, and collects the standalone tools without hiding their individual commands.
 
 ## Install
 
@@ -18,13 +18,16 @@ Ask the doctor what it sees in a project:
 godot-project-doctor inspect path\to\godot-project
 godot-project-doctor recommend path\to\godot-project
 godot-project-doctor doctor path\to\godot-project --profile release
+godot-project-doctor doctor path\to\godot-project --profile release --write-plan
 ```
 
 `inspect` reports the project shape, detected Godot signals, sample files, and
 the short check list it would start with. `recommend` adds priority, setup
 notes, and a dry-run command for each suggested check. `doctor` groups checks
 into practical profiles and shows expected inputs, output paths, commands, and
-setup notes.
+setup notes. Add `--write-plan` when you want a Markdown first-run plan with
+the selected commands, missing inputs, starter config preview, workflow preview,
+and dashboard handoff.
 
 Preview a starter config and workflow without writing files:
 
@@ -67,17 +70,25 @@ Use `doctor` when you want a first-run checklist instead of a raw command list:
 ```powershell
 godot-project-doctor doctor . --profile release
 godot-project-doctor doctor . --profile mobile --format json
+godot-project-doctor doctor . --profile release --write-plan
+godot-project-doctor doctor . --profile mobile --write-plan --plan-path docs/mobile-check-plan.md
 godot-project-doctor doctor . --profile content --write-workflow
 godot-project-doctor doctor . --profile qa
 ```
 
-Profiles are side-effect-free unless `--write-workflow` is passed. The current
-profiles are:
+Profiles are side-effect-free unless `--write-plan` or `--write-workflow` is
+passed. The current profiles are:
 
 - `release`: export, asset, input, localization, and mobile performance checks.
 - `mobile`: Android/export, mobile performance, input, mobile UI, and visual smoke planning.
 - `content`: content graph, save schema, scenario report, and asset checks.
 - `qa`: scenario, visual smoke, mobile UI, architecture, and signal checks.
+
+`--write-plan` writes a Markdown checklist for the selected profile. The plan
+includes ready checks, setup notes for missing inputs, suggested run/collect
+commands, a starter config preview, a GitHub Actions preview, and a
+`godot-release-dashboard` command for turning the resulting reports into a
+static review page.
 
 `recommend` is intentionally conservative. It looks for common project signals
 such as `export_presets.cfg`, GDScript files, PNG/import files, localization

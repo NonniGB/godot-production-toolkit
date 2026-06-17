@@ -16,6 +16,7 @@ from .runner import (
     explain_check,
     inspect_project,
     render_github_action_example,
+    render_guided_plan_markdown,
     render_starter_config,
     run_plan,
     summarize_reports,
@@ -58,7 +59,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-project-doctor",
         description="Plan, run, and summarize the Godot production toolkit.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.5")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.6")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")
@@ -86,6 +87,12 @@ def _build_parser() -> argparse.ArgumentParser:
     doctor.add_argument("--reports-dir", help="Override report directory.")
     doctor.add_argument("--format", choices=["text", "json"], default="text")
     doctor.add_argument("--write-workflow", action="store_true", help="Write a starter GitHub Actions workflow.")
+    doctor.add_argument("--write-plan", action="store_true", help="Write a Markdown first-run plan.")
+    doctor.add_argument(
+        "--plan-path",
+        default="",
+        help="Plan path relative to the project when --write-plan is used.",
+    )
     doctor.add_argument(
         "--workflow-path",
         default=".github/workflows/godot-production-profile.yml",
@@ -185,6 +192,12 @@ def _doctor(args: argparse.Namespace) -> int:
         workflow_path.parent.mkdir(parents=True, exist_ok=True)
         workflow_path.write_text(str(payload["workflow"]) + "\n", encoding="utf-8")
         payload["workflow_written"] = str(workflow_path)
+    if args.write_plan:
+        plan_rel_path = args.plan_path or f"reports/godot-project-doctor/{args.profile}-plan.md"
+        plan_path = Path(args.project).resolve() / plan_rel_path
+        plan_path.parent.mkdir(parents=True, exist_ok=True)
+        plan_path.write_text(render_guided_plan_markdown(payload) + "\n", encoding="utf-8")
+        payload["plan_written"] = str(plan_path)
     rendered = render_json(payload) if args.format == "json" else _render_doctor_text(payload)
     _emit(rendered, args.output)
     return 0
@@ -392,6 +405,10 @@ def _render_doctor_text(payload: dict[str, object]) -> str:
         lines.extend(["", f"Workflow written: {payload['workflow_written']}"])
     else:
         lines.extend(["", "Add --write-workflow to write a starter GitHub Actions workflow."])
+    if payload.get("plan_written"):
+        lines.append(f"Plan written: {payload['plan_written']}")
+    else:
+        lines.append("Add --write-plan to write this checklist as a Markdown first-run plan.")
     return "\n".join(lines)
 
 

@@ -8,6 +8,7 @@ Use this before cutting an Android build:
 
 ```powershell
 godot-project-doctor doctor . --profile release
+godot-project-doctor doctor . --profile release --write-plan --plan-path docs/release-checks.md
 godot-project-doctor run --project . --checks export,mobile_perf,assets --reports-dir reports\godot-project-doctor --format markdown --output reports\godot-project-doctor\summary.md
 godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown --output reports\export-matrix.md
 godot-export-doctor leaks . --format html --output reports\export-leaks.html --fail-on none

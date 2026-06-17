@@ -28,7 +28,7 @@ pull request reports, or use a source checkout when you want the umbrella
 | Scenario, telemetry, and release evidence | [`godot-scenario-report-kit`](godot-scenario-report-kit/README.md), [`godot-runtime-telemetry-lab`](godot-runtime-telemetry-lab/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) | `godot-release-dashboard build reports --output reports/dashboard.html` |
 | Data, saves, and content packs | [`godot-content-graph-doctor`](godot-content-graph-doctor/README.md), [`godot-save-schema-guard`](godot-save-schema-guard/README.md), [`godot-pack-mod-doctor`](godot-pack-mod-doctor/README.md) | `godot-content-graph . --preset recipes --format markdown` |
 | GDScript refactor safety | [`godot-gdscript-architecture-guard`](godot-gdscript-architecture-guard/README.md), [`godot-scene-signal-auditor`](godot-scene-signal-auditor/README.md), [`gdscript-api-comment-coverage`](gdscript-api-comment-coverage/README.md) | `godot-architecture-guard . --config architecture-guard.toml --format markdown` |
-| First pass on an unfamiliar project | [`godot-project-doctor`](godot-project-doctor/README.md) | `godot-project-doctor doctor . --profile release` |
+| First pass on an unfamiliar project | [`godot-project-doctor`](godot-project-doctor/README.md) | `godot-project-doctor doctor . --profile release --write-plan` |
 
 For a wider problem-to-tool map, see the [Tool Index](docs/TOOL_INDEX.md).
 For practical search phrases such as "Godot export preset CI" or "Godot visual
@@ -141,6 +141,7 @@ Ask the umbrella CLI what it would run for a project:
 godot-project-doctor inspect path\to\godot-project
 godot-project-doctor recommend path\to\godot-project
 godot-project-doctor doctor path\to\godot-project --profile release
+godot-project-doctor doctor path\to\godot-project --profile release --write-plan
 godot-project-doctor doctor path\to\godot-project --profile mobile --format json
 godot-project-doctor init path\to\godot-project --dry-run --include-workflow
 ```
@@ -149,7 +150,7 @@ godot-project-doctor init path\to\godot-project --dry-run --include-workflow
 frameworks, and the checks the toolkit would start with. `recommend` turns that
 scan into prioritized checks with setup notes and dry-run commands. `doctor`
 groups tools into release, mobile, content, or QA profiles with expected inputs,
-output paths, and commands.
+output paths, commands, and an optional Markdown setup plan.
 
 ![Godot Project Doctor profile checklist](docs/assets/screenshots/project-doctor-profile.svg)
 
@@ -258,7 +259,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 
 | Tool | Purpose | Script/CI Outputs |
 |---|---|---|
-| `godot-project-doctor` | Umbrella CLI for planning, running, summarizing, and comparing the suite. | JSON, Markdown, HTML |
+| `godot-project-doctor` | Umbrella CLI for planning, first-run checklists, running, summarizing, and comparing the suite. | JSON, Markdown, HTML |
 | `godot-ci-doctor-action` | GitHub composite action wrapper. | JSON, Markdown, HTML artifacts |
 | `godot-asset-pipeline-doctor` | PNG/audio and `.import` checks for pixel art, mobile memory, and package-size risks. | JSON, SARIF |
 | `godot-content-graph-doctor` | Data-driven content id, reference, and numeric outlier checks. | JSON, Markdown, Mermaid |

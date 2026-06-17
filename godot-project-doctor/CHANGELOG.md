@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.6 - 2026-06-17
+
+- Added `doctor --write-plan` for writing a Markdown first-run plan from a
+  selected profile.
+- Guided plans include ready checks, missing-input setup notes, suggested
+  run/collect/dashboard commands, a starter config preview, and a GitHub Actions
+  preview.
+
 ## 0.1.5 - 2026-06-16
 
 - Added `doctor --profile release|mobile|content|qa` for profile-based first-run guidance.

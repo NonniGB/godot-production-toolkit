@@ -22,6 +22,7 @@ Typical patterns:
 godot-export-doctor . --format markdown --output reports\export.md
 godot-asset-doctor . --profile pixel-2d --format json --output reports\assets.json
 godot-project-doctor doctor . --profile release
+godot-project-doctor doctor . --profile release --write-plan
 godot-project-doctor run --project . --checks assets,export,input --reports-dir reports\godot-project-doctor
 ```
 
@@ -63,8 +64,8 @@ run. The action is a CI step, not a game dependency.
 A practical release pass can be modest:
 
 1. Run your normal Godot tests and any platform export smoke tests.
-2. Run `godot-project-doctor doctor . --profile release` for a checklist-style
-   pass.
+2. Run `godot-project-doctor doctor . --profile release --write-plan` for a
+   checklist-style pass that can be kept with project docs.
 3. Run focused tools for the release risk you are touching:
    `godot-export-doctor` for export presets, `godot-asset-doctor` for changed
    art, `godot-input-audit` for control changes, and `godot-l10n-guard` for
@@ -102,7 +103,7 @@ the package command requires the Godot executable in order to run.
 
 | Package | Godot required to run the package? | Notes |
 |---|---:|---|
-| `godot-project-doctor` | No | Runs and summarizes toolkit checks from a source checkout. It may inspect a Godot project directory, but the CLI itself does not launch Godot. |
+| `godot-project-doctor` | No | Runs and summarizes toolkit checks from a source checkout, and can write profile-based Markdown setup plans. It may inspect a Godot project directory, but the CLI itself does not launch Godot. |
 | `godot-ci-doctor-action` | No | Runs in GitHub Actions around your existing workflow. It can consume the project files and reports you provide. |
 | `godot-export-preset-doctor` | No | Reads `export_presets.cfg` and reports export-readiness issues. It does not perform the export. |
 | `godot-asset-pipeline-doctor` | No | Reads PNG/audio files, `.import` files, and optional sprite manifests. |

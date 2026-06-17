@@ -7,6 +7,12 @@ godot-project-doctor plan godot-project-doctor.toml --format json
 godot-project-doctor run --project . --checks assets,export --reports-dir reports --dry-run --format json
 ```
 
+Write a profile-based first-run plan when a project is adding the toolkit:
+
+```powershell
+godot-project-doctor doctor . --profile release --write-plan --plan-path docs/godot-production-checks.md
+```
+
 Run checks only after reviewing the planned commands:
 
 ```powershell

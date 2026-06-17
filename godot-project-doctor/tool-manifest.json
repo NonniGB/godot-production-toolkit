@@ -34,6 +34,10 @@
       "command": "godot-project-doctor doctor <project> --profile release"
     },
     {
+      "purpose": "Write a Markdown first-run plan",
+      "command": "godot-project-doctor doctor <project> --profile release --write-plan"
+    },
+    {
       "purpose": "Preview starter config and workflow",
       "command": "godot-project-doctor init <project> --dry-run --include-workflow"
     },

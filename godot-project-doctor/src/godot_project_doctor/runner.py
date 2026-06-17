@@ -269,16 +269,18 @@ def build_doctor_profile(
         raise KeyError(f"unknown profile {profile!r}; known profiles: {known}")
     definition = PROFILE_DEFINITIONS[profile]
     checks = [str(check_id) for check_id in definition["checks"]]
+    profile_reports_dir = _profile_reports_dir(project, profile, reports_dir)
     plan = build_plan(
         project=project,
         checks=checks,
-        reports_dir=reports_dir or Path(f"reports/godot-project-doctor/{profile}"),
+        reports_dir=profile_reports_dir,
         fail_on="error",
     )
     inspected = inspect_project(project)
     plan_by_id = {str(item["id"]): item for item in plan["checks"]}
-    tasks = [_doctor_task(plan_by_id[check_id], project) for check_id in checks if check_id in plan_by_id]
-    return {
+    project_root = Path(str(plan["project"]))
+    tasks = [_doctor_task(plan_by_id[check_id], project_root) for check_id in checks if check_id in plan_by_id]
+    payload = {
         "tool": "godot-project-doctor",
         "kind": "doctor_profile",
         "profile": profile,
@@ -300,6 +302,148 @@ def build_doctor_profile(
         ],
         "workflow": render_github_action_example(checks),
     }
+    payload["guided_plan"] = build_guided_plan(payload)
+    return payload
+
+
+def build_guided_plan(profile: dict[str, Any]) -> dict[str, Any]:
+    project = Path(str(profile["project"]))
+    reports_dir = _display_path(Path(str(profile["reports_dir"])), project)
+    checks = [str(task["id"]) for task in profile["tasks"]]
+    ready_tasks = [task for task in profile["tasks"] if task["ready"]]
+    missing_tasks = [task for task in profile["tasks"] if not task["ready"]]
+    config_preview = render_starter_config(project, reports_dir)
+    check_list = ",".join(checks)
+    return {
+        "format": "markdown",
+        "path_hint": f"reports/godot-project-doctor/{profile['profile']}-plan.md",
+        "ready_checks": [str(task["id"]) for task in ready_tasks],
+        "needs_setup": [
+            {
+                "id": str(task["id"]),
+                "expected_inputs": list(task["expected_inputs"]),
+                "setup": str(task["setup"]),
+            }
+            for task in missing_tasks
+        ],
+        "commands": [
+            _shell_join(
+                [
+                    "godot-project-doctor",
+                    "run",
+                    "--project",
+                    ".",
+                    "--checks",
+                    check_list,
+                    "--reports-dir",
+                    reports_dir,
+                    "--dry-run",
+                    "--format",
+                    "json",
+                ]
+            ),
+            _shell_join(
+                [
+                    "godot-project-doctor",
+                    "run",
+                    "--project",
+                    ".",
+                    "--checks",
+                    check_list,
+                    "--reports-dir",
+                    reports_dir,
+                    "--format",
+                    "markdown",
+                    "--output",
+                    f"{reports_dir}/summary.md",
+                ]
+            ),
+            _shell_join(
+                [
+                    "godot-project-doctor",
+                    "collect",
+                    "--project",
+                    ".",
+                    "--checks",
+                    check_list,
+                    "--reports-dir",
+                    reports_dir,
+                    "--evidence-dir",
+                    f"{reports_dir}/evidence",
+                    "--skip-run",
+                ]
+            ),
+            _shell_join(
+                [
+                    "godot-release-dashboard",
+                    "build",
+                    reports_dir,
+                    "--output",
+                    f"{reports_dir}/dashboard.html",
+                ]
+            ),
+        ],
+        "config_preview": config_preview,
+        "workflow_preview": str(profile["workflow"]),
+    }
+
+
+def render_guided_plan_markdown(profile: dict[str, Any]) -> str:
+    guided = profile["guided_plan"]
+    project = Path(str(profile["project"]))
+    reports_dir = _display_path(Path(str(profile["reports_dir"])), project)
+    lines = [
+        f"# {profile['title']} First-Run Plan",
+        "",
+        "- Project: `.` (run commands from the project root)",
+        f"- Profile: `{profile['profile']}`",
+        f"- Reports: `{reports_dir}`",
+        f"- Ready checks: {len(guided['ready_checks'])}",
+        f"- Needs setup: {len(guided['needs_setup'])}",
+        "",
+        str(profile["description"]),
+        "",
+        "## Checks",
+        "",
+    ]
+    for task in profile["tasks"]:
+        lines.extend(
+            [
+                f"### {task['title']}",
+                "",
+                f"- Check id: `{task['id']}`",
+                f"- Status: `{task['status']}`",
+                f"- Why: {task['why']}",
+                f"- Output: `{_display_path(Path(str(task['output'])), project)}`",
+                f"- Command: `{task['command']}`",
+            ]
+        )
+        if task["expected_inputs"]:
+            lines.append(f"- Expected input: {', '.join(_display_input(item, project) for item in task['expected_inputs'])}")
+        if not task["ready"]:
+            lines.append(f"- Setup: {task['setup']}")
+        lines.append("")
+    lines.extend(["## Suggested Commands", ""])
+    lines.extend(f"```powershell\n{command}\n```" for command in guided["commands"])
+    lines.extend(
+        [
+            "",
+            "## Starter Config Preview",
+            "",
+            "```toml",
+            str(guided["config_preview"]),
+            "```",
+            "",
+            "## GitHub Actions Preview",
+            "",
+            "```yaml",
+            str(guided["workflow_preview"]),
+            "```",
+            "",
+            "Review paths and package installation before using the previews in CI.",
+        ]
+    )
+    return "\n".join(lines)
 
 
 def recommend_checks_from_features(features: dict[str, Any], project: str | None = None) -> list[dict[str, str]]:
@@ -346,9 +490,17 @@ def _doctor_task(plan_item: dict[str, Any], project: Path) -> dict[str, Any]:
         "when": guidance["when"],
         "expected_inputs": expected_inputs,
         "output": str(plan_item["report"]),
-        "command": " ".join(str(part) for part in plan_item["argv"]),
+        "command": _shell_join([_display_input(part, project) for part in plan_item["argv"]]),
         "setup": _profile_setup_note(check_id, expected_inputs),
     }
+
+
+def _profile_reports_dir(project: Path, profile: str, reports_dir: Path | None) -> Path:
+    if reports_dir is None:
+        return project / f"reports/godot-project-doctor/{profile}"
+    if reports_dir.is_absolute():
+        return reports_dir
+    return project / reports_dir
 
 
 def _expected_inputs(check_id: str, project: Path) -> list[str]:
@@ -375,6 +527,33 @@ def _profile_setup_note(check_id: str, expected_inputs: list[str]) -> str:
     if config_hint == "ready from project path":
         return "No extra config is usually needed; run the command and review the report."
     return f"Provide {', '.join(expected_inputs) if expected_inputs else config_hint}."
+
+
+def _display_path(path: Path, project: Path) -> str:
+    try:
+        return path.resolve().relative_to(project.resolve()).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def _display_input(value: object, project: Path) -> str:
+    text = str(value)
+    path = Path(text)
+    if path.is_absolute():
+        return _display_path(path, project)
+    return text
+
+
+def _shell_join(parts: list[str]) -> str:
+    return " ".join(_quote_shell_part(part) for part in parts)
+
+
+def _quote_shell_part(value: str) -> str:
+    if not value:
+        return '""'
+    if any(char.isspace() for char in value):
+        return '"' + value.replace('"', '\\"') + '"'
+    return value
 
 
 def render_starter_config(project: Path, reports_dir: str = "reports/godot-project-doctor") -> str:

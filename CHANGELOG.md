@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Improved `godot-project-doctor` with profile-based Markdown first-run plans
+  that include setup notes, commands, config preview, workflow preview, and
+  dashboard handoff.
 - Improved `godot-release-dashboard-kit` with previous-report comparison cards
   and optional dashboard project/description metadata.
 - Improved `godot-release-dashboard-kit` with workflow-grouped report sections

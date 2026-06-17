@@ -199,6 +199,9 @@ metadata = "reports/mobile-ui.json"
             self.assertEqual(mobile_ui["status"], "needs_setup")
             self.assertIn("mobile UI metadata", " ".join(mobile_ui["expected_inputs"]))
             self.assertIn("godot-mobile-ui-doctor", mobile_ui["command"])
+            self.assertIn("guided_plan", payload)
+            self.assertIn("godot-release-dashboard build", " ".join(payload["guided_plan"]["commands"]))
+            self.assertFalse((root / "reports" / "godot-project-doctor" / "mobile-plan.md").exists())
 
     def test_doctor_profile_writes_workflow_only_when_requested(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -228,6 +231,44 @@ metadata = "reports/mobile-ui.json"
             self.assertIn("Godot production checks", workflow_text)
             self.assertIn("content_graph,save_schema,scenario_report,assets", workflow_text)
             self.assertIn("Workflow written:", stdout.getvalue())
+
+    def test_doctor_profile_writes_guided_plan_only_when_requested(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "Tiny Project"
+            root.mkdir()
+            (root / "project.godot").write_text("[application]\nconfig/name=\"Tiny\"\n", encoding="utf-8")
+            plan_path = root / "docs" / "mobile-plan.md"
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                self.assertEqual(
+                    main(
+                        [
+                            "doctor",
+                            str(root),
+                            "--profile",
+                            "mobile",
+                            "--reports-dir",
+                            "reports/mobile checks",
+                            "--write-plan",
+                            "--plan-path",
+                            "docs/mobile-plan.md",
+                        ]
+                    ),
+                    0,
+                )
+
+            self.assertTrue(plan_path.exists())
+            plan_text = plan_path.read_text(encoding="utf-8")
+            self.assertIn("# Mobile review First-Run Plan", plan_text)
+            self.assertIn("## Suggested Commands", plan_text)
+            self.assertIn("godot-project-doctor run --project", plan_text)
+            self.assertIn('--reports-dir "reports/mobile checks"', plan_text)
+            self.assertIn("godot-release-dashboard build", plan_text)
+            self.assertIn("## Starter Config Preview", plan_text)
+            self.assertIn("## GitHub Actions Preview", plan_text)
+            self.assertNotIn(str(root), plan_text)
+            self.assertIn("Plan written:", stdout.getvalue())
 
     def test_explain_outputs_check_guidance(self) -> None:
         stdout = StringIO()
@@ -416,7 +457,7 @@ metadata = "reports/mobile-ui.json"
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.1.5", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.1.6", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -431,7 +472,7 @@ metadata = "reports/mobile-ui.json"
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.1.5", completed.stdout)
+        self.assertIn("godot-project-doctor 0.1.6", completed.stdout)
 
 
 if __name__ == "__main__":
