@@ -158,6 +158,10 @@ copy, rewrite, or inline them. Keep paths relative to the review artifact folder
 when possible, and check that logs or reports do not include private machine
 paths before sharing them.
 
+When linked evidence is a log file, the bundle records only compact counts:
+file count, line count, warning-like lines, error-like lines, and crash-like
+lines. Log contents are not embedded in JSON, Markdown, or HTML output.
+
 Reports include the package version, a schema version, and a small rule catalog.
 Each finding includes a stable `rule_id` plus a short `rule_help` field so CI
 jobs, PR comments, and local scripts can explain what to check next without

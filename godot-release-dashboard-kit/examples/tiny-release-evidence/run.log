@@ -1,2 +1,4 @@
 menu_startup passed in 812 ms
+WARNING trade_flow frame budget exceeded during fixture run
 trade_flow failed: expected cargo transfer event was not observed
+ERROR trade_flow assertion failed before cargo transfer completed

@@ -350,6 +350,20 @@ def _bundle_markdown(bundle: dict[str, Any]) -> list[str]:
                 "",
             ]
         )
+    log_summaries = [item for item in bundle.get("log_summaries", []) if isinstance(item, dict)]
+    if log_summaries:
+        lines.extend(
+            [
+                "| Log evidence | Value |",
+                "|---|---:|",
+                f"| Log files | {len(log_summaries)} |",
+                f"| Log lines | {sum(int(item.get('lines', 0)) for item in log_summaries)} |",
+                f"| Log warnings | {sum(int(item.get('warnings', 0)) for item in log_summaries)} |",
+                f"| Log errors | {sum(int(item.get('errors', 0)) for item in log_summaries)} |",
+                f"| Log crashes | {sum(int(item.get('crashes', 0)) for item in log_summaries)} |",
+                "",
+            ]
+        )
     evidence = _bundle_evidence_rows(bundle)
     if evidence:
         lines.extend(["| Kind | Path | Exists | Size bytes |", "|---|---|---:|---:|"])
@@ -387,6 +401,7 @@ def _bundle_html(bundle: Any) -> list[str]:
         "<h2>Bundle Evidence</h2>",
         *_telemetry_summary_html(bundle.get("telemetry_summary")),
         *_visual_summary_html(bundle.get("visual_summary")),
+        *_log_summary_html(bundle.get("log_summaries")),
         "<table><thead><tr><th>Kind</th><th>Path</th><th>Exists</th><th>Size bytes</th></tr></thead><tbody>",
     ]
     if evidence:
@@ -479,6 +494,23 @@ def _visual_summary_html(visual: Any) -> list[str]:
         f"<tr><td>Changed comparisons</td><td>{escape(str(visual.get('changed', 0)))}</td></tr>",
         f"<tr><td>Visual warnings</td><td>{escape(str(visual.get('warnings', 0)))}</td></tr>",
         f"<tr><td>Visual errors</td><td>{escape(str(visual.get('errors', 0)))}</td></tr>",
+        "</tbody></table>",
+    ]
+
+
+def _log_summary_html(log_summaries: Any) -> list[str]:
+    if not isinstance(log_summaries, list):
+        return []
+    rows = [item for item in log_summaries if isinstance(item, dict)]
+    if not rows:
+        return []
+    return [
+        "<table><thead><tr><th>Log evidence</th><th>Value</th></tr></thead><tbody>",
+        f"<tr><td>Log files</td><td>{len(rows)}</td></tr>",
+        f"<tr><td>Log lines</td><td>{sum(int(item.get('lines', 0)) for item in rows)}</td></tr>",
+        f"<tr><td>Log warnings</td><td>{sum(int(item.get('warnings', 0)) for item in rows)}</td></tr>",
+        f"<tr><td>Log errors</td><td>{sum(int(item.get('errors', 0)) for item in rows)}</td></tr>",
+        f"<tr><td>Log crashes</td><td>{sum(int(item.get('crashes', 0)) for item in rows)}</td></tr>",
         "</tbody></table>",
     ]
 

@@ -7,7 +7,7 @@ import sys
 from .reports import compare, render, summarize
 from .suite import bundle, coverage, flake_compare, manifest_check
 
-VERSION_LABEL = "godot-scenario-report 0.1.8"
+VERSION_LABEL = "godot-scenario-report 0.1.9"
 
 
 def main(argv: list[str] | None = None) -> int:

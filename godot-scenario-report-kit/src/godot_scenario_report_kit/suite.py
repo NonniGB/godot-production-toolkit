@@ -149,6 +149,7 @@ def bundle(
         _bundle_link(path, base_dir, findings, kind)
         for kind, path in evidence_links or []
     ]
+    log_summaries = _log_summaries(custom_evidence)
     report = _report("scenario_bundle", results, findings)
     report["results"] = str(results_path)
     report["bundle"] = {
@@ -161,6 +162,8 @@ def bundle(
         report["bundle"]["telemetry_summary"] = telemetry_summary
     if visual_summary is not None:
         report["bundle"]["visual_summary"] = visual_summary
+    if log_summaries:
+        report["bundle"]["log_summaries"] = log_summaries
     if manifest_path is not None:
         manifest_report = manifest_check(manifest_path, results_path)
         report["coverage"] = manifest_report.get("coverage")
@@ -180,6 +183,12 @@ def bundle(
         report["summary"]["visual_changed"] = visual_summary.get("changed", 0)
         report["summary"]["visual_warnings"] = visual_summary.get("warnings", 0)
         report["summary"]["visual_errors"] = visual_summary.get("errors", 0)
+    if log_summaries:
+        report["summary"]["log_files"] = len(log_summaries)
+        report["summary"]["log_lines"] = sum(int(item.get("lines", 0)) for item in log_summaries)
+        report["summary"]["log_warnings"] = sum(int(item.get("warnings", 0)) for item in log_summaries)
+        report["summary"]["log_errors"] = sum(int(item.get("errors", 0)) for item in log_summaries)
+        report["summary"]["log_crashes"] = sum(int(item.get("crashes", 0)) for item in log_summaries)
     return report
 
 
@@ -371,6 +380,49 @@ def _compact_visual_summary(data: object) -> dict[str, Any] | None:
         "warnings": warnings,
         "errors": errors,
     }
+
+
+def _log_summaries(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    summaries: list[dict[str, Any]] = []
+    for item in evidence:
+        path = Path(str(item.get("path") or ""))
+        kind = str(item.get("kind") or "log")
+        if not _looks_like_log(kind, path) or not bool(item.get("exists")) or not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        lines = text.splitlines()
+        warnings = 0
+        errors = 0
+        crashes = 0
+        for line in lines:
+            lowered = line.lower()
+            if "warning" in lowered or "warn:" in lowered:
+                warnings += 1
+            if "error" in lowered or "exception" in lowered or "traceback" in lowered:
+                errors += 1
+            if "crash" in lowered or "panic" in lowered or "fatal" in lowered:
+                crashes += 1
+        summaries.append(
+            {
+                "kind": kind,
+                "path": str(item.get("path") or path),
+                "relative_path": str(item.get("relative_path") or path.as_posix()),
+                "size_bytes": item.get("size_bytes", path.stat().st_size),
+                "lines": len(lines),
+                "warnings": warnings,
+                "errors": errors,
+                "crashes": crashes,
+            }
+        )
+    return summaries
+
+
+def _looks_like_log(kind: str, path: Path) -> bool:
+    lowered_kind = kind.lower()
+    return "log" in lowered_kind or lowered_kind in {"stdout", "stderr", "console"} or path.suffix.lower() == ".log"
 
 
 def _compact_telemetry_summary(data: object) -> dict[str, Any] | None:

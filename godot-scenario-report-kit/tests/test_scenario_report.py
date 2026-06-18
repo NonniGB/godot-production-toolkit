@@ -36,7 +36,7 @@ class ScenarioReportTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.8")
+            self.assertEqual(report["tool_version"], "0.1.9")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("scenario_failed", report["metadata"]["rules"])
             self.assertEqual(report["summary"]["scenarios"], 1)
@@ -628,6 +628,76 @@ class ScenarioReportTests(unittest.TestCase):
             self.assertNotIn("size_bytes", evidence[2])
             self.assertFalse(evidence[3]["exists"])
             self.assertIn("bundle_link_missing", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_bundle_summarizes_linked_log_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            results = root / "results"
+            results.mkdir()
+            log = root / "run.log"
+            log.write_text(
+                "\n".join(
+                    [
+                        "INFO scenario started",
+                        "WARNING slow frame in trade_flow",
+                        "ERROR assertion failed in trade_flow",
+                        "SCRIPT ERROR: invalid signal target",
+                        "CrashHandler: captured crash dump",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (results / "trade.json").write_text(
+                json.dumps({"scenario": "trade_flow", "status": "failed"}),
+                encoding="utf-8",
+            )
+
+            json_stdout = StringIO()
+            with redirect_stdout(json_stdout):
+                json_exit = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--evidence",
+                        f"log={log}",
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            markdown_stdout = StringIO()
+            with redirect_stdout(markdown_stdout):
+                markdown_exit = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--evidence",
+                        f"log={log}",
+                        "--format",
+                        "markdown",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(json_stdout.getvalue())
+            self.assertEqual(json_exit, 0)
+            self.assertEqual(markdown_exit, 0)
+            self.assertEqual(report["summary"]["log_files"], 1)
+            self.assertEqual(report["summary"]["log_lines"], 5)
+            self.assertEqual(report["summary"]["log_warnings"], 1)
+            self.assertEqual(report["summary"]["log_errors"], 2)
+            self.assertEqual(report["summary"]["log_crashes"], 1)
+            log_summary = report["bundle"]["log_summaries"][0]
+            self.assertEqual(log_summary["kind"], "log")
+            self.assertEqual(log_summary["lines"], 5)
+            self.assertEqual(log_summary["warnings"], 1)
+            self.assertEqual(log_summary["errors"], 2)
+            self.assertEqual(log_summary["crashes"], 1)
+            self.assertNotIn("contents", log_summary)
+            self.assertIn("| Log files | 1 |", markdown_stdout.getvalue())
 
     def test_bundle_markdown_and_html_show_linked_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

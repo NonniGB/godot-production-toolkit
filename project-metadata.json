@@ -71,7 +71,7 @@
     },
     {
       "name": "godot-scenario-report-kit",
-      "role": "Scenario run evidence validation from JSON or JUnit XML, manifests, coverage checks, flake and retry grouping, evidence bundles, telemetry summaries, visual summaries, and baseline comparison.",
+      "role": "Scenario run evidence validation from JSON or JUnit XML, manifests, coverage checks, flake and retry grouping, evidence bundles, telemetry summaries, visual summaries, log summaries, and baseline comparison.",
       "interfaces": ["cli", "json", "markdown", "html"]
     },
     {
@@ -185,6 +185,7 @@
     "godot-runtime-telemetry-lab/examples/tiny-godot-monitor/godot-performance-monitor.csv",
     "godot-release-dashboard-kit/examples/tiny-release-evidence/runtime-timeline.json",
     "godot-release-dashboard-kit/examples/tiny-release-evidence/scenario-flakes.json",
+    "godot-scenario-report-kit/examples/tiny-scenario-runs/run.log",
     "godot-scenario-report-kit/examples/tiny-scenario-runs/visual-smoke.json",
     "docs/assets/sample-reports/sprite-manifest.txt",
     "docs/assets/screenshots/project-doctor-html-report.png",

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.9 - 2026-06-18
+
+- Scenario bundles now summarize linked log evidence without embedding log
+  contents.
+- JSON, Markdown, and HTML bundle reports include compact log file, line,
+  warning, error, and crash counts.
+- Added tests for release bundles that include run logs beside scenario,
+  telemetry, visual, and JUnit evidence.
+
 ## 0.1.8 - 2026-06-18
 
 - Scenario bundles now summarize linked visual smoke JSON reports with capture,

@@ -82,7 +82,7 @@ is your starting point from a source checkout.
 - Start with `godot-scenario-report-kit` and `godot-runtime-telemetry-lab` when
   test runs already produce JSON or CSV evidence and you want reviewable
   summaries, timelines, normalized Godot Performance monitor samples, or compact
-  visual evidence summaries.
+  visual/log evidence summaries.
 - Start with `godot-release-dashboard-kit` when a release or pull request has
   several reports, typed summary highlights, scenario retry evidence, and
   export artifact checks or screenshots that should be reviewed in one static

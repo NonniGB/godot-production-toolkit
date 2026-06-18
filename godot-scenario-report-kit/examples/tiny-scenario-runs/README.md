@@ -22,6 +22,8 @@ file, which is useful for checking how retried runs are summarized.
 
 `junit.xml` is a tiny runner-style example. It can be summarized directly, or
 linked into a bundle as review evidence beside the JSON scenario results.
+`run.log` is linked as log evidence; bundle output summarizes its size and
+warning/error/crash counts without copying the log text.
 
 `visual-smoke.json` is a compact screenshot-comparison style report. Bundle
 reports summarize it without copying screenshot files, so the resulting JSON,

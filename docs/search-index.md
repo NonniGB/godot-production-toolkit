@@ -230,6 +230,8 @@ to the nearby files that explain the run: screenshots, logs, JUnit XML, runtime
 telemetry, profiler captures, or visual smoke reports. Linked visual smoke JSON
 is summarized into capture, comparison, changed-comparison, warning, and error
 counts without copying screenshot files.
+Linked logs are summarized into file, line, warning, error, and crash counts
+without embedding the log text.
 
 The [scenario gallery entries](report-gallery/README.md#start-here) show
 comparison reports, coverage HTML, screenshots, fixtures, and commands used to
@@ -268,7 +270,8 @@ input when scenario results should point to the logs, JUnit XML, screenshots, or
 telemetry files that explain a run. Runtime telemetry JSON or Markdown can be
 summarized into compact frame, memory, sample, and spike metrics inside the
 bundle, and visual smoke JSON can be summarized into compact capture and
-comparison counts.
+comparison counts. Linked logs can be summarized into compact warning, error,
+and crash counts without copying log contents.
 Optional `workflow` and `category` labels help reviewers scan related checks
 together in the generated dashboard.
 Add `--previous-reports-dir` when a pull request or release candidate should
