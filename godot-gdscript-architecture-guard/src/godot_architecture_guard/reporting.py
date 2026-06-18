@@ -31,6 +31,10 @@ def _text(report: dict[str, Any]) -> str:
         lines.append("Possible unused scripts:")
         for row in report["possible_unused_scripts"][:5]:
             lines.append(f"  {row['path']} ({row.get('module') or 'unowned'})")
+    if report.get("possible_unused_resources"):
+        lines.append("Possible unused resources:")
+        for row in report["possible_unused_resources"][:5]:
+            lines.append(f"  {row['path']} ({row.get('module') or 'unowned'})")
     if report.get("owner_summaries"):
         lines.append("Module ownership:")
         for row in report["owner_summaries"]:
@@ -60,6 +64,7 @@ def _markdown(report: dict[str, Any]) -> str:
         f"- Owner summaries: {summary.get('owner_summaries', 0)}",
         f"- Hotspots: {summary.get('hotspots', 0)}",
         f"- Possible unused scripts: {summary.get('possible_unused_scripts', 0)}",
+        f"- Possible unused resources: {summary.get('possible_unused_resources', 0)}",
         f"- Errors: {summary['errors']}",
         f"- Warnings: {summary['warnings']}",
         "",
@@ -77,6 +82,7 @@ def _markdown(report: dict[str, Any]) -> str:
     lines.extend(_markdown_owner_summaries(report))
     lines.extend(_markdown_hotspots(report))
     lines.extend(_markdown_possible_unused_scripts(report))
+    lines.extend(_markdown_possible_unused_resources(report))
     return "\n".join(lines)
 
 
@@ -129,6 +135,22 @@ def _markdown_possible_unused_scripts(report: dict[str, Any]) -> list[str]:
     lines = [
         "",
         "## Possible Unused Scripts",
+        "",
+        "| Path | Module | Reason |",
+        "|---|---|---|",
+    ]
+    for row in rows:
+        lines.append(f"| {row['path']} | {row.get('module') or ''} | {row['reason']} |")
+    return lines
+
+
+def _markdown_possible_unused_resources(report: dict[str, Any]) -> list[str]:
+    rows = report.get("possible_unused_resources", [])
+    if not rows:
+        return ["", "## Possible Unused Resources", "", "No possible unused resources found."]
+    lines = [
+        "",
+        "## Possible Unused Resources",
         "",
         "| Path | Module | Reason |",
         "|---|---|---|",

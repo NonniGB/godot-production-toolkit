@@ -14,7 +14,7 @@ Godot Production Toolkit is a collection of narrow production checks for Godot 4
 | Data content integrity | `godot-content-graph-doctor` |
 | Export preset readiness | `godot-export-preset-doctor` |
 | GDScript API comment coverage | `gdscript-api-comment-coverage` |
-| GDScript architecture boundaries, module owner summaries, high fan-in/fan-out files, and possible unused scripts | `godot-gdscript-architecture-guard` |
+| GDScript architecture boundaries, module owner summaries, high fan-in/fan-out files, and possible unused scripts/resources | `godot-gdscript-architecture-guard` |
 | Input map coverage | `godot-input-map-auditor` |
 | Localization QA | `godot-localization-qa-guard` |
 | Save fixture schema checks | `godot-save-schema-guard` |

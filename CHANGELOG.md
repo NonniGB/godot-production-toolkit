@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-gdscript-architecture-guard` with possible unused resource
+  summaries for refactor review reports.
 - Improved `godot-scenario-report-kit` scenario bundles with compact linked-log
   summaries that avoid embedding log contents.
 - Improved `godot-scenario-report-kit` scenario bundles with compact visual

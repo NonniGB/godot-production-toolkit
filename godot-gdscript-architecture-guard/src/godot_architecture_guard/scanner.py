@@ -10,8 +10,33 @@ from .rule_help import RULE_HELP, enrich_finding
 
 RESOURCE_RE = re.compile(r"""(?:preload|load)\(\s*["'](res://[^"']+)["']\s*\)""")
 RESOURCE_PATH_RE = re.compile(r"""["']\*?(res://[^"']+\.gd)["']""")
+ANY_RESOURCE_PATH_RE = re.compile(r"""["']\*?(res://[^"']+)["']""")
 CLASS_NAME_RE = re.compile(r"^\s*class_name\s+\w+", re.MULTILINE)
 TEXT_REFERENCE_SUFFIXES = {".gd", ".tscn", ".tres", ".cfg", ".godot"}
+RESOURCE_CANDIDATE_SUFFIXES = {
+    ".atlas",
+    ".csv",
+    ".fnt",
+    ".gdshader",
+    ".jpeg",
+    ".jpg",
+    ".json",
+    ".material",
+    ".mp3",
+    ".ogg",
+    ".otf",
+    ".png",
+    ".res",
+    ".scn",
+    ".shader",
+    ".svg",
+    ".theme",
+    ".tres",
+    ".tscn",
+    ".ttf",
+    ".wav",
+    ".webp",
+}
 HOTSPOT_LIMIT = 10
 
 
@@ -53,6 +78,8 @@ def audit_project(
         _check_autoload_access(rel, text, module, autoloads, findings)
 
     project_references = _project_script_references(root)
+    resource_files = _resource_files(root)
+    project_resource_references = _project_resource_references(root)
     hotspots = _build_hotspots(root, files, module_by_file, references_by_file, autoload_references_by_file)
     possible_unused_scripts = _build_possible_unused_scripts(
         root,
@@ -61,6 +88,12 @@ def audit_project(
         references_by_file,
         project_references,
         class_name_files,
+    )
+    possible_unused_resources = _build_possible_unused_resources(
+        root,
+        resource_files,
+        modules,
+        project_resource_references,
     )
     owner_summaries = _build_owner_summaries(
         root,
@@ -76,7 +109,7 @@ def audit_project(
 
     return {
         "tool": "godot-gdscript-architecture-guard",
-        "version": "0.1.3",
+        "version": "0.1.4",
         "metadata": {
             "schema_version": "1.1",
             "rule_count": len(RULE_HELP),
@@ -88,6 +121,7 @@ def audit_project(
             "dependencies": len(edges),
             "hotspots": len(hotspots),
             "possible_unused_scripts": len(possible_unused_scripts),
+            "possible_unused_resources": len(possible_unused_resources),
             "owner_summaries": len(owner_summaries),
             "findings": len(findings),
             "errors": sum(1 for finding in findings if finding.severity == "error"),
@@ -106,6 +140,7 @@ def audit_project(
         "owner_summaries": owner_summaries,
         "hotspots": hotspots,
         "possible_unused_scripts": possible_unused_scripts,
+        "possible_unused_resources": possible_unused_resources,
         "findings": [enrich_finding(finding.to_dict()) for finding in findings],
     }
 
@@ -247,6 +282,37 @@ def _project_script_references(root: Path) -> set[Path]:
     return references
 
 
+def _resource_files(root: Path) -> list[Path]:
+    files: list[Path] = []
+    for path in root.rglob("*"):
+        if not path.is_file() or ".godot" in path.parts:
+            continue
+        if path.suffix.lower() in RESOURCE_CANDIDATE_SUFFIXES:
+            files.append(path.resolve())
+    return sorted(files)
+
+
+def _project_resource_references(root: Path) -> set[Path]:
+    references: set[Path] = set()
+    for path in root.rglob("*"):
+        if not path.is_file() or ".godot" in path.parts:
+            continue
+        if path.suffix not in TEXT_REFERENCE_SUFFIXES and path.name != "project.godot":
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        references.update(_existing_resource_targets(root, text))
+    return references
+
+
+def _existing_resource_targets(root: Path, text: str) -> set[Path]:
+    targets: set[Path] = set()
+    for match in ANY_RESOURCE_PATH_RE.finditer(text):
+        target = root / match.group(1).removeprefix("res://")
+        if target.exists() and target.suffix.lower() in RESOURCE_CANDIDATE_SUFFIXES:
+            targets.add(target.resolve())
+    return targets
+
+
 def _build_hotspots(
     root: Path,
     files: list[Path],
@@ -305,6 +371,27 @@ def _build_possible_unused_scripts(
                 "path": path.relative_to(root).as_posix(),
                 "module": module.name if module else None,
                 "reason": "No res:// reference or class_name declaration was found.",
+            }
+        )
+    return rows
+
+
+def _build_possible_unused_resources(
+    root: Path,
+    resource_files: list[Path],
+    modules: tuple[ModulePolicy, ...],
+    project_resource_references: set[Path],
+) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    for path in resource_files:
+        if path in project_resource_references:
+            continue
+        module = _module_for_path(root, path, modules)
+        rows.append(
+            {
+                "path": path.relative_to(root).as_posix(),
+                "module": module.name if module else None,
+                "reason": "No visible res:// reference was found in scripts, scenes, resources, or project settings.",
             }
         )
     return rows

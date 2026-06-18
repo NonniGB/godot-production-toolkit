@@ -181,8 +181,8 @@ fixture, Markdown report, terminal screenshot, and regeneration command.
 Use [`godot-gdscript-architecture-guard`](../godot-gdscript-architecture-guard/README.md)
 for GDScript architecture and refactor safety checks. It helps review module
 dependencies, autoload access, missing load paths, high fan-in/fan-out files,
-module owner summaries, possible unused scripts, stale module path patterns, and
-dependency graphs.
+module owner summaries, possible unused scripts/resources, stale module path
+patterns, and dependency graphs.
 
 If the refactor touches scene wiring, add
 [`godot-scene-signal-auditor`](../godot-scene-signal-auditor/README.md). The

@@ -6,6 +6,7 @@
 - Owner summaries: 3
 - Hotspots: 2
 - Possible unused scripts: 2
+- Possible unused resources: 1
 - Errors: 1
 - Warnings: 0
 
@@ -34,3 +35,9 @@
 |---|---|---|
 | scripts/shared/formatting.gd | shared | No res:// reference or class_name declaration was found. |
 | scripts/ui/menu.gd | ui | No res:// reference or class_name declaration was found. |
+
+## Possible Unused Resources
+
+| Path | Module | Reason |
+|---|---|---|
+| data/old_items.json |  | No visible res:// reference was found in scripts, scenes, resources, or project settings. |

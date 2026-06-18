@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 - 2026-06-19
+
+- Added advisory possible-unused resource summaries for common Godot scene, resource, data, image, font, shader, and audio files.
+- Text and Markdown reports now show possible unused resources beside existing script and hotspot sections.
+- Updated the tiny architecture fixture with a referenced data file and a stale data file.
+
 ## 0.1.3 - 2026-06-17
 
 - Added module ownership summaries for configured modules and unowned scripts.

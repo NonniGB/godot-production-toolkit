@@ -3,7 +3,9 @@
 This fixture has one deliberate module boundary violation: the UI script preloads
 a gameplay script even though the policy only allows UI to depend on shared
 code. It is also small enough to show the advisory high fan-in/fan-out and
-possible unused script sections in Markdown output.
+possible unused script/resource sections in Markdown output. The data folder has
+one referenced JSON file and one stale JSON file so the resource review has a
+small, readable example.
 
 ```powershell
 godot-architecture-guard . --config architecture-guard.toml

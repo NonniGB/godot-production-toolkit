@@ -52,7 +52,7 @@ names = ["GameState"]
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("module_boundary_violation", rules)
             self.assertIn("autoload_access_violation", rules)
-            self.assertEqual(report["version"], "0.1.3")
+            self.assertEqual(report["version"], "0.1.4")
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
             self.assertIn("suggestion", report["findings"][0])
             self.assertIn("module_boundary_violation", report["rule_help"])
@@ -133,6 +133,55 @@ names = ["GameState"]
             self.assertEqual(summaries["ui"]["outgoing_dependencies"], 1)
             self.assertEqual(summaries["ui"]["autoload_references"], 2)
             self.assertEqual(summaries["<unowned>"]["matched_scripts"], 1)
+
+    def test_reports_likely_unreferenced_resources(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "assets" / "sprites").mkdir(parents=True)
+            (root / "assets" / "audio").mkdir(parents=True)
+            (root / "scenes").mkdir()
+            (root / "scripts").mkdir()
+            (root / "scripts" / "main.gd").write_text(
+                'extends Node\nconst Ship = preload("res://assets/sprites/ship.png")\n',
+                encoding="utf-8",
+            )
+            (root / "scenes" / "main.tscn").write_text(
+                '[gd_scene load_steps=2 format=3]\n'
+                '[ext_resource type="Script" path="res://scripts/main.gd" id="1"]\n'
+                '[node name="Main" type="Node"]\n'
+                'script = ExtResource("1")\n',
+                encoding="utf-8",
+            )
+            (root / "assets" / "sprites" / "ship.png").write_bytes(b"fake-png")
+            (root / "assets" / "sprites" / "old_enemy.png").write_bytes(b"old-png")
+            (root / "assets" / "audio" / "unused_alert.ogg").write_bytes(b"fake-ogg")
+            (root / "project.godot").write_text(
+                'config_version=5\n[application]\nrun/main_scene="res://scenes/main.tscn"\n',
+                encoding="utf-8",
+            )
+            config = root / "architecture-guard.toml"
+            config.write_text(
+                """
+[modules.main]
+paths = ["scripts/**", "scenes/**", "assets/**"]
+may_depend_on = []
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--config", str(config), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            unused_paths = [row["path"] for row in report["possible_unused_resources"]]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["version"], "0.1.4")
+            self.assertEqual(report["summary"]["possible_unused_resources"], 2)
+            self.assertIn("assets/sprites/old_enemy.png", unused_paths)
+            self.assertIn("assets/audio/unused_alert.ogg", unused_paths)
+            self.assertNotIn("assets/sprites/ship.png", unused_paths)
+            self.assertNotIn("scenes/main.tscn", unused_paths)
 
     def test_reports_module_paths_that_match_no_scripts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -303,6 +352,7 @@ may_depend_on = []
             self.assertIn("## Dependency Hotspots", markdown)
             self.assertIn("scripts/shared/formatting.gd", markdown)
             self.assertIn("## Possible Unused Scripts", markdown)
+            self.assertIn("## Possible Unused Resources", markdown)
             self.assertIn("## Module Ownership Summary", markdown)
             self.assertIn("| ui | 1 |", markdown)
 

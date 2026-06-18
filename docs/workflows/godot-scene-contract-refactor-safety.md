@@ -64,4 +64,5 @@ Use exact `path` values for important scenes and `path_pattern` values such as
   signals.
 - Architecture findings when the refactor crosses module or autoload rules.
 - Module ownership summaries showing which areas own scripts, incoming/outgoing
-  dependencies, autoload references, hotspots, and possible-unused candidates.
+  dependencies, autoload references, hotspots, and possible-unused script or
+  resource candidates.

@@ -116,7 +116,7 @@ Pick the package that matches the risk you are trying to reduce:
 - `godot-export-preset-doctor`: before an Android, Windows, Linux, or web export job.
 - `godot-asset-pipeline-doctor`: before merging new sprites, UI art, icons, or large textures.
 - `godot-content-graph-doctor`: before merging data-driven items, recipes, quests, levels, or content packs.
-- `godot-gdscript-architecture-guard`: before refactoring modules, autoloads, shared scripts, or high fan-in/fan-out files.
+- `godot-gdscript-architecture-guard`: before refactoring modules, autoloads, shared scripts, high fan-in/fan-out files, or stale resources.
 - `godot-input-map-auditor`: before merging input, controller, or mobile-touch changes.
 - `godot-localization-qa-guard`: before shipping translated builds or importing new localization files.
 - `godot-mobile-perf-doctor`: before testing a Godot 4 project on Android hardware.
@@ -270,7 +270,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-content-graph-doctor` | Data-driven content id, reference, and numeric outlier checks. | JSON, Markdown, Mermaid |
 | `godot-export-preset-doctor` | Release-readiness, target matrix, preset diff, leak-risk, and exported artifact checks. | JSON, SARIF, Markdown, HTML |
 | `gdscript-api-comment-coverage` | Public GDScript API docs and comment coverage gate. | JSON, Markdown |
-| `godot-gdscript-architecture-guard` | GDScript module boundaries, owner summaries, autoload access, high fan-in/fan-out files, possible unused scripts, and dependency policy checks. | JSON, SARIF, Markdown, Mermaid |
+| `godot-gdscript-architecture-guard` | GDScript module boundaries, owner summaries, autoload access, high fan-in/fan-out files, possible unused scripts/resources, and dependency policy checks. | JSON, SARIF, Markdown, Mermaid |
 | `godot-input-map-auditor` | Input device coverage and duplicate binding checks. | JSON, SARIF, Markdown |
 | `godot-localization-qa-guard` | CSV/PO localization QA, stress translation packs, and translation-key usage scan. | JSON, SARIF, Markdown, CSV |
 | `godot-save-schema-guard` | Save fixture generation, schema validation, migration comparison, and command checks. | JSON, Markdown |
@@ -297,7 +297,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | Runtime frame or memory samples need budget checks or timeline reports | `godot-runtime-telemetry-lab` |
 | Pack, DLC, mod, or patch manifests need generation or release checks | `godot-pack-mod-doctor` |
 | Several reports need one static review page | `godot-release-dashboard-kit` |
-| GDScript modules, autoloads, or high fan-in/fan-out files are becoming tangled | `godot-gdscript-architecture-guard` |
+| GDScript modules, autoloads, high fan-in/fan-out files, or stale resources are becoming tangled | `godot-gdscript-architecture-guard` |
 | Translation imports keep breaking placeholders or keys | `godot-localization-qa-guard` |
 | Translated text may overflow buttons, HUDs, or mobile menus | `godot-localization-qa-guard`, `godot-mobile-ui-doctor` |
 | Save data changes need fixture coverage or migration proof | `godot-save-schema-guard` |
@@ -379,7 +379,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.10` |
 | [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.3` |
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.10` |
-| [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.3` |
+| [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.4` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.4` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |

@@ -51,7 +51,7 @@
     },
     {
       "name": "godot-gdscript-architecture-guard",
-      "role": "GDScript module boundary, module owner summary, autoload access, dependency graph, high fan-in/fan-out file, possible unused script, and architecture policy checks.",
+      "role": "GDScript module boundary, module owner summary, autoload access, dependency graph, high fan-in/fan-out file, possible unused script/resource, and architecture policy checks.",
       "interfaces": ["cli", "json", "sarif", "markdown", "mermaid"]
     },
     {

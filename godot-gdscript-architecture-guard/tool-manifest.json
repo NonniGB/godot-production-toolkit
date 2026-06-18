@@ -10,6 +10,7 @@
     "module_owner_summary": true,
     "high_coupling_summary": true,
     "possible_unused_script_summary": true,
+    "possible_unused_resource_summary": true,
     "module_path_coverage": true,
     "visual_interface": "Mermaid dependency graph"
   },
@@ -30,7 +31,7 @@
       "command": "godot-architecture-guard . --config architecture-guard.toml --format json --output reports/architecture.json"
     },
     {
-      "purpose": "Write a refactor review report with owner, high fan-in/fan-out, and possible unused script summaries",
+      "purpose": "Write a refactor review report with owner, high fan-in/fan-out, and possible unused script/resource summaries",
       "command": "godot-architecture-guard . --config architecture-guard.toml --format markdown --output reports/architecture.md --fail-on none"
     },
     {

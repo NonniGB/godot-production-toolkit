@@ -27,7 +27,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot scene signal audit | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --format json` |
 | Godot scene contract check before refactoring | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |
 | GDScript architecture boundary check | `python -m pip install godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml --format markdown` |
-| GDScript module owner, high fan-in/fan-out, and possible unused script review | `python -m pip install godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml --format markdown --fail-on none` |
+| GDScript module owner, high fan-in/fan-out, and possible unused script/resource review | `python -m pip install godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml --format markdown --fail-on none` |
 | GDScript API comment coverage | `python -m pip install gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Godot data/content graph validation | `python -m pip install godot-content-graph-doctor` | `godot-content-graph . --preset recipes --format markdown` |
 | Godot pack manifest generation from a folder | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json` |
