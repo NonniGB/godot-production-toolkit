@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.5 - 2026-06-20
+
+- Added `--baseline-contract` for comparing the current scene contract with a
+  previous contract.
+- Contract diffs report warnings for removed scene targets, nodes,
+  connections, script methods, script signals, exported properties, and node
+  groups.
+- Updated the scene contract workflow docs and manifest examples.
+
 ## 0.1.4 - 2026-06-19
 
 - Scene contracts can now require node group membership.

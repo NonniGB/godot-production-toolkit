@@ -19,7 +19,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-signal-audit 0.1.4", stdout.getvalue())
+        self.assertIn("godot-signal-audit 0.1.5", stdout.getvalue())
 
     def test_mermaid_graph_contains_signal_edge(self) -> None:
         scene = ParsedScene(
@@ -43,9 +43,57 @@ class ReportingCliTests(unittest.TestCase):
         )
 
         self.assertEqual(report["metadata"]["schema_version"], "1.1")
-        self.assertEqual(report["metadata"]["tool_version"], "0.1.4")
+        self.assertEqual(report["metadata"]["tool_version"], "0.1.5")
         self.assertEqual(report["rules"]["stale_scene_connection"]["title"], "Stale scene connection")
         self.assertIn("resolved target script", report["findings"][0]["explanation"])
+
+    def test_cli_reports_contract_diff_warnings(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scenes").mkdir()
+            (root / "scripts").mkdir()
+            (root / "scripts" / "menu.gd").write_text("func _ready() -> void:\n    pass\n", encoding="utf-8")
+            (root / "scenes" / "menu.tscn").write_text(
+                """
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/menu.gd" id="1_menu"]
+[node name="Menu" type="Control"]
+script = ExtResource("1_menu")
+""",
+                encoding="utf-8",
+            )
+            baseline = root / "baseline-contract.json"
+            current = root / "scene-contract.json"
+            baseline.write_text(
+                json.dumps({"scenes": [{"path": "scenes/menu.tscn", "required_nodes": [".", "StartButton"]}]}),
+                encoding="utf-8",
+            )
+            current.write_text(
+                json.dumps({"scenes": [{"path": "scenes/menu.tscn", "required_nodes": ["."]}]}),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        str(root),
+                        "--contract",
+                        str(current),
+                        "--baseline-contract",
+                        str(baseline),
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["warnings"], 1)
+            self.assertEqual(report["findings"][0]["rule_id"], "scene_contract_diff")
+            self.assertEqual(report["rules"]["scene_contract_diff"]["title"], "Scene contract changed")
 
     def test_text_report_includes_plain_language_rule_help(self) -> None:
         report = render_text_report(

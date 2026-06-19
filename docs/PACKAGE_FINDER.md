@@ -26,6 +26,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot save fixture redaction | `python -m pip install godot-save-schema-guard` | `godot-save-guard redact saves/fixtures --path player.name --output-dir sanitized-saves --dry-run` |
 | Godot scene signal audit | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --format json` |
 | Godot scene contract check for nodes, groups, signals, handlers, and exported properties before refactoring | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |
+| Godot scene contract diff after refactoring | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --baseline-contract previous-scene-contract.json --format json --fail-on none` |
 | GDScript architecture boundary check | `python -m pip install godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml --format markdown` |
 | GDScript module owner, high fan-in/fan-out, and possible unused script/resource review | `python -m pip install godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml --format markdown --fail-on none` |
 | GDScript API comment coverage | `python -m pip install gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
@@ -89,7 +90,9 @@ is your starting point from a source checkout.
   page.
 - Start with `godot-scene-signal-auditor --contract` when a refactor should
   preserve specific nodes, groups, signal handlers, exported script properties,
-  or scene-level script signals.
+  or scene-level script signals. Add `--baseline-contract` when reviewers need
+  to see which scene contract requirements were removed from a previous
+  contract.
 
 For combined workflows, use the [Workflow Finder](search-index.md) or the
 [Tool Index](TOOL_INDEX.md).

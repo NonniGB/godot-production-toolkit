@@ -17,6 +17,12 @@ RULE_HELP: dict[str, dict[str, str]] = {
             "script method, script signal, exported property, or node group from the contract file."
         ),
     },
+    "scene_contract_diff": {
+        "title": "Scene contract changed",
+        "explanation": (
+            "The current scene contract no longer includes a requirement from the baseline contract."
+        ),
+    },
 }
 
 

@@ -126,7 +126,7 @@ Pick the package that matches the risk you are trying to reduce:
 - `godot-runtime-telemetry-lab`: after scenario or soak runs produce frame/runtime samples, timelines, or budget checks.
 - `godot-save-schema-guard`: before changing save data, generating save fixtures, or migration commands.
 - `godot-scenario-report-kit`: after scenario, smoke, or regression runs produce JSON or JUnit XML evidence.
-- `godot-scene-signal-auditor`: before refactoring scenes, signals, node groups, exported script properties, or autoload event wiring.
+- `godot-scene-signal-auditor`: before refactoring scenes, signals, node groups, scene contracts, exported script properties, or autoload event wiring.
 - `godot-visual-smoke-test-kit`: before approving UI, scene, or rendering changes with screenshot baselines.
 - `pixel-space-asset-toolkit`: when generating deterministic pixel-art space assets or preview sheets.
 
@@ -203,7 +203,7 @@ godot-architecture-guard godot-gdscript-architecture-guard\examples\tiny-archite
 godot-mobile-ui-doctor matrix godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown
 godot-mobile-ui-doctor overlays godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --output-dir reports\mobile-ui-overlays --fail-on none
 godot-mobile-ui-doctor readiness godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --format markdown --fail-on none
-godot-signal-audit godot-scene-signal-auditor\examples\tiny-godot-project --contract godot-scene-signal-auditor\examples\tiny-godot-project\scene-contract.json --format json --fail-on none
+godot-signal-audit godot-scene-signal-auditor\examples\tiny-godot-project --contract godot-scene-signal-auditor\examples\tiny-godot-project\scene-contract.json --baseline-contract godot-scene-signal-auditor\examples\tiny-godot-project\scene-contract.json --format json --fail-on none
 godot-telemetry-lab adapt examples\godot-exporters\fixtures\runtime-telemetry.json --format json --output reports\runtime-normalized.json
 godot-telemetry-lab budget init --profile android-high --output reports\runtime-budget.json
 godot-telemetry-lab timeline godot-runtime-telemetry-lab\examples\tiny-runtime-run --budget-file reports\runtime-budget.json --format html --output reports\runtime-timeline.html
@@ -275,7 +275,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-localization-qa-guard` | CSV/PO localization QA, stress translation packs, and translation-key usage scan. | JSON, SARIF, Markdown, CSV |
 | `godot-save-schema-guard` | Save fixture generation, schema validation, migration comparison, and command checks. | JSON, Markdown |
 | `godot-scenario-report-kit` | Scenario run evidence summaries, manifests, coverage checks, flake and retry grouping, visual/telemetry/log bundle summaries, and baseline comparison. | JSON, Markdown, HTML |
-| `godot-scene-signal-auditor` | Scene signal connection, scene contract, node group, exported property, and autoload coupling analysis. | JSON, Mermaid |
+| `godot-scene-signal-auditor` | Scene signal connection, scene contract, contract diff, node group, exported property, and autoload coupling analysis. | JSON, Mermaid |
 | `godot-visual-smoke-test-kit` | Screenshot diffing, approval, and Godot capture command planning. | JSON, PNG diffs |
 | `godot-mobile-perf-doctor` | Static mobile performance diagnostics. | JSON, SARIF, Markdown |
 | `godot-mobile-ui-doctor` | Mobile UI safe-area, touch-target, spacing, localized layout-risk, overlay previews, and combined mobile readiness reports. | JSON, Markdown, PNG, text |
@@ -301,7 +301,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | Translation imports keep breaking placeholders or keys | `godot-localization-qa-guard` |
 | Translated text may overflow buttons, HUDs, or mobile menus | `godot-localization-qa-guard`, `godot-mobile-ui-doctor` |
 | Save data changes need fixture coverage or migration proof | `godot-save-schema-guard` |
-| Scene refactors break signal wiring, node groups, or exported script properties | `godot-scene-signal-auditor` |
+| Scene refactors break signal wiring, node groups, scene contracts, or exported script properties | `godot-scene-signal-auditor` |
 | UI or rendering changes need screenshot evidence | `godot-visual-smoke-test-kit` |
 
 For a more complete problem-to-tool map with commands and package names, see
@@ -389,6 +389,6 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.3` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.6` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.9` |
-| [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.4` |
+| [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.5` |
 | [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.2` |
 | [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/) | `0.1.4` |

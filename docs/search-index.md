@@ -192,7 +192,9 @@ the kind of report a reviewer can inspect without opening the whole project.
 When important scene nodes, groups, handlers, exported properties, or signals
 must stay stable, use the
 [scene contract refactor workflow](workflows/godot-scene-contract-refactor-safety.md)
-with `godot-signal-audit --contract scene-contract.json`.
+with `godot-signal-audit --contract scene-contract.json`. When a reviewer needs
+to see whether the refactor removed scene API requirements, compare the current
+contract with a saved contract using `--baseline-contract`.
 
 ### "Controls work on keyboard but not touch, mouse, or controller"
 

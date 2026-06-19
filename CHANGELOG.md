@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-scene-signal-auditor` scene contracts with baseline contract
+  diff warnings for removed scene API requirements.
 - Improved `godot-scene-signal-auditor` scene contracts with node group and
   exported script property checks.
 - Improved `godot-gdscript-architecture-guard` with possible unused resource

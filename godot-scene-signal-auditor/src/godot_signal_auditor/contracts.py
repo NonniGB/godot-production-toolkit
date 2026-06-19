@@ -47,6 +47,26 @@ def audit_scene_contracts(
     return findings
 
 
+def compare_scene_contracts(baseline: dict[str, Any], current: dict[str, Any]) -> list[Finding]:
+    findings: list[Finding] = []
+    baseline_specs = _scene_specs_by_label(baseline)
+    current_specs = _scene_specs_by_label(current)
+
+    for label, baseline_spec in baseline_specs.items():
+        current_spec = current_specs.get(label)
+        if current_spec is None:
+            findings.append(
+                _contract_diff_finding(
+                    label,
+                    f"Scene contract target '{label}' is not present in the current contract.",
+                )
+            )
+            continue
+        findings.extend(_compare_scene_spec(label, baseline_spec, current_spec))
+
+    return findings
+
+
 def _scene_specs(contract: dict[str, Any]) -> list[dict[str, Any]]:
     raw_scenes = contract.get("scenes", [])
     if isinstance(raw_scenes, dict):
@@ -58,6 +78,15 @@ def _scene_specs(contract: dict[str, Any]) -> list[dict[str, Any]]:
     if isinstance(raw_scenes, list):
         return [spec for spec in raw_scenes if isinstance(spec, dict)]
     return []
+
+
+def _scene_specs_by_label(contract: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    specs: dict[str, dict[str, Any]] = {}
+    for spec in _scene_specs(contract):
+        label = _string_value(spec, "path") or _string_value(spec, "path_pattern")
+        if label:
+            specs[label] = spec
+    return specs
 
 
 def _matching_scenes(
@@ -198,6 +227,116 @@ def _audit_node_groups(scene: ParsedScene, raw_groups: object) -> list[Finding]:
     return findings
 
 
+def _compare_scene_spec(
+    label: str,
+    baseline_spec: dict[str, Any],
+    current_spec: dict[str, Any],
+) -> list[Finding]:
+    findings: list[Finding] = []
+    findings.extend(_compare_required_nodes(label, baseline_spec, current_spec))
+    findings.extend(_compare_required_connections(label, baseline_spec, current_spec))
+    findings.extend(_compare_required_members(label, baseline_spec, current_spec, "script_methods", "method"))
+    findings.extend(_compare_required_members(label, baseline_spec, current_spec, "script_signals", "signal"))
+    findings.extend(
+        _compare_required_members(
+            label,
+            baseline_spec,
+            current_spec,
+            "script_exports",
+            "exported property",
+            aliases=("script_exported_properties", "exported_properties"),
+        )
+    )
+    findings.extend(
+        _compare_required_members(
+            label,
+            baseline_spec,
+            current_spec,
+            "node_groups",
+            "group",
+            aliases=("required_groups",),
+        )
+    )
+    return findings
+
+
+def _compare_required_nodes(
+    label: str,
+    baseline_spec: dict[str, Any],
+    current_spec: dict[str, Any],
+) -> list[Finding]:
+    current_nodes = set(_string_list(current_spec.get("required_nodes")))
+    findings: list[Finding] = []
+    for node in _string_list(baseline_spec.get("required_nodes")):
+        if node not in current_nodes:
+            findings.append(
+                _contract_diff_finding(
+                    label,
+                    f"Current contract no longer requires node '{node}' for '{label}'.",
+                )
+            )
+    return findings
+
+
+def _compare_required_connections(
+    label: str,
+    baseline_spec: dict[str, Any],
+    current_spec: dict[str, Any],
+) -> list[Finding]:
+    current_connections = {_connection_key(connection) for connection in _connection_specs(_required_connections(current_spec))}
+    findings: list[Finding] = []
+    for connection in _connection_specs(_required_connections(baseline_spec)):
+        if _connection_key(connection) in current_connections:
+            continue
+        findings.append(
+            _contract_diff_finding(
+                label,
+                (
+                    "Current contract no longer requires connection "
+                    f"'{connection['from']}.{connection['signal']} -> {_target_label(connection)}' "
+                    f"for '{label}'."
+                ),
+            )
+        )
+    return findings
+
+
+def _compare_required_members(
+    label: str,
+    baseline_spec: dict[str, Any],
+    current_spec: dict[str, Any],
+    key: str,
+    member_kind: str,
+    *,
+    aliases: tuple[str, ...] = (),
+) -> list[Finding]:
+    baseline_members = _first_mapping(baseline_spec, key, *aliases)
+    current_members = _first_mapping(current_spec, key, *aliases)
+    if not isinstance(baseline_members, dict):
+        return []
+    if not isinstance(current_members, dict):
+        current_members = {}
+
+    findings: list[Finding] = []
+    for node, names in baseline_members.items():
+        if not isinstance(node, str):
+            continue
+        current_names = set(_string_list(current_members.get(node)))
+        for name in _string_list(names):
+            if name in current_names:
+                continue
+            findings.append(
+                _contract_diff_finding(
+                    label,
+                    (
+                        f"Current contract no longer requires {member_kind} "
+                        f"'{name}' on node '{node}' for '{label}'."
+                    ),
+                )
+            )
+    return findings
+
+
 def _has_connection(scene: ParsedScene, expected: dict[str, str]) -> bool:
     return any(
         connection.from_node == expected["from"]
@@ -206,6 +345,14 @@ def _has_connection(scene: ParsedScene, expected: dict[str, str]) -> bool:
         and connection.method == expected["method"]
         for connection in scene.connections
     )
+
+
+def _connection_key(connection: dict[str, str]) -> tuple[str, str, str, str]:
+    return (connection["from"], connection["signal"], connection["to"], connection["method"])
+
+
+def _required_connections(spec: dict[str, Any]) -> object:
+    return spec.get("required_connections", spec.get("expected_connections", []))
 
 
 def _target_label(connection: dict[str, str]) -> str:
@@ -253,3 +400,7 @@ def _first_mapping(raw: dict[str, Any], *keys: str) -> object:
 
 def _contract_finding(path: Path, message: str) -> Finding:
     return Finding("scene_contract_violation", "error", path, message)
+
+
+def _contract_diff_finding(label: str, message: str) -> Finding:
+    return Finding("scene_contract_diff", "warning", Path(label), message)

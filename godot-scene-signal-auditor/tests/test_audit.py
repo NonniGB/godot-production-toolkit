@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from godot_signal_auditor.audit import audit_project_model
-from godot_signal_auditor.contracts import audit_scene_contracts, load_contract
+from godot_signal_auditor.contracts import audit_scene_contracts, compare_scene_contracts, load_contract
 from godot_signal_auditor.models import ParsedScene, ParsedScript, SceneConnection
 
 
@@ -165,6 +165,53 @@ method = "_ready"
             self.assertEqual(contract["scenes"][0]["path"], "scenes/menu.tscn")
             self.assertEqual(contract["scenes"][0]["required_nodes"], [".", "StartButton"])
             self.assertEqual(contract["scenes"][0]["required_connections"][0]["method"], "_ready")
+
+    def test_contract_diff_reports_removed_targets_and_requirements(self) -> None:
+        baseline = {
+            "scenes": [
+                {
+                    "path": "scenes/menu.tscn",
+                    "required_nodes": [".", "StartButton"],
+                    "required_connections": [
+                        {"from": "StartButton", "signal": "pressed", "to": ".", "method": "_on_start_pressed"}
+                    ],
+                    "script_methods": {".": ["_ready", "_on_start_pressed"]},
+                    "script_signals": {".": ["menu_confirmed"]},
+                    "script_exports": {".": ["menu_title"]},
+                    "node_groups": {"StartButton": ["primary_action"]},
+                },
+                {"path": "scenes/options.tscn", "required_nodes": ["."]},
+            ]
+        }
+        current = {"scenes": [{"path": "scenes/menu.tscn", "required_nodes": ["."]}]}
+
+        findings = compare_scene_contracts(baseline, current)
+
+        messages = [finding.message for finding in findings]
+        self.assertTrue(all(finding.rule_id == "scene_contract_diff" for finding in findings))
+        self.assertTrue(all(finding.severity == "warning" for finding in findings))
+        self.assertIn("Scene contract target 'scenes/options.tscn' is not present in the current contract.", messages)
+        self.assertIn("Current contract no longer requires node 'StartButton' for 'scenes/menu.tscn'.", messages)
+        self.assertIn(
+            "Current contract no longer requires connection 'StartButton.pressed -> ._on_start_pressed' for 'scenes/menu.tscn'.",
+            messages,
+        )
+        self.assertIn(
+            "Current contract no longer requires method '_on_start_pressed' on node '.' for 'scenes/menu.tscn'.",
+            messages,
+        )
+        self.assertIn(
+            "Current contract no longer requires signal 'menu_confirmed' on node '.' for 'scenes/menu.tscn'.",
+            messages,
+        )
+        self.assertIn(
+            "Current contract no longer requires exported property 'menu_title' on node '.' for 'scenes/menu.tscn'.",
+            messages,
+        )
+        self.assertIn(
+            "Current contract no longer requires group 'primary_action' on node 'StartButton' for 'scenes/menu.tscn'.",
+            messages,
+        )
 
 
 if __name__ == "__main__":

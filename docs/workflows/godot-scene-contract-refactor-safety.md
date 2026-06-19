@@ -18,6 +18,7 @@ Related docs: [Tool Index](../TOOL_INDEX.md) and [Workflow Finder](../search-ind
 ```powershell
 python -m pip install godot-scene-signal-auditor godot-gdscript-architecture-guard
 godot-signal-audit . --contract scene-contract.json --format json --output reports\scene-contract.json
+godot-signal-audit . --contract scene-contract.json --baseline-contract previous-scene-contract.json --format json --output reports\scene-contract-diff.json --fail-on none
 godot-architecture-guard . --config architecture-guard.toml --format markdown --output reports\architecture.md
 ```
 
@@ -70,6 +71,8 @@ Use exact `path` values for important scenes and `path_pattern` values such as
 - JSON, text, or Mermaid signal reports.
 - Contract violations for missing nodes, connections, groups, methods, exported
   properties, or script signals.
+- Contract diff warnings when the current contract removes previously required
+  scenes, nodes, connections, groups, methods, exported properties, or signals.
 - Architecture findings when the refactor crosses module or autoload rules.
 - Module ownership summaries showing which areas own scripts, incoming/outgoing
   dependencies, autoload references, hotspots, and possible-unused script or

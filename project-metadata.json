@@ -76,7 +76,7 @@
     },
     {
       "name": "godot-scene-signal-auditor",
-      "role": "Scene signal connection, scene contract, node group, exported property, and autoload coupling analysis.",
+      "role": "Scene signal connection, scene contract, contract diff, node group, exported property, and autoload coupling analysis.",
       "interfaces": ["cli", "json", "mermaid"]
     },
     {

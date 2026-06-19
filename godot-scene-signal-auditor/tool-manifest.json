@@ -10,6 +10,7 @@
     "report_metadata": true,
     "plain_language_rule_help": true,
     "scene_contracts": true,
+    "contract_diff": true,
     "node_group_contracts": true,
     "exported_property_contracts": true,
     "visual_interface": "Mermaid graph output"
@@ -37,6 +38,10 @@
     {
       "purpose": "Scene contract check before refactoring",
       "command": "godot-signal-audit <project> --contract scene-contract.json --format json --output reports/scene-contract.json"
+    },
+    {
+      "purpose": "Scene contract diff after refactoring",
+      "command": "godot-signal-audit <project> --contract scene-contract.json --baseline-contract previous-scene-contract.json --format json --fail-on none"
     }
   ]
 }

@@ -22,6 +22,7 @@ python -m pip install godot-scene-signal-auditor
 godot-signal-audit C:\Projects\MyGame --strict-stale-connections
 godot-signal-audit . --autoload EventBus,SignalBus
 godot-signal-audit . --contract scene-contract.json
+godot-signal-audit . --contract scene-contract.json --baseline-contract previous-scene-contract.json
 godot-signal-audit . --format mermaid --output docs\SIGNAL_GRAPH.md
 godot-signal-audit . --format json --output signal-report.json
 ```
@@ -39,7 +40,7 @@ godot-signal-audit examples\tiny-godot-project --contract examples\tiny-godot-pr
 - Target method existence when the target script is resolvable.
 - GDScript `signal` declarations and method names.
 - Configured autoload signal connect usage.
-- Optional JSON or TOML scene contracts for required nodes, node groups, connections, script methods, script signals, and exported script properties.
+- Optional JSON or TOML scene contracts for required nodes, node groups, connections, script methods, script signals, exported script properties, and baseline contract diffs.
 - Mermaid signal graph output.
 - Report metadata and readable rule explanations in text and JSON output.
 
@@ -80,6 +81,14 @@ Use `--contract` to enforce a small scene API before refactors. Contracts can ta
 ```
 
 TOML files use the same field names with `[[scenes]]` entries. Contract violations are reported as errors and respect `--fail-on`.
+
+When a refactor changes the contract intentionally, keep a copy of the previous contract and compare it with the new one:
+
+```powershell
+godot-signal-audit . --contract scene-contract.json --baseline-contract previous-scene-contract.json --format json --fail-on none
+```
+
+The baseline comparison reports warnings for removed scene targets, required nodes, required connections, script methods, script signals, exported properties, and node groups. That makes breaking scene API changes visible in review without failing builds unless your `--fail-on` threshold includes warnings.
 
 ## Documentation
 
