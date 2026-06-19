@@ -1,8 +1,9 @@
 # Godot Scene Contract Refactor Safety
 
-Use this before renaming nodes, moving UI scenes, splitting controllers, or
-changing signal handlers. A small scene contract gives reviewers a concrete
-check that important scene API points still exist after the refactor.
+Use this before renaming nodes, moving UI scenes, splitting controllers,
+changing signal handlers, moving nodes between groups, or renaming exported
+script properties. A small scene contract gives reviewers a concrete check that
+important scene API points still exist after the refactor.
 
 Related docs: [Tool Index](../TOOL_INDEX.md) and [Workflow Finder](../search-index.md).
 
@@ -41,6 +42,13 @@ godot-architecture-guard . --config architecture-guard.toml --format markdown --
       },
       "script_signals": {
         ".": ["menu_confirmed"]
+      },
+      "script_exports": {
+        ".": ["menu_title"]
+      },
+      "node_groups": {
+        ".": ["menu_root"],
+        "StartButton": ["primary_action"]
       }
     }
   ]
@@ -60,8 +68,8 @@ Use exact `path` values for important scenes and `path_pattern` values such as
 ## Expected outputs
 
 - JSON, text, or Mermaid signal reports.
-- Contract violations for missing nodes, connections, methods, or script
-  signals.
+- Contract violations for missing nodes, connections, groups, methods, exported
+  properties, or script signals.
 - Architecture findings when the refactor crosses module or autoload rules.
 - Module ownership summaries showing which areas own scripts, incoming/outgoing
   dependencies, autoload references, hotspots, and possible-unused script or

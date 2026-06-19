@@ -6,8 +6,10 @@ from pathlib import Path
 from .models import ParsedScene, SceneConnection
 
 EXT_RESOURCE_RE = re.compile(r'^\[ext_resource[^\]]*path="([^"]+)"[^\]]*id="([^"]+)"')
-NODE_RE = re.compile(r'^\[node name="([^"]+)"([^\]]*)\]')
+NODE_RE = re.compile(r'^\[node name="([^"]+)"(.*)\]$')
 PARENT_RE = re.compile(r'parent="([^"]+)"')
+GROUPS_RE = re.compile(r'groups=\[([^\]]*)\]')
+GROUP_NAME_RE = re.compile(r'"([^"]+)"')
 SCRIPT_RE = re.compile(r'script\s*=\s*ExtResource\("([^"]+)"\)')
 CONNECTION_RE = re.compile(
     r'^\[connection[^\]]*signal="([^"]+)"[^\]]*from="([^"]+)"[^\]]*to="([^"]+)"[^\]]*method="([^"]+)"'
@@ -19,6 +21,7 @@ def parse_scene(path: Path, content: str) -> ParsedScene:
     node_scripts: dict[str, str] = {}
     connections: list[SceneConnection] = []
     nodes: set[str] = set()
+    node_groups: dict[str, set[str]] = {}
     current_node: str | None = None
 
     for raw_line in content.splitlines():
@@ -35,6 +38,9 @@ def parse_scene(path: Path, content: str) -> ParsedScene:
             parent_match = PARENT_RE.search(rest)
             current_node = _node_path(name, parent_match.group(1) if parent_match else None)
             nodes.add(current_node)
+            groups = _node_groups(rest)
+            if groups:
+                node_groups[current_node] = groups
             continue
 
         script_match = SCRIPT_RE.search(line)
@@ -57,7 +63,13 @@ def parse_scene(path: Path, content: str) -> ParsedScene:
                 )
             )
 
-    return ParsedScene(path=path, node_scripts=node_scripts, connections=connections, nodes=nodes)
+    return ParsedScene(
+        path=path,
+        node_scripts=node_scripts,
+        connections=connections,
+        nodes=nodes,
+        node_groups=node_groups,
+    )
 
 
 def _normalize_resource_path(path: str) -> str:
@@ -72,3 +84,10 @@ def _node_path(name: str, parent: str | None) -> str:
     if parent == ".":
         return name
     return f"{parent}/{name}"
+
+
+def _node_groups(rest: str) -> set[str]:
+    match = GROUPS_RE.search(rest)
+    if not match:
+        return set()
+    return set(GROUP_NAME_RE.findall(match.group(1)))

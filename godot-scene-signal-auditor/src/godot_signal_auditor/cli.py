@@ -49,7 +49,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-signal-audit",
         description="Audit Godot scene signal connections and autoload signal usage.",
     )
-    parser.add_argument("--version", action="version", version="godot-signal-audit 0.1.3")
+    parser.add_argument("--version", action="version", version="godot-signal-audit 0.1.4")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--autoload", default="", help="Comma-separated autoload names to flag.")
     parser.add_argument("--contract", help="JSON or TOML scene contract file to enforce.")

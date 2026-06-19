@@ -25,7 +25,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot save migration output validation | `python -m pip install godot-save-schema-guard` | `godot-save-guard migrate-chain saves/v1 --chain migrations.toml --output-dir reports/migrated-saves --schema schemas/save.schema.json --compare-original --format json` |
 | Godot save fixture redaction | `python -m pip install godot-save-schema-guard` | `godot-save-guard redact saves/fixtures --path player.name --output-dir sanitized-saves --dry-run` |
 | Godot scene signal audit | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --format json` |
-| Godot scene contract check before refactoring | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |
+| Godot scene contract check for nodes, groups, signals, handlers, and exported properties before refactoring | `python -m pip install godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |
 | GDScript architecture boundary check | `python -m pip install godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml --format markdown` |
 | GDScript module owner, high fan-in/fan-out, and possible unused script/resource review | `python -m pip install godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml --format markdown --fail-on none` |
 | GDScript API comment coverage | `python -m pip install gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
@@ -88,7 +88,8 @@ is your starting point from a source checkout.
   export artifact checks or screenshots that should be reviewed in one static
   page.
 - Start with `godot-scene-signal-auditor --contract` when a refactor should
-  preserve specific nodes, signal handlers, or scene-level script signals.
+  preserve specific nodes, groups, signal handlers, exported script properties,
+  or scene-level script signals.
 
 For combined workflows, use the [Workflow Finder](search-index.md) or the
 [Tool Index](TOOL_INDEX.md).

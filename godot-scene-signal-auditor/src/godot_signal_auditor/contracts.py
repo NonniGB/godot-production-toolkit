@@ -104,6 +104,20 @@ def _audit_scene_spec(
 
     findings.extend(_audit_script_members(scene, scripts, spec.get("script_methods"), "method"))
     findings.extend(_audit_script_members(scene, scripts, spec.get("script_signals"), "signal"))
+    findings.extend(_audit_node_groups(scene, _first_mapping(spec, "node_groups", "required_groups")))
+    findings.extend(
+        _audit_script_members(
+            scene,
+            scripts,
+            _first_mapping(
+                spec,
+                "script_exports",
+                "script_exported_properties",
+                "exported_properties",
+            ),
+            "exported property",
+        )
+    )
     return findings
 
 
@@ -138,8 +152,10 @@ def _audit_script_members(
             available: set[str] = set()
         elif member_kind == "method":
             available = script.methods
-        else:
+        elif member_kind == "signal":
             available = script.signals
+        else:
+            available = script.exported_properties
         for name in _string_list(names):
             if name not in available:
                 findings.append(
@@ -150,6 +166,33 @@ def _audit_script_members(
                             f"in scene '{scene.path.as_posix()}' "
                             f"is missing required {member_kind} '{name}'."
                         ),
+                    )
+                )
+    return findings
+
+
+def _audit_node_groups(scene: ParsedScene, raw_groups: object) -> list[Finding]:
+    findings: list[Finding] = []
+    if not isinstance(raw_groups, dict):
+        return findings
+    for node, group_names in raw_groups.items():
+        if not isinstance(node, str):
+            continue
+        if node not in scene.nodes:
+            findings.append(
+                _contract_finding(
+                    scene.path,
+                    f"Scene '{scene.path.as_posix()}' is missing required node '{node}'.",
+                )
+            )
+            continue
+        available = scene.node_groups.get(node, set())
+        for group_name in _string_list(group_names):
+            if group_name not in available:
+                findings.append(
+                    _contract_finding(
+                        scene.path,
+                        f"Node '{node}' in scene '{scene.path.as_posix()}' is missing required group '{group_name}'.",
                     )
                 )
     return findings
@@ -198,6 +241,14 @@ def _string_list(raw: object) -> list[str]:
     if not isinstance(raw, list):
         return []
     return [value for value in raw if isinstance(value, str)]
+
+
+def _first_mapping(raw: dict[str, Any], *keys: str) -> object:
+    for key in keys:
+        value = raw.get(key)
+        if isinstance(value, dict):
+            return value
+    return None
 
 
 def _contract_finding(path: Path, message: str) -> Finding:

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 - 2026-06-19
+
+- Scene contracts can now require node group membership.
+- Scene contracts can now require exported properties on node scripts.
+- JSON scene/script output includes parsed node groups and exported script properties.
+
 ## 0.1.3 - 2026-06-16
 
 - Added `--contract` support for JSON and TOML scene contracts.

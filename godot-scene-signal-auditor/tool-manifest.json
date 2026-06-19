@@ -9,6 +9,9 @@
     "human_output": ["text", "mermaid graph"],
     "report_metadata": true,
     "plain_language_rule_help": true,
+    "scene_contracts": true,
+    "node_group_contracts": true,
+    "exported_property_contracts": true,
     "visual_interface": "Mermaid graph output"
   },
   "run_behavior": {
@@ -30,6 +33,10 @@
     {
       "purpose": "Architecture graph",
       "command": "godot-signal-audit <project> --format mermaid --output docs/SIGNAL_GRAPH.md --fail-on none"
+    },
+    {
+      "purpose": "Scene contract check before refactoring",
+      "command": "godot-signal-audit <project> --contract scene-contract.json --format json --output reports/scene-contract.json"
     }
   ]
 }

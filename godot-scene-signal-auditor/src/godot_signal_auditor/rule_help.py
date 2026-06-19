@@ -14,7 +14,7 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Scene contract violation",
         "explanation": (
             "A scanned scene did not satisfy a required node, connection, "
-            "script method, or script signal from the contract file."
+            "script method, script signal, exported property, or node group from the contract file."
         ),
     },
 }

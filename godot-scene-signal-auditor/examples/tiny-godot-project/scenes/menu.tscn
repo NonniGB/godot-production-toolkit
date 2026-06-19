@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" path="res://scripts/menu.gd" id="1_menu"]
 
-[node name="Menu" type="Control"]
+[node name="Menu" type="Control" groups=["menu_root"]]
 script = ExtResource("1_menu")
 
-[node name="StartButton" type="Button" parent="."]
+[node name="StartButton" type="Button" parent="." groups=["primary_action"]]
 
 [connection signal="pressed" from="StartButton" to="." method="_on_start_pressed"]

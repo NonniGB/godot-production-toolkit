@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-scene-signal-auditor"
-version = "0.1.3"
-description = "Static audits for Godot scene signal connections, emitted signals, missing handlers, and autoload usage."
+version = "0.1.4"
+description = "Static audits for Godot scene signal connections, scene contracts, exported properties, node groups, missing handlers, and autoload usage."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

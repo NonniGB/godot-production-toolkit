@@ -16,6 +16,13 @@
       },
       "script_signals": {
         ".": ["menu_confirmed"]
+      },
+      "script_exports": {
+        ".": ["menu_title"]
+      },
+      "node_groups": {
+        ".": ["menu_root"],
+        "StartButton": ["primary_action"]
       }
     }
   ]

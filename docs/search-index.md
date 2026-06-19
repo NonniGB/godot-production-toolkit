@@ -189,7 +189,8 @@ If the refactor touches scene wiring, add
 [architecture guard gallery sample](report-gallery/README.md#start-here) shows
 the kind of report a reviewer can inspect without opening the whole project.
 
-When important scene nodes or handlers must stay stable, use the
+When important scene nodes, groups, handlers, exported properties, or signals
+must stay stable, use the
 [scene contract refactor workflow](workflows/godot-scene-contract-refactor-safety.md)
 with `godot-signal-audit --contract scene-contract.json`.
 

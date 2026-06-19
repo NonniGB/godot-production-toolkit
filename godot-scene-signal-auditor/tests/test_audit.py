@@ -100,6 +100,48 @@ class AuditTests(unittest.TestCase):
         self.assertTrue(all(finding.rule_id == "scene_contract_violation" for finding in findings))
         self.assertTrue(all(finding.severity == "error" for finding in findings))
 
+    def test_scene_contract_reports_missing_groups_and_exported_properties(self) -> None:
+        scene = ParsedScene(
+            path=Path("scenes/menu.tscn"),
+            nodes={".", "StartButton"},
+            node_scripts={".": "scripts/menu.gd"},
+            node_groups={".": {"menu_root"}, "StartButton": {"touch_target"}},
+        )
+        scripts = {
+            "scripts/menu.gd": ParsedScript(
+                Path("scripts/menu.gd"),
+                signals=set(),
+                methods={"_ready"},
+                connect_calls=[],
+                exported_properties={"title_text"},
+            )
+        }
+        contract = {
+            "scenes": [
+                {
+                    "path": "scenes/menu.tscn",
+                    "node_groups": {
+                        ".": ["menu_root", "modal"],
+                        "StartButton": ["touch_target"],
+                    },
+                    "script_exports": {".": ["title_text", "theme_resource"]},
+                }
+            ]
+        }
+
+        findings = audit_scene_contracts([scene], scripts, contract)
+
+        self.assertEqual(
+            [finding.message for finding in findings],
+            [
+                "Node '.' in scene 'scenes/menu.tscn' is missing required group 'modal'.",
+                (
+                    "Script 'scripts/menu.gd' for node '.' in scene 'scenes/menu.tscn' "
+                    "is missing required exported property 'theme_resource'."
+                ),
+            ],
+        )
+
     def test_load_contract_reads_toml_scene_contracts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             contract_path = Path(tmp) / "scene-contract.toml"

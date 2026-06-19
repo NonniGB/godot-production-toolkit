@@ -19,7 +19,7 @@ Godot Production Toolkit is a collection of narrow production checks for Godot 4
 | Localization QA | `godot-localization-qa-guard` |
 | Save fixture schema checks | `godot-save-schema-guard` |
 | Scenario evidence manifests, JUnit XML summaries, coverage, flake checks, visual/log bundle summaries, and reports | `godot-scenario-report-kit` |
-| Scene signal checks | `godot-scene-signal-auditor` |
+| Scene signal, node group, exported property, and scene contract checks | `godot-scene-signal-auditor` |
 | Visual smoke diffing | `godot-visual-smoke-test-kit` |
 | Mobile performance diagnostics | `godot-mobile-perf-doctor` |
 | Mobile UI readiness | `godot-mobile-ui-doctor` |

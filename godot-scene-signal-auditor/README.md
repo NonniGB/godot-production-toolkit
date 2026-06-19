@@ -1,6 +1,6 @@
 # Godot Scene Signal Auditor
 
-Static CI checks for Godot scene signal connections, signal declarations, autoload signal usage, and coupling patterns that become hard to debug in larger projects.
+Static CI checks for Godot scene signal connections, scene contracts, signal declarations, exported script properties, node groups, autoload signal usage, and coupling patterns that become hard to debug in larger projects.
 
 The analyzer is deliberately conservative. It reports only what it can infer from `.tscn` and `.gd` files without running Godot.
 
@@ -39,7 +39,7 @@ godot-signal-audit examples\tiny-godot-project --contract examples\tiny-godot-pr
 - Target method existence when the target script is resolvable.
 - GDScript `signal` declarations and method names.
 - Configured autoload signal connect usage.
-- Optional JSON or TOML scene contracts for required nodes, connections, script methods, and script signals.
+- Optional JSON or TOML scene contracts for required nodes, node groups, connections, script methods, script signals, and exported script properties.
 - Mermaid signal graph output.
 - Report metadata and readable rule explanations in text and JSON output.
 
@@ -66,6 +66,13 @@ Use `--contract` to enforce a small scene API before refactors. Contracts can ta
       },
       "script_signals": {
         ".": ["menu_opened"]
+      },
+      "script_exports": {
+        ".": ["menu_title"]
+      },
+      "node_groups": {
+        ".": ["menu_root"],
+        "StartButton": ["primary_action"]
       }
     }
   ]

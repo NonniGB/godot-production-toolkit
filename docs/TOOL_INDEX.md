@@ -114,7 +114,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Migration commands should prove final saves match the current schema | `godot-save-schema-guard` | `godot-save-guard migrate-chain fixtures/v1 --chain migrations.toml --output-dir migrated --schema save.schema.json --compare-original` |
 | Save fixtures need selected-field redaction before sharing | `godot-save-schema-guard` | `godot-save-guard redact fixtures --path player.name --output-dir sanitized-fixtures --dry-run` |
 | Scene refactors risk broken signal wiring | `godot-scene-signal-auditor` | `godot-signal-audit . --format json` |
-| Scene refactors need required nodes, handlers, or signals kept stable | `godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |
+| Scene refactors need required nodes, groups, handlers, exported properties, or signals kept stable | `godot-scene-signal-auditor` | `godot-signal-audit . --contract scene-contract.json --format json` |
 | GDScript modules, owner areas, autoload access, high fan-in/fan-out files, or stale resources are becoming tangled | `godot-gdscript-architecture-guard` | `godot-architecture-guard . --config architecture-guard.toml --format markdown --fail-on none` |
 | Data files reference missing ids, recipes, quests, or levels | `godot-content-graph-doctor` | `godot-content-graph . --preset recipes --format markdown` |
 | Runtime scenario runs need manifests, coverage, flake checks, retry grouping, JUnit XML summaries, visual/log evidence summaries, or baseline comparison | `godot-scenario-report-kit` | `godot-scenario-report manifest coverage scenario-manifest.json --results reports/current --format html` |

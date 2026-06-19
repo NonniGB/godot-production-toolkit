@@ -7,6 +7,11 @@ from godot_signal_auditor.gdscript_parser import parse_gdscript_signals
 SCRIPT = """
 signal confirmed(id: String)
 
+@export var title_text: String
+@export_range(0, 10) var volume := 5
+@export
+var delayed_label: String
+
 func _ready() -> void:
     EventBus.game_started.connect(_on_game_started)
 
@@ -21,6 +26,7 @@ class GdscriptParserTests(unittest.TestCase):
 
         self.assertEqual(parsed.signals, {"confirmed"})
         self.assertIn("_on_confirmed", parsed.methods)
+        self.assertEqual(parsed.exported_properties, {"title_text", "volume", "delayed_label"})
         self.assertEqual(len(parsed.connect_calls), 1)
         self.assertEqual(parsed.connect_calls[0].autoload, "EventBus")
         self.assertEqual(parsed.connect_calls[0].signal, "game_started")

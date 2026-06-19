@@ -30,12 +30,14 @@ class ParsedScene:
     node_scripts: dict[str, str] = field(default_factory=dict)
     connections: list[SceneConnection] = field(default_factory=list)
     nodes: set[str] = field(default_factory=set)
+    node_groups: dict[str, set[str]] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, object]:
         return {
             "path": self.path.as_posix(),
             "nodes": sorted(self.nodes),
             "node_scripts": self.node_scripts,
+            "node_groups": {node: sorted(groups) for node, groups in sorted(self.node_groups.items())},
             "connections": [connection.to_dict() for connection in self.connections],
         }
 
@@ -62,6 +64,7 @@ class ParsedScript:
     signals: set[str]
     methods: set[str]
     connect_calls: list[ConnectCall] = field(default_factory=list)
+    exported_properties: set[str] = field(default_factory=set)
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -69,6 +72,7 @@ class ParsedScript:
             "signals": sorted(self.signals),
             "methods": sorted(self.methods),
             "connect_calls": [call.to_dict() for call in self.connect_calls],
+            "exported_properties": sorted(self.exported_properties),
         }
 
 
