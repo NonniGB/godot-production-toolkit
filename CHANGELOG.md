@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-release-dashboard-kit` with local HTML filters for report
+  status and workflow groups.
 - Improved `godot-scene-signal-auditor` scene contracts with baseline contract
   diff warnings for removed scene API requirements.
 - Improved `godot-scene-signal-auditor` scene contracts with node group and

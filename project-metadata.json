@@ -101,7 +101,7 @@
     },
     {
       "name": "godot-release-dashboard-kit",
-      "role": "Workflow-grouped static dashboard builder for toolkit reports, typed report highlights, visual artifacts, scenario evidence, retry evidence, export artifact evidence, report metadata, reproduction commands, compact telemetry summaries, and previous-run trends.",
+      "role": "Workflow-filtered static dashboard builder for toolkit reports, typed report highlights, visual artifacts, scenario evidence, retry evidence, export artifact evidence, report metadata, reproduction commands, compact telemetry summaries, and previous-run trends.",
       "interfaces": ["cli", "html", "json"]
     },
     {

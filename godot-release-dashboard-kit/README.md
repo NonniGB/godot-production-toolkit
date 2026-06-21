@@ -91,12 +91,16 @@ When `--previous-reports-dir` is supplied, the dashboard scans the previous
 folder with the same report rules and adds a compact change section. The trend
 cards show added, removed, and changed report cards, including status changes
 and error/warning deltas. The `--baseline` flag is accepted as a shorter alias.
+HTML dashboards include local filter buttons for blocked, attention, ready, and
+workflow-specific report groups, so a larger release page can be narrowed
+without rerunning any command.
 
 ## Outputs
 
-- `html`: self-contained static dashboard with release readiness metrics, source
-  report links, workflow-grouped report cards, scenario evidence sections, and
-  export artifact evidence sections, and image previews.
+- `html`: self-contained static dashboard with release readiness metrics, local
+  status/workflow filters, source report links, workflow-grouped report cards,
+  scenario evidence sections, export artifact evidence sections, and image
+  previews.
 - `json`: summary for scripts or later dashboard tooling, including counts for
   `blocked`, `attention`, `ready`, workflow groups, scenario bundles, scenarios,
   linked scenario evidence, flaky scenarios, retried scenarios, export artifact

@@ -49,7 +49,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.10")
+            self.assertEqual(data["tool_version"], "0.1.11")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["summary"]["workflows"], 1)
@@ -95,6 +95,32 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertIn('href="reports/perf.json"', html)
             self.assertIn('href="reports/notes.md"', html)
             self.assertNotIn(str(root), html)
+
+    def test_html_dashboard_includes_status_and_workflow_filters(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            (reports / "export.json").write_text(
+                json.dumps({"tool": "godot-export-preset-doctor", "summary": {"errors": 1, "warnings": 0}}),
+                encoding="utf-8",
+            )
+            (reports / "scenario.json").write_text(
+                json.dumps({"tool": "godot-scenario-report-kit", "summary": {"errors": 0, "warnings": 1}}),
+                encoding="utf-8",
+            )
+            output = root / "dashboard.html"
+
+            exit_code = main(["build", str(reports), "--output", str(output)])
+
+            html = output.read_text(encoding="utf-8")
+            self.assertEqual(exit_code, 0)
+            self.assertIn('data-filter-status="blocked"', html)
+            self.assertIn('data-filter-workflow="export"', html)
+            self.assertIn('data-filter-workflow="runtime"', html)
+            self.assertIn('data-status="blocked"', html)
+            self.assertIn('data-workflow="runtime"', html)
+            self.assertIn("showAllReports()", html)
 
     def test_groups_reports_by_workflow(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

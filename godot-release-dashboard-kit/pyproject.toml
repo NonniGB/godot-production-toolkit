@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-release-dashboard-kit"
-version = "0.1.10"
-description = "Build static workflow-grouped release dashboards with typed report, scenario retry, and export artifact highlights."
+version = "0.1.11"
+description = "Build static workflow-filtered release dashboards with typed report, scenario retry, and export artifact highlights."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Godot Release Dashboard Kit contributors" }]
-keywords = ["godot", "dashboard", "release", "qa", "workflow", "baseline", "gamedev", "ci"]
+keywords = ["godot", "dashboard", "release", "qa", "workflow", "filter", "baseline", "gamedev", "ci"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

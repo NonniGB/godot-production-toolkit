@@ -100,6 +100,7 @@ def render_html(dashboard: dict[str, Any]) -> str:
     report_sections = _workflow_sections(dashboard.get("workflows", []))
     image_cards = "\n".join(_image(image) for image in dashboard.get("images", []))
     trend_section = _trend_section(dashboard.get("trends"))
+    filter_controls = _filter_controls(dashboard)
     summary = dashboard["summary"]
     description = str(dashboard.get("description") or "").strip()
     project = str(dashboard.get("project") or "").strip()
@@ -111,7 +112,8 @@ def render_html(dashboard: dict[str, Any]) -> str:
             "<html lang=\"en\"><head><meta charset=\"utf-8\">",
             f"<title>{escape(str(dashboard['title']))}</title>",
             "<link rel=\"icon\" href=\"data:,\">",
-            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.workflow{margin-top:1.5rem}.workflow-summary,.muted{color:#4b5563}.ok,.ready,.improvement{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked,.regression{color:#b42318}.neutral{color:#2754c5}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}.tag{display:inline-block;background:#eef2f7;border-radius:999px;padding:.15rem .45rem;font-size:.85rem}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}</style>",
+            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics,.filter-buttons{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card,.filters{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.workflow{margin-top:1.5rem}.workflow-summary,.muted{color:#4b5563}.ok,.ready,.improvement{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked,.regression{color:#b42318}.neutral{color:#2754c5}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}.tag{display:inline-block;background:#eef2f7;border-radius:999px;padding:.15rem .45rem;font-size:.85rem}.filters{margin-top:1rem}.filters button{border:1px solid #cbd5e1;background:#f8fafc;border-radius:6px;padding:.35rem .6rem;cursor:pointer}.filters button:hover{background:#eef2f7}.report-hidden{display:none}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}</style>",
+            "<script>function showAllReports(){document.querySelectorAll('[data-report-card]').forEach(function(card){card.classList.remove('report-hidden')})}function filterReports(kind,value){document.querySelectorAll('[data-report-card]').forEach(function(card){card.classList.toggle('report-hidden',card.dataset[kind]!==value)})}</script>",
             "</head><body>",
             f"<h1>{escape(str(dashboard['title']))}</h1>",
             project_html,
@@ -142,6 +144,7 @@ def render_html(dashboard: dict[str, Any]) -> str:
             f"<div class=\"metric warn\">Private export findings: {summary.get('export_artifact_private_findings', 0)}</div>",
             f"<div class=\"metric warn\">Development file findings: {summary.get('export_artifact_dev_findings', 0)}</div>",
             "</div>",
+            filter_controls,
             trend_section,
             "<h2>Reports</h2>",
             report_sections or "<p>No JSON or Markdown reports found.</p>",
@@ -1068,6 +1071,39 @@ def _workflow_sections(workflows: object) -> str:
     return "\n".join(sections)
 
 
+def _filter_controls(dashboard: dict[str, Any]) -> str:
+    workflows = dashboard.get("workflows", [])
+    workflow_buttons: list[str] = []
+    if isinstance(workflows, list):
+        for workflow in workflows:
+            if not isinstance(workflow, dict):
+                continue
+            workflow_id = str(workflow.get("id") or "").strip()
+            label = str(workflow.get("label") or workflow_id).strip()
+            if workflow_id and label:
+                workflow_buttons.append(
+                    "<button type=\"button\" "
+                    f"data-filter-workflow=\"{escape(workflow_id)}\" "
+                    f"onclick=\"filterReports('workflow','{escape(workflow_id)}')\">"
+                    f"{escape(label)}</button>"
+                )
+    status_buttons = "".join(
+        "<button type=\"button\" "
+        f"data-filter-status=\"{status}\" "
+        f"onclick=\"filterReports('status','{status}')\">{label}</button>"
+        for status, label in (("blocked", "Blocked"), ("attention", "Needs attention"), ("ready", "Ready"))
+    )
+    workflow_html = "".join(workflow_buttons)
+    return (
+        "<section class=\"filters\" aria-label=\"Report filters\">"
+        "<h2>Filter Reports</h2>"
+        "<div class=\"filter-buttons\">"
+        "<button type=\"button\" onclick=\"showAllReports()\">All reports</button>"
+        f"{status_buttons}{workflow_html}"
+        "</div></section>"
+    )
+
+
 def _card(report: dict[str, Any]) -> str:
     level = "err" if int(report["errors"]) else "warn" if int(report["warnings"]) else "ok"
     source_href = str(report["source_href"])
@@ -1078,11 +1114,15 @@ def _card(report: dict[str, Any]) -> str:
     scenario_flakes = _scenario_flake_html(report.get("scenario_flakes"))
     export_artifacts = _export_artifact_html(report.get("export_artifacts"))
     workflow = str(report.get("workflow_label") or DEFAULT_WORKFLOW["label"])
+    workflow_id = str(report.get("workflow_id") or DEFAULT_WORKFLOW["id"])
+    status = str(report["status"])
     category = str(report.get("category") or "").strip()
     category_html = f" <span class=\"tag\">{escape(category)}</span>" if category else ""
     return (
-        f"<section class=\"card\"><h2>{escape(str(report['tool']))}</h2>"
-        f"<p class=\"status {escape(str(report['status']))}\">{escape(str(report['status']))}</p>"
+        "<section class=\"card\" data-report-card "
+        f"data-status=\"{escape(status)}\" data-workflow=\"{escape(workflow_id)}\">"
+        f"<h2>{escape(str(report['tool']))}</h2>"
+        f"<p class=\"status {escape(status)}\">{escape(status)}</p>"
         f"<p><span class=\"tag\">{escape(workflow)}</span>{category_html}</p>"
         f"<p><a href=\"{escape(source_href)}\"><code>{escape(source_href)}</code></a></p>"
         f"<p class=\"{level}\">Errors: {report['errors']} | Warnings: {report['warnings']}</p>"

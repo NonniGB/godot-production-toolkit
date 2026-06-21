@@ -264,7 +264,8 @@ turn JSON, Markdown, screenshots, overlays, diffs, telemetry artifacts, and
 scenario retry summaries into one static HTML dashboard. Exported-folder and
 exported-file-list JSON from `godot-export-preset-doctor` adds file counts,
 extension counts, hashes, and private/development file findings to the same
-page. The
+page. The generated HTML includes local filters for release state and workflow,
+which helps larger report folders stay reviewable. The
 [release dashboard CI recipe](ci/release-dashboard-artifact.yml)
 shows how to publish it as a workflow artifact.
 

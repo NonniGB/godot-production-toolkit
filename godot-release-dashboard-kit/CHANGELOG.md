@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.11 - 2026-06-21
+
+- HTML dashboards now include local report filters for blocked, attention,
+  ready, and workflow-specific report groups.
+- Report cards now carry status and workflow data attributes for static
+  filtering without external dependencies.
+- Updated package metadata and docs for filtered dashboard output.
+
 ## 0.1.10 - 2026-06-17
 
 - Exported-folder and exported-file-list reports now get a dedicated dashboard
