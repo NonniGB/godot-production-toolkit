@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
 from .audit import audit_catalogs
+from .capture_plan import build_capture_plan, render_capture_plan
 from .csv_parser import parse_csv_file
 from .models import CsvTable, PoCatalog
 from .po_parser import parse_po_file
@@ -20,6 +22,8 @@ def main(argv: list[str] | None = None) -> int:
     raw_args = list(sys.argv[1:] if argv is None else argv)
     if raw_args and raw_args[0] == "stress-pack":
         return _run_stress_pack(raw_args[1:])
+    if raw_args and raw_args[0] == "capture-plan":
+        return _run_capture_plan(raw_args[1:])
 
     parser = _build_parser()
     args = parser.parse_args(raw_args)
@@ -70,7 +74,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-l10n-guard",
         description="Audit Godot CSV and PO localization files.",
     )
-    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.4")
+    parser.add_argument("--version", action="version", version="godot-l10n-guard 0.1.5")
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--translations", help="Directory containing CSV and PO translation files.")
     parser.add_argument("--csv", action="append", default=[], help="Godot CSV translation file.")
@@ -127,6 +131,55 @@ def _run_stress_pack(argv: list[str]) -> int:
         long_multiplier=args.long_multiplier,
     )
     rendered = render_stress_report(manifest, args.format)
+    if args.output:
+        output = Path(args.output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(rendered + "\n", encoding="utf-8")
+    else:
+        print(rendered)
+    return 0
+
+
+def _run_capture_plan(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="godot-l10n-guard capture-plan",
+        description="Build a screenshot capture matrix from a localization stress-pack manifest.",
+    )
+    parser.add_argument("project", help="Godot project directory.")
+    parser.add_argument("--stress-pack", required=True, help="Path to stress-pack-manifest.json.")
+    parser.add_argument("--screen", action="append", required=True, help="Screen or scene name to capture.")
+    parser.add_argument("--viewport", action="append", required=True, help="Viewport profile to capture.")
+    parser.add_argument(
+        "--output-dir",
+        default="reports/localization-captures",
+        help="Directory where screenshot outputs are expected to be written.",
+    )
+    parser.add_argument(
+        "--include-source-locale",
+        action="store_true",
+        help="Include the stress-pack source language in the capture matrix.",
+    )
+    parser.add_argument("--format", choices=["text", "json", "markdown"], default="text")
+    parser.add_argument("--output", help="Write the capture plan report to a file instead of stdout.")
+    args = parser.parse_args(argv)
+
+    manifest_path = Path(args.stress_pack)
+    if not manifest_path.exists():
+        parser.error(f"stress-pack manifest was not found: {manifest_path}")
+
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        plan = build_capture_plan(
+            manifest,
+            screens=args.screen,
+            viewports=args.viewport,
+            output_dir=Path(args.output_dir),
+            include_source_locale=args.include_source_locale,
+        )
+    except (json.JSONDecodeError, ValueError) as exc:
+        parser.error(str(exc))
+
+    rendered = render_capture_plan(plan, args.format)
     if args.output:
         output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)

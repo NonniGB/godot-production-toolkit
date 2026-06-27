@@ -21,6 +21,7 @@ Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 python -m pip install godot-localization-qa-guard godot-mobile-ui-doctor godot-visual-smoke-test-kit
 godot-l10n-guard . --format markdown --output reports\localization.md
 godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
+godot-l10n-guard capture-plan . --stress-pack reports\localization-stress\stress-pack-manifest.json --screen main_menu --screen settings --viewport portrait_phone --format markdown --output reports\localization-capture-plan.md
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format json --output reports\mobile-layout-risk.json
 godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports\mobile-layout-risk.json --output-dir reports\mobile-ui-overlays --fail-on none
@@ -46,12 +47,14 @@ godot-visual-smoke compare baselines\ui current\ui --format json --output report
 - Optional stress-pack catalogs such as pseudo, long, compact, and RTL-like CSVs.
 - Exported UI metadata such as `mobile-ui.json`.
 - Optional screenshot folders from a project-owned capture command.
+- Optional screen and viewport names for a stress-locale capture plan.
 - Optional font or glyph allow-list configuration.
 
 ## Expected outputs
 
 - Localization QA reports with placeholder, key, expansion, and glyph findings.
 - Stress-pack catalogs and a manifest for repeatable text-fit review.
+- A capture plan for the stress locales, screens, and viewport profiles you want to review.
 - Joined mobile layout-risk reports that identify the controls most likely to overflow.
 - Optional mobile UI overlay PNGs that mark localized overflow risks on the layout.
 - Mobile UI readiness reports that can be reviewed in Markdown or JSON.

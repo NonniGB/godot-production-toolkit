@@ -24,6 +24,7 @@ godot-l10n-guard . --format json --output localization-report.json
 godot-l10n-guard . --translations translations --max-expansion 1.35 --allowed-glyphs-file fonts\ui-glyphs.txt
 godot-l10n-guard . --translations translations --pseudo-output reports\pseudo-localized.csv --fail-on none
 godot-l10n-guard stress-pack . --translations translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
+godot-l10n-guard capture-plan . --stress-pack reports\localization-stress\stress-pack-manifest.json --screen main_menu --screen settings --viewport portrait_phone --format markdown --output reports\localization-capture-plan.md
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 ```
 
@@ -49,6 +50,7 @@ godot-l10n-guard examples\tiny-godot-project --translations examples\tiny-godot-
 - Missing and unused keys when scanning is enabled.
 - Pseudo-localized CSV previews for UI stress testing.
 - Synthetic pseudo, long, compact, and RTL-like CSV catalogs for layout review.
+- Screenshot capture plans for stress locales, screens, and viewport profiles.
 - Report metadata and plain-language rule explanations for easier CI review.
 
 ## Documentation

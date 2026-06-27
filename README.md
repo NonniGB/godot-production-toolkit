@@ -192,6 +192,7 @@ godot-export-doctor leaks godot-export-preset-doctor\examples\bad-export-project
 godot-export-doctor diff godot-export-preset-doctor\examples\bad-export-project --baseline godot-export-preset-doctor\examples\bad-export-project --format markdown --fail-on none
 godot-export-doctor inspect-folder build\android --hash-files --format json --output reports\exported-folder.json --fail-on none
 godot-l10n-guard stress-pack godot-localization-qa-guard\examples\tiny-godot-project --translations godot-localization-qa-guard\examples\tiny-godot-project\translations --output-dir reports\localization-stress --format markdown --output reports\localization-stress.md
+godot-l10n-guard capture-plan godot-localization-qa-guard\examples\tiny-godot-project --stress-pack reports\localization-stress\stress-pack-manifest.json --screen main_menu --screen settings --viewport portrait_phone --format markdown --output reports\localization-capture-plan.md
 godot-mobile-ui-doctor layout-risk godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format markdown --output reports\mobile-layout-risk.md
 godot-mobile-ui-doctor layout-risk godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --stress-pack reports\localization-stress\stress-pack-manifest.json --format json --output reports\mobile-layout-risk.json
 godot-mobile-ui-doctor overlays godot-mobile-ui-doctor\examples\tiny-mobile-ui-project\mobile-ui.json --layout-risk-report reports\mobile-layout-risk.json --output-dir reports\mobile-ui-overlays --fail-on none
@@ -272,7 +273,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `gdscript-api-comment-coverage` | Public GDScript API docs and comment coverage gate. | JSON, Markdown |
 | `godot-gdscript-architecture-guard` | GDScript module boundaries, owner summaries, autoload access, high fan-in/fan-out files, possible unused scripts/resources, and dependency policy checks. | JSON, SARIF, Markdown, Mermaid |
 | `godot-input-map-auditor` | Input device coverage and duplicate binding checks. | JSON, SARIF, Markdown |
-| `godot-localization-qa-guard` | CSV/PO localization QA, stress translation packs, and translation-key usage scan. | JSON, SARIF, Markdown, CSV |
+| `godot-localization-qa-guard` | CSV/PO localization QA, stress translation packs, capture plans, and translation-key usage scan. | JSON, SARIF, Markdown, CSV |
 | `godot-save-schema-guard` | Save fixture generation, schema validation, migration comparison, and command checks. | JSON, Markdown |
 | `godot-scenario-report-kit` | Scenario run evidence summaries, manifests, coverage checks, flake and retry grouping, visual/telemetry/log bundle summaries, and baseline comparison. | JSON, Markdown, HTML |
 | `godot-scene-signal-auditor` | Scene signal connection, scene contract, contract diff, node group, exported property, and autoload coupling analysis. | JSON, Mermaid |
@@ -381,7 +382,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.10` |
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.4` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
-| [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.4` |
+| [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.5` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.11` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.5` |

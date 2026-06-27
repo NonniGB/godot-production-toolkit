@@ -43,6 +43,7 @@ godot-mobile-ui-doctor readiness mobile-ui.json --input-report reports/input-map
 ```powershell
 godot-l10n-guard . --translations translations --require fr,es --scan-scripts --format markdown --output reports/localization.md
 godot-l10n-guard stress-pack . --translations translations --output-dir reports/localization-stress --format markdown --output reports/localization-stress.md
+godot-l10n-guard capture-plan . --stress-pack reports/localization-stress/stress-pack-manifest.json --screen main_menu --screen settings --viewport portrait_phone --format markdown --output reports/localization-capture-plan.md
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format markdown --output reports/mobile-layout-risk.md
 godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format json --output reports/mobile-layout-risk.json
 godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports/mobile-layout-risk.json --output-dir reports/mobile-ui-overlays --fail-on none
@@ -104,6 +105,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Godot mobile UI labels need localization expansion checks | `godot-mobile-ui-doctor`, `godot-localization-qa-guard` | `godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format markdown` |
 | Godot mobile UI overlays should show localized text risks | `godot-mobile-ui-doctor`, `godot-localization-qa-guard` | `godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports/mobile-layout-risk.json --output-dir reports/mobile-ui-overlays` |
 | Godot UI text needs pseudo, long, compact, or RTL-like stress catalogs | `godot-localization-qa-guard` | `godot-l10n-guard stress-pack . --translations translations --output-dir reports/localization-stress` |
+| Godot localization screenshots need a locale and viewport checklist | `godot-localization-qa-guard` | `godot-l10n-guard capture-plan . --stress-pack reports/localization-stress/stress-pack-manifest.json --screen main_menu --viewport portrait_phone --format markdown` |
 | Screenshots need regression testing | `godot-visual-smoke-test-kit` | `godot-visual-smoke compare baseline current --format json` |
 | Imported PNGs, pixel art, icons, or sprite anchors need review | `godot-asset-pipeline-doctor` | `godot-asset-doctor . --profile pixel-2d --format json` |
 | Input actions need keyboard, mouse, touch, and controller coverage | `godot-input-map-auditor` | `godot-input-audit . --format markdown` |

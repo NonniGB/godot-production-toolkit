@@ -27,6 +27,19 @@ The RTL-like output is a layout stress tool, not a correctness check for any
 specific language. It helps find controls that assume left-to-right text before
 real translation review begins.
 
+## Plan Screenshot Captures
+
+Use `capture-plan` when you want a short checklist of screens and viewport
+profiles to capture for the generated stress locales:
+
+```powershell
+godot-l10n-guard capture-plan . --stress-pack reports\localization-stress\stress-pack-manifest.json --screen main_menu --screen settings --viewport portrait_phone --viewport tablet --format markdown --output reports\localization-capture-plan.md
+```
+
+The command does not launch Godot or take screenshots. It writes a matrix of
+expected output paths that your own capture script, visual smoke workflow, or
+manual QA pass can follow.
+
 ## Use With Mobile UI Metadata
 
 When a project also exports mobile UI rectangles, feed the generated manifest to

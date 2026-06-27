@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-localization-qa-guard` with screenshot capture plans for
+  stress-pack locales, screens, and viewport profiles.
 - Improved `godot-runtime-telemetry-lab` JSON reports with runtime rule
   metadata and per-finding rule titles.
 - Improved `godot-pack-mod-doctor` JSON reports with a rule catalog and

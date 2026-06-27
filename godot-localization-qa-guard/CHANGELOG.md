@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 - 2026-06-27
+
+- Added `capture-plan` for turning stress-pack manifests into locale, screen, and viewport screenshot matrices.
+- Added JSON, Markdown, and text output for capture plans.
+- Documented how capture plans fit with mobile UI layout-risk and visual smoke checks.
+
 ## 0.1.4 - 2026-06-17
 
 - Added `stress-pack` for deterministic pseudo, long, compact, and RTL-like CSV catalogs.

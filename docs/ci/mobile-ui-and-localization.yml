@@ -73,6 +73,16 @@ jobs:
             --format markdown \
             --output "$REPORTS_DIR/localization-stress.md"
 
+      - name: Plan localization screenshot coverage
+        run: |
+          godot-l10n-guard capture-plan "$GODOT_PROJECT_DIR" \
+            --stress-pack "$REPORTS_DIR/localization-stress/stress-pack-manifest.json" \
+            --screen main_menu \
+            --screen settings \
+            --viewport portrait_phone \
+            --format markdown \
+            --output "$REPORTS_DIR/localization-capture-plan.md"
+
       - name: Join localization stress with UI metadata
         run: |
           godot-mobile-ui-doctor layout-risk "$MOBILE_UI_METADATA" \

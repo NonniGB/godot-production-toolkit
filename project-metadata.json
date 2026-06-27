@@ -61,8 +61,8 @@
     },
     {
       "name": "godot-localization-qa-guard",
-      "role": "CSV/PO translation checks, project key usage scan, and localization stress-pack generation.",
-      "interfaces": ["cli", "json", "sarif", "markdown", "csv-stress-pack"]
+      "role": "CSV/PO translation checks, project key usage scan, localization stress-pack generation, and capture planning.",
+      "interfaces": ["cli", "json", "sarif", "markdown", "csv-stress-pack", "capture-plan"]
     },
     {
       "name": "godot-save-schema-guard",
@@ -177,6 +177,7 @@
     "docs/assets/sample-reports/mobile-ui-layout-risk.md",
     "docs/assets/sample-reports/mobile-ui-layout-risk.json",
     "docs/assets/sample-reports/mobile-ui-overlay-summary.json",
+    "docs/assets/sample-reports/localization-capture-plan.md",
     "docs/assets/sample-reports/localization-stress/stress-pack-manifest.json",
     "docs/assets/sample-reports/runtime-telemetry-timeline.html",
     "docs/assets/sample-reports/runtime-telemetry-timeline.svg",

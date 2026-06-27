@@ -17,6 +17,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot mobile UI overlay with localization markers | `python -m pip install godot-mobile-ui-doctor godot-localization-qa-guard` | `godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports/mobile-layout-risk.json --output-dir reports/mobile-ui-overlays` |
 | Godot localization QA | `python -m pip install godot-localization-qa-guard` | `godot-l10n-guard . --translations translations --format markdown` |
 | Godot localization stress pack or text overflow review | `python -m pip install godot-localization-qa-guard` | `godot-l10n-guard stress-pack . --translations translations --output-dir reports/localization-stress --format markdown` |
+| Godot localization screenshot capture plan | `python -m pip install godot-localization-qa-guard` | `godot-l10n-guard capture-plan . --stress-pack reports/localization-stress/stress-pack-manifest.json --screen main_menu --viewport portrait_phone --format markdown` |
 | Godot input map audit | `python -m pip install godot-input-map-auditor` | `godot-input-audit . --require keyboard,touch,controller --format markdown` |
 | Godot visual regression test | `python -m pip install godot-visual-smoke-test-kit` | `godot-visual-smoke compare baseline current --diff reports/diff.png --format json` |
 | Godot save fixture generation | `python -m pip install godot-save-schema-guard` | `godot-save-guard generate-fixture --schema schemas/save.schema.json --fixture-output saves/fixtures/generated.json --set 'player.id="pilot-1"'` |
@@ -78,7 +79,7 @@ is your starting point from a source checkout.
   `Control` rectangle metadata.
 - Start with `godot-localization-qa-guard` for CSV/PO translation checks,
   missing keys, placeholder mismatches, script key usage, and stress catalogs
-  for layout review.
+  or capture plans for layout review.
 - Start with `godot-visual-smoke-test-kit` when screenshots need a repeatable
   baseline/diff/approval flow.
 - Start with `godot-scenario-report-kit` and `godot-runtime-telemetry-lab` when
