@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved `godot-runtime-telemetry-lab` baseline comparisons with memory max
+  regression findings and frame/memory delta fields.
 - Improved `godot-release-dashboard-kit` with local HTML filters for report
   status and workflow groups.
 - Improved `godot-scene-signal-auditor` scene contracts with baseline contract

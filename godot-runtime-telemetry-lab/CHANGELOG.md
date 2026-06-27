@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 - 2026-06-27
+
+- `compare` now reports memory max regressions alongside frame p95 regressions.
+- Compare reports now include `frame_p95_delta_ms` and `memory_delta_mb` summary
+  fields for scripts, dashboards, and pull request comments.
+
 ## 0.1.3 - 2026-06-17
 
 - `adapt` now converts Godot `Performance.TIME_PROCESS` and

@@ -25,7 +25,7 @@
       "command": "godot-telemetry-lab summarize reports/runtime --format markdown"
     },
     {
-      "purpose": "Compare runtime telemetry with a baseline",
+      "purpose": "Compare runtime telemetry with a baseline for frame and memory regressions",
       "command": "godot-telemetry-lab compare reports/baseline reports/current --format json"
     },
     {

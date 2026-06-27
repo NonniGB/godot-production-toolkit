@@ -61,6 +61,8 @@ def compare(
     findings = list(current_report["findings"])
     baseline_p95 = float(baseline_report["summary"]["frame_ms"]["p95"])
     current_p95 = float(current_report["summary"]["frame_ms"]["p95"])
+    baseline_memory_max = float(baseline_report["summary"]["memory_mb"]["max"])
+    current_memory_max = float(current_report["summary"]["memory_mb"]["max"])
     if baseline_p95 > 0 and current_p95 >= baseline_p95 * regression_ratio:
         findings.append(
             {
@@ -71,6 +73,18 @@ def compare(
                     f"at a {regression_ratio:g}x regression threshold."
                 ),
                 "rule_help": "Compare recent runtime, rendering, loading, and scenario changes before updating the baseline.",
+            }
+        )
+    if baseline_memory_max > 0 and current_memory_max >= baseline_memory_max * regression_ratio:
+        findings.append(
+            {
+                "rule_id": "memory_max_regression",
+                "severity": "warning",
+                "message": (
+                    f"Memory max rose from {baseline_memory_max:.1f} MB to {current_memory_max:.1f} MB "
+                    f"at a {regression_ratio:g}x regression threshold."
+                ),
+                "rule_help": "Check memory-heavy scenes, imported assets, and longer scenario paths before updating the baseline.",
             }
         )
     return {
@@ -84,6 +98,8 @@ def compare(
             "errors": sum(1 for finding in findings if finding["severity"] == "error"),
             "warnings": sum(1 for finding in findings if finding["severity"] == "warning"),
             "samples": current_report["summary"]["samples"],
+            "frame_p95_delta_ms": round(current_p95 - baseline_p95, 3),
+            "memory_delta_mb": round(current_memory_max - baseline_memory_max, 3),
         },
         "findings": findings,
     }

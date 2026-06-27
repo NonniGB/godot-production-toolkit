@@ -48,5 +48,6 @@ memory monitor byte counters to MiB, before writing normalized samples.
 ## Expected outputs
 
 - Markdown, JSON, text, HTML, or SVG reports.
-- Baseline comparison findings for frame time, memory, or other tracked metrics.
+- Baseline comparison findings for frame p95 and memory max regressions, with
+  JSON delta fields for CI comments and dashboards.
 - Timeline artifacts that help explain spikes by scenario phase.

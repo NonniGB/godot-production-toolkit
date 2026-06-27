@@ -28,7 +28,7 @@ class RuntimeTelemetryLabTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.3")
+            self.assertEqual(report["tool_version"], "0.1.4")
             self.assertEqual(report["summary"]["samples"], 2)
             self.assertEqual(report["findings"][0]["rule_id"], "frame_p95_over_budget")
 
@@ -48,6 +48,24 @@ class RuntimeTelemetryLabTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("frame_p95_regression", rules)
+
+    def test_compare_reports_memory_regression(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline.json"
+            current = root / "current.json"
+            baseline.write_text(json.dumps([{"frame_ms": 12, "memory_mb": 200}]), encoding="utf-8")
+            current.write_text(json.dumps([{"frame_ms": 12, "memory_mb": 280}]), encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["compare", str(baseline), str(current), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            finding = report["findings"][0]
+            self.assertEqual(finding["rule_id"], "memory_max_regression")
+            self.assertEqual(report["summary"]["memory_delta_mb"], 80.0)
 
     def test_timeline_reports_spikes_and_html(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -245,7 +245,7 @@ regenerate the examples.
 Use the [runtime performance regression workflow](workflows/godot-runtime-performance-regression.md)
 and [`godot-runtime-telemetry-lab`](../godot-runtime-telemetry-lab/README.md).
 It turns frame, memory, draw-call, node-count, scenario, and phase samples into
-summaries, budget checks, baseline comparisons, and HTML timelines.
+summaries, budget checks, frame/memory baseline comparisons, and HTML timelines.
 
 Use `godot-telemetry-lab adapt` first when a project-owned Godot exporter writes
 common monitor names rather than the toolkit's normalized field names.

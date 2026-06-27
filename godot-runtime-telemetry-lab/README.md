@@ -60,7 +60,8 @@ and converts them to milliseconds. Memory monitors such as
 ## Commands
 
 - `summarize`: reports sample counts, frame percentiles, and budget findings.
-- `compare`: compares current telemetry with a baseline and reports regressions.
+- `compare`: compares current telemetry with a baseline and reports frame p95
+  and memory max regressions.
 - `timeline`: renders a frame and memory timeline as HTML, SVG, Markdown, text,
   or JSON.
 - `adapt`: normalizes common Godot monitor and debug-exporter field names.
@@ -73,6 +74,10 @@ Budget files can be reused with `summarize`, `compare`, and `timeline`:
 godot-telemetry-lab budget init --profile android-high --output reports\runtime-budget.json
 godot-telemetry-lab timeline reports\runtime --budget-file reports\runtime-budget.json --format html --output reports\runtime-timeline.html
 ```
+
+`compare` includes `frame_p95_delta_ms` and `memory_delta_mb` in JSON reports, so
+CI jobs and dashboards can show the size of a runtime change without parsing
+the full baseline and current summaries.
 
 ## Outputs
 

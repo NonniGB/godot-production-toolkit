@@ -233,7 +233,7 @@ godot-telemetry-lab timeline reports\runtime --budget-file reports\runtime-budge
 This helps catch:
 
 - Frame p95 values above a selected budget.
-- Runtime regressions compared with a saved baseline.
+- Frame p95 and memory max regressions compared with a saved baseline.
 - Spikes in frame or memory samples across scenario phases.
 - Scenario telemetry that needs a compact release-review artifact.
 

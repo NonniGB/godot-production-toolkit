@@ -120,7 +120,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Data files reference missing ids, recipes, quests, or levels | `godot-content-graph-doctor` | `godot-content-graph . --preset recipes --format markdown` |
 | Runtime scenario runs need manifests, coverage, flake checks, retry grouping, JUnit XML summaries, visual/log evidence summaries, or baseline comparison | `godot-scenario-report-kit` | `godot-scenario-report manifest coverage scenario-manifest.json --results reports/current --format html` |
 | Scenario runs, logs, screenshots, telemetry, and visual reports need one evidence manifest | `godot-scenario-report-kit` | `godot-scenario-report bundle reports/scenarios --telemetry reports/runtime-timeline.json --visual reports/visual.json --evidence log=reports/run.log --format json` |
-| Runtime telemetry needs adapters, budgets, timelines, or baseline comparison | `godot-runtime-telemetry-lab` | `godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html` |
+| Runtime telemetry needs adapters, budgets, timelines, or frame/memory baseline comparison | `godot-runtime-telemetry-lab` | `godot-telemetry-lab compare reports/baseline reports/current --format markdown` |
 | Pack, patch, DLC, or mod manifests need release checks | `godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
 | A pack folder needs a manifest before review or CI | `godot-pack-mod-doctor` | `godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json` |
 | Pack updates need added/removed/changed/moved files or load-order conflicts reviewed | `godot-pack-mod-doctor` | `godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown` |
@@ -146,7 +146,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor` | JSON, Markdown, PNG |
 | `godot-pack-mod-doctor` | `godot-pack-mod-doctor` | JSON, Markdown, text |
 | `godot-release-dashboard-kit` | `godot-release-dashboard` | Workflow-filtered HTML, JSON, typed highlights, scenario retry sections, export artifact sections, previous-run trends |
-| `godot-runtime-telemetry-lab` | `godot-telemetry-lab` | JSON, Markdown, text, HTML, SVG, normalized telemetry samples |
+| `godot-runtime-telemetry-lab` | `godot-telemetry-lab` | JSON, Markdown, text, HTML, SVG, normalized telemetry samples, frame/memory baseline deltas |
 | `godot-save-schema-guard` | `godot-save-guard` | JSON, Markdown |
 | `godot-scenario-report-kit` | `godot-scenario-report` | JSON, Markdown, HTML |
 | `godot-scene-signal-auditor` | `godot-signal-audit` | JSON, Mermaid, contract diffs |
