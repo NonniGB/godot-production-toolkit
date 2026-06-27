@@ -6,6 +6,17 @@ CI, and most standalone tools are available from PyPI.
 If you already know the problem and only need a package name, install command,
 profile package set, and first command, use the [Package Finder](PACKAGE_FINDER.md).
 
+## Workflow Lanes
+
+| Lane | Use it for | Primary packages |
+|---|---|---|
+| Project and release preflight | First-pass audits, PR reports, dashboards, and release checklist runs. | `godot-project-doctor`, `godot-ci-doctor-action`, `godot-release-dashboard-action`, `godot-release-dashboard-kit` |
+| Export and mobile readiness | Export presets, build folders, Android/mobile settings, texture risks, safe areas, and touch layout. | `godot-export-preset-doctor`, `godot-mobile-perf-doctor`, `godot-mobile-ui-doctor`, `godot-asset-pipeline-doctor` |
+| UI, input, localization, and visuals | Input maps, translated text, touch readiness, screenshot plans, and visual diffs. | `godot-input-map-auditor`, `godot-localization-qa-guard`, `godot-visual-smoke-test-kit`, `pixel-space-asset-toolkit` |
+| Runtime and scenario evidence | Scenario result summaries, JUnit XML, flakes, retries, telemetry budgets, and timelines. | `godot-scenario-report-kit`, `godot-runtime-telemetry-lab` |
+| Data, saves, packs, and content | Content references, save fixtures, migrations, pack manifests, DLC/mod checks, and load order. | `godot-content-graph-doctor`, `godot-save-schema-guard`, `godot-pack-mod-doctor` |
+| Code and scene refactor review | GDScript dependencies, scene contracts, signals, autoload coupling, and public API comments. | `godot-gdscript-architecture-guard`, `godot-scene-signal-auditor`, `gdscript-api-comment-coverage` |
+
 ## Good First Workflows
 
 ### Starter Project Audit

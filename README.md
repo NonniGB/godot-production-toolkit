@@ -47,17 +47,16 @@ For a working public CI fixture, see the
 For local walkthroughs, use the [Demo Paths](examples/demo-paths/README.md)
 and [Sample Report Gallery](docs/assets/sample-reports/README.md).
 
-## Choose A Workflow
+## Workflow Lanes
 
-| Workflow | Start here | Typical command |
+| Lane | Use it for | Start here |
 |---|---|---|
-| Android, desktop, or web export review | [`godot-export-preset-doctor`](godot-export-preset-doctor/README.md), [`godot-mobile-perf-doctor`](godot-mobile-perf-doctor/README.md) | `godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown` |
-| Mobile UI and touch readiness | [`godot-mobile-ui-doctor`](godot-mobile-ui-doctor/README.md), [`godot-input-map-auditor`](godot-input-map-auditor/README.md) | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
-| Pixel-art and asset import hygiene | [`godot-asset-pipeline-doctor`](godot-asset-pipeline-doctor/README.md), [`pixel-space-asset-toolkit`](pixel-space-asset-toolkit/README.md) | `godot-asset-doctor . --profile pixel-2d --format json` |
-| Scenario, telemetry, and release evidence | [`godot-scenario-report-kit`](godot-scenario-report-kit/README.md), [`godot-runtime-telemetry-lab`](godot-runtime-telemetry-lab/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) | `godot-release-dashboard build reports --output reports/dashboard.html` |
-| Data, saves, and content packs | [`godot-content-graph-doctor`](godot-content-graph-doctor/README.md), [`godot-save-schema-guard`](godot-save-schema-guard/README.md), [`godot-pack-mod-doctor`](godot-pack-mod-doctor/README.md) | `godot-content-graph . --preset recipes --format markdown` |
-| GDScript refactor safety | [`godot-gdscript-architecture-guard`](godot-gdscript-architecture-guard/README.md), [`godot-scene-signal-auditor`](godot-scene-signal-auditor/README.md), [`gdscript-api-comment-coverage`](gdscript-api-comment-coverage/README.md) | `godot-architecture-guard . --config architecture-guard.toml --format markdown` |
-| First pass on an unfamiliar project | [Starter project audit](docs/workflows/godot-starter-project-audit.md), [`godot-project-doctor`](godot-project-doctor/README.md) | `godot-project-doctor run godot-project-doctor.toml --format markdown` |
+| Project and release preflight | First-pass audits, PR evidence, dashboard artifacts, and release checklist runs. | [`docs/workflows/README.md`](docs/workflows/README.md), [`godot-project-doctor`](godot-project-doctor/README.md), [`godot-ci-doctor-action`](godot-ci-doctor-action/README.md), [`godot-release-dashboard-action`](godot-release-dashboard-action/README.md) |
+| Export and mobile readiness | Android, desktop, and web export settings; mobile renderer choices; texture and safe-area risks. | [`godot-export-preset-doctor`](godot-export-preset-doctor/README.md), [`godot-mobile-perf-doctor`](godot-mobile-perf-doctor/README.md), [`godot-mobile-ui-doctor`](godot-mobile-ui-doctor/README.md) |
+| UI, input, localization, and visuals | Touch targets, input maps, translated text, screenshot plans, and visual diffs. | [`godot-input-map-auditor`](godot-input-map-auditor/README.md), [`godot-localization-qa-guard`](godot-localization-qa-guard/README.md), [`godot-visual-smoke-test-kit`](godot-visual-smoke-test-kit/README.md) |
+| Runtime and scenario evidence | Scenario JSON/JUnit summaries, flakes, retries, telemetry budgets, and timeline reports. | [`godot-scenario-report-kit`](godot-scenario-report-kit/README.md), [`godot-runtime-telemetry-lab`](godot-runtime-telemetry-lab/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) |
+| Data, saves, packs, and content | Content references, save fixtures, migrations, pack manifests, DLC/mod load order, and policy checks. | [`godot-content-graph-doctor`](godot-content-graph-doctor/README.md), [`godot-save-schema-guard`](godot-save-schema-guard/README.md), [`godot-pack-mod-doctor`](godot-pack-mod-doctor/README.md) |
+| Code and scene refactor review | GDScript dependency boundaries, scene contracts, signals, public API comments, and high-risk files. | [`godot-gdscript-architecture-guard`](godot-gdscript-architecture-guard/README.md), [`godot-scene-signal-auditor`](godot-scene-signal-auditor/README.md), [`gdscript-api-comment-coverage`](gdscript-api-comment-coverage/README.md) |
 
 For a wider problem-to-tool map, see the [Tool Index](docs/TOOL_INDEX.md).
 For practical search phrases such as "Godot export preset CI" or "Godot visual
@@ -301,53 +300,29 @@ removed, and changed report cards with error and warning deltas.
   fields for scripts and CI consumers.
 - [Roadmap](docs/ROADMAP.md) groups future work by user-facing Godot workflow.
 
-## Tool Set
+## Package Boundaries
 
-| Tool | Purpose | Script/CI Outputs |
-|---|---|---|
-| `godot-project-doctor` | Umbrella CLI for package install guidance, planning, first-run checklists, running, summarizing, and comparing the suite. | JSON, Markdown, HTML |
-| `godot-ci-doctor-action` | GitHub composite action wrapper. | JSON, Markdown, HTML artifacts |
-| `godot-release-dashboard-action` | GitHub composite action for building and uploading dashboard artifacts from existing reports. | HTML, JSON artifacts |
-| `godot-asset-pipeline-doctor` | PNG/audio and `.import` checks for pixel art, mobile memory, and package-size risks. | JSON, SARIF |
-| `godot-content-graph-doctor` | Data-driven content id, reference, and numeric outlier checks. | JSON, Markdown, Mermaid |
-| `godot-export-preset-doctor` | Release-readiness, target matrix, preset diff, leak-risk, exported artifact, and generated PCK manifest checks. | JSON, SARIF, Markdown, HTML |
-| `gdscript-api-comment-coverage` | Public GDScript API docs and comment coverage gate. | JSON, Markdown |
-| `godot-gdscript-architecture-guard` | GDScript module boundaries, owner summaries, autoload access, high fan-in/fan-out files, possible unused scripts/resources, and dependency policy checks. | JSON, SARIF, Markdown, Mermaid |
-| `godot-input-map-auditor` | Input device coverage and duplicate binding checks. | JSON, SARIF, Markdown |
-| `godot-localization-qa-guard` | CSV/PO localization QA, stress translation packs, capture plans, and translation-key usage scan. | JSON, SARIF, Markdown, CSV |
-| `godot-save-schema-guard` | Save fixture generation, schema validation, migration comparison, and command checks. | JSON, Markdown |
-| `godot-scenario-report-kit` | Scenario run evidence summaries, manifests, coverage checks, flake and retry grouping, visual/telemetry/log bundle summaries, and baseline comparison. | JSON, Markdown, HTML |
-| `godot-scene-signal-auditor` | Scene signal connection, scene contract, contract diff, node group, exported property, and autoload coupling analysis. | JSON, Mermaid |
-| `godot-visual-smoke-test-kit` | Screenshot diffing, approval, and Godot capture command planning. | JSON, PNG diffs |
-| `godot-mobile-perf-doctor` | Static mobile performance diagnostics, stretch checks, and safe-area evidence handoff. | JSON, SARIF, Markdown |
-| `godot-mobile-ui-doctor` | Mobile UI safe-area, touch-target, spacing, localized layout-risk, overlay previews, and combined mobile readiness reports. | JSON, Markdown, PNG, text |
-| `godot-pack-mod-doctor` | Pack, DLC, mod, and patch manifest generation, validation, moved-resource diffing, content-id, dependency, load-order, security policy checks, and rule metadata. | JSON, Markdown, text |
-| `godot-release-dashboard-kit` | Static workflow-filtered dashboard builder for toolkit reports, typed highlights, scenario retry evidence, export artifact evidence, visual artifacts, metadata, reproduction commands, and previous-run readiness trends. | HTML, JSON |
-| `godot-runtime-telemetry-lab` | Runtime telemetry adapters, summaries, timelines, named budgets, baseline comparisons, and rule metadata. | JSON, Markdown, text, HTML, SVG |
-| `pixel-space-asset-toolkit` | Deterministic pixel sci-fi asset utilities, galleries, and PNG image/directory diff checks. | JSON, PNG, HTML |
+The root README stays workflow-first. Use these docs when you need a precise
+package choice:
 
-## Choose By Problem
+- [Workflow guides](docs/workflows/README.md): release and review tasks with
+  the inputs and artifacts to keep.
+- [Tool Index](docs/TOOL_INDEX.md): problem-to-command map for every package.
+- [Package Finder](docs/PACKAGE_FINDER.md): PyPI install commands, profile
+  package sets, and first-run command examples.
+- [Search index](docs/search-index.md): practical phrases that route to the
+  right workflow page, package, CI recipe, or sample report.
 
-| Problem | Start With |
+The rough split is:
+
+| Lane | Packages |
 |---|---|
-| Android export is fragile or hard to review | `godot-export-preset-doctor`, `godot-mobile-perf-doctor` |
-| Imported art looks wrong, uses too much memory, or has bad sprite anchors | `godot-asset-pipeline-doctor` |
-| Input works on desktop but not touch/gamepad | `godot-input-map-auditor` |
-| Portrait UI needs touch and safe-area review | `godot-mobile-ui-doctor`, `godot-visual-smoke-test-kit` |
-| Data files reference missing items, recipes, quests, or levels | `godot-content-graph-doctor` |
-| Runtime scenario runs need manifests, coverage, flake checks, or reviewable evidence | `godot-scenario-report-kit` |
-| Runtime frame or memory samples need budget checks or timeline reports | `godot-runtime-telemetry-lab` |
-| Pack, DLC, mod, or patch manifests need generation or release checks | `godot-pack-mod-doctor` |
-| Several reports need one filterable static review page | `godot-release-dashboard-kit` |
-| GDScript modules, autoloads, high fan-in/fan-out files, or stale resources are becoming tangled | `godot-gdscript-architecture-guard` |
-| Translation imports keep breaking placeholders or keys | `godot-localization-qa-guard` |
-| Translated text may overflow buttons, HUDs, or mobile menus | `godot-localization-qa-guard`, `godot-mobile-ui-doctor` |
-| Save data changes need fixture coverage or migration proof | `godot-save-schema-guard` |
-| Scene refactors break signal wiring, node groups, scene contracts, or exported script properties | `godot-scene-signal-auditor` |
-| UI or rendering changes need screenshot evidence | `godot-visual-smoke-test-kit` |
-
-For a more complete problem-to-tool map with commands and package names, see
-[`docs/TOOL_INDEX.md`](docs/TOOL_INDEX.md).
+| Project and release preflight | `godot-project-doctor`, `godot-ci-doctor-action`, `godot-release-dashboard-action`, `godot-release-dashboard-kit` |
+| Export and mobile readiness | `godot-export-preset-doctor`, `godot-mobile-perf-doctor`, `godot-mobile-ui-doctor`, `godot-asset-pipeline-doctor` |
+| UI, input, localization, and visuals | `godot-input-map-auditor`, `godot-localization-qa-guard`, `godot-visual-smoke-test-kit`, `pixel-space-asset-toolkit` |
+| Runtime and scenario evidence | `godot-scenario-report-kit`, `godot-runtime-telemetry-lab` |
+| Data, saves, packs, and content | `godot-content-graph-doctor`, `godot-save-schema-guard`, `godot-pack-mod-doctor` |
+| Code and scene refactor review | `godot-gdscript-architecture-guard`, `godot-scene-signal-auditor`, `gdscript-api-comment-coverage` |
 
 ## GitHub Action
 
@@ -430,17 +405,17 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.3` |
 | [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.10` |
 | [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.3` |
-| [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.11` |
+| [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.12` |
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.5` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.5` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.8` |
-| [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.12` |
+| [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.13` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.6` |
-| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.12` |
-| [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.5` |
+| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.13` |
+| [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.6` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.6` |
-| [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.9` |
+| [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.10` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.5` |
 | [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.2` |
 | [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/) | `0.1.4` |
