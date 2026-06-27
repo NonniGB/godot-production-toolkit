@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   publish:
-    name: Build and publish ${{ github.event_name == 'workflow_dispatch' && inputs.package || 'godot-asset-pipeline-doctor' }}
+    name: Build and publish ${{ startsWith(github.ref_name, 'godot-project-doctor-v') && 'godot-project-doctor' || (startsWith(github.ref_name, 'godot-asset-pipeline-doctor-v') && 'godot-asset-pipeline-doctor' || inputs.package) }}
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
