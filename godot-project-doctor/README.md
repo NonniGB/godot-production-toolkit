@@ -66,6 +66,13 @@ godot-project-doctor collect godot-project-doctor.toml --evidence-dir reports\go
 
 Use `examples/godot-project-doctor.toml` as a starting point. Project-audit tools are enabled by default; specialized tools such as save-schema validation, visual smoke plans, pack manifests, runtime telemetry, and pixel asset commands stay disabled until their required config is supplied.
 
+If a config path is missing, the CLI returns a short usage error with the
+resolved path and a starter command. Use this when setting up a new project:
+
+```powershell
+godot-project-doctor init path\to\godot-project --dry-run --include-workflow
+```
+
 ## Profile Checklists
 
 Use `doctor` when you want a first-run checklist instead of a raw command list:

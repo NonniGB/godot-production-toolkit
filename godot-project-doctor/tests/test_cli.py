@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 import json
 import os
@@ -76,6 +76,21 @@ config = "visual-smoke.toml"
             self.assertEqual(payload["status"], "planned")
             self.assertEqual([item["id"] for item in payload["checks"] if item["enabled"]], ["assets", "export"])
             self.assertFalse((root / "reports").exists())
+
+    def test_missing_config_returns_actionable_usage_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = Path(tmp) / "missing-doctor.toml"
+            stderr = StringIO()
+
+            with self.assertRaises(SystemExit) as raised:
+                with redirect_stderr(stderr):
+                    main(["plan", str(missing)])
+
+            self.assertEqual(raised.exception.code, 2)
+            rendered = stderr.getvalue()
+            self.assertIn("Config file not found", rendered)
+            self.assertIn("godot-project-doctor init --dry-run", rendered)
+            self.assertIn("--project and --checks", rendered)
 
     def test_inspect_and_recommend_detect_common_project_signals(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -595,7 +610,7 @@ allow_overrides = true
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.1.8", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.1.9", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -610,7 +625,7 @@ allow_overrides = true
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.1.8", completed.stdout)
+        self.assertIn("godot-project-doctor 0.1.9", completed.stdout)
 
 
 if __name__ == "__main__":

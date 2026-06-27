@@ -276,10 +276,19 @@ PROFILE_DEFINITIONS: dict[str, dict[str, Any]] = {
 }
 
 
+class ConfigError(ValueError):
+    """Raised when the doctor config cannot be loaded."""
+
+
 def load_config(config_path: Path | None) -> tuple[dict[str, Any], Path]:
     if not config_path:
         return {}, Path.cwd()
     resolved = config_path.resolve()
+    if not resolved.exists():
+        raise ConfigError(
+            f"Config file not found: {resolved}. Run `godot-project-doctor init --dry-run` "
+            "to preview a starter config, or pass --project and --checks to run without a config file."
+        )
     return tomllib.loads(resolved.read_text(encoding="utf-8")), resolved.parent
 
 

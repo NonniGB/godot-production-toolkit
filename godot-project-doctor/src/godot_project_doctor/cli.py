@@ -21,6 +21,7 @@ from .runner import (
     render_starter_config,
     run_plan,
     summarize_reports,
+    ConfigError,
 )
 
 
@@ -60,7 +61,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-project-doctor",
         description="Plan, run, and summarize the Godot production toolkit.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.8")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.1.9")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")
@@ -283,13 +284,17 @@ def _compare(args: argparse.Namespace) -> int:
 
 
 def _build_plan_from_args(args: argparse.Namespace) -> dict[str, object]:
-    return build_plan(
-        config_path=Path(args.config) if args.config else None,
-        project=Path(args.project) if args.project else None,
-        checks=_split_checks(args.checks) if args.checks else None,
-        reports_dir=Path(args.reports_dir) if args.reports_dir else None,
-        fail_on=args.fail_on,
-    )
+    try:
+        return build_plan(
+            config_path=Path(args.config) if args.config else None,
+            project=Path(args.project) if args.project else None,
+            checks=_split_checks(args.checks) if args.checks else None,
+            reports_dir=Path(args.reports_dir) if args.reports_dir else None,
+            fail_on=args.fail_on,
+        )
+    except ConfigError as exc:
+        print(str(exc), file=sys.stderr)
+        raise SystemExit(2) from None
 
 
 def _split_checks(raw: str) -> list[str]:

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.9 - 2026-06-27
+
+- Missing `godot-project-doctor.toml` paths now return a concise usage error
+  with starter-config guidance instead of a Python traceback.
+
 ## 0.1.8 - 2026-06-17
 
 - Added focused doctor profiles for Android, HTML5/Web, localization, runtime
