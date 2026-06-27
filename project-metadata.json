@@ -17,7 +17,7 @@
     "testing",
     "qa"
   ],
-  "tool_count": 19,
+  "tool_count": 20,
   "tools": [
     {
       "name": "godot-project-doctor",
@@ -28,6 +28,11 @@
       "name": "godot-ci-doctor-action",
       "role": "GitHub composite action wrapper for CI use.",
       "interfaces": ["github-action", "json-artifacts", "markdown-artifacts", "html-artifacts"]
+    },
+    {
+      "name": "godot-release-dashboard-action",
+      "role": "GitHub composite action wrapper for building release dashboard artifacts from existing toolkit reports.",
+      "interfaces": ["github-action", "html-artifacts", "json-artifacts"]
     },
     {
       "name": "godot-asset-pipeline-doctor",
@@ -208,6 +213,7 @@
     "python -m unittest discover -s tests -v",
     "python -m unittest discover -s godot-project-doctor/tests -v",
     "python -m unittest discover -s godot-ci-doctor-action/tests -v",
+    "python -m unittest discover -s godot-release-dashboard-action/tests -v",
     "python -m unittest discover -s godot-asset-pipeline-doctor/tests -v",
     "python -m unittest discover -s godot-content-graph-doctor/tests -v",
     "python -m unittest discover -s godot-gdscript-architecture-guard/tests -v",
@@ -225,7 +231,7 @@
     "The umbrella CLI is source-checkout first because the exact godot-project-doctor PyPI distribution name is already used by another project."
   ],
   "release_priorities": [
-    "Maintain one public umbrella repository with all tools and the GitHub Action.",
+    "Maintain one public umbrella repository with all tools and the GitHub Actions.",
     "Keep tagged releases tied to passing CI runs.",
     "Maintain the published packages first: godot-asset-pipeline-doctor, godot-export-preset-doctor, godot-mobile-perf-doctor, godot-content-graph-doctor, godot-scenario-report-kit, godot-gdscript-architecture-guard, godot-runtime-telemetry-lab, godot-pack-mod-doctor, and godot-release-dashboard-kit.",
     "Use concise examples and minimal fixtures when discussing issues or improvements."

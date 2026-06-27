@@ -59,6 +59,16 @@ Upload the reports directory as a workflow artifact if you want reviewers to
 download the JSON, Markdown, HTML, SARIF, image diffs, or dashboards from the
 run. The action is a CI step, not a game dependency.
 
+When other jobs already upload report artifacts, the dashboard action can turn
+those reports into one static review page:
+
+```yaml
+- uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@main
+  with:
+    reports-dir: reports/release-evidence
+    dashboard-dir: reports/release-dashboard
+```
+
 ## Pre-release Checklist
 
 A practical release pass can be modest:
@@ -106,6 +116,7 @@ the package command requires the Godot executable in order to run.
 |---|---:|---|
 | `godot-project-doctor` | No | Recommends package installs, runs and summarizes toolkit checks from a source checkout, and can write profile-based Markdown setup plans. It may inspect a Godot project directory, but the CLI itself does not launch Godot. |
 | `godot-ci-doctor-action` | No | Runs in GitHub Actions around your existing workflow. It can consume the project files and reports you provide. |
+| `godot-release-dashboard-action` | No | Runs in GitHub Actions after report-producing jobs and uploads a static dashboard artifact. |
 | `godot-export-preset-doctor` | No | Reads `export_presets.cfg` and reports export-readiness issues. It does not perform the export. |
 | `godot-asset-pipeline-doctor` | No | Reads PNG/audio files, `.import` files, and optional sprite manifests. |
 | `godot-content-graph-doctor` | No | Reads content data files such as JSON, CSV, TOML, and related references. |

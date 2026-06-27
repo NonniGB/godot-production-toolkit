@@ -26,31 +26,12 @@ jobs:
           path: ${{ env.REPORTS_DIR }}
           merge-multiple: true
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Build and upload release dashboard
+        uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@main
         with:
-          python-version: "3.11"
-
-      - name: Install dashboard builder
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install godot-release-dashboard-kit
-
-      - name: Build release dashboard
-        run: |
-          mkdir -p "$DASHBOARD_DIR"
           # Required project artifact: REPORTS_DIR should contain JSON,
           # Markdown, PNG, SVG, or HTML reports from earlier toolkit jobs.
-          godot-release-dashboard build "$REPORTS_DIR" \
-            --title "$DASHBOARD_TITLE" \
-            --output "$DASHBOARD_DIR/index.html"
-          godot-release-dashboard build "$REPORTS_DIR" \
-            --format json \
-            --output "$DASHBOARD_DIR/dashboard.json"
-
-      - name: Upload release dashboard
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-dashboard
-          path: ${{ env.DASHBOARD_DIR }}
-
+          reports-dir: ${{ env.REPORTS_DIR }}
+          dashboard-dir: ${{ env.DASHBOARD_DIR }}
+          dashboard-title: ${{ env.DASHBOARD_TITLE }}
+          artifact-name: release-dashboard

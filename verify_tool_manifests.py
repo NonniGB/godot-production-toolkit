@@ -23,6 +23,7 @@ TOOLS = [
     "godot-release-dashboard-kit",
     "godot-project-doctor",
     "godot-ci-doctor-action",
+    "godot-release-dashboard-action",
 ]
 
 REQUIRED_TOP_LEVEL = {

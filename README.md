@@ -254,8 +254,8 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
   explains local CLI, GitHub Actions, artifact-only usage, and runtime impact.
 - [Toolkit diagrams](docs/diagrams/) show how reports, release evidence, and
   mobile-readiness checks fit together.
-- [GitHub Actions examples](docs/ci/) provide workflow snippets to
-  adapt inside a Godot project.
+- [GitHub Actions examples](docs/ci/) and the dashboard action provide workflow
+  snippets to adapt inside a Godot project.
 - [Report gallery](docs/report-gallery/) links to generated sample reports,
   screenshots, fixtures, and the commands used to recreate them.
 - [Report schemas](docs/report-schemas/) document stable top-level JSON report
@@ -268,6 +268,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 |---|---|---|
 | `godot-project-doctor` | Umbrella CLI for package install guidance, planning, first-run checklists, running, summarizing, and comparing the suite. | JSON, Markdown, HTML |
 | `godot-ci-doctor-action` | GitHub composite action wrapper. | JSON, Markdown, HTML artifacts |
+| `godot-release-dashboard-action` | GitHub composite action for building and uploading dashboard artifacts from existing reports. | HTML, JSON artifacts |
 | `godot-asset-pipeline-doctor` | PNG/audio and `.import` checks for pixel art, mobile memory, and package-size risks. | JSON, SARIF |
 | `godot-content-graph-doctor` | Data-driven content id, reference, and numeric outlier checks. | JSON, Markdown, Mermaid |
 | `godot-export-preset-doctor` | Release-readiness, target matrix, preset diff, leak-risk, exported artifact, and generated PCK manifest checks. | JSON, SARIF, Markdown, HTML |
@@ -323,6 +324,16 @@ Add the suite to a Godot project with one workflow step:
 ```
 
 Upload `reports/godot-project-doctor` as a workflow artifact to keep JSON, Markdown, and HTML reports with each run.
+
+Build a dashboard artifact from reports produced by earlier jobs:
+
+```yaml
+- uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@main
+  with:
+    reports-dir: reports/release-evidence
+    dashboard-dir: reports/release-dashboard
+    dashboard-title: Godot Release Evidence
+```
 
 ## Validation
 

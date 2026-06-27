@@ -28,6 +28,7 @@ body:
         - godot-mobile-perf-doctor
         - pixel-space-asset-toolkit
         - godot-ci-doctor-action
+        - godot-release-dashboard-action
     validations:
       required: true
   - type: textarea

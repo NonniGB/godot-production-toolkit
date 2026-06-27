@@ -24,7 +24,9 @@ at project-owned files.
 - `content-pack-validation.yml`: checks content graph data and pack/mod
   manifests before publishing content packs, DLC, or patches.
 - `release-dashboard-artifact.yml`: collects existing report artifacts and builds
-  one static dashboard HTML file.
+  one static dashboard HTML file. For a shorter reusable step, use
+  [`godot-release-dashboard-action`](../../godot-release-dashboard-action/README.md)
+  after your report-producing jobs.
 
 ## Before Copying
 

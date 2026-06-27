@@ -34,6 +34,7 @@ validation, and GDScript architecture checks.
 - Summarize scenario evidence, JUnit XML, manifests, coverage, flaky runs, and bundle reviewer links: use `godot-scenario-report-kit`.
 - Review frame/runtime telemetry, budget spikes, and timelines: use `godot-runtime-telemetry-lab`.
 - Build one workflow-grouped static review page from reports, visual artifacts, and previous-run trends: use `godot-release-dashboard-kit`.
+- Build and upload that dashboard in GitHub Actions: use `godot-release-dashboard-action`.
 
 ## Command Examples
 

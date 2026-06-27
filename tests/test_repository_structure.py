@@ -28,6 +28,7 @@ EXISTING_TOOLS = {
 NEW_PROJECTS = {
     "godot-project-doctor",
     "godot-ci-doctor-action",
+    "godot-release-dashboard-action",
 }
 
 PRIVATE_TERMS = tuple(
@@ -113,6 +114,23 @@ class RepositoryStructureTests(unittest.TestCase):
         }
 
         missing = sorted(rel_path for rel_path in required if not (ROOT / "godot-ci-doctor-action" / rel_path).exists())
+        self.assertEqual([], missing)
+
+    def test_release_dashboard_action_files_exist(self) -> None:
+        required = {
+            "README.md",
+            "LICENSE",
+            "CHANGELOG.md",
+            "CONTRIBUTING.md",
+            "SECURITY.md",
+            "tool-manifest.json",
+            "action.yml",
+            "tests/test_action_metadata.py",
+        }
+
+        missing = sorted(
+            rel_path for rel_path in required if not (ROOT / "godot-release-dashboard-action" / rel_path).exists()
+        )
         self.assertEqual([], missing)
 
     def test_repository_automation_files_exist(self) -> None:

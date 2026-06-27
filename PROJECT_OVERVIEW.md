@@ -8,7 +8,8 @@ The tools focus on repeated production risks that are easy to miss late in devel
 
 - Seventeen standalone Python CLI packages.
 - One umbrella CLI: `godot-project-doctor`.
-- One composite GitHub Action: `godot-ci-doctor-action`.
+- Two composite GitHub Actions: `godot-ci-doctor-action` and
+  `godot-release-dashboard-action`.
 - JSON output for scripts and CI.
 - SARIF output for selected CI/code-scanning checks.
 - Markdown, HTML, SVG, Mermaid, text, PNG diff, and generated asset outputs for human review.

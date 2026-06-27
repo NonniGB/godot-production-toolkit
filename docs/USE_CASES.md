@@ -313,3 +313,7 @@ godot-project-doctor collect godot-project-doctor.toml --evidence-dir reports\go
 
 This writes a manifest, Markdown/HTML summaries, and an artifact index for
 screenshots, diffs, or scenario files listed by the individual reports.
+
+In GitHub Actions, use `godot-ci-doctor-action` when the workflow should run
+checks, and `godot-release-dashboard-action` when earlier jobs have already
+uploaded reports and you only need one static dashboard artifact.

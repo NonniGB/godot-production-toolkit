@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "name": "godot-release-dashboard-action",
+  "entrypoint": "uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@main",
+  "module": "github composite action",
+  "interfaces": {
+    "cli": false,
+    "machine_output": ["json"],
+    "human_output": ["html"],
+    "visual_interface": "GitHub Actions artifacts"
+  },
+  "run_behavior": {
+    "noninteractive": true,
+    "safe_on_private_projects": true,
+    "network_required": true,
+    "writes_only_when_requested": true,
+    "exit_codes": {
+      "0": "dashboard built and uploaded when requested",
+      "1": "dashboard build failed or an action step failed",
+      "2": "underlying CLI usage error"
+    }
+  },
+  "recommended_commands": [
+    {
+      "purpose": "Build a dashboard artifact from reports uploaded by earlier jobs",
+      "command": "uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@main"
+    },
+    {
+      "purpose": "Build with trend cards from a previous report folder",
+      "command": "uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@main with previous-reports-dir: reports/previous-release-evidence"
+    }
+  ]
+}

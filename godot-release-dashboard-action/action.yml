@@ -1,0 +1,120 @@
+name: Godot Release Dashboard
+description: Build and upload a static dashboard from existing Godot Production Toolkit reports.
+
+inputs:
+  reports-dir:
+    description: Directory containing JSON, Markdown, HTML, SVG, or PNG reports from earlier toolkit jobs.
+    required: false
+    default: "reports/release-evidence"
+  dashboard-dir:
+    description: Directory where the generated dashboard files are written.
+    required: false
+    default: "reports/release-dashboard"
+  dashboard-title:
+    description: Title shown at the top of the dashboard.
+    required: false
+    default: "Godot Release Evidence"
+  dashboard-description:
+    description: Optional short description shown under the dashboard title.
+    required: false
+    default: ""
+  project:
+    description: Optional project name shown in dashboard metadata.
+    required: false
+    default: ""
+  previous-reports-dir:
+    description: Optional previous report folder used for trend cards.
+    required: false
+    default: ""
+  artifact-name:
+    description: Name for the uploaded dashboard artifact.
+    required: false
+    default: "release-dashboard"
+  upload-artifact:
+    description: Whether to upload the dashboard directory as a workflow artifact.
+    required: false
+    default: "true"
+  python-version:
+    description: Python version used to install and run the dashboard builder.
+    required: false
+    default: "3.11"
+  tool-packages:
+    description: Space-separated packages to install before building the dashboard.
+    required: false
+    default: "godot-release-dashboard-kit"
+  extra-args:
+    description: Optional extra arguments passed to each dashboard build command.
+    required: false
+    default: ""
+
+outputs:
+  dashboard-html:
+    description: Path to the generated HTML dashboard.
+    value: ${{ steps.paths.outputs.dashboard-html }}
+  dashboard-json:
+    description: Path to the generated JSON dashboard summary.
+    value: ${{ steps.paths.outputs.dashboard-json }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install dashboard package
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install ${{ inputs.tool-packages }}
+
+    - name: Prepare dashboard paths
+      id: paths
+      shell: bash
+      run: |
+        mkdir -p "${{ inputs.dashboard-dir }}"
+        echo "dashboard-html=${{ inputs.dashboard-dir }}/index.html" >> "$GITHUB_OUTPUT"
+        echo "dashboard-json=${{ inputs.dashboard-dir }}/dashboard.json" >> "$GITHUB_OUTPUT"
+
+    - name: Build release dashboard
+      shell: bash
+      run: |
+        previous_arg=()
+        if [ -n "${{ inputs.previous-reports-dir }}" ]; then
+          previous_arg=(--previous-reports-dir "${{ inputs.previous-reports-dir }}")
+        fi
+
+        description_arg=()
+        if [ -n "${{ inputs.dashboard-description }}" ]; then
+          description_arg=(--description "${{ inputs.dashboard-description }}")
+        fi
+
+        project_arg=()
+        if [ -n "${{ inputs.project }}" ]; then
+          project_arg=(--project "${{ inputs.project }}")
+        fi
+
+        godot-release-dashboard build "${{ inputs.reports-dir }}" \
+          "${previous_arg[@]}" \
+          "${description_arg[@]}" \
+          "${project_arg[@]}" \
+          --title "${{ inputs.dashboard-title }}" \
+          --output "${{ steps.paths.outputs.dashboard-html }}" \
+          ${{ inputs.extra-args }}
+
+        godot-release-dashboard build "${{ inputs.reports-dir }}" \
+          "${previous_arg[@]}" \
+          "${description_arg[@]}" \
+          "${project_arg[@]}" \
+          --title "${{ inputs.dashboard-title }}" \
+          --format json \
+          --output "${{ steps.paths.outputs.dashboard-json }}" \
+          ${{ inputs.extra-args }}
+
+    - name: Upload release dashboard
+      if: inputs.upload-artifact == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.dashboard-dir }}
