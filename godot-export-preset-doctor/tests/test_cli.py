@@ -1,4 +1,4 @@
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 import json
 import tempfile
@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-export-doctor 0.1.11", stdout.getvalue())
+        self.assertIn("godot-export-doctor 0.1.12", stdout.getvalue())
 
     def test_cli_reports_findings_as_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -159,6 +159,20 @@ keystore/release_password="<set-in-ci>"
 
             self.assertEqual(raised.exception.code, 2)
 
+    def test_cli_reports_missing_explicit_config_as_usage_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            missing = project / "missing-export-config.toml"
+            stderr = StringIO()
+
+            with self.assertRaises(SystemExit) as raised:
+                with redirect_stderr(stderr):
+                    main([str(project), "--config", str(missing)])
+
+            self.assertEqual(raised.exception.code, 2)
+            self.assertIn("config file not found", stderr.getvalue())
+            self.assertIn("Omit --config to use defaults", stderr.getvalue())
+
     def test_cli_rejects_invalid_config_choices(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)
@@ -196,7 +210,7 @@ export_path="build/web/index.html"
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.11")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.12")
             self.assertEqual(report["summary"]["presets"], 1)
 
     def test_cli_matrix_reports_missing_expected_platform(self) -> None:

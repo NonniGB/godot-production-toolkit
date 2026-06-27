@@ -151,6 +151,10 @@ allowed_secret_patterns = ["<.+>"]
 
 CLI flags override config values.
 
+The default `.godot-export-doctor.toml` is optional. If you pass `--config`,
+the file must exist; a missing explicit config path returns a usage error so CI
+does not accidentally run with defaults.
+
 ## Output
 
 Text:

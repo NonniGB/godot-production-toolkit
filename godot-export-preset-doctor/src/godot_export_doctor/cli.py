@@ -111,7 +111,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-export-doctor",
         description="Audit Godot export_presets.cfg release readiness.",
     )
-    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.11")
+    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.12")
     parser.add_argument(
         "command",
         nargs="?",
@@ -167,6 +167,11 @@ def _load_config(project: Path, explicit_config: Path | None) -> dict[str, Any]:
         root = project.parent if project.name == "export_presets.cfg" else project
         config_path = root / DEFAULT_CONFIG
     if not config_path.exists():
+        if explicit_config is not None:
+            raise FileNotFoundError(
+                f"config file not found: {config_path}. Omit --config to use defaults, "
+                f"or create {DEFAULT_CONFIG} in the project folder."
+            )
         return {}
     with config_path.open("rb") as handle:
         data = tomllib.load(handle)

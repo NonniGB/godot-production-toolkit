@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.12 - 2026-06-27
+
+- Passing a missing explicit `--config` path now returns a concise usage error
+  with recovery guidance instead of silently using defaults.
+
 ## 0.1.11 - 2026-06-27
 
 - Added `pck` as a shorter command for inspecting generated exported file lists
