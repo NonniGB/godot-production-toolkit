@@ -150,7 +150,7 @@ class RepositoryStructureTests(unittest.TestCase):
         self.assertTrue((EXISTING_TOOLS | NEW_PROJECTS).issubset(set(verify_tool_manifests.TOOLS)))
 
     def test_public_files_do_not_reference_private_project_names(self) -> None:
-        ignored_dirs = {".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
+        ignored_dirs = {".git", ".serena", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
         text_suffixes = {
             ".cfg",
             ".gd",
@@ -178,7 +178,7 @@ class RepositoryStructureTests(unittest.TestCase):
         self.assertEqual([], matches)
 
     def test_public_files_do_not_reference_local_workspace_paths(self) -> None:
-        ignored_dirs = {".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
+        ignored_dirs = {".git", ".serena", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
         text_suffixes = {".cfg", ".gd", ".html", ".json", ".md", ".py", ".toml", ".txt", ".yml", ".yaml"}
         path_terms = tuple(
             "".join(parts)
@@ -204,7 +204,7 @@ class RepositoryStructureTests(unittest.TestCase):
         self.assertEqual([], matches)
 
     def test_public_files_do_not_contain_likely_secret_tokens(self) -> None:
-        ignored_dirs = {".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
+        ignored_dirs = {".git", ".serena", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
         text_suffixes = {".cfg", ".json", ".md", ".py", ".toml", ".txt", ".yml", ".yaml"}
 
         matches: list[str] = []
@@ -227,7 +227,7 @@ class RepositoryStructureTests(unittest.TestCase):
             "OWNER/" + "godot-production-toolkit",
             "your-" + "user",
         )
-        ignored_dirs = {".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
+        ignored_dirs = {".git", ".serena", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv"}
         text_suffixes = {".json", ".md", ".py", ".toml", ".yml", ".yaml"}
 
         matches: list[str] = []

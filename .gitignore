@@ -20,6 +20,9 @@ artifacts/
 *.sarif
 *.log
 
+# Local assistant/tooling state
+.serena/
+
 # OS/editor
 .DS_Store
 Thumbs.db

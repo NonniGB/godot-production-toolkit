@@ -61,8 +61,8 @@ dashboard to include readiness trend cards.
 - `artifact-name`: uploaded artifact name.
 - `upload-artifact`: set to `false` to skip the upload step.
 - `python-version`: Python version for package installation.
-- `tool-packages`: package install list, normally `godot-release-dashboard-kit`.
-- `extra-args`: optional extra arguments passed to both dashboard builds.
+- `tool-packages`: shell-style package install list, normally `godot-release-dashboard-kit`.
+- `extra-args`: optional shell-style arguments passed to both dashboard builds.
 
 ## Outputs
 

@@ -65,52 +65,73 @@ runs:
 
     - name: Install dashboard package
       shell: bash
+      env:
+        TOOL_PACKAGES: ${{ inputs.tool-packages }}
       run: |
+        set -euo pipefail
         python -m pip install --upgrade pip
-        python -m pip install ${{ inputs.tool-packages }}
+        mapfile -d '' tool_packages < <(python -c 'import os, shlex, sys; [sys.stdout.buffer.write(arg.encode() + b"\0") for arg in shlex.split(os.environ.get("TOOL_PACKAGES", ""))]')
+        if [ "${#tool_packages[@]}" -eq 0 ]; then
+          echo "tool-packages must name at least one package." >&2
+          exit 2
+        fi
+        python -m pip install "${tool_packages[@]}"
 
     - name: Prepare dashboard paths
       id: paths
       shell: bash
+      env:
+        DASHBOARD_DIR: ${{ inputs.dashboard-dir }}
       run: |
-        mkdir -p "${{ inputs.dashboard-dir }}"
-        echo "dashboard-html=${{ inputs.dashboard-dir }}/index.html" >> "$GITHUB_OUTPUT"
-        echo "dashboard-json=${{ inputs.dashboard-dir }}/dashboard.json" >> "$GITHUB_OUTPUT"
+        set -euo pipefail
+        mkdir -p "$DASHBOARD_DIR"
+        echo "dashboard-html=$DASHBOARD_DIR/index.html" >> "$GITHUB_OUTPUT"
+        echo "dashboard-json=$DASHBOARD_DIR/dashboard.json" >> "$GITHUB_OUTPUT"
 
     - name: Build release dashboard
       shell: bash
+      env:
+        REPORTS_DIR: ${{ inputs.reports-dir }}
+        DASHBOARD_TITLE: ${{ inputs.dashboard-title }}
+        DASHBOARD_DESCRIPTION: ${{ inputs.dashboard-description }}
+        PROJECT_NAME: ${{ inputs.project }}
+        PREVIOUS_REPORTS_DIR: ${{ inputs.previous-reports-dir }}
+        EXTRA_ARGS: ${{ inputs.extra-args }}
       run: |
+        set -euo pipefail
         previous_arg=()
-        if [ -n "${{ inputs.previous-reports-dir }}" ]; then
-          previous_arg=(--previous-reports-dir "${{ inputs.previous-reports-dir }}")
+        if [ -n "$PREVIOUS_REPORTS_DIR" ]; then
+          previous_arg=(--previous-reports-dir "$PREVIOUS_REPORTS_DIR")
         fi
 
         description_arg=()
-        if [ -n "${{ inputs.dashboard-description }}" ]; then
-          description_arg=(--description "${{ inputs.dashboard-description }}")
+        if [ -n "$DASHBOARD_DESCRIPTION" ]; then
+          description_arg=(--description "$DASHBOARD_DESCRIPTION")
         fi
 
         project_arg=()
-        if [ -n "${{ inputs.project }}" ]; then
-          project_arg=(--project "${{ inputs.project }}")
+        if [ -n "$PROJECT_NAME" ]; then
+          project_arg=(--project "$PROJECT_NAME")
         fi
 
-        godot-release-dashboard build "${{ inputs.reports-dir }}" \
-          "${previous_arg[@]}" \
-          "${description_arg[@]}" \
-          "${project_arg[@]}" \
-          --title "${{ inputs.dashboard-title }}" \
-          --output "${{ steps.paths.outputs.dashboard-html }}" \
-          ${{ inputs.extra-args }}
+        mapfile -d '' extra_args < <(python -c 'import os, shlex, sys; [sys.stdout.buffer.write(arg.encode() + b"\0") for arg in shlex.split(os.environ.get("EXTRA_ARGS", ""))]')
 
-        godot-release-dashboard build "${{ inputs.reports-dir }}" \
+        godot-release-dashboard build "$REPORTS_DIR" \
           "${previous_arg[@]}" \
           "${description_arg[@]}" \
           "${project_arg[@]}" \
-          --title "${{ inputs.dashboard-title }}" \
+          --title "$DASHBOARD_TITLE" \
+          --output "${{ steps.paths.outputs.dashboard-html }}" \
+          "${extra_args[@]}"
+
+        godot-release-dashboard build "$REPORTS_DIR" \
+          "${previous_arg[@]}" \
+          "${description_arg[@]}" \
+          "${project_arg[@]}" \
+          --title "$DASHBOARD_TITLE" \
           --format json \
           --output "${{ steps.paths.outputs.dashboard-json }}" \
-          ${{ inputs.extra-args }}
+          "${extra_args[@]}"
 
     - name: Upload release dashboard
       if: inputs.upload-artifact == 'true'
