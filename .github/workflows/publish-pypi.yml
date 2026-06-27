@@ -32,7 +32,7 @@ jobs:
       PACKAGE_DIR: ${{ startsWith(github.ref_name, 'godot-production-doctor-v') && 'godot-production-doctor' || (github.event_name == 'workflow_dispatch' && inputs.package || 'godot-asset-pipeline-doctor') }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v5
