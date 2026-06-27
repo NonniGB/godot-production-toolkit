@@ -1,4 +1,4 @@
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 import json
 import tempfile
@@ -23,7 +23,7 @@ class MobileUiDoctorTests(unittest.TestCase):
             viewports, screens, thresholds = load_metadata(path)
             report = audit_mobile_ui(viewports, screens, thresholds)
 
-            self.assertEqual(report["tool_version"], "0.1.12")
+            self.assertEqual(report["tool_version"], "0.1.13")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("touch_target_too_small", report["metadata"]["rules"])
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
@@ -135,7 +135,20 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.12", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.13", stdout.getvalue())
+
+    def test_cli_reports_missing_metadata_with_actionable_guidance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = Path(tmp) / "missing-mobile-ui.json"
+            stderr = StringIO()
+
+            with self.assertRaises(SystemExit) as raised:
+                with redirect_stderr(stderr):
+                    main([str(missing)])
+
+            self.assertEqual(raised.exception.code, 2)
+            self.assertIn("mobile UI metadata file not found", stderr.getvalue())
+            self.assertIn("Export the metadata first", stderr.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

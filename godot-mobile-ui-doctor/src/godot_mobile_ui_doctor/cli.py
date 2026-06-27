@@ -12,7 +12,7 @@ from .readiness import build_combined_readiness, render_combined_readiness
 from .reporting import render_report
 from .visual_smoke import load_visual_smoke_viewports, merge_viewports
 
-VERSION_LABEL = "godot-mobile-ui-doctor 0.1.12"
+VERSION_LABEL = "godot-mobile-ui-doctor 0.1.13"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -203,16 +203,30 @@ def _emit(rendered: str, output: str | None) -> None:
 
 def _load_inputs(args: argparse.Namespace, parser: argparse.ArgumentParser):
     try:
+        metadata_path = _existing_input(Path(args.metadata), "mobile UI metadata")
+        visual_smoke_plan = (
+            _existing_input(Path(args.visual_smoke_plan), "visual smoke plan")
+            if args.visual_smoke_plan
+            else None
+        )
         visual_smoke_viewports = (
-            load_visual_smoke_viewports(Path(args.visual_smoke_plan)) if args.visual_smoke_plan else {}
+            load_visual_smoke_viewports(visual_smoke_plan) if visual_smoke_plan else {}
         )
         viewports, screens, thresholds = load_metadata(
-            Path(args.metadata),
+            metadata_path,
             require_viewports=not bool(visual_smoke_viewports),
         )
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
     return merge_viewports(visual_smoke_viewports, viewports), screens, thresholds
+
+
+def _existing_input(path: Path, label: str) -> Path:
+    if not path.exists():
+        raise FileNotFoundError(
+            f"{label} file not found: {path}. Export the metadata first or pass the correct report path."
+        )
+    return path
 
 
 def _linked_report_paths(args: argparse.Namespace) -> dict[str, Path]:

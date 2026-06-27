@@ -112,6 +112,11 @@ godot-mobile-ui-doctor readiness mobile-ui.json --visual-smoke-plan reports\visu
 Coordinates are expected to be viewport pixels after layout. The tool does not
 need scene files or a Godot binary for this first metadata-based check.
 
+If the metadata path is wrong or the file has not been exported yet, the CLI
+returns a usage error naming the missing input. Generate the metadata first, or
+start with `examples\tiny-mobile-ui-project\mobile-ui.json` to inspect the
+report format.
+
 If the UI metadata omits `viewports`, pass `--visual-smoke-plan` with JSON from
 `godot-visual-smoke plan --format json`. Viewports in `mobile-ui.json` override
 matching visual-smoke viewport names, so project-specific layout exports can

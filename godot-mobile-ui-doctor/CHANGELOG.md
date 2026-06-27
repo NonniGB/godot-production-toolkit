@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.13 - 2026-06-27
+
+- Missing mobile UI metadata and visual-smoke plan paths now return concise
+  usage errors with setup guidance before JSON parsing starts.
+
 ## 0.1.12 - 2026-06-27
 
 - Added bounded stress-text previews to localization layout-risk JSON findings.
