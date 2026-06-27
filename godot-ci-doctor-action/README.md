@@ -56,4 +56,4 @@ The action writes:
 - `reports-dir`: artifact directory.
 - `fail-on`: `none`, `warning`, or `error`.
 - `output-formats`: `json`, `markdown`, `html`.
-- `tool-packages`: packages to install before running.
+- `tool-packages`: shell-style package list to install before running.

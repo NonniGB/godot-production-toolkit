@@ -20,10 +20,27 @@ class ActionMetadataTests(unittest.TestCase):
 
         self.assertIn("actions/setup-python@v5", text)
         self.assertIn("python -m pip install", text)
+        self.assertIn('python -m pip install "${tool_packages[@]}"', text)
         self.assertIn("godot-project-doctor run", text)
         self.assertIn("--format json", text)
         self.assertIn("--format markdown", text)
         self.assertIn("--format html", text)
+
+    def test_shell_steps_quote_user_facing_inputs(self) -> None:
+        text = (ROOT / "action.yml").read_text(encoding="utf-8")
+
+        self.assertIn("PROJECT_PATH: ${{ inputs.project }}", text)
+        self.assertIn("CONFIG_PATH: ${{ inputs.config }}", text)
+        self.assertIn("CHECKS: ${{ inputs.checks }}", text)
+        self.assertIn("REPORTS_DIR: ${{ inputs.reports-dir }}", text)
+        self.assertIn("FAIL_ON: ${{ inputs.fail-on }}", text)
+        self.assertIn("TOOL_PACKAGES: ${{ inputs.tool-packages }}", text)
+        self.assertIn('--project "$PROJECT_PATH"', text)
+        self.assertIn('--checks "$CHECKS"', text)
+        self.assertIn('--reports-dir "$REPORTS_DIR"', text)
+        self.assertIn('--fail-on "$FAIL_ON"', text)
+        self.assertNotIn('python -m pip install ${{ inputs.tool-packages }}', text)
+        self.assertNotIn('summarize "${{ inputs.reports-dir }}"', text)
 
     def test_public_documentation_includes_local_reproduction_and_sarif_notes(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -33,6 +50,7 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertIn("## Artifacts", readme)
         self.assertIn("SARIF", readme)
         self.assertIn("godot-project-doctor run", readme)
+        self.assertIn("shell-style package list", readme)
 
 
 if __name__ == "__main__":

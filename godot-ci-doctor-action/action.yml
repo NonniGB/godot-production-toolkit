@@ -56,30 +56,47 @@ runs:
 
     - name: Install doctor packages
       shell: bash
+      env:
+        TOOL_PACKAGES: ${{ inputs.tool-packages }}
       run: |
+        set -euo pipefail
         python -m pip install --upgrade pip
-        python -m pip install ${{ inputs.tool-packages }}
+        mapfile -d '' tool_packages < <(python -c 'import os, shlex, sys; [sys.stdout.buffer.write(arg.encode() + b"\0") for arg in shlex.split(os.environ.get("TOOL_PACKAGES", ""))]')
+        if [ "${#tool_packages[@]}" -eq 0 ]; then
+          echo "tool-packages must name at least one package." >&2
+          exit 2
+        fi
+        python -m pip install "${tool_packages[@]}"
 
     - name: Prepare report paths
       id: paths
       shell: bash
+      env:
+        REPORTS_DIR: ${{ inputs.reports-dir }}
       run: |
-        mkdir -p "${{ inputs.reports-dir }}"
-        echo "summary-json=${{ inputs.reports-dir }}/summary.json" >> "$GITHUB_OUTPUT"
-        echo "summary-markdown=${{ inputs.reports-dir }}/summary.md" >> "$GITHUB_OUTPUT"
-        echo "summary-html=${{ inputs.reports-dir }}/summary.html" >> "$GITHUB_OUTPUT"
+        set -euo pipefail
+        mkdir -p "$REPORTS_DIR"
+        echo "summary-json=$REPORTS_DIR/summary.json" >> "$GITHUB_OUTPUT"
+        echo "summary-markdown=$REPORTS_DIR/summary.md" >> "$GITHUB_OUTPUT"
+        echo "summary-html=$REPORTS_DIR/summary.html" >> "$GITHUB_OUTPUT"
 
     - name: Run Godot project doctor
       shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project }}
+        CONFIG_PATH: ${{ inputs.config }}
+        CHECKS: ${{ inputs.checks }}
+        REPORTS_DIR: ${{ inputs.reports-dir }}
       run: |
+        set -euo pipefail
         config_arg=()
-        if [ -n "${{ inputs.config }}" ]; then
-          config_arg=("${{ inputs.config }}")
+        if [ -n "$CONFIG_PATH" ]; then
+          config_arg=("$CONFIG_PATH")
         fi
         godot-project-doctor run "${config_arg[@]}" \
-          --project "${{ inputs.project }}" \
-          --checks "${{ inputs.checks }}" \
-          --reports-dir "${{ inputs.reports-dir }}" \
+          --project "$PROJECT_PATH" \
+          --checks "$CHECKS" \
+          --reports-dir "$REPORTS_DIR" \
           --fail-on none \
           --format json \
           --output "${{ steps.paths.outputs.summary-json }}"
@@ -87,8 +104,11 @@ runs:
     - name: Write Markdown summary
       if: contains(inputs.output-formats, 'markdown')
       shell: bash
+      env:
+        REPORTS_DIR: ${{ inputs.reports-dir }}
       run: |
-        godot-project-doctor summarize "${{ inputs.reports-dir }}" \
+        set -euo pipefail
+        godot-project-doctor summarize "$REPORTS_DIR" \
           --format markdown \
           --output "${{ steps.paths.outputs.summary-markdown }}" \
           --fail-on none
@@ -96,15 +116,22 @@ runs:
     - name: Write HTML summary
       if: contains(inputs.output-formats, 'html')
       shell: bash
+      env:
+        REPORTS_DIR: ${{ inputs.reports-dir }}
       run: |
-        godot-project-doctor summarize "${{ inputs.reports-dir }}" \
+        set -euo pipefail
+        godot-project-doctor summarize "$REPORTS_DIR" \
           --format html \
           --output "${{ steps.paths.outputs.summary-html }}" \
           --fail-on none
 
     - name: Apply fail threshold
       shell: bash
+      env:
+        REPORTS_DIR: ${{ inputs.reports-dir }}
+        FAIL_ON: ${{ inputs.fail-on }}
       run: |
-        godot-project-doctor summarize "${{ inputs.reports-dir }}" \
+        set -euo pipefail
+        godot-project-doctor summarize "$REPORTS_DIR" \
           --format text \
-          --fail-on "${{ inputs.fail-on }}"
+          --fail-on "$FAIL_ON"
