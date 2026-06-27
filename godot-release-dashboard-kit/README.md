@@ -89,11 +89,12 @@ scenario is easier to distinguish from a fresh failure.
 
 When `--previous-reports-dir` is supplied, the dashboard scans the previous
 folder with the same report rules and adds a compact change section. The trend
-cards show added, removed, and changed report cards, including status changes
-and error/warning deltas. The `--baseline` flag is accepted as a shorter alias.
-HTML dashboards include local filter buttons for blocked, attention, ready, and
-workflow-specific report groups, so a larger release page can be narrowed
-without rerunning any command.
+section shows previous/current blocked, attention, and ready counts as static
+readiness bars, followed by cards for added, removed, and changed reports with
+status changes and error/warning deltas. The `--baseline` flag is accepted as a
+shorter alias. HTML dashboards include local filter buttons for blocked,
+attention, ready, and workflow-specific report groups, so a larger release page
+can be narrowed without rerunning any command.
 
 ## Outputs
 
@@ -109,5 +110,6 @@ without rerunning any command.
   `summary.reports_with_commands`, and report cards can include `highlights`
   rows for typed summary values. Scenario-linked telemetry summaries are rolled
   up as sample, spike, warning, and error counts. When a previous folder is
-  supplied, JSON output also includes `previous_summary`, `trends`, and
-  trend-related summary counts.
+  supplied, JSON output also includes `previous_summary`, `trends`,
+  `trends.status_counts`, `trends.status_deltas`, and trend-related summary
+  counts.

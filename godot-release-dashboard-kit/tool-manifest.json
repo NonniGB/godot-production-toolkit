@@ -21,7 +21,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Build a workflow-filtered static release dashboard with typed highlights, export artifact evidence, report metadata, and previous-run trends",
+      "purpose": "Build a workflow-filtered static release dashboard with typed highlights, export artifact evidence, report metadata, and previous-run readiness trends",
       "command": "godot-release-dashboard build reports/current --previous-reports-dir reports/previous --output reports/dashboard.html"
     },
     {

@@ -44,7 +44,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot runtime telemetry timeline | `python -m pip install godot-runtime-telemetry-lab` | `godot-telemetry-lab timeline reports/runtime --format html --output reports/runtime-timeline.html` |
 | Godot runtime telemetry baseline compare for frame and memory regressions | `python -m pip install godot-runtime-telemetry-lab` | `godot-telemetry-lab compare reports/baseline reports/current --format markdown` |
 | Godot runtime telemetry adapter for Performance monitor CSV | `python -m pip install godot-runtime-telemetry-lab` | `godot-telemetry-lab adapt reports/godot-monitor.csv --format json --output reports/runtime-normalized.json` |
-| Godot workflow-filtered release dashboard with typed highlights, scenario retry cards, export artifact cards, and previous-run trends | `python -m pip install godot-release-dashboard-kit` | `godot-release-dashboard build reports/current --previous-reports-dir reports/previous --output reports/dashboard.html` |
+| Godot workflow-filtered release dashboard with typed highlights, scenario retry cards, export artifact cards, and previous-run readiness trends | `python -m pip install godot-release-dashboard-kit` | `godot-release-dashboard build reports/current --previous-reports-dir reports/previous --output reports/dashboard.html` |
 | Pixel-art asset import and texture checks | `python -m pip install godot-asset-pipeline-doctor` | `godot-asset-doctor . --profile pixel-2d --format json` |
 | Pixel space asset previews and image diffs | `python -m pip install pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
 

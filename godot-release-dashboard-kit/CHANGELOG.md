@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.12 - 2026-06-27
+
+- Previous-run comparisons now include a compact readiness trend section with
+  previous/current blocked, attention, and ready counts.
+- Dashboard JSON now exposes `trends.status_counts` and
+  `trends.status_deltas` for CI comments or hosted dashboard wrappers.
+- HTML dashboards show static readiness bars alongside the existing change
+  cards, with no external assets or scripts.
+
 ## 0.1.11 - 2026-06-21
 
 - HTML dashboards now include local report filters for blocked, attention,

@@ -149,7 +149,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | `godot-mobile-perf-doctor` | `godot-mobile-perf-doctor` | JSON, SARIF, Markdown |
 | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor` | JSON, Markdown, PNG |
 | `godot-pack-mod-doctor` | `godot-pack-mod-doctor` | JSON, Markdown, text, rule metadata |
-| `godot-release-dashboard-kit` | `godot-release-dashboard` | Workflow-filtered HTML, JSON, typed highlights, scenario retry sections, export artifact sections, previous-run trends |
+| `godot-release-dashboard-kit` | `godot-release-dashboard` | Workflow-filtered HTML, JSON, typed highlights, scenario retry sections, export artifact sections, previous-run readiness trends |
 | `godot-runtime-telemetry-lab` | `godot-telemetry-lab` | JSON, Markdown, text, HTML, SVG, normalized telemetry samples, frame/memory baseline deltas, rule metadata |
 | `godot-save-schema-guard` | `godot-save-guard` | JSON, Markdown |
 | `godot-scenario-report-kit` | `godot-scenario-report` | JSON, Markdown, HTML |

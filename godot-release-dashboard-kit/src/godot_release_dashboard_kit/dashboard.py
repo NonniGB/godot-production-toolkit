@@ -112,7 +112,7 @@ def render_html(dashboard: dict[str, Any]) -> str:
             "<html lang=\"en\"><head><meta charset=\"utf-8\">",
             f"<title>{escape(str(dashboard['title']))}</title>",
             "<link rel=\"icon\" href=\"data:,\">",
-            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics,.filter-buttons{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card,.filters{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.workflow{margin-top:1.5rem}.workflow-summary,.muted{color:#4b5563}.ok,.ready,.improvement{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked,.regression{color:#b42318}.neutral{color:#2754c5}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}.tag{display:inline-block;background:#eef2f7;border-radius:999px;padding:.15rem .45rem;font-size:.85rem}.filters{margin-top:1rem}.filters button{border:1px solid #cbd5e1;background:#f8fafc;border-radius:6px;padding:.35rem .6rem;cursor:pointer}.filters button:hover{background:#eef2f7}.report-hidden{display:none}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}</style>",
+            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics,.filter-buttons{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card,.filters{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.workflow{margin-top:1.5rem}.workflow-summary,.muted{color:#4b5563}.ok,.ready,.improvement{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked,.regression{color:#b42318}.neutral{color:#2754c5}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}.tag{display:inline-block;background:#eef2f7;border-radius:999px;padding:.15rem .45rem;font-size:.85rem}.filters{margin-top:1rem}.filters button{border:1px solid #cbd5e1;background:#f8fafc;border-radius:6px;padding:.35rem .6rem;cursor:pointer}.filters button:hover{background:#eef2f7}.report-hidden{display:none}.trend-bar{display:flex;overflow:hidden;border-radius:6px;background:#e5e7eb;margin:.35rem 0 .75rem}.trend-segment{display:inline-block;min-width:2.5rem;padding:.25rem .4rem;color:white;font-size:.85rem;white-space:nowrap}.trend-segment.ok{background:#147d3f}.trend-segment.warn{background:#a15c00}.trend-segment.err{background:#b42318}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}</style>",
             "<script>function showAllReports(){document.querySelectorAll('[data-report-card]').forEach(function(card){card.classList.remove('report-hidden')})}function filterReports(kind,value){document.querySelectorAll('[data-report-card]').forEach(function(card){card.classList.toggle('report-hidden',card.dataset[kind]!==value)})}</script>",
             "</head><body>",
             f"<h1>{escape(str(dashboard['title']))}</h1>",
@@ -369,6 +369,11 @@ def _trend_summary(current_reports: list[dict[str, Any]], previous_reports: list
             "regressions": sum(1 for change in changes if change["direction"] == "regression"),
             "improvements": sum(1 for change in changes if change["direction"] == "improvement"),
         },
+        "status_counts": [
+            _trend_status_counts("Previous", previous_reports),
+            _trend_status_counts("Current", current_reports),
+        ],
+        "status_deltas": _trend_status_deltas(previous_reports, current_reports),
         "changes": changes[:25],
     }
 
@@ -387,6 +392,28 @@ def _previous_summary(reports: list[dict[str, Any]]) -> dict[str, int]:
         **_scenario_summary_counts(reports),
         **_export_artifact_summary_counts(reports),
     }
+
+
+def _trend_status_counts(label: str, reports: list[dict[str, Any]]) -> dict[str, int | str]:
+    return {
+        "label": label,
+        "reports": len(reports),
+        "blocked": sum(1 for report in reports if report["status"] == "blocked"),
+        "attention": sum(1 for report in reports if report["status"] == "attention"),
+        "ready": sum(1 for report in reports if report["status"] == "ready"),
+        "errors": sum(int(report.get("errors", 0)) for report in reports),
+        "warnings": sum(int(report.get("warnings", 0)) for report in reports),
+    }
+
+
+def _trend_status_deltas(
+    previous_reports: list[dict[str, Any]],
+    current_reports: list[dict[str, Any]],
+) -> dict[str, int]:
+    previous = _trend_status_counts("Previous", previous_reports)
+    current = _trend_status_counts("Current", current_reports)
+    keys = ("reports", "blocked", "attention", "ready", "errors", "warnings")
+    return {key: int(current[key]) - int(previous[key]) for key in keys}
 
 
 def _report_change(
@@ -1005,6 +1032,9 @@ def _trend_section(trends: object) -> str:
         f"<div class=\"metric ok\">Improvements: {int(summary.get('improvements', 0))}</div>",
         "</div>",
     ]
+    status_bars = _trend_status_bars(trends)
+    if status_bars:
+        parts.append(status_bars)
     if not changes:
         parts.append("<p class=\"muted\">No report status, error, or warning changes found.</p>")
         return "".join(parts)
@@ -1013,6 +1043,51 @@ def _trend_section(trends: object) -> str:
         if isinstance(change, dict):
             parts.append(_trend_card(change))
     parts.append("</div>")
+    return "".join(parts)
+
+
+def _trend_status_bars(trends: dict[str, Any]) -> str:
+    rows = trends.get("status_counts")
+    deltas = trends.get("status_deltas")
+    if not isinstance(rows, list) or not isinstance(deltas, dict):
+        return ""
+    valid_rows = [row for row in rows if isinstance(row, dict)]
+    if len(valid_rows) < 2:
+        return ""
+    status_keys = (
+        ("blocked", "Blocked", "err"),
+        ("attention", "Attention", "warn"),
+        ("ready", "Ready", "ok"),
+    )
+    parts = ["<section class=\"card\"><h3>Readiness Trend</h3>"]
+    for row in valid_rows:
+        total = sum(max(0, int(row.get(key, 0))) for key, _label, _css in status_keys) or 1
+        parts.append(
+            f"<p><strong>{escape(str(row.get('label') or 'Reports'))}</strong>: "
+            f"{int(row.get('reports', 0))} report(s), "
+            f"{int(row.get('errors', 0))} error(s), "
+            f"{int(row.get('warnings', 0))} warning(s)</p>"
+        )
+        parts.append("<div class=\"trend-bar\">")
+        for key, label, css_class in status_keys:
+            count = max(0, int(row.get(key, 0)))
+            if count == 0:
+                continue
+            width = round((count / total) * 100, 2)
+            parts.append(
+                f"<span class=\"trend-segment {css_class}\" "
+                f"data-trend-status=\"{escape(key)}\" style=\"width:{width}%\">"
+                f"{escape(label)} {count}</span>"
+            )
+        parts.append("</div>")
+    parts.append(
+        "<p class=\"muted\">Delta: "
+        f"blocked {_signed_int(deltas.get('blocked', 0))}, "
+        f"attention {_signed_int(deltas.get('attention', 0))}, "
+        f"ready {_signed_int(deltas.get('ready', 0))}, "
+        f"errors {_signed_int(deltas.get('errors', 0))}, "
+        f"warnings {_signed_int(deltas.get('warnings', 0))}</p></section>"
+    )
     return "".join(parts)
 
 

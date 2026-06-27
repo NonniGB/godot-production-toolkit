@@ -1,3 +1,3 @@
 """Static release dashboards for Godot toolkit reports."""
 
-__version__ = "0.1.11"
+__version__ = "0.1.12"
