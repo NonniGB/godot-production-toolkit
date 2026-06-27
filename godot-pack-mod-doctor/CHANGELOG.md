@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 - 2026-06-27
+
+- JSON reports now include a `metadata.rules` catalog with rule titles and
+  help text for CI comments, dashboards, and scripts.
+- Findings now include `rule_title` when the rule is known.
+
 ## 0.1.4 - 2026-06-17
 
 - `diff` now separates moved resources from true added and removed files when stable hashes or content IDs make the rename clear.

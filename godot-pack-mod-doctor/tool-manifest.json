@@ -25,7 +25,7 @@
       "command": "godot-pack-mod-doctor manifest from-folder addons/demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json"
     },
     {
-      "purpose": "Check a pack or mod manifest",
+      "purpose": "Check a pack or mod manifest with rule metadata",
       "command": "godot-pack-mod-doctor check pack-manifest.json --format markdown"
     },
     {

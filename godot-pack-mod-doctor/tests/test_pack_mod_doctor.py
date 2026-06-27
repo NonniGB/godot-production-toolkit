@@ -37,11 +37,40 @@ class PackModDoctorTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.4")
+            self.assertEqual(report["tool_version"], "0.1.5")
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("duplicate_file_path", rules)
             self.assertIn("override_not_allowed", rules)
             self.assertNotIn("pack_unsafe_file_type", rules)
+
+    def test_json_reports_include_rule_catalog_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "pack.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "id": "demo_pack",
+                        "version": "1.0.0",
+                        "files": [
+                            {"path": "res://items/sword.tres"},
+                            {"path": "res://items/sword.tres"},
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["check", str(manifest), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            rule = report["metadata"]["rules"]["duplicate_file_path"]
+            self.assertEqual(rule["title"], "Duplicate file path")
+            self.assertIn("one manifest entry per shipped path", rule["help"])
+            finding = next(item for item in report["findings"] if item["rule_id"] == "duplicate_file_path")
+            self.assertEqual(finding["rule_title"], "Duplicate file path")
 
     def test_check_reports_dependency_shape_findings(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

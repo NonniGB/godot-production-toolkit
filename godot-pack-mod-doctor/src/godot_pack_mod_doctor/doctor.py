@@ -25,6 +25,101 @@ DEV_FILE_NAMES = {".env"}
 DEV_FILE_EXTENSIONS = {".bak", ".key", ".log", ".pem", ".pfx"}
 SKIPPED_SCAN_DIRS = {".git", ".godot", "__pycache__"}
 
+RULE_CATALOG: dict[str, dict[str, str]] = {
+    "content_id_conflict": {
+        "title": "Content id conflict",
+        "help": "Use a unique content id, mark the file as an intentional override, or adjust the pack order.",
+    },
+    "duplicate_content_id": {
+        "title": "Duplicate content id",
+        "help": "Keep content ids unique across pack entries so content replacement is explicit.",
+    },
+    "duplicate_file_path": {
+        "title": "Duplicate file path",
+        "help": "Keep one manifest entry per shipped path so overrides are explicit.",
+    },
+    "duplicate_pack_id": {
+        "title": "Duplicate pack id",
+        "help": "Give each pack a stable unique id so dependencies and overrides can be reviewed.",
+    },
+    "load_order_conflict": {
+        "title": "Load order conflict",
+        "help": "Declare intentional overrides or change pack order so resource ownership is clear.",
+    },
+    "missing_file_path": {
+        "title": "Missing file path",
+        "help": "Every shipped resource entry needs a stable path for review and diffing.",
+    },
+    "missing_pack_id": {
+        "title": "Missing pack id",
+        "help": "Add stable pack identity fields before publishing or comparing pack versions.",
+    },
+    "missing_pack_version": {
+        "title": "Missing pack version",
+        "help": "Add stable pack identity fields before publishing or comparing pack versions.",
+    },
+    "override_not_allowed": {
+        "title": "Override not allowed",
+        "help": "Pass --allow-overrides for expected patch packs, or remove the override declaration.",
+    },
+    "pack_absolute_path": {
+        "title": "Absolute path",
+        "help": "Use Godot project paths so pack reviews are portable across machines.",
+    },
+    "pack_dependencies_not_list": {
+        "title": "Dependencies are not a list",
+        "help": "Use a list of dependency objects such as {'id': 'base_pack'} or simple id strings.",
+    },
+    "pack_dependency_duplicate_id": {
+        "title": "Duplicate dependency id",
+        "help": "Keep each dependency id once so release review is easier to read.",
+    },
+    "pack_dependency_missing": {
+        "title": "Missing dependency pack",
+        "help": "Add the dependency pack to the load-order command or remove the stale dependency.",
+    },
+    "pack_dependency_missing_id": {
+        "title": "Dependency missing id",
+        "help": "Give every dependency a stable id so load order checks can match it to another pack.",
+    },
+    "pack_dependency_order": {
+        "title": "Dependency loaded too late",
+        "help": "Load dependency packs before packs that extend or override them.",
+    },
+    "pack_dev_or_private_file": {
+        "title": "Development or private file",
+        "help": "Review whether editor caches, logs, backups, tests, or key material should be shipped in the pack.",
+    },
+    "pack_duplicate_path_case_insensitive": {
+        "title": "Case-insensitive path collision",
+        "help": "Avoid case-only path differences because Windows and macOS users may see collisions.",
+    },
+    "pack_file_removed": {
+        "title": "Pack file removed",
+        "help": "Check whether the removal is intended before publishing the pack update.",
+    },
+    "pack_non_res_path": {
+        "title": "Non-res path",
+        "help": "Use stable project paths such as res://addons/example/file.tres in pack manifests.",
+    },
+    "pack_path_traversal": {
+        "title": "Path traversal",
+        "help": "Pack manifests should not contain paths that can escape the intended project tree.",
+    },
+    "pack_self_dependency": {
+        "title": "Self dependency",
+        "help": "Remove self-dependencies so load-order checks describe real pack relationships.",
+    },
+    "pack_unsafe_file_type": {
+        "title": "Unsafe file type",
+        "help": "Script, native binary, archive, and packed-project files can be legitimate, but review them before distribution.",
+    },
+    "unknown_base_reference": {
+        "title": "Unknown base reference",
+        "help": "Check the base manifest or update the content pack dependency.",
+    },
+}
+
 
 def check_manifest(
     path: Path,
@@ -50,6 +145,7 @@ def check_manifest(
         configured_unsafe_extensions.update(unsafe_extensions)
     _unsafe_file_policy(files, configured_unsafe_extensions, findings)
 
+    findings = _enrich_findings(findings)
     risk = _risk_summary(findings)
     summary = {
         "packs": 1,
@@ -66,6 +162,7 @@ def check_manifest(
         "tool_version": __version__,
         "schema_version": "1.0",
         "kind": "pack_manifest_check",
+        "metadata": _metadata(),
         "summary": summary,
         "pack": {
             "id": str(data.get("id", "")),
@@ -129,6 +226,7 @@ def diff_manifests(baseline: Path, current: Path) -> dict[str, Any]:
                 "rule_help": "Check whether the removal is intended before publishing the pack update.",
             }
         )
+    findings = _enrich_findings(findings)
     risk = _risk_summary(findings)
     summary = {
         "packs": 2,
@@ -149,6 +247,7 @@ def diff_manifests(baseline: Path, current: Path) -> dict[str, Any]:
         "tool_version": __version__,
         "schema_version": "1.0",
         "kind": "pack_manifest_diff",
+        "metadata": _metadata(),
         "summary": summary,
         "baseline": str(baseline),
         "current": str(current),
@@ -235,6 +334,7 @@ def load_order(manifests: list[Path]) -> dict[str, Any]:
                         )
                 content_owners[content_id] = (pack_id, path)
     _load_order_dependency_findings(packs, pack_positions, findings)
+    findings = _enrich_findings(findings)
     errors = sum(1 for finding in findings if finding["severity"] == "error")
     warnings = sum(1 for finding in findings if finding["severity"] == "warning")
     risk = _risk_summary(findings)
@@ -243,6 +343,7 @@ def load_order(manifests: list[Path]) -> dict[str, Any]:
         "tool_version": __version__,
         "schema_version": "1.0",
         "kind": "pack_load_order",
+        "metadata": _metadata(),
         "summary": {
             "packs": len(packs),
             "files": len(owners),
@@ -265,6 +366,23 @@ def render(report: dict[str, Any], output_format: str) -> str:
     if output_format == "markdown":
         return _markdown(report)
     return _text(report)
+
+
+def _metadata() -> dict[str, Any]:
+    return {"rules": {rule_id: dict(rule) for rule_id, rule in RULE_CATALOG.items()}}
+
+
+def _enrich_findings(findings: list[dict[str, str]]) -> list[dict[str, str]]:
+    enriched: list[dict[str, str]] = []
+    for finding in findings:
+        rule = RULE_CATALOG.get(finding["rule_id"], {})
+        updated = dict(finding)
+        if "title" in rule:
+            updated.setdefault("rule_title", rule["title"])
+        if "help" in rule:
+            updated.setdefault("rule_help", rule["help"])
+        enriched.append(updated)
+    return enriched
 
 
 def _require_string(data: dict[str, Any], key: str, rule_id: str, findings: list[dict[str, str]]) -> None:

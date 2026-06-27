@@ -100,3 +100,5 @@ dependencies listed by each pack are present earlier in the supplied load order.
 All JSON reports include a small `risk` block plus `summary.risk_level` and
 `summary.risk_score` fields so release dashboards and CI scripts can sort pack
 reports without parsing every finding.
+They also include `metadata.rules`, a compact rule catalog with titles and help
+text for the findings emitted by `check`, `diff`, and `load-order`.
