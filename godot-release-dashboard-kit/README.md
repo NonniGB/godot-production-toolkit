@@ -36,6 +36,12 @@ Write a machine-readable dashboard summary:
 godot-release-dashboard build reports\godot-project-doctor --format json --output reports\dashboard.json
 ```
 
+Fail a CI job when the input folder is empty or points at the wrong path:
+
+```powershell
+godot-release-dashboard build reports\release-evidence --require-reports --output reports\dashboard.html
+```
+
 Compare the current reports with a previous report folder:
 
 ```powershell

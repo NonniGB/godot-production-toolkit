@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.13 - 2026-06-27
+
+- `godot-release-dashboard build` now prints actionable guidance when the input
+  folder has no supported report or image files.
+- Added `--require-reports` for CI jobs that should fail when a dashboard would
+  be empty because the report path is wrong or artifacts were not produced.
+
 ## 0.1.12 - 2026-06-27
 
 - Previous-run comparisons now include a compact readiness trend section with

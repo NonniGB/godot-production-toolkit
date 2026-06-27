@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from contextlib import redirect_stderr
+import io
 import json
 from pathlib import Path
 import sys
@@ -49,7 +51,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.12")
+            self.assertEqual(data["tool_version"], "0.1.13")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["summary"]["workflows"], 1)
@@ -667,6 +669,38 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertIn("Release Candidate Evidence", html)
             self.assertIn("Android export and runtime checks", html)
             self.assertIn("Demo Game", html)
+
+    def test_empty_report_folder_warns_with_actionable_guidance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            output = root / "dashboard.json"
+            stderr = io.StringIO()
+
+            with redirect_stderr(stderr):
+                exit_code = main(["build", str(reports), "--format", "json", "--output", str(output)])
+
+            data = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(data["summary"]["reports"], 0)
+            self.assertIn("No supported reports or images found", stderr.getvalue())
+            self.assertIn("--require-reports", stderr.getvalue())
+
+    def test_require_reports_fails_for_missing_or_empty_input(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            missing = root / "missing"
+            output = root / "dashboard.html"
+            stderr = io.StringIO()
+
+            with redirect_stderr(stderr):
+                exit_code = main(["build", str(missing), "--require-reports", "--output", str(output)])
+
+            self.assertEqual(exit_code, 1)
+            self.assertFalse(output.exists())
+            self.assertIn("No supported reports or images found", stderr.getvalue())
+            self.assertIn("godot-release-dashboard build", stderr.getvalue())
 
 
 if __name__ == "__main__":
