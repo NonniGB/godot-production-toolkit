@@ -28,9 +28,59 @@ class RuntimeTelemetryLabTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.5")
+            self.assertEqual(report["tool_version"], "0.1.6")
             self.assertEqual(report["summary"]["samples"], 2)
+            self.assertEqual(report["summary"]["warnings"], 1)
             self.assertEqual(report["findings"][0]["rule_id"], "frame_p95_over_budget")
+
+    def test_summarize_reports_missing_telemetry_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = Path(tmp) / "missing-runtime"
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["summarize", str(missing), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            finding = report["findings"][0]
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(report["summary"]["errors"], 1)
+            self.assertEqual(report["summary"]["samples"], 0)
+            self.assertEqual(finding["rule_id"], "telemetry_path_missing")
+            self.assertEqual(finding["rule_title"], "Telemetry path not found")
+            self.assertIn(".csv", finding["message"])
+
+    def test_timeline_reports_empty_telemetry_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "notes.txt").write_text("no telemetry here", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["timeline", str(root), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            finding = report["findings"][0]
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(report["summary"]["errors"], 1)
+            self.assertEqual(finding["rule_id"], "telemetry_files_missing")
+            self.assertEqual(finding["rule_title"], "No telemetry files found")
+
+    def test_adapt_reports_unreadable_telemetry_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "telemetry.json"
+            path.write_text("{broken", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["adapt", str(path), "--format", "json", "--fail-on", "error"])
+
+            report = json.loads(stdout.getvalue())
+            finding = report["findings"][0]
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(report["summary"]["errors"], 1)
+            self.assertEqual(finding["rule_id"], "telemetry_input_unreadable")
+            self.assertEqual(finding["rule_title"], "Telemetry input could not be read")
 
     def test_json_reports_include_rule_catalog_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.6 - 2026-06-27
+
+- Missing telemetry paths, unsupported input files, and empty telemetry
+  directories now produce structured input findings with rule help.
+- Unreadable telemetry JSON or CSV inputs are reported as normal findings
+  instead of raw parser errors.
+- Summary error and warning counts now reflect emitted findings so `--fail-on`
+  behaves consistently for telemetry input problems.
+
 ## 0.1.5 - 2026-06-27
 
 - JSON reports now include a `metadata.rules` catalog with runtime telemetry

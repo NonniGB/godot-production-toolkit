@@ -13,6 +13,22 @@ from . import __version__
 NUMERIC_FIELDS = ("frame_ms", "physics_ms", "memory_mb", "nodes", "draw_calls")
 
 RULE_CATALOG: dict[str, dict[str, str]] = {
+    "telemetry_path_missing": {
+        "title": "Telemetry path not found",
+        "help": "Pass a JSON or CSV telemetry file, or a directory containing telemetry files.",
+    },
+    "telemetry_file_unsupported": {
+        "title": "Unsupported telemetry file",
+        "help": "Use .json or .csv telemetry input, or run adapt on a supported monitor export.",
+    },
+    "telemetry_files_missing": {
+        "title": "No telemetry files found",
+        "help": "Write .json or .csv telemetry samples before running the telemetry report command.",
+    },
+    "telemetry_input_unreadable": {
+        "title": "Telemetry input could not be read",
+        "help": "Check that telemetry JSON is valid and CSV files are readable UTF-8 text.",
+    },
     "frame_p95_over_budget": {
         "title": "Frame p95 over budget",
         "help": "Inspect scenario phases and recent rendering or script changes around the slow frames.",
@@ -60,9 +76,10 @@ BUDGET_PROFILES: dict[str, dict[str, Any]] = {
 
 
 def summarize(path: Path, frame_budget_ms: float = 16.67) -> dict[str, Any]:
-    samples = load_samples(path)
+    samples, input_findings = _load_samples_with_findings(path)
     summary = _summary(samples)
-    findings = _findings(summary, frame_budget_ms)
+    findings = [*input_findings, *_findings(summary, frame_budget_ms)]
+    _add_finding_counts(summary, findings)
     return {
         "tool": "godot-runtime-telemetry-lab",
         "tool_version": __version__,
@@ -82,7 +99,7 @@ def compare(
 ) -> dict[str, Any]:
     baseline_report = summarize(baseline, frame_budget_ms)
     current_report = summarize(current, frame_budget_ms)
-    findings = list(current_report["findings"])
+    findings = [*baseline_report["findings"], *current_report["findings"]]
     baseline_p95 = float(baseline_report["summary"]["frame_ms"]["p95"])
     current_p95 = float(current_report["summary"]["frame_ms"]["p95"])
     baseline_memory_max = float(baseline_report["summary"]["memory_mb"]["max"])
@@ -132,25 +149,28 @@ def compare(
 
 
 def timeline(path: Path, frame_budget_ms: float = 16.67, memory_budget_mb: float | None = None) -> dict[str, Any]:
-    samples = load_samples(path)
+    samples, input_findings = _load_samples_with_findings(path)
     samples = _sorted_samples(samples)
     spikes = _enrich_findings(_spikes(samples, frame_budget_ms, memory_budget_mb))
+    summary_findings = [*input_findings, *_findings(_summary(samples), frame_budget_ms)]
+    summary = {
+        **_summary(samples),
+        "frame_budget_ms": frame_budget_ms,
+        "memory_budget_mb": memory_budget_mb,
+        "phases": _phases(samples),
+        "spikes": len(spikes),
+    }
+    _add_finding_counts(summary, summary_findings)
     return {
         "tool": "godot-runtime-telemetry-lab",
         "tool_version": __version__,
         "schema_version": "1.0",
         "kind": "runtime_telemetry_timeline",
         "metadata": _metadata(),
-        "summary": {
-            **_summary(samples),
-            "frame_budget_ms": frame_budget_ms,
-            "memory_budget_mb": memory_budget_mb,
-            "phases": _phases(samples),
-            "spikes": len(spikes),
-        },
+        "summary": summary,
         "samples": [_timeline_sample(sample, index) for index, sample in enumerate(samples)],
         "spikes": spikes,
-        "findings": _enrich_findings(_findings(_summary(samples), frame_budget_ms)),
+        "findings": _enrich_findings(summary_findings),
     }
 
 
@@ -170,8 +190,15 @@ def budget_profile(name: str) -> dict[str, Any]:
 
 
 def adapt(path: Path, source_format: str = "auto") -> dict[str, Any]:
-    raw_samples = load_samples(path)
+    raw_samples, input_findings = _load_samples_with_findings(path)
     samples = [_adapt_sample(sample, index) for index, sample in enumerate(raw_samples)]
+    summary = {
+        "samples": len(samples),
+        "scenarios": sorted({str(sample.get("scenario", "default")) for sample in samples}),
+        "errors": 0,
+        "warnings": 0,
+    }
+    _add_finding_counts(summary, input_findings)
     return {
         "tool": "godot-runtime-telemetry-lab",
         "tool_version": __version__,
@@ -179,14 +206,9 @@ def adapt(path: Path, source_format: str = "auto") -> dict[str, Any]:
         "kind": "runtime_telemetry_adapter",
         "metadata": _metadata(),
         "source_format": source_format,
-        "summary": {
-            "samples": len(samples),
-            "scenarios": sorted({str(sample.get("scenario", "default")) for sample in samples}),
-            "errors": 0,
-            "warnings": 0,
-        },
+        "summary": summary,
         "samples": samples,
-        "findings": [],
+        "findings": _enrich_findings(input_findings),
     }
 
 
@@ -198,14 +220,73 @@ def load_budget(path: Path) -> dict[str, Any]:
 
 
 def load_samples(path: Path) -> list[dict[str, Any]]:
-    files = [path] if path.is_file() else sorted(path.glob("*.json")) + sorted(path.glob("*.csv"))
+    files, _findings = _sample_files(path)
+    return _load_sample_files(files)[0]
+
+
+def _load_samples_with_findings(path: Path) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    files, findings = _sample_files(path)
+    samples, load_findings = _load_sample_files(files)
+    return samples, [*findings, *load_findings]
+
+
+def _sample_files(path: Path) -> tuple[list[Path], list[dict[str, Any]]]:
+    if not path.exists():
+        return [], [
+            {
+                "rule_id": "telemetry_path_missing",
+                "severity": "error",
+                "source": str(path),
+                "message": (
+                    f"Telemetry path does not exist: {path}. "
+                    "Pass a JSON or CSV telemetry file, or a directory containing .json or .csv files."
+                ),
+            }
+        ]
+    if path.is_file():
+        if path.suffix.lower() in {".json", ".csv"}:
+            return [path], []
+        return [], [
+            {
+                "rule_id": "telemetry_file_unsupported",
+                "severity": "error",
+                "source": str(path),
+                "message": f"Unsupported telemetry file extension for {path}. Use a .json or .csv file.",
+            }
+        ]
+
+    files = sorted(path.glob("*.json")) + sorted(path.glob("*.csv"))
+    if not files:
+        return [], [
+            {
+                "rule_id": "telemetry_files_missing",
+                "severity": "error",
+                "source": str(path),
+                "message": f"No telemetry .json or .csv files were found in {path}.",
+            }
+        ]
+    return files, []
+
+
+def _load_sample_files(files: list[Path]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     samples: list[dict[str, Any]] = []
+    findings: list[dict[str, Any]] = []
     for file_path in files:
-        if file_path.suffix.lower() == ".csv":
-            samples.extend(_load_csv(file_path))
-        elif file_path.suffix.lower() == ".json":
-            samples.extend(_load_json(file_path))
-    return samples
+        try:
+            if file_path.suffix.lower() == ".csv":
+                samples.extend(_load_csv(file_path))
+            elif file_path.suffix.lower() == ".json":
+                samples.extend(_load_json(file_path))
+        except (OSError, json.JSONDecodeError, csv.Error) as exc:
+            findings.append(
+                {
+                    "rule_id": "telemetry_input_unreadable",
+                    "severity": "error",
+                    "source": str(file_path),
+                    "message": f"Could not read telemetry input {file_path}: {exc}",
+                }
+            )
+    return samples, findings
 
 
 def render(report: dict[str, Any], output_format: str) -> str:
@@ -319,6 +400,11 @@ def _summary(samples: list[dict[str, Any]]) -> dict[str, Any]:
         "warnings": 0,
         **{field: _metric(samples, field) for field in NUMERIC_FIELDS},
     }
+
+
+def _add_finding_counts(summary: dict[str, Any], findings: list[dict[str, Any]]) -> None:
+    summary["errors"] = sum(1 for finding in findings if finding["severity"] == "error")
+    summary["warnings"] = sum(1 for finding in findings if finding["severity"] == "warning")
 
 
 def _sorted_samples(samples: list[dict[str, Any]]) -> list[dict[str, Any]]:

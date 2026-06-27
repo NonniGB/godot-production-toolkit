@@ -32,6 +32,10 @@ godot-telemetry-lab budget init --profile android-high --output reports\runtime-
 
 The tool accepts `.json` or `.csv` files. JSON files can contain a list of
 samples, or an object with a `samples`, `frames`, or `events` list.
+Commands also accept a directory containing `.json` and `.csv` files. If the
+path is wrong, the file extension is unsupported, the directory has no
+telemetry files, or input cannot be read, the command emits a normal finding
+with next-step guidance instead of a Python traceback.
 
 ```json
 {

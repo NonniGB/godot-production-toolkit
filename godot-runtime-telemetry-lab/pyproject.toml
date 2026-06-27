@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-runtime-telemetry-lab"
-version = "0.1.5"
+version = "0.1.6"
 description = "Summarize, adapt, and compare Godot runtime telemetry with rule metadata for CI reports."
 readme = "README.md"
 requires-python = ">=3.11"
