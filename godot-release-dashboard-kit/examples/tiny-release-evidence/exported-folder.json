@@ -1,6 +1,6 @@
 {
   "tool": "godot-export-preset-doctor",
-  "tool_version": "0.1.10",
+  "tool_version": "0.1.11",
   "schema_version": "1.0",
   "kind": "exported_folder_inspection",
   "workflow": "Export and packaging",

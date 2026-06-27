@@ -1,6 +1,6 @@
 {
   "tool": "godot-export-doctor",
-  "tool_version": "0.1.10",
+  "tool_version": "0.1.11",
   "schema_version": "1.0",
   "kind": "android_release_check",
   "workflow": "Export and packaging",

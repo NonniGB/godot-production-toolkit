@@ -50,6 +50,10 @@
     {
       "purpose": "Inspect an exported file list or manifest",
       "command": "godot-export-doctor inspect-files reports/export-file-list.json --format markdown --output exported-files.md --fail-on none"
+    },
+    {
+      "purpose": "Inspect a generated pack manifest or exported PCK file list",
+      "command": "godot-export-doctor pck reports/export-file-list.json --format markdown --output exported-pck.md --fail-on none"
     }
   ]
 }

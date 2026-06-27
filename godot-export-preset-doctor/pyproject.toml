@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-export-preset-doctor"
-version = "0.1.10"
-description = "CI-friendly Godot export_presets.cfg checks for Android, desktop, web, and release-readiness settings."
+version = "0.1.11"
+description = "CI-friendly Godot export preset, build target, exported folder, and generated PCK manifest checks."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Godot Export Preset Doctor contributors" }]
-keywords = ["godot", "export", "android", "ci", "release", "gamedev"]
+keywords = ["godot", "export", "android", "pck", "pack", "ci", "release", "gamedev"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

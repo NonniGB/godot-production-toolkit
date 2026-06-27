@@ -24,6 +24,7 @@ godot-export-doctor diff . --baseline reports/baseline-export-presets --format m
 godot-export-doctor leaks . --format html --output reports/export-leaks.html --fail-on none
 godot-export-doctor inspect-folder build/android --hash-files --format markdown --output reports/exported-folder.md --fail-on none
 godot-export-doctor inspect-files reports/export-file-list.json --format markdown --output reports/exported-files.md --fail-on none
+godot-export-doctor pck reports/export-file-list.json --format markdown --output reports/exported-pck.md --fail-on none
 godot-mobile-perf-doctor . --static --format markdown --output reports/mobile-perf.md
 godot-asset-doctor . --profile mobile --format json --output reports/assets.json
 ```
@@ -101,7 +102,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Problem | Use | Typical command |
 |---|---|---|
 | Android, desktop, or web export settings are hard to review | `godot-export-preset-doctor`, `godot-mobile-perf-doctor` | `godot-export-doctor matrix . --expected-platform Android --expected-platform Web --format markdown` |
-| Exported build folders or file lists need reviewable artifact checks | `godot-export-preset-doctor` | `godot-export-doctor inspect-folder build/android --hash-files --format json` |
+| Exported build folders, generated PCK manifests, or file lists need reviewable artifact checks | `godot-export-preset-doctor` | `godot-export-doctor pck reports/export-file-list.json --format markdown` |
 | Godot mobile UI needs safe-area and touch-target checks | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor readiness mobile-ui.json --format markdown` |
 | Godot mobile UI labels need localization expansion checks | `godot-mobile-ui-doctor`, `godot-localization-qa-guard` | `godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports/localization-stress/stress-pack-manifest.json --format markdown` |
 | Godot mobile UI overlays should show localized text risks | `godot-mobile-ui-doctor`, `godot-localization-qa-guard` | `godot-mobile-ui-doctor overlays mobile-ui.json --layout-risk-report reports/mobile-layout-risk.json --output-dir reports/mobile-ui-overlays` |

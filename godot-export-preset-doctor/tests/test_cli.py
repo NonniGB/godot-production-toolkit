@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-export-doctor 0.1.10", stdout.getvalue())
+        self.assertIn("godot-export-doctor 0.1.11", stdout.getvalue())
 
     def test_cli_reports_findings_as_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -196,7 +196,7 @@ export_path="build/web/index.html"
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.10")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.11")
             self.assertEqual(report["summary"]["presets"], 1)
 
     def test_cli_matrix_reports_missing_expected_platform(self) -> None:
@@ -460,6 +460,35 @@ export_path="build/game.aab"
 
             with self.assertRaises(SystemExit) as raised:
                 main(["inspect-files", str(pck), "--format", "json"])
+
+            self.assertEqual(raised.exception.code, 2)
+
+    def test_cli_pck_alias_inspects_generated_file_manifests(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "export-manifest.json"
+            manifest.write_text(
+                json.dumps({"files": [{"path": "res://main.pck"}, {"path": "res://debug/run.log"}]}),
+                encoding="utf-8",
+            )
+
+            stdout = StringIO()
+            with redirect_stdout(stdout):
+                exit_code = main(["pck", str(manifest), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            rule_ids = {finding["rule_id"] for finding in report["findings"]}
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["metadata"]["report_kind"], "exported_file_list_inspection")
+            self.assertEqual(report["summary"]["files"], 2)
+            self.assertIn("exported_file_list_dev_file", rule_ids)
+
+    def test_cli_pck_alias_rejects_direct_binary_input(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            pck = Path(tmp) / "game.pck"
+            pck.write_bytes(b"binary")
+
+            with self.assertRaises(SystemExit) as raised:
+                main(["pck", str(pck), "--format", "json"])
 
             self.assertEqual(raised.exception.code, 2)
 

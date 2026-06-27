@@ -83,7 +83,7 @@ def main(argv: list[str] | None = None) -> int:
         report = exported_folder_report(project, hash_files=args.hash_files)
         rendered = render_matrix_report(report, output_format)
         findings = _findings_from_report(report)
-    elif command == "inspect-files":
+    elif command in {"inspect-files", "pck"}:
         try:
             report = exported_file_list_report(project)
         except (OSError, ValueError, json.JSONDecodeError) as exc:
@@ -111,11 +111,11 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-export-doctor",
         description="Audit Godot export_presets.cfg release readiness.",
     )
-    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.10")
+    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.11")
     parser.add_argument(
         "command",
         nargs="?",
-        choices=["check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files"],
+        choices=["check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files", "pck"],
         default="check",
     )
     parser.add_argument("project", help="Godot project directory or export_presets.cfg path.")
@@ -237,10 +237,10 @@ def _findings_from_report(report: dict[str, Any]) -> list[Finding]:
 def _normalize_legacy_argv(argv: list[str] | None) -> list[str] | None:
     if argv is None:
         argv = sys.argv[1:]
-        if not argv or argv[0] in {"check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files"} or argv[0] in {"--version", "-h", "--help"}:
+        if not argv or argv[0] in {"check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files", "pck"} or argv[0] in {"--version", "-h", "--help"}:
             return None
         return _insert_default_command(argv)
-    if not argv or argv[0] in {"check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files"} or argv[0] in {"--version", "-h", "--help"}:
+    if not argv or argv[0] in {"check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files", "pck"} or argv[0] in {"--version", "-h", "--help"}:
         return argv
     return _insert_default_command(argv)
 
@@ -262,7 +262,7 @@ def _insert_default_command(argv: list[str]) -> list[str]:
         if skip_next:
             skip_next = False
             continue
-        if item in {"check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files"}:
+        if item in {"check", "matrix", "leaks", "diff", "inspect-folder", "inspect-files", "pck"}:
             return argv
         if item in options_with_values:
             skip_next = True
