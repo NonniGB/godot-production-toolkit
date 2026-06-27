@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 - 2026-06-27
+
+- Updated generated report and workflow wording around Godot CI and release
+  evidence for maintainers.
+- Fixed the CI action default package set to install `godot-production-doctor`
+  instead of the unavailable `godot-project-doctor` distribution.
+
 ## 0.2.0 - 2026-06-27
 
 - Restored the umbrella package to the local `0.2.x` version line after the

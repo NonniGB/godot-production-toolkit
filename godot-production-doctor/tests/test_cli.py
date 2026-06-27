@@ -258,7 +258,7 @@ allow_overrides = true
             rendered = stdout.getvalue()
             self.assertIn("godot-project-doctor.toml", rendered)
             self.assertIn("[project]", rendered)
-            self.assertIn("Godot production checks", rendered)
+            self.assertIn("Godot release evidence", rendered)
             self.assertFalse((root / "godot-project-doctor.toml").exists())
 
     def test_doctor_profile_outputs_first_run_guidance(self) -> None:
@@ -374,7 +374,7 @@ allow_overrides = true
 
             self.assertTrue(workflow.exists())
             workflow_text = workflow.read_text(encoding="utf-8")
-            self.assertIn("Godot production checks", workflow_text)
+            self.assertIn("Godot release evidence", workflow_text)
             self.assertIn("content_graph,save_schema,scenario_report,pack_mod,assets", workflow_text)
             self.assertIn("Workflow written:", stdout.getvalue())
 
@@ -610,7 +610,7 @@ allow_overrides = true
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.2.0", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.2.1", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -625,7 +625,7 @@ allow_overrides = true
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.2.0", completed.stdout)
+        self.assertIn("godot-project-doctor 0.2.1", completed.stdout)
 
 
 if __name__ == "__main__":

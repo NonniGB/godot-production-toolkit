@@ -7,7 +7,7 @@ Each package is a small command-line tool for a specific Godot production check.
 
 | Search phrase | Install | Run |
 |---|---|---|
-| Godot first-run production checklist across several tools | `python -m pip install godot-production-doctor` | `godot-project-doctor doctor . --profile release --write-plan` |
+| Godot first-run release evidence checklist across several tools | `python -m pip install godot-production-doctor` | `godot-project-doctor doctor . --profile release --write-plan` |
 | Godot Android export preset check | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor matrix . --expected-platform Android --format markdown` |
 | Godot export leak or debug file check | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor leaks . --format html --output reports/export-leaks.html` |
 | Godot export preset diff | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor diff . --baseline reports/baseline-export-presets --format markdown` |

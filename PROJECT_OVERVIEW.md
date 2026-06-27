@@ -7,7 +7,7 @@ shipping: export preset mistakes, generated build artifacts, Android/mobile
 readiness, localized UI overflow, input coverage, save fixture and migration
 drift, screenshot regressions, scenario evidence, runtime telemetry timelines
 and budgets, GDScript architecture coupling, pack/mod manifests, and release
-dashboards.
+dashboard artifacts.
 
 ## What Ships
 
@@ -60,7 +60,7 @@ The repository keeps a normal public project structure:
 
 ## Current Limitations
 
-- The tools are intentionally narrow production checks, not a general Godot framework.
+- The tools are intentionally narrow release-evidence checks, not a general Godot framework.
 - Some checks need project-owned fixtures or baselines to provide their best signal.
 - Visual smoke testing still depends on a project-specific capture command before diffing screenshots.
 - The umbrella package keeps the `godot-project-doctor` command name for continuity.

@@ -2,7 +2,8 @@
 
 Start here by release workflow or review task. The toolkit is organized around
 maintainer evidence for Godot CI and release review: exports, mobile readiness,
-localization, save migrations, runtime telemetry, screenshots, and dashboards.
+localization, save migrations, runtime telemetry, screenshots, and release
+dashboards.
 Each tool can run locally or in CI, and most standalone tools are available
 from PyPI.
 

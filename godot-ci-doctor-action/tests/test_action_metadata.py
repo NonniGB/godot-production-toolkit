@@ -21,6 +21,8 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertIn("actions/setup-python@v5", text)
         self.assertIn("python -m pip install", text)
         self.assertIn('python -m pip install "${tool_packages[@]}"', text)
+        self.assertIn('default: "godot-production-doctor ', text)
+        self.assertNotIn('default: "godot-project-doctor ', text)
         self.assertIn("godot-project-doctor run", text)
         self.assertIn("--format json", text)
         self.assertIn("--format markdown", text)

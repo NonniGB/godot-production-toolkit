@@ -59,9 +59,9 @@ def entrypoint() -> None:
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="godot-project-doctor",
-        description="Plan, run, and summarize the Godot production toolkit.",
+        description="Plan, run, and summarize Godot CI and release evidence checks.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.2.0")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.2.1")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")

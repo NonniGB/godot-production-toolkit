@@ -2,7 +2,7 @@
 
 ## Scope
 
-Godot Production Toolkit is a collection of narrow production checks for Godot 4 projects. The suite is intended to sit beside a project's normal tests, not replace runtime or gameplay validation.
+Godot Production Toolkit is a collection of narrow CI and release evidence checks for Godot 4 projects. The suite is intended to sit beside a project's normal tests, not replace runtime or gameplay validation.
 
 ## Tool Coverage
 

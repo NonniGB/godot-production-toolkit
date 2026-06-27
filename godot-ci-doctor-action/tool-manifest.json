@@ -23,11 +23,11 @@
   "recommended_commands": [
     {
       "purpose": "Minimal pull request workflow",
-      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2"
+      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2 with tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor"
     },
     {
       "purpose": "Strict release workflow",
-      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2 with fail-on: warning"
+      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2 with fail-on: warning and tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor"
     }
   ]
 }

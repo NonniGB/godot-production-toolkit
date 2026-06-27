@@ -54,6 +54,7 @@ inspect.
   with:
     project: .
     checks: assets,export,input,localization,signals,mobile_perf
+    tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor
     reports-dir: reports/godot-project-doctor
 ```
 

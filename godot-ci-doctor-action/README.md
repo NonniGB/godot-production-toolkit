@@ -1,11 +1,13 @@
 # Godot CI Doctor Action
 
-This composite action installs the Godot production toolkit, runs `godot-project-doctor`, and writes JSON, Markdown, and HTML summaries for GitHub Actions artifacts.
+This composite action installs the Godot CI and release evidence tools, runs
+`godot-project-doctor`, and writes JSON, Markdown, and HTML summaries for
+GitHub Actions artifacts.
 
 ## Usage
 
 ```yaml
-name: Godot production checks
+name: Godot release evidence
 
 on:
   pull_request:
@@ -21,6 +23,7 @@ jobs:
         with:
           project: .
           checks: assets,export,input,localization,signals,mobile_perf
+          tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor
           fail-on: error
           reports-dir: reports/godot-project-doctor
       - uses: actions/upload-artifact@v4

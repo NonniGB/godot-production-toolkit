@@ -859,14 +859,14 @@ def render_github_action_example(checks: list[str] | None = None) -> str:
     check_text = ",".join(checks or ["assets", "export", "input", "localization", "signals", "mobile_perf"])
     return "\n".join(
         [
-            "name: Godot production checks",
+            "name: Godot release evidence",
             "",
             "on:",
             "  pull_request:",
             "  workflow_dispatch:",
             "",
             "jobs:",
-            "  godot-production-checks:",
+            "  godot-release-evidence:",
             "    runs-on: ubuntu-latest",
             "    steps:",
             "      - uses: actions/checkout@v4",

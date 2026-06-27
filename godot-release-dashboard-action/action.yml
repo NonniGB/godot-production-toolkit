@@ -1,5 +1,5 @@
 name: Godot Release Dashboard
-description: Build and upload a static dashboard from existing Godot Production Toolkit reports.
+description: Build and upload a static release evidence dashboard from existing Godot Production Toolkit reports.
 
 inputs:
   reports-dir:

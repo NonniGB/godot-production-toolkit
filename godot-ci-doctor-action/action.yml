@@ -1,5 +1,5 @@
 name: Godot CI Doctor
-description: Run the Godot production toolkit in GitHub Actions and write JSON, Markdown, and HTML reports.
+description: Run Godot CI and release evidence checks in GitHub Actions and write JSON, Markdown, and HTML reports.
 
 inputs:
   project:
@@ -33,7 +33,7 @@ inputs:
   tool-packages:
     description: Space-separated packages to install before running the doctor.
     required: false
-    default: "godot-project-doctor godot-asset-pipeline-doctor godot-export-preset-doctor gdscript-api-comment-coverage godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor"
+    default: "godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor gdscript-api-comment-coverage godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor"
 
 outputs:
   summary-json:

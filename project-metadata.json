@@ -21,12 +21,12 @@
   "tools": [
     {
       "name": "godot-production-doctor",
-      "role": "Installable umbrella package that provides the godot-project-doctor command for package guidance, planning, profile checklists, Markdown first-run plans, running, and summarizing the suite.",
+      "role": "Installable umbrella package that provides the godot-project-doctor command for CI and release evidence guidance, planning, profile checklists, Markdown first-run plans, running, and summarizing the suite.",
       "interfaces": ["cli", "json", "markdown", "html"]
     },
     {
       "name": "godot-ci-doctor-action",
-      "role": "GitHub composite action wrapper for CI use.",
+      "role": "GitHub composite action wrapper for Godot CI and release evidence checks.",
       "interfaces": ["github-action", "json-artifacts", "markdown-artifacts", "html-artifacts"]
     },
     {

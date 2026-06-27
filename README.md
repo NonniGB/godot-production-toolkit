@@ -42,6 +42,7 @@ Add the main CI action to a Godot project:
   with:
     project: .
     checks: assets,export,input,localization,signals,mobile_perf
+    tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor
     reports-dir: reports/godot-project-doctor
 ```
 
@@ -325,7 +326,7 @@ The rough split is:
 
 | Lane | Packages |
 |---|---|
-| Project and release preflight | `godot-production-doctor`, `godot-ci-doctor-action`, `godot-release-dashboard-action`, `godot-release-dashboard-kit` |
+| Project and release evidence | `godot-production-doctor`, `godot-ci-doctor-action`, `godot-release-dashboard-action`, `godot-release-dashboard-kit` |
 | Export and mobile readiness | `godot-export-preset-doctor`, `godot-mobile-perf-doctor`, `godot-mobile-ui-doctor`, `godot-asset-pipeline-doctor` |
 | UI, input, localization, and visuals | `godot-input-map-auditor`, `godot-localization-qa-guard`, `godot-visual-smoke-test-kit`, `pixel-space-asset-toolkit` |
 | Runtime and scenario evidence | `godot-scenario-report-kit`, `godot-runtime-telemetry-lab` |
@@ -342,6 +343,7 @@ Add the suite to a Godot project with one workflow step:
     project: .
     checks: assets,export,input,localization,signals,mobile_perf
     fail-on: error
+    tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor
     reports-dir: reports/godot-project-doctor
 ```
 
@@ -420,7 +422,7 @@ The repo keeps the tools together. The installable umbrella package is `godot-pr
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.8` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.13` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.6` |
-| [`godot-production-doctor`](https://pypi.org/project/godot-production-doctor/) | `0.2.0` |
+| [`godot-production-doctor`](https://pypi.org/project/godot-production-doctor/) | `0.2.1` |
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.13` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.6` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.6` |
