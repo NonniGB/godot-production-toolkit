@@ -21,3 +21,6 @@ to keep from a local run or CI job.
 
 For a package-by-package command map, use the [Tool Index](../TOOL_INDEX.md).
 For practical search phrases, use the [Workflow Finder](../search-index.md).
+For copyable end-to-end examples, use the
+[Demo Paths](../../examples/demo-paths/README.md) and the
+[Sample Report Gallery](../assets/sample-reports/README.md).

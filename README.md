@@ -65,7 +65,9 @@ Start with these files when evaluating or extending the suite:
 - `docs/WORKS_WITH_YOUR_GODOT_WORKFLOW.md`
 - `docs/diagrams/README.md`
 - `docs/ROADMAP.md`
+- `examples/demo-paths/README.md`
 - `examples/release-readiness-demo/README.md`
+- `docs/assets/sample-reports/README.md`
 - `docs/PROJECT_HEALTH.md`
 - `verify_tool_manifests.py`
 
