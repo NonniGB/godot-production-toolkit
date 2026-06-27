@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.9 - 2026-06-27
+## 0.8.4 - 2026-06-27
 
 - Missing `godot-project-doctor.toml` paths now return a concise usage error
   with starter-config guidance instead of a Python traceback.
