@@ -12,6 +12,14 @@ RULES: dict[str, dict[str, str]] = {
         "title": "Unreadable JUnit XML",
         "help": "Check that the JUnit XML is complete and well-formed before using it as scenario evidence.",
     },
+    "result_path_missing": {
+        "title": "Result path not found",
+        "help": "Pass a JSON result file, a JUnit XML file, or a directory containing scenario result files.",
+    },
+    "no_result_files": {
+        "title": "No result files found",
+        "help": "Write .json scenario results or JUnit .xml files before running the report command.",
+    },
     "missing_scenario_name": {
         "title": "Missing scenario name",
         "help": "Add a scenario or name field so regressions can be matched across runs.",

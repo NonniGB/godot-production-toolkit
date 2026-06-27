@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-scenario-report-kit"
-version = "0.1.9"
+version = "0.1.10"
 description = "Validate, summarize, compare, and bundle Godot scenario, telemetry, visual, and log evidence."
 readme = "README.md"
 requires-python = ">=3.11"

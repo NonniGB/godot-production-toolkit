@@ -36,7 +36,7 @@ class ScenarioReportTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.9")
+            self.assertEqual(report["tool_version"], "0.1.10")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("scenario_failed", report["metadata"]["rules"])
             self.assertEqual(report["summary"]["scenarios"], 1)
@@ -45,6 +45,40 @@ class ScenarioReportTests(unittest.TestCase):
             self.assertIn("assertion_failed", rules)
             self.assertIn("missing_artifact", rules)
             self.assertTrue(all("rule_help" in finding for finding in report["findings"]))
+
+    def test_summarize_reports_missing_result_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = Path(tmp) / "missing-results"
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["summarize", str(missing), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            finding = report["findings"][0]
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(report["summary"]["errors"], 1)
+            self.assertEqual(finding["rule_id"], "result_path_missing")
+            self.assertEqual(finding["rule_title"], "Result path not found")
+            self.assertIn(".json", finding["message"])
+            self.assertIn("JUnit", finding["rule_help"])
+
+    def test_summarize_reports_empty_result_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "notes.txt").write_text("not a scenario result", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["summarize", str(root), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            finding = report["findings"][0]
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(report["summary"]["scenarios"], 0)
+            self.assertEqual(finding["rule_id"], "no_result_files")
+            self.assertEqual(finding["rule_title"], "No result files found")
+            self.assertIn(".xml", finding["message"])
 
     def test_summarize_accepts_junit_xml_results(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

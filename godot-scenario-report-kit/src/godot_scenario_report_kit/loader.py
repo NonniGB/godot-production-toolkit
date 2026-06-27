@@ -9,9 +9,37 @@ from .models import AssertionResult, Finding, ScenarioResult
 
 
 def load_results(path: Path) -> tuple[list[ScenarioResult], list[Finding]]:
-    files = [path] if path.is_file() else [*sorted(path.glob("*.json")), *sorted(path.glob("*.xml"))]
-    results: list[ScenarioResult] = []
     findings: list[Finding] = []
+    if not path.exists():
+        findings.append(
+            Finding(
+                rule_id="result_path_missing",
+                severity="error",
+                source=str(path),
+                message=(
+                    f"Scenario result path does not exist: {path}. "
+                    "Pass a JSON result file, a JUnit XML file, or a directory containing .json or .xml results."
+                ),
+            )
+        )
+        return [], findings
+
+    files = [path] if path.is_file() else [*sorted(path.glob("*.json")), *sorted(path.glob("*.xml"))]
+    if not files:
+        findings.append(
+            Finding(
+                rule_id="no_result_files",
+                severity="error",
+                source=str(path),
+                message=(
+                    f"No scenario result files were found in {path}. "
+                    "Write .json scenario results or JUnit .xml files before running this command."
+                ),
+            )
+        )
+        return [], findings
+
+    results: list[ScenarioResult] = []
     for file_path in files:
         if file_path.suffix.lower() == ".xml":
             xml_results, xml_findings = _load_junit_results(file_path)

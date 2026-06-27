@@ -23,6 +23,11 @@ python -m pip install -e .\godot-scenario-report-kit
 godot-scenario-report summarize examples\tiny-scenario-runs\current --format markdown
 ```
 
+The path can be a single `.json` scenario result, a JUnit `.xml` file, or a
+directory containing `.json` and `.xml` results. If the path is wrong or the
+directory has no supported result files, the report exits with an input finding
+that explains what to pass next.
+
 Summarize JUnit XML from an existing test runner:
 
 ```powershell
@@ -90,6 +95,7 @@ produce skipped scenarios.
 ## Checks
 
 - missing scenario names or statuses;
+- missing result paths or directories with no supported result files;
 - failed scenarios and failed assertions;
 - unreadable JUnit XML files;
 - missing artifact paths when artifacts are listed;

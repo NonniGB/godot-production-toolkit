@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.10 - 2026-06-27
+
+- Missing scenario result paths now produce a `result_path_missing` finding
+  with guidance for JSON, JUnit XML, and result directories.
+- Empty result directories now produce a `no_result_files` finding instead of
+  a silent zero-scenario report.
+- Added first-run tests for missing and empty result inputs.
+
 ## 0.1.9 - 2026-06-18
 
 - Scenario bundles now summarize linked log evidence without embedding log
