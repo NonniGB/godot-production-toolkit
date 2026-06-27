@@ -38,6 +38,7 @@ def render_overlays(
         if viewport is None:
             continue
         finding_map = _findings_by_node(findings, screen.name, viewport.name)
+        layout_risk_labels = _layout_risk_labels(finding_map)
         screenshot = _find_screenshot(options.screenshot_dir, screen, viewport)
         image = _draw_screen(screen, viewport, thresholds, finding_map, options.scale, screenshot)
         path = options.output_dir / f"{_slug(screen.name)}__{_slug(viewport.name)}.png"
@@ -50,6 +51,7 @@ def render_overlays(
                 "screenshot": str(screenshot) if screenshot else None,
                 "width": image.width,
                 "height": image.height,
+                "layout_risk_labels": layout_risk_labels,
             }
         )
 
@@ -68,6 +70,7 @@ def render_overlays(
             "files": len(files),
             "screenshots": sum(1 for item in files if item["screenshot"]),
             "layout_risk_findings": len(layout_risk_findings),
+            "layout_risk_labels": sum(len(item["layout_risk_labels"]) for item in files),
             "errors": audit_report["summary"]["errors"] + _count_severity(layout_risk_findings, "error"),
             "warnings": audit_report["summary"]["warnings"] + _count_severity(
                 layout_risk_findings, "warning"
@@ -193,6 +196,9 @@ def _draw_node(
             "#ffb7e4",
             font,
         )
+        preview = _first_stress_preview(findings)
+        if preview and (rect[3] - rect[1]) >= 52:
+            _label(draw, (rect[0] + 4, rect[1] + y_offset + 12), preview[:28], "#ffd6ef", font)
 
 
 def _with_alpha_hint(color: str) -> str:
@@ -247,6 +253,36 @@ def _findings_by_node(
         for node_id in node.split(","):
             by_node.setdefault(node_id, []).append(finding)
     return by_node
+
+
+def _layout_risk_labels(findings_by_node: dict[str, list[dict[str, Any]]]) -> list[dict[str, Any]]:
+    labels: list[dict[str, Any]] = []
+    for node, findings in sorted(findings_by_node.items()):
+        for finding in findings:
+            if finding.get("rule_id") != "localized_text_overflow_risk":
+                continue
+            preview = finding.get("stress_text_preview")
+            if not isinstance(preview, str) or not preview:
+                continue
+            label = {
+                "node": node,
+                "translation_key": finding.get("translation_key"),
+                "variant": finding.get("variant"),
+                "locale": finding.get("locale"),
+                "stress_text_preview": preview,
+            }
+            labels.append({key: value for key, value in label.items() if value is not None})
+    return labels
+
+
+def _first_stress_preview(findings: list[dict[str, Any]]) -> str | None:
+    for finding in findings:
+        if finding.get("rule_id") != "localized_text_overflow_risk":
+            continue
+        preview = finding.get("stress_text_preview")
+        if isinstance(preview, str) and preview:
+            return preview
+    return None
 
 
 def _label(

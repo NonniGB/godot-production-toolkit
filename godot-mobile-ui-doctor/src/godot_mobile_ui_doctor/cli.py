@@ -12,7 +12,7 @@ from .readiness import build_combined_readiness, render_combined_readiness
 from .reporting import render_report
 from .visual_smoke import load_visual_smoke_viewports, merge_viewports
 
-VERSION_LABEL = "godot-mobile-ui-doctor 0.1.11"
+VERSION_LABEL = "godot-mobile-ui-doctor 0.1.12"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -258,6 +258,7 @@ def _render_overlay_summary(report: dict[str, object], fmt: str) -> str:
             f"Files: {summary['files']} | Screenshots: {summary['screenshots']}"
         ),
         f"Layout risk findings: {summary['layout_risk_findings']}",
+        f"Layout risk labels: {summary['layout_risk_labels']}",
         f"Errors: {summary['errors']} | Warnings: {summary['warnings']}",
         "",
     ]

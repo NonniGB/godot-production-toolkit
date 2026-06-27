@@ -2,6 +2,57 @@
   "files": [
     {
       "height": 640,
+      "layout_risk_labels": [
+        {
+          "locale": "qps-compact",
+          "node": "options",
+          "stress_text_preview": "Gra and sou set",
+          "translation_key": "MENU_SETTINGS",
+          "variant": "compact"
+        },
+        {
+          "locale": "qps-long",
+          "node": "options",
+          "stress_text_preview": "Graphics and sound settings ~~~~~~~~~~~~~~~~~~~~",
+          "translation_key": "MENU_SETTINGS",
+          "variant": "long"
+        },
+        {
+          "locale": "qps-ploc",
+          "node": "options",
+          "stress_text_preview": "[!! \u011c\u0159\u00e0\u01a5\u0125\u00ed\u00e7\u0161 \u00e0\u00f1\u010f \u0161\u00f4\u00fa\u00f1\u010f \u0161\u00e9\u0167\u0167\u00ed\u00f1\u011d\u0161 ~~~~~~~~ !!]",
+          "translation_key": "MENU_SETTINGS",
+          "variant": "pseudo"
+        },
+        {
+          "locale": "qps-rtl",
+          "node": "options",
+          "stress_text_preview": "\u202bGraphics and sound settings\u202c",
+          "translation_key": "MENU_SETTINGS",
+          "variant": "rtl"
+        },
+        {
+          "locale": "qps-long",
+          "node": "play",
+          "stress_text_preview": "Start ~~~",
+          "translation_key": "MENU_START",
+          "variant": "long"
+        },
+        {
+          "locale": "qps-ploc",
+          "node": "play",
+          "stress_text_preview": "[!! \u0160\u0167\u00e0\u0159\u0167 ~ !!]",
+          "translation_key": "MENU_START",
+          "variant": "pseudo"
+        },
+        {
+          "locale": "qps-rtl",
+          "node": "play",
+          "stress_text_preview": "\u202bStart\u202c",
+          "translation_key": "MENU_START",
+          "variant": "rtl"
+        }
+      ],
       "path": "godot-mobile-ui-doctor/docs/images/mobile-ui-overlays/main_menu__portrait_phone.png",
       "screen": "main_menu",
       "screenshot": null,
@@ -89,6 +140,7 @@
       "screen": "main_menu",
       "severity": "warning",
       "stress_text_length": 9,
+      "stress_text_preview": "Start ~~~",
       "translation_key": "MENU_START",
       "variant": "long",
       "viewport": "portrait_phone"
@@ -106,6 +158,7 @@
       "screen": "main_menu",
       "severity": "warning",
       "stress_text_length": 15,
+      "stress_text_preview": "[!! \u0160\u0167\u00e0\u0159\u0167 ~ !!]",
       "translation_key": "MENU_START",
       "variant": "pseudo",
       "viewport": "portrait_phone"
@@ -123,6 +176,7 @@
       "screen": "main_menu",
       "severity": "warning",
       "stress_text_length": 7,
+      "stress_text_preview": "\u202bStart\u202c",
       "translation_key": "MENU_START",
       "variant": "rtl",
       "viewport": "portrait_phone"
@@ -140,6 +194,7 @@
       "screen": "main_menu",
       "severity": "warning",
       "stress_text_length": 15,
+      "stress_text_preview": "Gra and sou set",
       "translation_key": "MENU_SETTINGS",
       "variant": "compact",
       "viewport": "portrait_phone"
@@ -157,6 +212,7 @@
       "screen": "main_menu",
       "severity": "warning",
       "stress_text_length": 48,
+      "stress_text_preview": "Graphics and sound settings ~~~~~~~~~~~~~~~~~~~~",
       "translation_key": "MENU_SETTINGS",
       "variant": "long",
       "viewport": "portrait_phone"
@@ -174,6 +230,7 @@
       "screen": "main_menu",
       "severity": "warning",
       "stress_text_length": 44,
+      "stress_text_preview": "[!! \u011c\u0159\u00e0\u01a5\u0125\u00ed\u00e7\u0161 \u00e0\u00f1\u010f \u0161\u00f4\u00fa\u00f1\u010f \u0161\u00e9\u0167\u0167\u00ed\u00f1\u011d\u0161 ~~~~~~~~ !!]",
       "translation_key": "MENU_SETTINGS",
       "variant": "pseudo",
       "viewport": "portrait_phone"
@@ -191,6 +248,7 @@
       "screen": "main_menu",
       "severity": "warning",
       "stress_text_length": 29,
+      "stress_text_preview": "\u202bGraphics and sound settings\u202c",
       "translation_key": "MENU_SETTINGS",
       "variant": "rtl",
       "viewport": "portrait_phone"
@@ -246,12 +304,13 @@
     "errors": 0,
     "files": 1,
     "layout_risk_findings": 7,
+    "layout_risk_labels": 7,
     "screens": 1,
     "screenshots": 0,
     "viewports": 1,
     "warnings": 13
   },
   "tool": "godot-mobile-ui-doctor",
-  "tool_version": "0.1.11",
-  "version": "0.1.11"
+  "tool_version": "0.1.12",
+  "version": "0.1.12"
 }

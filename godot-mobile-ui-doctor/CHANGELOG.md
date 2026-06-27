@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.12 - 2026-06-27
+
+- Added bounded stress-text previews to localization layout-risk JSON findings.
+- Included layout-risk label details in overlay summaries so scripts can link marked controls back to the stress text that caused them.
+- Overlay PNGs can now show a short stress-text preview inside larger marked controls.
+
 ## 0.1.11 - 2026-06-17
 
 - Added `--layout-risk-report` to `overlays` so PNG previews can mark controls with localized stress-text overflow risks.

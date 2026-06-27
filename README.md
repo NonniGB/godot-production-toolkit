@@ -385,7 +385,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.5` |
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
-| [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.11` |
+| [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.12` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.6` |
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.12` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.5` |

@@ -166,7 +166,10 @@ godot-mobile-ui-doctor layout-risk mobile-ui.json --stress-pack reports\localiza
 
 The expansion factor is a quick heuristic. `layout-risk` uses actual stress
 catalog strings and matches them by `translation_key` when available, falling
-back to visible text matches for a first pass.
+back to visible text matches for a first pass. JSON findings include a bounded
+`stress_text_preview`, so CI summaries and overlay reports can show the exact
+stress label that made a control risky without copying the full translation
+catalog into every artifact.
 
 ## Overlay Previews
 
@@ -189,7 +192,9 @@ captured screen. Screens without a matching screenshot still use the plain grid
 background.
 
 If `--layout-risk-report` points at JSON from `layout-risk`, overlay PNGs also
-mark controls with localized stress-text overflow risks. This is useful when a
+mark controls with localized stress-text overflow risks. The overlay summary
+includes `layout_risk_labels` for the marked nodes, and larger marked controls
+can show a short stress-text preview inside the PNG. This is useful when a
 Markdown table says a label is risky but a reviewer needs to see where that
 control sits on the phone layout.
 

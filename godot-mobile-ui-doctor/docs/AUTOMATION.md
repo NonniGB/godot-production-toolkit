@@ -46,7 +46,9 @@ Use the stress catalogs in a project-owned UI capture step when possible. The
 joined `layout-risk` report is useful even before screenshot capture because it
 matches translation keys or source text to exported control rectangles.
 When JSON output is passed to `overlays`, the PNG previews mark the same risky
-controls so the layout issue is visible without reading a table first.
+controls so the layout issue is visible without reading a table first. Overlay
+JSON also includes `layout_risk_labels`, which maps each marked control to the
+stress-text preview that caused the risk.
 
 The readiness report includes the linked reports' top findings and grouped rule
 counts in addition to the per-screen mobile UI matrix, which makes it suitable

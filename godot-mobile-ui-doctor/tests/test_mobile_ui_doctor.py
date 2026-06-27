@@ -23,7 +23,7 @@ class MobileUiDoctorTests(unittest.TestCase):
             viewports, screens, thresholds = load_metadata(path)
             report = audit_mobile_ui(viewports, screens, thresholds)
 
-            self.assertEqual(report["tool_version"], "0.1.11")
+            self.assertEqual(report["tool_version"], "0.1.12")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("touch_target_too_small", report["metadata"]["rules"])
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
@@ -135,7 +135,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.11", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.12", stdout.getvalue())
 
     def test_builds_mobile_readiness_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -330,11 +330,17 @@ class MobileUiDoctorTests(unittest.TestCase):
                 ]
             )
 
+            layout_data = json.loads(layout_report.read_text(encoding="utf-8"))
             report = json.loads(summary.read_text(encoding="utf-8"))
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
             self.assertEqual(layout_exit, 0)
             self.assertEqual(overlay_exit, 0)
             self.assertEqual(report["summary"]["layout_risk_findings"], 1)
+            self.assertIn("stress_text_preview", layout_data["findings"][0])
+            self.assertLessEqual(len(layout_data["findings"][0]["stress_text_preview"]), 64)
+            self.assertEqual(report["summary"]["layout_risk_labels"], 1)
+            self.assertEqual(report["files"][0]["layout_risk_labels"][0]["node"], "continue")
+            self.assertIn("stress_text_preview", report["files"][0]["layout_risk_labels"][0])
             self.assertIn("localized_text_overflow_risk", rule_ids)
             overlay = output_dir / "pause_menu__portrait_phone.png"
             self.assertTrue(overlay.exists())

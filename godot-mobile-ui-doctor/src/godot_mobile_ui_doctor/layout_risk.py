@@ -161,9 +161,17 @@ def _find_node_risks(
                 "estimated_width": round(estimated_width, 1),
                 "available_width": round(usable_width, 1),
                 "stress_text_length": len(text),
+                "stress_text_preview": _preview_text(text),
             }
         )
     return findings
+
+
+def _preview_text(text: str, limit: int = 64) -> str:
+    compact = " ".join(text.split())
+    if len(compact) <= limit:
+        return compact
+    return compact[: max(0, limit - 3)].rstrip() + "..."
 
 
 def _render_text(report: dict[str, Any]) -> str:
