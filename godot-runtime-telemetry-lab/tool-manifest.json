@@ -21,7 +21,7 @@
   },
   "recommended_commands": [
     {
-      "purpose": "Summarize runtime telemetry",
+      "purpose": "Summarize runtime telemetry with rule metadata",
       "command": "godot-telemetry-lab summarize reports/runtime --format markdown"
     },
     {

@@ -78,6 +78,8 @@ godot-telemetry-lab timeline reports\runtime --budget-file reports\runtime-budge
 `compare` includes `frame_p95_delta_ms` and `memory_delta_mb` in JSON reports, so
 CI jobs and dashboards can show the size of a runtime change without parsing
 the full baseline and current summaries.
+JSON reports also include `metadata.rules`, a compact catalog of runtime
+telemetry rule titles and help text for scripts, dashboards, and CI comments.
 
 ## Outputs
 

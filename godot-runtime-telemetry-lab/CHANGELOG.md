@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 - 2026-06-27
+
+- JSON reports now include a `metadata.rules` catalog with runtime telemetry
+  rule titles and help text.
+- Findings and timeline spikes now include `rule_title` when the rule is known.
+
 ## 0.1.4 - 2026-06-27
 
 - `compare` now reports memory max regressions alongside frame p95 regressions.

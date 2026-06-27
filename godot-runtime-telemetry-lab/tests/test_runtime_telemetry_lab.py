@@ -28,9 +28,28 @@ class RuntimeTelemetryLabTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.4")
+            self.assertEqual(report["tool_version"], "0.1.5")
             self.assertEqual(report["summary"]["samples"], 2)
             self.assertEqual(report["findings"][0]["rule_id"], "frame_p95_over_budget")
+
+    def test_json_reports_include_rule_catalog_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "telemetry.json"
+            path.write_text(
+                json.dumps({"samples": [{"scenario": "menu", "frame_ms": 12}, {"scenario": "menu", "frame_ms": 24}]}),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["summarize", str(path), "--frame-budget-ms", "16", "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            rule = report["metadata"]["rules"]["frame_p95_over_budget"]
+            self.assertEqual(rule["title"], "Frame p95 over budget")
+            self.assertIn("scenario phases", rule["help"])
+            self.assertEqual(report["findings"][0]["rule_title"], "Frame p95 over budget")
 
     def test_compare_reports_regression(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

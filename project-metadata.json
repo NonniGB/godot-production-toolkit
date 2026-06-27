@@ -106,7 +106,7 @@
     },
     {
       "name": "godot-runtime-telemetry-lab",
-      "role": "Runtime telemetry adapters, summaries, timeline reports, named budgets, frame budget checks, and frame/memory baseline comparisons.",
+      "role": "Runtime telemetry adapters, summaries, timeline reports, named budgets, frame budget checks, frame/memory baseline comparisons, and rule metadata.",
       "interfaces": ["cli", "json", "markdown", "text", "html", "svg"]
     },
     {

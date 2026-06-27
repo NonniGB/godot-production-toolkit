@@ -12,6 +12,29 @@ from . import __version__
 
 NUMERIC_FIELDS = ("frame_ms", "physics_ms", "memory_mb", "nodes", "draw_calls")
 
+RULE_CATALOG: dict[str, dict[str, str]] = {
+    "frame_p95_over_budget": {
+        "title": "Frame p95 over budget",
+        "help": "Inspect scenario phases and recent rendering or script changes around the slow frames.",
+    },
+    "frame_p95_regression": {
+        "title": "Frame p95 regression",
+        "help": "Compare recent runtime, rendering, loading, and scenario changes before updating the baseline.",
+    },
+    "memory_max_regression": {
+        "title": "Memory max regression",
+        "help": "Check memory-heavy scenes, imported assets, and longer scenario paths before updating the baseline.",
+    },
+    "frame_over_budget": {
+        "title": "Frame sample over budget",
+        "help": "Use the timeline sample, scenario, and phase fields to find where the frame spike happened.",
+    },
+    "memory_over_budget": {
+        "title": "Memory sample over budget",
+        "help": "Check the nearby scenario phase and imported assets before raising the memory budget.",
+    },
+}
+
 BUDGET_PROFILES: dict[str, dict[str, Any]] = {
     "desktop-dev": {
         "frame_budget_ms": 16.67,
@@ -45,8 +68,9 @@ def summarize(path: Path, frame_budget_ms: float = 16.67) -> dict[str, Any]:
         "tool_version": __version__,
         "schema_version": "1.0",
         "kind": "runtime_telemetry_summary",
+        "metadata": _metadata(),
         "summary": summary,
-        "findings": findings,
+        "findings": _enrich_findings(findings),
     }
 
 
@@ -87,11 +111,13 @@ def compare(
                 "rule_help": "Check memory-heavy scenes, imported assets, and longer scenario paths before updating the baseline.",
             }
         )
+    findings = _enrich_findings(findings)
     return {
         "tool": "godot-runtime-telemetry-lab",
         "tool_version": __version__,
         "schema_version": "1.0",
         "kind": "runtime_telemetry_compare",
+        "metadata": _metadata(),
         "baseline": baseline_report["summary"],
         "current": current_report["summary"],
         "summary": {
@@ -108,12 +134,13 @@ def compare(
 def timeline(path: Path, frame_budget_ms: float = 16.67, memory_budget_mb: float | None = None) -> dict[str, Any]:
     samples = load_samples(path)
     samples = _sorted_samples(samples)
-    spikes = _spikes(samples, frame_budget_ms, memory_budget_mb)
+    spikes = _enrich_findings(_spikes(samples, frame_budget_ms, memory_budget_mb))
     return {
         "tool": "godot-runtime-telemetry-lab",
         "tool_version": __version__,
         "schema_version": "1.0",
         "kind": "runtime_telemetry_timeline",
+        "metadata": _metadata(),
         "summary": {
             **_summary(samples),
             "frame_budget_ms": frame_budget_ms,
@@ -123,7 +150,7 @@ def timeline(path: Path, frame_budget_ms: float = 16.67, memory_budget_mb: float
         },
         "samples": [_timeline_sample(sample, index) for index, sample in enumerate(samples)],
         "spikes": spikes,
-        "findings": _findings(_summary(samples), frame_budget_ms),
+        "findings": _enrich_findings(_findings(_summary(samples), frame_budget_ms)),
     }
 
 
@@ -136,6 +163,7 @@ def budget_profile(name: str) -> dict[str, Any]:
         "tool_version": __version__,
         "schema_version": "1.0",
         "kind": "runtime_telemetry_budget",
+        "metadata": _metadata(),
         "profile": name,
         **BUDGET_PROFILES[name],
     }
@@ -149,6 +177,7 @@ def adapt(path: Path, source_format: str = "auto") -> dict[str, Any]:
         "tool_version": __version__,
         "schema_version": "1.0",
         "kind": "runtime_telemetry_adapter",
+        "metadata": _metadata(),
         "source_format": source_format,
         "summary": {
             "samples": len(samples),
@@ -189,6 +218,23 @@ def render(report: dict[str, Any], output_format: str) -> str:
     if output_format == "markdown":
         return _markdown(report)
     return _text(report)
+
+
+def _metadata() -> dict[str, Any]:
+    return {"rules": {rule_id: dict(rule) for rule_id, rule in RULE_CATALOG.items()}}
+
+
+def _enrich_findings(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    enriched: list[dict[str, Any]] = []
+    for finding in findings:
+        rule = RULE_CATALOG.get(str(finding["rule_id"]), {})
+        updated = dict(finding)
+        if "title" in rule:
+            updated.setdefault("rule_title", rule["title"])
+        if "help" in rule:
+            updated.setdefault("rule_help", rule["help"])
+        enriched.append(updated)
+    return enriched
 
 
 def _load_json(path: Path) -> list[dict[str, Any]]:
