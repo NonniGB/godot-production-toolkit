@@ -14,7 +14,7 @@ commands by task.
 ### "I just opened a Godot project and want a quick audit"
 
 Start with the [starter project audit workflow](workflows/godot-starter-project-audit.md)
-and the [`godot-project-doctor` README](../godot-project-doctor/README.md).
+and the [`godot-production-doctor` README](../godot-production-doctor/README.md).
 The starter audit runs export preset, input map, asset import, and mobile
 settings checks together, then hands the reports to the release dashboard.
 
@@ -150,7 +150,7 @@ schema and show a compact before-and-after summary. Use
 fixture paths before attaching sample saves to reports or issues.
 
 For a broader production pass, add the umbrella
-[`godot-project-doctor`](../godot-project-doctor/README.md) so save evidence can
+[`godot-production-doctor`](../godot-production-doctor/README.md) package so save evidence can
 sit beside export, asset, input, and localization reports.
 
 ### "A content pack, DLC, mod, or patch manifest needs validation"

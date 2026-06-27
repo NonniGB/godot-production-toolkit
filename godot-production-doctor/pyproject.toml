@@ -3,13 +3,13 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "godot-project-doctor"
-version = "0.8.4"
+name = "godot-production-doctor"
+version = "0.8.5"
 description = "Umbrella CLI that recommends, installs, plans, runs, summarizes, compares, and collects CI-friendly Godot production checks."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
-authors = [{ name = "Godot Project Doctor contributors" }]
+authors = [{ name = "Godot Production Doctor contributors" }]
 keywords = ["godot", "ci", "gamedev", "qa", "reports", "checklist"]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -22,7 +22,7 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-project-doctor"
+Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-production-doctor"
 Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]

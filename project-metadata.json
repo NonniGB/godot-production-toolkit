@@ -20,8 +20,8 @@
   "tool_count": 20,
   "tools": [
     {
-      "name": "godot-project-doctor",
-      "role": "Umbrella CLI for package install guidance, planning, profile checklists, Markdown first-run plans, running, and summarizing the suite.",
+      "name": "godot-production-doctor",
+      "role": "Installable umbrella package that provides the godot-project-doctor command for package guidance, planning, profile checklists, Markdown first-run plans, running, and summarizing the suite.",
       "interfaces": ["cli", "json", "markdown", "html"]
     },
     {
@@ -217,7 +217,7 @@
     "python verify_release_alignment.py",
     "python project_health_snapshot.py",
     "python -m unittest discover -s tests -v",
-    "python -m unittest discover -s godot-project-doctor/tests -v",
+    "python -m unittest discover -s godot-production-doctor/tests -v",
     "python -m unittest discover -s godot-ci-doctor-action/tests -v",
     "python -m unittest discover -s godot-release-dashboard-action/tests -v",
     "python -m unittest discover -s godot-asset-pipeline-doctor/tests -v",
@@ -234,12 +234,12 @@
   "current_limitations": [
     "Some specialized tools require project-specific fixtures or visual smoke capture scripts to be fully useful.",
     "The tools are intentionally narrow and production-focused rather than a broad Godot framework.",
-    "The umbrella CLI is source-checkout first because the exact godot-project-doctor PyPI distribution name is already used by another project."
+    "The umbrella CLI is distributed as godot-production-doctor and installs the godot-project-doctor command."
   ],
   "release_priorities": [
     "Maintain one public umbrella repository with all tools and the GitHub Actions.",
     "Keep tagged releases tied to passing CI runs.",
-    "Maintain the published packages first: godot-asset-pipeline-doctor, godot-export-preset-doctor, godot-mobile-perf-doctor, godot-content-graph-doctor, godot-scenario-report-kit, godot-gdscript-architecture-guard, godot-runtime-telemetry-lab, godot-pack-mod-doctor, and godot-release-dashboard-kit.",
+    "Maintain the published packages first: godot-production-doctor, godot-asset-pipeline-doctor, godot-export-preset-doctor, godot-mobile-perf-doctor, godot-content-graph-doctor, godot-scenario-report-kit, godot-gdscript-architecture-guard, godot-runtime-telemetry-lab, godot-pack-mod-doctor, and godot-release-dashboard-kit.",
     "Use concise examples and minimal fixtures when discussing issues or improvements."
   ]
 }

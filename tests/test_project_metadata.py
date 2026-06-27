@@ -56,7 +56,7 @@ class ProjectMetadataTests(unittest.TestCase):
             "Main Entry Points",
             "Maintenance Model",
             "Current Limitations",
-            "godot-project-doctor",
+            "godot-production-doctor",
             "godot-ci-doctor-action",
         ):
             self.assertIn(phrase, text)

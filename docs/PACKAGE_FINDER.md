@@ -7,6 +7,7 @@ Each package is a small command-line tool for a specific Godot production check.
 
 | Search phrase | Install | Run |
 |---|---|---|
+| Godot first-run production checklist across several tools | `python -m pip install godot-production-doctor` | `godot-project-doctor doctor . --profile release --write-plan` |
 | Godot Android export preset check | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor matrix . --expected-platform Android --format markdown` |
 | Godot export leak or debug file check | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor leaks . --format html --output reports/export-leaks.html` |
 | Godot export preset diff | `python -m pip install godot-export-preset-doctor` | `godot-export-doctor diff . --baseline reports/baseline-export-presets --format markdown` |
@@ -50,8 +51,9 @@ Each package is a small command-line tool for a specific Godot production check.
 
 ## Profile Package Sets
 
-Use these when `godot-project-doctor doctor . --profile <name> --write-plan`
-is your starting point from a source checkout.
+Use these when the `godot-project-doctor` command from `godot-production-doctor`
+is your starting point. Install `godot-production-doctor` plus the package set
+for the profile you want to run.
 
 | Profile | Install | Covers |
 |---|---|---|

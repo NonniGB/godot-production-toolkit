@@ -26,7 +26,7 @@ EXISTING_TOOLS = {
 }
 
 NEW_PROJECTS = {
-    "godot-project-doctor",
+    "godot-production-doctor",
     "godot-ci-doctor-action",
     "godot-release-dashboard-action",
 }
@@ -98,7 +98,7 @@ class RepositoryStructureTests(unittest.TestCase):
             "tests/test_cli.py",
         }
 
-        missing = sorted(rel_path for rel_path in required if not (ROOT / "godot-project-doctor" / rel_path).exists())
+        missing = sorted(rel_path for rel_path in required if not (ROOT / "godot-production-doctor" / rel_path).exists())
         self.assertEqual([], missing)
 
     def test_github_action_files_exist(self) -> None:

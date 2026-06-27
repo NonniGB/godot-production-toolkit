@@ -1,11 +1,14 @@
-# Godot Project Doctor
+# Godot Production Doctor
 
-`godot-project-doctor` is an umbrella CLI for the Godot production toolkit. It recommends package installs, plans, runs, summarizes, compares, and collects the standalone tools without hiding their individual commands.
+`godot-production-doctor` installs the `godot-project-doctor` umbrella CLI for
+the Godot production toolkit. The command recommends package installs, plans,
+runs, summarizes, compares, and collects the standalone tools without hiding
+their individual commands.
 
 ## Install
 
 ```powershell
-python -m pip install -e .
+python -m pip install godot-production-doctor
 ```
 
 Install the standalone tools you want to run in the same environment. `recommend`

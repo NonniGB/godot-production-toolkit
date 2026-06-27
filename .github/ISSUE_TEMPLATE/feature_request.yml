@@ -9,7 +9,7 @@ body:
       label: Tool
       description: Which tool would this improve?
       options:
-        - godot-project-doctor
+        - godot-production-doctor
         - godot-asset-pipeline-doctor
         - godot-content-graph-doctor
         - godot-export-preset-doctor

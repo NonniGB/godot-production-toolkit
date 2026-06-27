@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "name": "godot-project-doctor",
+  "name": "godot-production-doctor",
   "entrypoint": "godot-project-doctor",
   "module": "python -m godot_project_doctor",
   "interfaces": {

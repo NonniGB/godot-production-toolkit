@@ -37,7 +37,7 @@ class GovernanceTests(unittest.TestCase):
 
         dependabot = (ROOT / ".github/dependabot.yml").read_text(encoding="utf-8")
         self.assertIn('package-ecosystem: "pip"', dependabot)
-        self.assertIn('directory: "/godot-project-doctor"', dependabot)
+        self.assertIn('directory: "/godot-production-doctor"', dependabot)
         self.assertIn('directory: "/godot-asset-pipeline-doctor"', dependabot)
         self.assertIn('directory: "/godot-mobile-perf-doctor"', dependabot)
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.5 - 2026-06-27
+
+- Renamed the PyPI distribution to `godot-production-doctor`.
+- Kept the installed console command as `godot-project-doctor` for existing
+  workflows and examples.
+- Updated source-checkout paths and package references to avoid confusion with
+  the unrelated `godot-project-doctor` PyPI project.
+
 ## 0.8.4 - 2026-06-27
 
 - Missing `godot-project-doctor.toml` paths now return a concise usage error

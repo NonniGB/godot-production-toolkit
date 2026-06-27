@@ -7,7 +7,8 @@ The tools focus on repeated production risks that are easy to miss late in devel
 ## What Ships
 
 - Seventeen standalone Python CLI packages.
-- One umbrella CLI: `godot-project-doctor`.
+- One umbrella CLI package: `godot-production-doctor`, which installs the
+  `godot-project-doctor` command.
 - Two composite GitHub Actions: `godot-ci-doctor-action` and
   `godot-release-dashboard-action`.
 - JSON output for scripts and CI.
@@ -29,7 +30,7 @@ The tools focus on repeated production risks that are easy to miss late in devel
 ```powershell
 python verify_tool_manifests.py
 python -m unittest discover -s tests -v
-python -m pip install -e .\godot-project-doctor
+python -m pip install -e .\godot-production-doctor
 godot-project-doctor plan --project path\to\godot-project --format json
 ```
 
@@ -56,4 +57,4 @@ The repository keeps a normal public project structure:
 - The tools are intentionally narrow production checks, not a general Godot framework.
 - Some checks need project-owned fixtures or baselines to provide their best signal.
 - Visual smoke testing still depends on a project-specific capture command before diffing screenshots.
-- The umbrella CLI is source-checkout only until a distinct PyPI distribution name is chosen.
+- The umbrella package keeps the `godot-project-doctor` command name for continuity.

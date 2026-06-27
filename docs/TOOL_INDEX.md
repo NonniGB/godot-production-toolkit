@@ -10,7 +10,7 @@ profile package set, and first command, use the [Package Finder](PACKAGE_FINDER.
 
 | Lane | Use it for | Primary packages |
 |---|---|---|
-| Project and release preflight | First-pass audits, PR reports, dashboards, and release checklist runs. | `godot-project-doctor`, `godot-ci-doctor-action`, `godot-release-dashboard-action`, `godot-release-dashboard-kit` |
+| Project and release preflight | First-pass audits, PR reports, dashboards, and release checklist runs. | `godot-production-doctor`, `godot-ci-doctor-action`, `godot-release-dashboard-action`, `godot-release-dashboard-kit` |
 | Export and mobile readiness | Export presets, build folders, Android/mobile settings, texture risks, safe areas, and touch layout. | `godot-export-preset-doctor`, `godot-mobile-perf-doctor`, `godot-mobile-ui-doctor`, `godot-asset-pipeline-doctor` |
 | UI, input, localization, and visuals | Input maps, translated text, touch readiness, screenshot plans, and visual diffs. | `godot-input-map-auditor`, `godot-localization-qa-guard`, `godot-visual-smoke-test-kit`, `pixel-space-asset-toolkit` |
 | Runtime and scenario evidence | Scenario result summaries, JUnit XML, flakes, retries, telemetry budgets, and timelines. | `godot-scenario-report-kit`, `godot-runtime-telemetry-lab` |
@@ -144,8 +144,8 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | Release reports, scenario retries, export artifacts, and screenshots need one filterable static review page | `godot-release-dashboard-kit` | `godot-release-dashboard build reports --previous-reports-dir reports-previous --output reports/dashboard.html` |
 | Public GDScript APIs need comment coverage | `gdscript-api-comment-coverage` | `gdscript-api-coverage . --format markdown` |
 | Pixel-art space assets need deterministic previews or PNG diffs | `pixel-space-asset-toolkit` | `pixel-space-assets compare-dir baseline current --diff-output-dir reports/pixel-diffs` |
-| Several checks need one report | `godot-project-doctor` | `godot-project-doctor summarize reports --format html` |
-| A first-run checklist with package installs is needed for Android, web, localization, runtime evidence, mods, save migration, architecture, visual, mobile UI, release, content, or QA work | `godot-project-doctor` | `godot-project-doctor doctor . --profile android --write-plan` |
+| Several checks need one report | `godot-production-doctor` | `godot-project-doctor summarize reports --format html` |
+| A first-run checklist with package installs is needed for Android, web, localization, runtime evidence, mods, save migration, architecture, visual, mobile UI, release, content, or QA work | `godot-production-doctor` | `godot-project-doctor doctor . --profile android --write-plan` |
 
 ## Package Names
 
@@ -161,6 +161,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | `godot-mobile-perf-doctor` | `godot-mobile-perf-doctor` | JSON, SARIF, Markdown, stretch checks, safe-area evidence handoff |
 | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor` | JSON, Markdown, PNG |
 | `godot-pack-mod-doctor` | `godot-pack-mod-doctor` | JSON, Markdown, text, rule metadata |
+| `godot-production-doctor` | `godot-project-doctor` | JSON, Markdown, HTML, profile plans, combined reports |
 | `godot-release-dashboard-kit` | `godot-release-dashboard` | Workflow-filtered HTML, JSON, typed highlights, scenario retry sections, export artifact sections, previous-run readiness trends |
 | `godot-runtime-telemetry-lab` | `godot-telemetry-lab` | JSON, Markdown, text, HTML, SVG, normalized telemetry samples, frame/memory baseline deltas, rule metadata |
 | `godot-save-schema-guard` | `godot-save-guard` | JSON, Markdown |

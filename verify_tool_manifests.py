@@ -21,7 +21,7 @@ TOOLS = [
     "godot-runtime-telemetry-lab",
     "godot-pack-mod-doctor",
     "godot-release-dashboard-kit",
-    "godot-project-doctor",
+    "godot-production-doctor",
     "godot-ci-doctor-action",
     "godot-release-dashboard-action",
 ]

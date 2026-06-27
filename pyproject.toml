@@ -34,6 +34,7 @@ dependencies = []
 
 [tool.godot-production-toolkit]
 tool_count = 20
+umbrella_package = "godot-production-doctor"
 umbrella_cli = "godot-project-doctor"
 github_action = "godot-ci-doctor-action"
 dashboard_action = "godot-release-dashboard-action"

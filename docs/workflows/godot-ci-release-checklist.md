@@ -9,7 +9,7 @@ Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 
 ## Packages
 
-- `godot-project-doctor` for the combined release profile.
+- `godot-production-doctor` for the combined release profile.
 - `godot-export-preset-doctor` for export preset checks.
 - `godot-mobile-perf-doctor` for mobile-facing renderer and project settings.
 - `godot-asset-pipeline-doctor` for texture and import setting checks.
@@ -18,8 +18,7 @@ Related docs: [Tool Index](../TOOL_INDEX.md) and [Use Cases](../USE_CASES.md).
 ## Copy-paste commands
 
 ```powershell
-python -m pip install godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-mobile-perf-doctor godot-release-dashboard-kit godot-scenario-report-kit
-python -m pip install -e .\godot-project-doctor
+python -m pip install godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-mobile-perf-doctor godot-release-dashboard-kit godot-scenario-report-kit
 godot-project-doctor doctor . --profile release --write-plan --plan-path docs/release-checks.md
 godot-project-doctor run --project . --checks assets,export,input,mobile_perf --reports-dir reports\godot-project-doctor --format json --output reports\godot-project-doctor\summary.json
 godot-scenario-report summarize reports\junit.xml --format markdown --output reports\scenario-junit-summary.md
@@ -27,10 +26,9 @@ godot-scenario-report bundle reports\scenarios --telemetry reports\runtime-timel
 godot-project-doctor summarize reports\godot-project-doctor --format html --output reports\godot-project-doctor\index.html
 ```
 
-`godot-project-doctor` is installed from a source checkout in this example. If
-you only want standalone PyPI packages in CI, run the package-specific commands
-from the other workflow pages and combine the reports with
-`godot-release-dashboard-kit`.
+`godot-production-doctor` installs the `godot-project-doctor` command used in
+this example. For narrower CI jobs, run the package-specific commands from the
+other workflow pages and combine the reports with `godot-release-dashboard-kit`.
 
 Use a stricter CI gate after the report format is stable:
 

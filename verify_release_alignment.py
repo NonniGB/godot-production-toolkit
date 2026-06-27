@@ -17,6 +17,7 @@ PUBLISHED_PACKAGES = (
     "godot-mobile-perf-doctor",
     "godot-mobile-ui-doctor",
     "godot-pack-mod-doctor",
+    "godot-production-doctor",
     "godot-release-dashboard-kit",
     "godot-runtime-telemetry-lab",
     "godot-save-schema-guard",
@@ -76,6 +77,11 @@ PACKAGE_VERSION_FILES = {
         "init": "src/godot_pack_mod_doctor/__init__.py",
         "cli": "src/godot_pack_mod_doctor/cli.py",
         "cli_name": "godot-pack-mod-doctor",
+    },
+    "godot-production-doctor": {
+        "init": "src/godot_project_doctor/__init__.py",
+        "cli": "src/godot_project_doctor/cli.py",
+        "cli_name": "godot-project-doctor",
     },
     "godot-release-dashboard-kit": {
         "init": "src/godot_release_dashboard_kit/__init__.py",

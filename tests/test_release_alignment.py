@@ -120,6 +120,12 @@ def _copy_required_files(source: Path, target: Path) -> None:
             "src/godot_pack_mod_doctor/__init__.py",
             "src/godot_pack_mod_doctor/cli.py",
         ),
+        "godot-production-doctor": (
+            "pyproject.toml",
+            "CHANGELOG.md",
+            "src/godot_project_doctor/__init__.py",
+            "src/godot_project_doctor/cli.py",
+        ),
         "godot-release-dashboard-kit": (
             "pyproject.toml",
             "CHANGELOG.md",

@@ -2,19 +2,19 @@
 
 [![Suite CI](https://github.com/NonniGB/godot-production-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/NonniGB/godot-production-toolkit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![PyPI packages](https://img.shields.io/badge/PyPI-17%20packages-blue)](#package-publication)
+[![PyPI packages](https://img.shields.io/badge/PyPI-18%20packages-blue)](#package-publication)
 
 CI-friendly production diagnostics for Godot 4 projects.
 
 Godot Production Toolkit helps catch recurring Godot release risks before they become late-stage debugging work: export preset mistakes, texture/import problems, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, and visual regressions.
 
-It is built as seventeen standalone command-line tools, one umbrella CLI, and two composite GitHub Actions. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
+It is built as seventeen focused command-line tools, one umbrella CLI package, and two composite GitHub Actions. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
 
 **Quick start:** choose the workflow closest to the problem in front of you,
 copy the command, and keep the report as a local or CI artifact. Install a
 single PyPI package when you need one focused check, use the GitHub Action for
-pull request reports, or use a source checkout when you want the umbrella
-`godot-project-doctor` command to run several tools together.
+pull request reports, or install `godot-production-doctor` when you want the
+`godot-project-doctor` umbrella command to run several tools together.
 
 ![Godot Project Doctor HTML report](docs/assets/screenshots/project-doctor-html-report.png)
 
@@ -51,7 +51,7 @@ and [Sample Report Gallery](docs/assets/sample-reports/README.md).
 
 | Lane | Use it for | Start here |
 |---|---|---|
-| Project and release preflight | First-pass audits, PR evidence, dashboard artifacts, and release checklist runs. | [`docs/workflows/README.md`](docs/workflows/README.md), [`godot-project-doctor`](godot-project-doctor/README.md), [`godot-ci-doctor-action`](godot-ci-doctor-action/README.md), [`godot-release-dashboard-action`](godot-release-dashboard-action/README.md) |
+| Project and release preflight | First-pass audits, PR evidence, dashboard artifacts, and release checklist runs. | [`docs/workflows/README.md`](docs/workflows/README.md), [`godot-production-doctor`](godot-production-doctor/README.md), [`godot-ci-doctor-action`](godot-ci-doctor-action/README.md), [`godot-release-dashboard-action`](godot-release-dashboard-action/README.md) |
 | Export and mobile readiness | Android, desktop, and web export settings; mobile renderer choices; texture and safe-area risks. | [`godot-export-preset-doctor`](godot-export-preset-doctor/README.md), [`godot-mobile-perf-doctor`](godot-mobile-perf-doctor/README.md), [`godot-mobile-ui-doctor`](godot-mobile-ui-doctor/README.md) |
 | UI, input, localization, and visuals | Touch targets, input maps, translated text, screenshot plans, and visual diffs. | [`godot-input-map-auditor`](godot-input-map-auditor/README.md), [`godot-localization-qa-guard`](godot-localization-qa-guard/README.md), [`godot-visual-smoke-test-kit`](godot-visual-smoke-test-kit/README.md) |
 | Runtime and scenario evidence | Scenario JSON/JUnit summaries, flakes, retries, telemetry budgets, and timeline reports. | [`godot-scenario-report-kit`](godot-scenario-report-kit/README.md), [`godot-runtime-telemetry-lab`](godot-runtime-telemetry-lab/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) |
@@ -112,16 +112,17 @@ Discovery files for search tools, scripts, and compact project orientation:
 Install the umbrella CLI and the tools you want to run from a checkout:
 
 ```powershell
-python -m pip install -e .\godot-project-doctor
+python -m pip install -e .\godot-production-doctor
 python -m pip install -e .\godot-asset-pipeline-doctor
 python -m pip install -e .\godot-export-preset-doctor
 python -m pip install -e .\godot-mobile-perf-doctor
 ```
 
-The standalone tools are also available from PyPI. Install the package that matches the check you need:
+The Python packages are also available from PyPI. Install the package that matches the check you need:
 
 ```powershell
 python -m pip install gdscript-api-comment-coverage
+python -m pip install godot-production-doctor
 python -m pip install godot-asset-pipeline-doctor
 python -m pip install godot-content-graph-doctor
 python -m pip install godot-export-preset-doctor
@@ -317,7 +318,7 @@ The rough split is:
 
 | Lane | Packages |
 |---|---|
-| Project and release preflight | `godot-project-doctor`, `godot-ci-doctor-action`, `godot-release-dashboard-action`, `godot-release-dashboard-kit` |
+| Project and release preflight | `godot-production-doctor`, `godot-ci-doctor-action`, `godot-release-dashboard-action`, `godot-release-dashboard-kit` |
 | Export and mobile readiness | `godot-export-preset-doctor`, `godot-mobile-perf-doctor`, `godot-mobile-ui-doctor`, `godot-asset-pipeline-doctor` |
 | UI, input, localization, and visuals | `godot-input-map-auditor`, `godot-localization-qa-guard`, `godot-visual-smoke-test-kit`, `pixel-space-asset-toolkit` |
 | Runtime and scenario evidence | `godot-scenario-report-kit`, `godot-runtime-telemetry-lab` |
@@ -398,7 +399,7 @@ These root-level files explain how the project is maintained and how contributor
 
 ## Install Packages
 
-The repo keeps the tools together. Most standalone CLIs can also be installed from PyPI, while `godot-project-doctor` is available from a source checkout.
+The repo keeps the tools together. The installable umbrella package is `godot-production-doctor`; it provides the `godot-project-doctor` command used in the examples below.
 
 | Package | Current Version |
 |---|---:|
@@ -412,6 +413,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.8` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.13` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.6` |
+| [`godot-production-doctor`](https://pypi.org/project/godot-production-doctor/) | `0.8.5` |
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.13` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.6` |
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.6` |

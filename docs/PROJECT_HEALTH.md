@@ -8,7 +8,7 @@ Godot Production Toolkit is a collection of narrow production checks for Godot 4
 
 | Area | Tool |
 |---|---|
-| Suite orchestration | `godot-project-doctor` |
+| Suite orchestration | `godot-production-doctor` package, `godot-project-doctor` command |
 | GitHub Actions workflow | `godot-ci-doctor-action` |
 | Asset import hygiene | `godot-asset-pipeline-doctor` |
 | Data content integrity | `godot-content-graph-doctor` |
@@ -43,7 +43,7 @@ Godot Production Toolkit is a collection of narrow production checks for Godot 4
 - Visual smoke testing requires a project-owned capture command before image comparison.
 - Static diagnostics can flag risks, but they cannot prove gameplay behavior.
 - Some reports are intentionally conservative and should be tuned with project-specific configuration over time.
-- The umbrella CLI is source-checkout only until a distinct PyPI distribution name is chosen.
+- The umbrella package keeps the historical `godot-project-doctor` command name for existing scripts.
 
 ## Privacy And Fixture Policy
 

@@ -5,7 +5,7 @@ first pass before setting up a full CI pipeline.
 
 The audit runs a small set of practical checks:
 
-- `godot-project-doctor` to coordinate the run and summarize results.
+- `godot-production-doctor` to install the `godot-project-doctor` command that coordinates the run and summarizes results.
 - `godot-export-preset-doctor` for export preset basics.
 - `godot-input-map-auditor` for keyboard, touch, mouse, and controller coverage.
 - `godot-asset-pipeline-doctor` for texture/import settings.
@@ -17,7 +17,7 @@ The audit runs a small set of practical checks:
 From a source checkout of this repository:
 
 ```powershell
-python -m pip install -e godot-project-doctor
+python -m pip install -e godot-production-doctor
 python -m pip install -e godot-asset-pipeline-doctor -e godot-export-preset-doctor -e godot-input-map-auditor -e godot-mobile-perf-doctor -e godot-release-dashboard-kit
 
 godot-project-doctor run examples\release-readiness-demo\godot-project-doctor.toml --format markdown --output docs\assets\sample-reports\starter-project-audit.md
