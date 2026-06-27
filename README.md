@@ -8,7 +8,7 @@ CI-friendly production diagnostics for Godot 4 projects.
 
 Godot Production Toolkit helps catch recurring Godot release risks before they become late-stage debugging work: export preset mistakes, texture/import problems, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, and visual regressions.
 
-It is built as seventeen standalone command-line tools, one umbrella CLI, and one GitHub Action. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
+It is built as seventeen standalone command-line tools, one umbrella CLI, and two composite GitHub Actions. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
 
 **Quick start:** choose the workflow closest to the problem in front of you,
 copy the command, and keep the report as a local or CI artifact. Install a
@@ -17,6 +17,33 @@ pull request reports, or use a source checkout when you want the umbrella
 `godot-project-doctor` command to run several tools together.
 
 ![Godot Project Doctor HTML report](docs/assets/screenshots/project-doctor-html-report.png)
+
+## Start Here
+
+| Need | Start with | Useful output |
+|---|---|---|
+| One review page for PR or release evidence | [`godot-ci-doctor-action`](godot-ci-doctor-action/README.md), [`godot-release-dashboard-action`](godot-release-dashboard-action/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) | JSON/Markdown/HTML reports plus a static dashboard artifact |
+| Android/mobile release readiness | [`godot-export-preset-doctor`](godot-export-preset-doctor/README.md), [`godot-mobile-perf-doctor`](godot-mobile-perf-doctor/README.md), [`godot-mobile-ui-doctor`](godot-mobile-ui-doctor/README.md) | Export, renderer, texture, safe-area, and touch-readiness reports |
+| Scenario/runtime regression evidence | [`godot-scenario-report-kit`](godot-scenario-report-kit/README.md), [`godot-runtime-telemetry-lab`](godot-runtime-telemetry-lab/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) | Scenario summaries, flake/retry notes, telemetry timelines, and dashboard trend cards |
+
+Try the included fixture with one local command:
+
+```powershell
+godot-project-doctor run examples\release-readiness-demo\godot-project-doctor.toml --format markdown --output reports\release-readiness-summary.md
+```
+
+Add the main CI action to a Godot project:
+
+```yaml
+- uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2
+  with:
+    project: .
+    checks: assets,export,input,localization,signals,mobile_perf
+    reports-dir: reports/godot-project-doctor
+```
+
+For complete walkthroughs, use the [Demo Paths](examples/demo-paths/README.md)
+and [Sample Report Gallery](docs/assets/sample-reports/README.md).
 
 ## Choose A Workflow
 
@@ -238,15 +265,14 @@ removed, and changed report cards with error and warning deltas.
 ![Runtime telemetry timeline with budget spikes](docs/assets/screenshots/runtime-telemetry-timeline.png)
 ![Release dashboard with report cards and visual artifacts](docs/assets/screenshots/release-dashboard-demo.png)
 
-A separate public demo repository shows the GitHub Action in a clean fixture project:
-
-- [godot-production-toolkit-demo](https://github.com/NonniGB/godot-production-toolkit-demo)
-
 ## Workflows And Examples
 
 - [Workflow guides](docs/workflows/) cover Android export CI, HTML5 export checks,
   runtime performance regression, mobile UI safe areas, visual regression,
   localization overflow, save migration, and mod/DLC validation.
+- [Demo paths](examples/demo-paths/) group source inputs, commands, report
+  snapshots, and screenshots for mobile release, content, and runtime review
+  flows.
 - [Godot exporter examples](examples/godot-exporters/) show small GDScript
   exporters for mobile UI metadata, scenario results, runtime telemetry, and
   pack manifests.
@@ -256,9 +282,10 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
   explains local CLI, GitHub Actions, artifact-only usage, and runtime impact.
 - [Toolkit diagrams](docs/diagrams/) show how reports, release evidence, and
   mobile-readiness checks fit together.
-- [GitHub Actions examples](docs/ci/) and the dashboard action provide workflow
-  snippets to adapt inside a Godot project.
-- [Report gallery](docs/report-gallery/) links to generated sample reports,
+- [GitHub Action READMEs](godot-ci-doctor-action/README.md) and
+  [`godot-release-dashboard-action`](godot-release-dashboard-action/README.md)
+  provide workflow snippets to adapt inside a Godot project.
+- [Sample report gallery](docs/assets/sample-reports/README.md) links to generated sample reports,
   screenshots, fixtures, and the commands used to recreate them.
 - [Report schemas](docs/report-schemas/) document stable top-level JSON report
   fields for scripts and CI consumers.
