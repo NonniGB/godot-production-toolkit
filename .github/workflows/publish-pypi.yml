@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "godot-asset-pipeline-doctor-v*"
+      - "godot-project-doctor-v*"
   workflow_dispatch:
     inputs:
       package:
@@ -14,6 +15,7 @@ on:
           - godot-asset-pipeline-doctor
           - godot-export-preset-doctor
           - godot-mobile-perf-doctor
+          - godot-project-doctor
 
 permissions:
   contents: read
@@ -27,7 +29,7 @@ jobs:
       contents: read
       id-token: write
     env:
-      PACKAGE_DIR: ${{ github.event_name == 'workflow_dispatch' && inputs.package || 'godot-asset-pipeline-doctor' }}
+      PACKAGE_DIR: ${{ startsWith(github.ref_name, 'godot-project-doctor-v') && 'godot-project-doctor' || (github.event_name == 'workflow_dispatch' && inputs.package || 'godot-asset-pipeline-doctor') }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
