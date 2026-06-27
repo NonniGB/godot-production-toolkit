@@ -27,7 +27,7 @@ godot-project-doctor doctor . --profile release --write-plan
 godot-project-doctor run --project . --checks assets,export,input --reports-dir reports\godot-project-doctor
 ```
 
-This works best as a preflight layer:
+This works best as a review-evidence layer:
 
 - Run normal Godot unit tests, scene tests, and manual playtests as usual.
 - Run the toolkit for checks that are easy to miss in review: export settings,
@@ -59,8 +59,8 @@ inspect.
 ```
 
 Upload the reports directory as a workflow artifact if you want reviewers to
-download the JSON, Markdown, HTML, SARIF, image diffs, or dashboards from the
-run. The action is a CI step, not a game dependency.
+download the JSON, Markdown, HTML, SARIF, image diffs, or release dashboards
+from the run. The action is a CI step, not a game dependency.
 
 When other jobs already upload report artifacts, the dashboard action can turn
 those reports into one static review page:

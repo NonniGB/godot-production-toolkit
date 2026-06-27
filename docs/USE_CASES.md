@@ -4,7 +4,7 @@ Godot Production Toolkit is meant to sit beside normal unit tests, scene tests,
 and manual playtesting. It gives maintainers reviewable evidence for release
 checks that are easy to forget until late in a build: exports, mobile
 readiness, localization, save migrations, runtime telemetry, screenshots, and
-dashboards.
+release dashboards.
 
 ## Starter Project Audit
 

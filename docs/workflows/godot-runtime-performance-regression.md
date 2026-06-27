@@ -49,5 +49,5 @@ memory monitor byte counters to MiB, before writing normalized samples.
 
 - Markdown, JSON, text, HTML, or SVG reports.
 - Baseline comparison findings for frame p95 and memory max regressions, with
-  JSON delta fields for CI comments and dashboards.
+  JSON delta fields for CI comments and release dashboards.
 - Timeline artifacts that help explain spikes by scenario phase.

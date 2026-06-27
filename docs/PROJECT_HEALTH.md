@@ -21,7 +21,7 @@ Godot Production Toolkit is a collection of narrow CI and release evidence check
 | Scenario evidence manifests, JUnit XML summaries, coverage, flake checks, visual/log bundle summaries, and reports | `godot-scenario-report-kit` |
 | Scene signal, node group, exported property, and scene contract checks | `godot-scene-signal-auditor` |
 | Visual smoke diffing | `godot-visual-smoke-test-kit` |
-| Mobile performance diagnostics | `godot-mobile-perf-doctor` |
+| Mobile performance evidence | `godot-mobile-perf-doctor` |
 | Mobile UI readiness | `godot-mobile-ui-doctor` |
 | Pack, DLC, and mod manifest checks | `godot-pack-mod-doctor` |
 | Release dashboard artifacts | `godot-release-dashboard-kit` |
@@ -41,7 +41,7 @@ Godot Production Toolkit is a collection of narrow CI and release evidence check
 ## Known Limitations
 
 - Visual smoke testing requires a project-owned capture command before image comparison.
-- Static diagnostics can flag risks, but they cannot prove gameplay behavior.
+- Static evidence checks can flag risks, but they cannot prove gameplay behavior.
 - Some reports are intentionally conservative and should be tuned with project-specific configuration over time.
 - The umbrella package keeps the historical `godot-project-doctor` command name for existing scripts.
 
