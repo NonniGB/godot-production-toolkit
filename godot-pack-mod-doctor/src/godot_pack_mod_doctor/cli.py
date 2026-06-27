@@ -5,9 +5,9 @@ import json
 from pathlib import Path
 import sys
 
-from .doctor import check_manifest, diff_manifests, load_order, manifest_from_folder, render
+from .doctor import check_manifest, diff_manifests, load_order, manifest_from_folder, render, security_check
 
-VERSION_LABEL = "godot-pack-mod-doctor 0.1.5"
+VERSION_LABEL = "godot-pack-mod-doctor 0.1.6"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -50,6 +50,18 @@ def main(argv: list[str] | None = None) -> int:
     load_order_parser.add_argument("--output")
     load_order_parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="warning")
 
+    security_parser = subparsers.add_parser("security", help="Check a manifest against a restricted-pack file policy.")
+    security_parser.add_argument("manifest")
+    security_parser.add_argument(
+        "--allow-extension",
+        action="append",
+        default=[],
+        help="Extension allowed by this project, such as .gd for reviewed scripted mods.",
+    )
+    security_parser.add_argument("--format", choices=["text", "json", "markdown"], default="text")
+    security_parser.add_argument("--output")
+    security_parser.add_argument("--fail-on", choices=["none", "warning", "error"], default="error")
+
     args = parser.parse_args(argv)
     if args.command == "check":
         unsafe_extensions = set(args.unsafe_extension) if args.unsafe_extension else None
@@ -70,6 +82,8 @@ def main(argv: list[str] | None = None) -> int:
         report = diff_manifests(Path(args.baseline), Path(args.current))
     elif args.command == "load-order":
         report = load_order([Path(path) for path in args.manifests])
+    elif args.command == "security":
+        report = security_check(Path(args.manifest), set(args.allow_extension))
     else:
         parser.print_help()
         return 2

@@ -81,6 +81,9 @@ jobs:
             --format markdown \
             --output "$REPORTS_DIR/pack-manifest.md" \
             --fail-on none
+          godot-pack-mod-doctor security "$PACK_MANIFEST" \
+            --format json \
+            --output "$REPORTS_DIR/pack-security.json"
           if [ -n "$PACK_LOAD_ORDER" ]; then
             godot-pack-mod-doctor load-order $PACK_LOAD_ORDER \
               --format markdown \

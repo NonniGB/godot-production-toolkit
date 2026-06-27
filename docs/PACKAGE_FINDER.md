@@ -36,6 +36,7 @@ Each package is a small command-line tool for a specific Godot production check.
 | Godot mod, DLC, or patch manifest check | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor check pack-manifest.json --format markdown` |
 | Godot mod or DLC pack diff with moved-resource review | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown` |
 | Godot mod load order or missing dependency check | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown` |
+| Godot restricted content-pack security check | `python -m pip install godot-pack-mod-doctor` | `godot-pack-mod-doctor security pack-manifest.json --format json` |
 | Godot scenario evidence report | `python -m pip install godot-scenario-report-kit` | `godot-scenario-report manifest coverage scenario-manifest.json --results reports/current --format html` |
 | Godot JUnit XML scenario summary | `python -m pip install godot-scenario-report-kit` | `godot-scenario-report summarize reports/junit.xml --format markdown` |
 | Godot retried scenario summary | `python -m pip install godot-scenario-report-kit` | `godot-scenario-report flake compare reports/retry-run --format markdown` |

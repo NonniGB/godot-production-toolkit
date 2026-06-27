@@ -1,0 +1,163 @@
+{
+  "findings": [
+    {
+      "message": "'res://addons/restricted_pack/scripts/grant_reward.gd' uses restricted extension '.gd'.",
+      "rule_help": "Remove executable, script, archive, or native-library files, or allow the extension explicitly for a reviewed scripted-pack workflow.",
+      "rule_id": "restricted_pack_executable_file",
+      "rule_title": "Restricted pack executable file",
+      "severity": "error"
+    },
+    {
+      "message": "'res://addons/restricted_pack/bin/native.dll' uses restricted extension '.dll'.",
+      "rule_help": "Remove executable, script, archive, or native-library files, or allow the extension explicitly for a reviewed scripted-pack workflow.",
+      "rule_id": "restricted_pack_executable_file",
+      "rule_title": "Restricted pack executable file",
+      "severity": "error"
+    }
+  ],
+  "kind": "pack_security_check",
+  "metadata": {
+    "rules": {
+      "content_id_conflict": {
+        "help": "Use a unique content id, mark the file as an intentional override, or adjust the pack order.",
+        "title": "Content id conflict"
+      },
+      "duplicate_content_id": {
+        "help": "Keep content ids unique across pack entries so content replacement is explicit.",
+        "title": "Duplicate content id"
+      },
+      "duplicate_file_path": {
+        "help": "Keep one manifest entry per shipped path so overrides are explicit.",
+        "title": "Duplicate file path"
+      },
+      "duplicate_pack_id": {
+        "help": "Give each pack a stable unique id so dependencies and overrides can be reviewed.",
+        "title": "Duplicate pack id"
+      },
+      "load_order_conflict": {
+        "help": "Declare intentional overrides or change pack order so resource ownership is clear.",
+        "title": "Load order conflict"
+      },
+      "missing_file_path": {
+        "help": "Every shipped resource entry needs a stable path for review and diffing.",
+        "title": "Missing file path"
+      },
+      "missing_pack_id": {
+        "help": "Add stable pack identity fields before publishing or comparing pack versions.",
+        "title": "Missing pack id"
+      },
+      "missing_pack_version": {
+        "help": "Add stable pack identity fields before publishing or comparing pack versions.",
+        "title": "Missing pack version"
+      },
+      "override_not_allowed": {
+        "help": "Pass --allow-overrides for expected patch packs, or remove the override declaration.",
+        "title": "Override not allowed"
+      },
+      "pack_absolute_path": {
+        "help": "Use Godot project paths so pack reviews are portable across machines.",
+        "title": "Absolute path"
+      },
+      "pack_dependencies_not_list": {
+        "help": "Use a list of dependency objects such as {'id': 'base_pack'} or simple id strings.",
+        "title": "Dependencies are not a list"
+      },
+      "pack_dependency_duplicate_id": {
+        "help": "Keep each dependency id once so release review is easier to read.",
+        "title": "Duplicate dependency id"
+      },
+      "pack_dependency_missing": {
+        "help": "Add the dependency pack to the load-order command or remove the stale dependency.",
+        "title": "Missing dependency pack"
+      },
+      "pack_dependency_missing_id": {
+        "help": "Give every dependency a stable id so load order checks can match it to another pack.",
+        "title": "Dependency missing id"
+      },
+      "pack_dependency_order": {
+        "help": "Load dependency packs before packs that extend or override them.",
+        "title": "Dependency loaded too late"
+      },
+      "pack_dev_or_private_file": {
+        "help": "Review whether editor caches, logs, backups, tests, or key material should be shipped in the pack.",
+        "title": "Development or private file"
+      },
+      "pack_duplicate_path_case_insensitive": {
+        "help": "Avoid case-only path differences because Windows and macOS users may see collisions.",
+        "title": "Case-insensitive path collision"
+      },
+      "pack_file_removed": {
+        "help": "Check whether the removal is intended before publishing the pack update.",
+        "title": "Pack file removed"
+      },
+      "pack_non_res_path": {
+        "help": "Use stable project paths such as res://addons/example/file.tres in pack manifests.",
+        "title": "Non-res path"
+      },
+      "pack_path_traversal": {
+        "help": "Pack manifests should not contain paths that can escape the intended project tree.",
+        "title": "Path traversal"
+      },
+      "pack_self_dependency": {
+        "help": "Remove self-dependencies so load-order checks describe real pack relationships.",
+        "title": "Self dependency"
+      },
+      "pack_unsafe_file_type": {
+        "help": "Script, native binary, archive, and packed-project files can be legitimate, but review them before distribution.",
+        "title": "Unsafe file type"
+      },
+      "restricted_pack_executable_file": {
+        "help": "Remove executable, script, archive, or native-library files, or allow the extension explicitly for a reviewed scripted-pack workflow.",
+        "title": "Restricted pack executable file"
+      },
+      "unknown_base_reference": {
+        "help": "Check the base manifest or update the content pack dependency.",
+        "title": "Unknown base reference"
+      }
+    }
+  },
+  "pack": {
+    "id": "restricted_pack_example",
+    "version": "1.0.0"
+  },
+  "policy": {
+    "allowed_extensions": [],
+    "name": "restricted-pack",
+    "restricted_extensions": [
+      ".bat",
+      ".cmd",
+      ".cs",
+      ".dll",
+      ".dylib",
+      ".exe",
+      ".gd",
+      ".gdc",
+      ".pck",
+      ".ps1",
+      ".so",
+      ".zip"
+    ]
+  },
+  "risk": {
+    "level": "blocked",
+    "reasons": [
+      "restricted_pack_executable_file"
+    ],
+    "score": 200
+  },
+  "schema_version": "1.0",
+  "summary": {
+    "allowed_extensions": 0,
+    "content_ids": 1,
+    "dependencies": 0,
+    "errors": 2,
+    "files": 3,
+    "packs": 1,
+    "restricted_extensions": 12,
+    "risk_level": "blocked",
+    "risk_score": 200,
+    "warnings": 0
+  },
+  "tool": "godot-pack-mod-doctor",
+  "tool_version": "0.1.6"
+}

@@ -37,7 +37,7 @@ class PackModDoctorTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.5")
+            self.assertEqual(report["tool_version"], "0.1.6")
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("duplicate_file_path", rules)
             self.assertIn("override_not_allowed", rules)
@@ -194,6 +194,73 @@ class PackModDoctorTests(unittest.TestCase):
             self.assertIn("pack_absolute_path", rules)
             self.assertIn("pack_non_res_path", rules)
             self.assertIn("pack_duplicate_path_case_insensitive", rules)
+
+    def test_security_blocks_executable_files_in_restricted_packs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "pack.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "id": "user_pack",
+                        "version": "1",
+                        "files": [
+                            {"path": "res://addons/user_pack/items/sword.tres"},
+                            {"path": "res://addons/user_pack/scripts/grant_reward.gd"},
+                            {"path": "res://addons/user_pack/bin/native.dll"},
+                            {"path": "res://addons/user_pack/assets/archive.zip"},
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["security", str(manifest), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(report["kind"], "pack_security_check")
+            self.assertEqual(report["tool_version"], "0.1.6")
+            self.assertEqual(report["summary"]["errors"], 3)
+            self.assertEqual(report["summary"]["risk_level"], "blocked")
+            rules = {finding["rule_id"] for finding in report["findings"]}
+            self.assertEqual(rules, {"restricted_pack_executable_file"})
+
+    def test_security_allows_explicit_project_approved_extensions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "pack.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "id": "scripted_pack",
+                        "version": "1",
+                        "files": [
+                            {"path": "res://addons/scripted_pack/scripts/mod.gd"},
+                            {"path": "res://addons/scripted_pack/items/sword.tres"},
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "security",
+                        str(manifest),
+                        "--allow-extension",
+                        ".gd",
+                        "--format",
+                        "json",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["errors"], 0)
+            self.assertEqual(report["findings"], [])
 
     def test_check_base_references(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

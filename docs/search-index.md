@@ -158,7 +158,9 @@ and [`godot-pack-mod-doctor`](../godot-pack-mod-doctor/README.md). It checks pac
 identity, shipped paths, overrides, dependencies, and references against an
 optional base manifest. It can also generate a deterministic manifest from a
 folder of pack files, including `res://` paths, file sizes, and SHA-256 hashes
-for later release diffs.
+for later release diffs. For content-only packs, run `godot-pack-mod-doctor
+security` to block scripts, native libraries, archives, packed projects, and
+other executable file types unless the project explicitly allows an extension.
 
 If the pack also changes items, recipes, levels, quests, or other data-driven
 content, run [`godot-content-graph-doctor`](../godot-content-graph-doctor/README.md)

@@ -1,0 +1,26 @@
+{
+  "id": "restricted_pack_example",
+  "version": "1.0.0",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "res://addons/restricted_pack/items/sword.tres",
+      "content_id": "restricted_sword",
+      "overrides": false,
+      "size": 128,
+      "sha256": "6a4b1f3e7d2c9a00112233445566778899aabbccddeeff001122334455667788"
+    },
+    {
+      "path": "res://addons/restricted_pack/scripts/grant_reward.gd",
+      "overrides": false,
+      "size": 240,
+      "sha256": "8f4b1f3e7d2c9a00112233445566778899aabbccddeeff001122334455667700"
+    },
+    {
+      "path": "res://addons/restricted_pack/bin/native.dll",
+      "overrides": false,
+      "size": 4096,
+      "sha256": "9c4b1f3e7d2c9a00112233445566778899aabbccddeeff001122334455667711"
+    }
+  ]
+}

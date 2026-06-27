@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.6 - 2026-06-27
+
+- Added `security` for restricted content-pack policies that block scripts,
+  native libraries, archives, packed projects, and other executable file types.
+- Added `--allow-extension` so projects that deliberately support scripted mods
+  can document their exception in CI.
+
 ## 0.1.5 - 2026-06-27
 
 - JSON reports now include a `metadata.rules` catalog with rule titles and

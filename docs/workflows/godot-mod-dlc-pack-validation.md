@@ -23,6 +23,14 @@ godot-pack-mod-doctor check pack-manifest.json --format markdown --output report
 godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format json --output reports\pack.json
 godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown --output reports\pack-diff.md
 godot-pack-mod-doctor load-order base-pack.json current-pack.json optional-mod.json --format markdown --output reports\pack-load-order.md
+godot-pack-mod-doctor security pack-manifest.json --format json --output reports\pack-security.json
+```
+
+If your project deliberately supports scripted mods, document the exception in
+the command instead of weakening the default content-only policy:
+
+```powershell
+godot-pack-mod-doctor security scripted-pack.json --allow-extension .gd --format markdown --output reports\pack-security.md
 ```
 
 Add content graph checks when the pack includes data files with ids and references:
@@ -37,6 +45,7 @@ godot-content-graph . --preset packs --format markdown --output reports\pack-con
 - Optional pack folder when generating a manifest from shipped resources.
 - Optional base manifest JSON for override and reference checks.
 - Optional content folders when running a separate content graph pass.
+- Optional extension allow-list when a project supports reviewed scripted mods.
 
 ## Expected outputs
 
@@ -47,5 +56,7 @@ godot-content-graph . --preset packs --format markdown --output reports\pack-con
   missing references, pack diffs, moved resources, duplicate content IDs,
   missing dependencies, dependency order problems, duplicate pack ids, and
   load-order conflicts.
+- Restricted-pack security findings for scripts, native libraries, archives,
+  packed projects, and other executable file types.
 - Compact risk levels and scores for dashboards or release checklists.
 - A CI-friendly exit code based on the selected failure threshold.

@@ -6,7 +6,8 @@
   "interfaces": {
     "cli": true,
     "machine_output": ["json"],
-    "human_output": ["text", "markdown"]
+    "human_output": ["text", "markdown"],
+    "security_policy_output": true
   },
   "run_behavior": {
     "noninteractive": true,
@@ -39,6 +40,10 @@
     {
       "purpose": "Check load order dependencies, content ids, and conflicts across packs",
       "command": "godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown"
+    },
+    {
+      "purpose": "Check a restricted content-pack file policy",
+      "command": "godot-pack-mod-doctor security pack-manifest.json --format json --output pack-security.json"
     },
     {
       "purpose": "Fail CI on advisory file policy warnings",

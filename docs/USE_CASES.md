@@ -247,6 +247,7 @@ Use this before publishing a patch, DLC, or mod/content pack manifest:
 ```powershell
 godot-pack-mod-doctor manifest from-folder addons\demo_pack --id demo_pack --version 1.0.0 --output pack-manifest.json
 godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format markdown --output reports\pack.md
+godot-pack-mod-doctor security pack-manifest.json --format json --output reports\pack-security.json
 ```
 
 This helps catch:
@@ -258,6 +259,7 @@ This helps catch:
 - Local, parent-directory, or non-`res://` paths.
 - Case-only path collisions that can break on Windows or macOS.
 - Files that commonly need manual review before public pack distribution.
+- Script, native-library, archive, or packed-project files in content-only packs.
 
 ## Release Dashboards
 

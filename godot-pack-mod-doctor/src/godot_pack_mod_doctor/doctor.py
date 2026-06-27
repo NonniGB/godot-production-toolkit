@@ -20,6 +20,20 @@ DEFAULT_UNSAFE_EXTENSIONS = {
     ".so",
     ".zip",
 }
+DEFAULT_RESTRICTED_EXTENSIONS = {
+    ".bat",
+    ".cmd",
+    ".cs",
+    ".dll",
+    ".dylib",
+    ".exe",
+    ".gd",
+    ".gdc",
+    ".pck",
+    ".ps1",
+    ".so",
+    ".zip",
+}
 DEV_PATH_PARTS = {".git", ".godot", ".import", "debug", "tests", "tmp"}
 DEV_FILE_NAMES = {".env"}
 DEV_FILE_EXTENSIONS = {".bak", ".key", ".log", ".pem", ".pfx"}
@@ -113,6 +127,10 @@ RULE_CATALOG: dict[str, dict[str, str]] = {
     "pack_unsafe_file_type": {
         "title": "Unsafe file type",
         "help": "Script, native binary, archive, and packed-project files can be legitimate, but review them before distribution.",
+    },
+    "restricted_pack_executable_file": {
+        "title": "Restricted pack executable file",
+        "help": "Remove executable, script, archive, or native-library files, or allow the extension explicitly for a reviewed scripted-pack workflow.",
     },
     "unknown_base_reference": {
         "title": "Unknown base reference",
@@ -355,6 +373,63 @@ def load_order(manifests: list[Path]) -> dict[str, Any]:
             "risk_level": risk["level"],
         },
         "packs": packs,
+        "risk": risk,
+        "findings": findings,
+    }
+
+
+def security_check(path: Path, allowed_extensions: set[str] | None = None) -> dict[str, Any]:
+    data = _load_manifest(path)
+    files = [item for item in data.get("files", []) if isinstance(item, dict)]
+    allowed = {_normalize_extension(extension) for extension in (allowed_extensions or set())}
+    restricted_extensions = DEFAULT_RESTRICTED_EXTENSIONS - allowed
+    findings: list[dict[str, str]] = []
+
+    for item in files:
+        pack_path = str(item.get("path", "")).strip().replace("\\", "/")
+        if not pack_path:
+            continue
+        suffix = Path(pack_path).suffix.lower()
+        if suffix in restricted_extensions:
+            findings.append(
+                {
+                    "rule_id": "restricted_pack_executable_file",
+                    "severity": "error",
+                    "message": f"{pack_path!r} uses restricted extension {suffix!r}.",
+                    "rule_help": "Remove executable, script, archive, or native-library files, or allow the extension explicitly for a reviewed scripted-pack workflow.",
+                }
+            )
+
+    findings = _enrich_findings(findings)
+    risk = _risk_summary(findings)
+    summary = {
+        "packs": 1,
+        "files": len(files),
+        "dependencies": _dependency_entry_count(data.get("dependencies", [])),
+        "content_ids": _content_id_count(files),
+        "restricted_extensions": len(restricted_extensions),
+        "allowed_extensions": len(allowed),
+        "errors": sum(1 for finding in findings if finding["severity"] == "error"),
+        "warnings": sum(1 for finding in findings if finding["severity"] == "warning"),
+        "risk_score": risk["score"],
+        "risk_level": risk["level"],
+    }
+    return {
+        "tool": "godot-pack-mod-doctor",
+        "tool_version": __version__,
+        "schema_version": "1.0",
+        "kind": "pack_security_check",
+        "metadata": _metadata(),
+        "summary": summary,
+        "pack": {
+            "id": str(data.get("id", "")),
+            "version": str(data.get("version", "")),
+        },
+        "policy": {
+            "name": "restricted-pack",
+            "restricted_extensions": sorted(restricted_extensions),
+            "allowed_extensions": sorted(allowed),
+        },
         "risk": risk,
         "findings": findings,
     }

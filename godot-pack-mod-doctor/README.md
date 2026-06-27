@@ -25,6 +25,7 @@ godot-pack-mod-doctor check pack-manifest.json --format markdown
 godot-pack-mod-doctor check pack-manifest.json --base base-content.json --format json --output reports\pack.json
 godot-pack-mod-doctor diff baseline-pack.json current-pack.json --format markdown
 godot-pack-mod-doctor load-order base-pack.json patch-pack.json optional-mod.json --format markdown
+godot-pack-mod-doctor security pack-manifest.json --format markdown
 ```
 
 `manifest from-folder` writes a reviewable JSON manifest from a folder of pack
@@ -76,10 +77,23 @@ as duplicate file paths.
   undeclared override conflicts across ordered packs;
 - duplicate content IDs across ordered packs when a later pack does not mark
   the file as an intentional override.
+- executable, script, native-library, archive, or packed-project files when a
+  pack is expected to follow a restricted content-only policy.
 
 Scripted mods and native extensions can be legitimate. These file policy checks
 are warnings by default; use `--fail-on warning` in CI if your project wants a
 stricter content-pack gate.
+
+Use `security` when a project accepts only content-only packs or wants a
+separate CI step for files that execute code:
+
+```powershell
+godot-pack-mod-doctor security pack-manifest.json --format json --output reports\pack-security.json
+godot-pack-mod-doctor security scripted-pack.json --allow-extension .gd --format markdown
+```
+
+The allow-list is explicit on purpose. It keeps content-only pack review strict
+while still leaving room for projects that deliberately support scripted mods.
 
 ## Outputs
 

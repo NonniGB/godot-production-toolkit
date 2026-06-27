@@ -96,7 +96,7 @@
     },
     {
       "name": "godot-pack-mod-doctor",
-      "role": "Pack, DLC, mod, and patch manifest generation, validation, moved-resource diffing, content-id, dependency, load-order checks, and rule metadata.",
+      "role": "Pack, DLC, mod, and patch manifest generation, validation, moved-resource diffing, content-id, dependency, load-order, security policy checks, and rule metadata.",
       "interfaces": ["cli", "json", "markdown", "text"]
     },
     {
@@ -182,6 +182,7 @@
     "docs/assets/sample-reports/runtime-telemetry-timeline.html",
     "docs/assets/sample-reports/runtime-telemetry-timeline.svg",
     "docs/assets/sample-reports/pack-mod.json",
+    "docs/assets/sample-reports/pack-mod-security.json",
     "godot-release-dashboard-kit/examples/tiny-release-evidence/exported-folder.json",
     "godot-runtime-telemetry-lab/examples/tiny-godot-monitor/godot-performance-monitor.csv",
     "godot-release-dashboard-kit/examples/tiny-release-evidence/runtime-timeline.json",
