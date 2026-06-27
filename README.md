@@ -42,7 +42,9 @@ Add the main CI action to a Godot project:
     reports-dir: reports/godot-project-doctor
 ```
 
-For complete walkthroughs, use the [Demo Paths](examples/demo-paths/README.md)
+For a working public CI fixture, see the
+[Godot Production Toolkit CI Demo](https://github.com/NonniGB/godot-production-toolkit-demo-ci).
+For local walkthroughs, use the [Demo Paths](examples/demo-paths/README.md)
 and [Sample Report Gallery](docs/assets/sample-reports/README.md).
 
 ## Choose A Workflow
@@ -210,6 +212,11 @@ godot-project-doctor summarize docs\assets\sample-reports --format html --output
 
 The demo shows how the toolkit reports incomplete Android export settings, risky pixel-art import settings, missing input-device coverage, and mobile performance warnings.
 
+There is also a separate public CI fixture at
+[NonniGB/godot-production-toolkit-demo-ci](https://github.com/NonniGB/godot-production-toolkit-demo-ci).
+Its workflow runs `godot-ci-doctor-action`, builds a release dashboard, and
+uploads both report artifacts from GitHub Actions.
+
 ## New Data And Runtime Tools
 
 The newest packages cover content-heavy projects and runtime evidence:
@@ -273,6 +280,9 @@ removed, and changed report cards with error and warning deltas.
 - [Demo paths](examples/demo-paths/) group source inputs, commands, report
   snapshots, and screenshots for mobile release, content, and runtime review
   flows.
+- [Public CI demo](https://github.com/NonniGB/godot-production-toolkit-demo-ci)
+  is a separate tiny Godot project that runs the toolkit actions in GitHub
+  Actions and uploads the dashboard artifact.
 - [Godot exporter examples](examples/godot-exporters/) show small GDScript
   exporters for mobile UI metadata, scenario results, runtime telemetry, and
   pack manifests.

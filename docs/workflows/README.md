@@ -24,3 +24,5 @@ For practical search phrases, use the [Workflow Finder](../search-index.md).
 For copyable end-to-end examples, use the
 [Demo Paths](../../examples/demo-paths/README.md) and the
 [Sample Report Gallery](../assets/sample-reports/README.md).
+For a separate repository that runs the toolkit actions in GitHub Actions, see
+the [public CI demo](https://github.com/NonniGB/godot-production-toolkit-demo-ci).

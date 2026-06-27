@@ -13,3 +13,6 @@ task instead of by package name.
 The report snapshots referenced here are collected in the
 [sample report gallery](../../docs/assets/sample-reports/README.md).
 
+For a separate tiny Godot project that runs the toolkit actions in GitHub
+Actions, see the
+[public CI demo](https://github.com/NonniGB/godot-production-toolkit-demo-ci).
