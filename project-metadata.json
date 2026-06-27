@@ -146,6 +146,7 @@
   "governance": [
     "LICENSE",
     "CONTRIBUTING.md",
+    "examples/CONTRIBUTING_FIXTURES.md",
     "SECURITY.md",
     "SUPPORT.md",
     "CODE_OF_CONDUCT.md",

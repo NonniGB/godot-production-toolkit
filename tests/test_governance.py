@@ -41,6 +41,19 @@ class GovernanceTests(unittest.TestCase):
         self.assertIn('directory: "/godot-asset-pipeline-doctor"', dependabot)
         self.assertIn('directory: "/godot-mobile-perf-doctor"', dependabot)
 
+    def test_fixture_contribution_guide_warns_about_private_inputs(self) -> None:
+        guide = ROOT / "examples" / "CONTRIBUTING_FIXTURES.md"
+        text = guide.read_text(encoding="utf-8")
+
+        self.assertIn("# Contributing Fixtures And Sample Reports", text)
+        self.assertIn("Private game assets", text)
+        self.assertIn("Signing keys", text)
+        self.assertIn("private local paths", text)
+        self.assertIn("exact command used to regenerate the report", text)
+
+        contributing = (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
+        self.assertIn("examples/CONTRIBUTING_FIXTURES.md", contributing)
+
     def test_project_metadata_links_governance_files(self) -> None:
         metadata = json.loads((ROOT / "project-metadata.json").read_text(encoding="utf-8"))
 

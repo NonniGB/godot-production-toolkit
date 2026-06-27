@@ -2,6 +2,9 @@
 
 Focused bug reports, minimal fixtures, docs corrections, and small rule improvements are welcome.
 
+For fixture and sample-report contributions, start with
+[`examples/CONTRIBUTING_FIXTURES.md`](examples/CONTRIBUTING_FIXTURES.md).
+
 ## Local validation
 
 Run root checks from the repository root:
