@@ -1,8 +1,10 @@
 # Workflow Guides
 
 Start here when you know the release or review task, but not the package name.
-Each guide lists the usual inputs, one or two commands, and the report artifact
-to keep from a local run or CI job.
+Each guide shows the evidence a maintainer can keep from a local run or CI job:
+export reports, mobile readiness notes, localization stress results, save
+migration proof, runtime telemetry summaries, screenshot diffs, and release
+dashboard artifacts.
 
 | Workflow | Use when | Main inputs | Useful output |
 |---|---|---|---|

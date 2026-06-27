@@ -4,9 +4,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![PyPI packages](https://img.shields.io/badge/PyPI-18%20packages-blue)](#package-publication)
 
-CI-friendly production diagnostics for Godot 4 projects.
+Godot CI and release evidence tools for maintainers.
 
-Godot Production Toolkit helps catch recurring Godot release risks before they become late-stage debugging work: export preset mistakes, texture/import problems, mobile performance hazards, input coverage gaps, localization defects, save compatibility drift, scene signal issues, and visual regressions.
+Godot Production Toolkit helps maintainers review the evidence that usually sits
+around a Godot release: export presets and generated builds, Android/mobile
+readiness, localization and UI overflow risk, save migrations, runtime
+telemetry, screenshots, scenario results, and release dashboards.
 
 It is built as seventeen focused command-line tools, one umbrella CLI package, and two composite GitHub Actions. Each tool can run locally or in CI, with JSON/SARIF output for build scripts and Markdown/HTML reports for people.
 
@@ -22,9 +25,9 @@ pull request reports, or install `godot-production-doctor` when you want the
 
 | Need | Start with | Useful output |
 |---|---|---|
-| One review page for PR or release evidence | [`godot-ci-doctor-action`](godot-ci-doctor-action/README.md), [`godot-release-dashboard-action`](godot-release-dashboard-action/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) | JSON/Markdown/HTML reports plus a static dashboard artifact |
-| Android/mobile release readiness | [`godot-export-preset-doctor`](godot-export-preset-doctor/README.md), [`godot-mobile-perf-doctor`](godot-mobile-perf-doctor/README.md), [`godot-mobile-ui-doctor`](godot-mobile-ui-doctor/README.md) | Export, renderer, texture, safe-area, and touch-readiness reports |
-| Scenario/runtime regression evidence | [`godot-scenario-report-kit`](godot-scenario-report-kit/README.md), [`godot-runtime-telemetry-lab`](godot-runtime-telemetry-lab/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) | Scenario summaries, flake/retry notes, telemetry timelines, and dashboard trend cards |
+| Maintainer review page for PR or release evidence | [`godot-ci-doctor-action`](godot-ci-doctor-action/README.md), [`godot-release-dashboard-action`](godot-release-dashboard-action/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) | JSON/Markdown/HTML reports plus a static dashboard artifact |
+| Export and mobile release readiness | [`godot-export-preset-doctor`](godot-export-preset-doctor/README.md), [`godot-mobile-perf-doctor`](godot-mobile-perf-doctor/README.md), [`godot-mobile-ui-doctor`](godot-mobile-ui-doctor/README.md) | Export, renderer, texture, safe-area, and touch-readiness reports |
+| Localization, screenshots, and runtime evidence | [`godot-localization-qa-guard`](godot-localization-qa-guard/README.md), [`godot-visual-smoke-test-kit`](godot-visual-smoke-test-kit/README.md), [`godot-runtime-telemetry-lab`](godot-runtime-telemetry-lab/README.md) | Localization reports, screenshot diffs, telemetry timelines, and dashboard cards |
 
 Try the included fixture with one local command:
 
@@ -51,7 +54,7 @@ and [Sample Report Gallery](docs/assets/sample-reports/README.md).
 
 | Lane | Use it for | Start here |
 |---|---|---|
-| Project and release preflight | First-pass audits, PR evidence, dashboard artifacts, and release checklist runs. | [`docs/workflows/README.md`](docs/workflows/README.md), [`godot-production-doctor`](godot-production-doctor/README.md), [`godot-ci-doctor-action`](godot-ci-doctor-action/README.md), [`godot-release-dashboard-action`](godot-release-dashboard-action/README.md) |
+| Project and release evidence | First-pass audits, PR evidence, dashboard artifacts, and release checklist runs. | [`docs/workflows/README.md`](docs/workflows/README.md), [`godot-production-doctor`](godot-production-doctor/README.md), [`godot-ci-doctor-action`](godot-ci-doctor-action/README.md), [`godot-release-dashboard-action`](godot-release-dashboard-action/README.md) |
 | Export and mobile readiness | Android, desktop, and web export settings; mobile renderer choices; texture and safe-area risks. | [`godot-export-preset-doctor`](godot-export-preset-doctor/README.md), [`godot-mobile-perf-doctor`](godot-mobile-perf-doctor/README.md), [`godot-mobile-ui-doctor`](godot-mobile-ui-doctor/README.md) |
 | UI, input, localization, and visuals | Touch targets, input maps, translated text, screenshot plans, and visual diffs. | [`godot-input-map-auditor`](godot-input-map-auditor/README.md), [`godot-localization-qa-guard`](godot-localization-qa-guard/README.md), [`godot-visual-smoke-test-kit`](godot-visual-smoke-test-kit/README.md) |
 | Runtime and scenario evidence | Scenario JSON/JUnit summaries, flakes, retries, telemetry budgets, and timeline reports. | [`godot-scenario-report-kit`](godot-scenario-report-kit/README.md), [`godot-runtime-telemetry-lab`](godot-runtime-telemetry-lab/README.md), [`godot-release-dashboard-kit`](godot-release-dashboard-kit/README.md) |
@@ -66,7 +69,8 @@ For package-level install commands and search-friendly task names, see the
 
 ## What This Is For
 
-Use the toolkit when you want repeatable checks around practical Godot release work:
+Use the toolkit when a maintainer needs repeatable evidence for practical Godot
+release work:
 
 - **Before an Android release:** verify export presets, icons, version fields, debug flags, mobile renderer settings, and texture size risks.
 - **Before merging a UI/input change:** check that actions still cover keyboard, touch, mouse, and controller targets.
@@ -74,6 +78,9 @@ Use the toolkit when you want repeatable checks around practical Godot release w
 - **Before changing save data:** generate baseline fixtures, validate saves against a schema, and document migration commands.
 - **Before shipping visual changes:** compare screenshots against approved baselines.
 - **Before reviewing a PR:** produce JSON, Markdown, HTML, and SARIF reports that make failures easier to reproduce.
+- **Before signing off on a release branch:** collect export, mobile,
+  localization, save, runtime, screenshot, and scenario evidence into one static
+  dashboard.
 
 In practice, that means checks for Godot Android exports, mobile UI safe areas,
 touch targets, screenshot regressions, localization QA, asset imports, GDScript

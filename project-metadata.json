@@ -1,8 +1,8 @@
 {
   "project_name": "Godot Production Toolkit",
-  "one_line_summary": "Workflow-focused release checks for Godot 4 projects: exports, mobile readiness, localization, saves, visual regression, telemetry, and content validation.",
+  "one_line_summary": "Godot CI and release evidence tools for maintainers reviewing exports, mobile readiness, localization, save migrations, runtime telemetry, screenshots, and release dashboards.",
   "repository": "https://github.com/NonniGB/godot-production-toolkit",
-  "repository_description": "CI-friendly production diagnostics for Godot 4 projects.",
+  "repository_description": "Godot CI and release evidence tools for maintainers.",
   "repository_topics": [
     "godot",
     "godot4",

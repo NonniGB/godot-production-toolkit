@@ -4,8 +4,9 @@ Godot Production Toolkit is meant to sit beside the way you already build and
 ship Godot projects. It is not a replacement editor, launcher, project
 template, or runtime framework.
 
-The tools are Python CLIs and a GitHub composite action. They inspect project
-files, manifests, reports, screenshots, and exported evidence. They do not add a
+The tools are Python CLIs and GitHub composite actions for maintainers reviewing
+CI and release evidence. They inspect project files, manifests, reports,
+screenshots, telemetry, save fixtures, and exported evidence. They do not add a
 required runtime dependency to your shipped game. If you use one of the tools in
 CI or before a release, the result is a report, checklist, SARIF file, image
 diff, dashboard, or other build artifact. Nothing from the toolkit needs to be
@@ -30,8 +31,9 @@ This works best as a preflight layer:
 
 - Run normal Godot unit tests, scene tests, and manual playtests as usual.
 - Run the toolkit for checks that are easy to miss in review: export settings,
-  import flags, input coverage, localization files, save fixtures, signal wiring,
-  mobile UI metadata, and report packaging.
+  imported assets, input coverage, localization files, save fixtures and
+  migrations, runtime telemetry, screenshot diffs, mobile UI metadata, and
+  report packaging.
 - Keep outputs in a `reports/` directory or your existing build evidence
   directory.
 

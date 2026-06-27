@@ -1,7 +1,10 @@
 # Tool Index
 
-Start here by release workflow or review task. Each tool can run locally or in
-CI, and most standalone tools are available from PyPI.
+Start here by release workflow or review task. The toolkit is organized around
+maintainer evidence for Godot CI and release review: exports, mobile readiness,
+localization, save migrations, runtime telemetry, screenshots, and dashboards.
+Each tool can run locally or in CI, and most standalone tools are available
+from PyPI.
 
 If you already know the problem and only need a package name, install command,
 profile package set, and first command, use the [Package Finder](PACKAGE_FINDER.md).
@@ -10,7 +13,7 @@ profile package set, and first command, use the [Package Finder](PACKAGE_FINDER.
 
 | Lane | Use it for | Primary packages |
 |---|---|---|
-| Project and release preflight | First-pass audits, PR reports, dashboards, and release checklist runs. | `godot-production-doctor`, `godot-ci-doctor-action`, `godot-release-dashboard-action`, `godot-release-dashboard-kit` |
+| Project and release evidence | First-pass audits, PR reports, dashboards, and release checklist runs. | `godot-production-doctor`, `godot-ci-doctor-action`, `godot-release-dashboard-action`, `godot-release-dashboard-kit` |
 | Export and mobile readiness | Export presets, build folders, Android/mobile settings, texture risks, safe areas, and touch layout. | `godot-export-preset-doctor`, `godot-mobile-perf-doctor`, `godot-mobile-ui-doctor`, `godot-asset-pipeline-doctor` |
 | UI, input, localization, and visuals | Input maps, translated text, touch readiness, screenshot plans, and visual diffs. | `godot-input-map-auditor`, `godot-localization-qa-guard`, `godot-visual-smoke-test-kit`, `pixel-space-asset-toolkit` |
 | Runtime and scenario evidence | Scenario result summaries, JUnit XML, flakes, retries, telemetry budgets, and timelines. | `godot-scenario-report-kit`, `godot-runtime-telemetry-lab` |

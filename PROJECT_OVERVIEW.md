@@ -1,8 +1,13 @@
 # Project Overview
 
-Godot Production Toolkit is a suite of CI-friendly production diagnostics for Godot 4 projects.
+Godot Production Toolkit is a suite of CI and release evidence tools for Godot 4 maintainers.
 
-The tools focus on repeated production risks that are easy to miss late in development: export preset mistakes, texture and import hygiene, mobile performance hazards, mobile UI layout risks, localized text overflow, input coverage gaps, localization defects, save fixture and migration drift, scene signal issues, visual regressions, data-content reference errors, scenario evidence, runtime telemetry timelines and budgets, GDScript architecture coupling, pack/mod manifest checks, release dashboards, and pixel asset workflow checks.
+The tools focus on evidence that maintainers often need before merging or
+shipping: export preset mistakes, generated build artifacts, Android/mobile
+readiness, localized UI overflow, input coverage, save fixture and migration
+drift, screenshot regressions, scenario evidence, runtime telemetry timelines
+and budgets, GDScript architecture coupling, pack/mod manifests, and release
+dashboards.
 
 ## What Ships
 
@@ -34,9 +39,10 @@ python -m pip install -e .\godot-production-doctor
 godot-project-doctor plan --project path\to\godot-project --format json
 ```
 
-For a problem-to-tool map, see `docs/TOOL_INDEX.md`. For workflow examples, see
-`docs/USE_CASES.md`. For a runnable synthetic fixture with sample reports and
-screenshots, see `examples/release-readiness-demo/README.md`.
+For a problem-to-tool map, see `docs/TOOL_INDEX.md`. For workflow examples
+built around maintainer review evidence, see `docs/USE_CASES.md`. For a
+runnable synthetic fixture with sample reports and screenshots, see
+`examples/release-readiness-demo/README.md`.
 
 ## Maintenance Model
 

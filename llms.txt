@@ -1,10 +1,10 @@
 # Godot Production Toolkit
 
-Godot Production Toolkit is a set of CI-friendly command-line diagnostics for
-Godot 4 projects. It focuses on release checks, mobile readiness, visual smoke
-testing, localization QA, asset/import hygiene, save compatibility, scene signal
-audits, scenario evidence, runtime telemetry timelines, content graph
-validation, and GDScript architecture checks.
+Godot Production Toolkit is a set of CI and release evidence tools for Godot 4
+maintainers. It focuses on reviewing exports, mobile readiness, localization,
+save migrations, runtime telemetry, screenshots, scenario results, release
+dashboards, asset/import hygiene, scene signals, content data, and GDScript
+architecture checks.
 
 ## Best Entry Points
 
