@@ -610,7 +610,7 @@ allow_overrides = true
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.8.5", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.2.0", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -625,7 +625,7 @@ allow_overrides = true
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.8.5", completed.stdout)
+        self.assertIn("godot-project-doctor 0.2.0", completed.stdout)
 
 
 if __name__ == "__main__":

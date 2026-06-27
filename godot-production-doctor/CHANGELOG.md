@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 - 2026-06-27
+
+- Restored the umbrella package to the local `0.2.x` version line after the
+  first `godot-production-doctor` release inherited an unrelated PyPI version
+  number during the package rename.
+- Kept the distribution name as `godot-production-doctor` and the installed
+  command as `godot-project-doctor`.
+
 ## 0.8.5 - 2026-06-27
 
 - Renamed the PyPI distribution to `godot-production-doctor`.
