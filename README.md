@@ -280,7 +280,7 @@ A separate public demo repository shows the GitHub Action in a clean fixture pro
 | `godot-scenario-report-kit` | Scenario run evidence summaries, manifests, coverage checks, flake and retry grouping, visual/telemetry/log bundle summaries, and baseline comparison. | JSON, Markdown, HTML |
 | `godot-scene-signal-auditor` | Scene signal connection, scene contract, contract diff, node group, exported property, and autoload coupling analysis. | JSON, Mermaid |
 | `godot-visual-smoke-test-kit` | Screenshot diffing, approval, and Godot capture command planning. | JSON, PNG diffs |
-| `godot-mobile-perf-doctor` | Static mobile performance diagnostics. | JSON, SARIF, Markdown |
+| `godot-mobile-perf-doctor` | Static mobile performance diagnostics, stretch checks, and safe-area evidence handoff. | JSON, SARIF, Markdown |
 | `godot-mobile-ui-doctor` | Mobile UI safe-area, touch-target, spacing, localized layout-risk, overlay previews, and combined mobile readiness reports. | JSON, Markdown, PNG, text |
 | `godot-pack-mod-doctor` | Pack, DLC, mod, and patch manifest generation, validation, moved-resource diffing, content-id, dependency, load-order, security policy checks, and rule metadata. | JSON, Markdown, text |
 | `godot-release-dashboard-kit` | Static workflow-filtered dashboard builder for toolkit reports, typed highlights, scenario retry evidence, export artifact evidence, visual artifacts, metadata, reproduction commands, and previous-run readiness trends. | HTML, JSON |
@@ -395,7 +395,7 @@ The repo keeps the tools together. Most standalone CLIs can also be installed fr
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.5` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
 | [`godot-localization-qa-guard`](https://pypi.org/project/godot-localization-qa-guard/) | `0.1.5` |
-| [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.7` |
+| [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.8` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.12` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.6` |
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.12` |

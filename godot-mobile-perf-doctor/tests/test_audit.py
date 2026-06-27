@@ -33,6 +33,17 @@ class AuditTests(unittest.TestCase):
 
         self.assertIn("large_base_viewport", {finding.rule_id for finding in findings})
 
+    def test_flags_stretch_aspect_ignore_for_phone_profiles(self) -> None:
+        findings = audit_settings(
+            {
+                "display/window/stretch/mode": "canvas_items",
+                "display/window/stretch/aspect": "ignore",
+            },
+            profile="portrait-2d",
+        )
+
+        self.assertIn("stretch_aspect_ignore", {finding.rule_id for finding in findings})
+
     def test_finding_dict_includes_plain_language_rule_help(self) -> None:
         finding = audit_settings(
             {"rendering/renderer/rendering_method": "forward_plus"},

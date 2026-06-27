@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-perf-doctor 0.1.7", stdout.getvalue())
+        self.assertIn("godot-mobile-perf-doctor 0.1.8", stdout.getvalue())
 
     def test_cli_lists_builtin_profiles(self) -> None:
         stdout = StringIO()
@@ -46,7 +46,7 @@ renderer/rendering_method="forward_plus"
             self.assertEqual(exit_code, 1)
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.7")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.8")
             self.assertEqual(report["metadata"]["profile"], "portrait-2d")
             self.assertIn("Phone-first 2D", report["metadata"]["profile_description"])
             self.assertIn("forward_plus_renderer_mobile_risk", report["rules"])
@@ -72,7 +72,7 @@ renderer/rendering_method="forward_plus"
             self.assertEqual(sarif["version"], "2.1.0")
             driver = sarif["runs"][0]["tool"]["driver"]
             self.assertEqual(driver["name"], "godot-mobile-perf-doctor")
-            self.assertEqual(driver["semanticVersion"], "0.1.7")
+            self.assertEqual(driver["semanticVersion"], "0.1.8")
             self.assertTrue(driver["rules"])
             self.assertIn("Forward+ renderer selected", {rule["name"] for rule in driver["rules"]})
             self.assertTrue(sarif["runs"][0]["results"])
@@ -130,6 +130,84 @@ window/stretch/mode="canvas_items"
             self.assertEqual(report["metadata"]["profile"], "low-end-mobile")
             self.assertEqual(report["metadata"]["limits"]["max_texture_dimension"], 1024)
             self.assertIn("large_base_viewport", {finding["rule_id"] for finding in report["findings"]})
+
+    def test_cli_warns_when_configured_mobile_ui_metadata_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".godot-mobile-perf-doctor.toml").write_text(
+                "\n".join(
+                    [
+                        'format = "json"',
+                        'fail_on = "none"',
+                        'mobile_ui_metadata = "reports/mobile-ui.json"',
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (root / "project.godot").write_text(
+                """
+[display]
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--static"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(
+                report["metadata"]["mobile_ui_metadata"],
+                "reports/mobile-ui.json",
+            )
+            self.assertIn(
+                "missing_mobile_ui_metadata",
+                {finding["rule_id"] for finding in report["findings"]},
+            )
+
+    def test_cli_accepts_existing_mobile_ui_metadata_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "reports" / "mobile-ui.json"
+            metadata.parent.mkdir()
+            metadata.write_text("{}", encoding="utf-8")
+            (root / "project.godot").write_text(
+                """
+[display]
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        str(root),
+                        "--static",
+                        "--mobile-ui-metadata",
+                        "reports/mobile-ui.json",
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(
+                report["metadata"]["mobile_ui_metadata"],
+                "reports/mobile-ui.json",
+            )
+            self.assertNotIn(
+                "missing_mobile_ui_metadata",
+                {finding["rule_id"] for finding in report["findings"]},
+            )
 
     def test_cli_reports_missing_project_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

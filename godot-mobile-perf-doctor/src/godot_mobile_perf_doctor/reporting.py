@@ -16,6 +16,7 @@ def render_text_report(
     profile: str,
     max_texture_dimension: int,
     max_viewport_pixels: int,
+    mobile_ui_metadata: str | None = None,
 ) -> str:
     lines = [
         "Godot Mobile Perf Doctor",
@@ -23,6 +24,8 @@ def render_text_report(
         f"Profile: {profile} | Texture limit: {max_texture_dimension}px | Viewport budget: {max_viewport_pixels} px",
         f"Findings: {len(findings)}. Textures: {textures.total_textures}. Estimated RGBA memory: {textures.total_estimated_rgba_mb:.2f} MB.",
     ]
+    if mobile_ui_metadata:
+        lines.append(f"Mobile UI metadata: {mobile_ui_metadata}")
     if adb:
         lines.append(f"ADB: {adb.device or 'unknown'} Android {adb.android or 'unknown'}, {adb.janky_frames}/{adb.total_frames} janky frames.")
     for finding in findings:
@@ -42,6 +45,7 @@ def render_markdown_report(
     profile: str,
     max_texture_dimension: int,
     max_viewport_pixels: int,
+    mobile_ui_metadata: str | None = None,
 ) -> str:
     lines = [
         "# Mobile Performance Report",
@@ -58,6 +62,8 @@ def render_markdown_report(
         "| Severity | Rule | Message | Why it matters |",
         "|---|---|---|---|",
     ]
+    if mobile_ui_metadata:
+        lines.insert(7, f"Mobile UI metadata: `{mobile_ui_metadata}`")
     for finding in findings:
         help_text = explain_rule(finding.rule_id)
         lines.append(
@@ -80,10 +86,11 @@ def render_json_report(
     profile: str,
     max_texture_dimension: int,
     max_viewport_pixels: int,
+    mobile_ui_metadata: str | None = None,
 ) -> str:
     payload = {
         "tool": "godot-mobile-perf-doctor",
-        "metadata": _metadata(profile, max_texture_dimension, max_viewport_pixels),
+        "metadata": _metadata(profile, max_texture_dimension, max_viewport_pixels, mobile_ui_metadata),
         "summary": {
             "findings": len(findings),
             "errors": sum(1 for finding in findings if finding.severity == "error"),
@@ -107,6 +114,7 @@ def render_sarif_report(
     profile: str,
     max_texture_dimension: int,
     max_viewport_pixels: int,
+    mobile_ui_metadata: str | None = None,
 ) -> str:
     rules = {}
     results = []
@@ -144,7 +152,9 @@ def render_sarif_report(
                     "driver": {
                         "name": "godot-mobile-perf-doctor",
                         "semanticVersion": __version__,
-                        "properties": _metadata(profile, max_texture_dimension, max_viewport_pixels),
+                        "properties": _metadata(
+                            profile, max_texture_dimension, max_viewport_pixels, mobile_ui_metadata
+                        ),
                         "rules": list(rules.values()),
                     }
                 },
@@ -155,7 +165,12 @@ def render_sarif_report(
     return json.dumps(payload, indent=2, sort_keys=True)
 
 
-def _metadata(profile: str, max_texture_dimension: int, max_viewport_pixels: int) -> dict[str, object]:
+def _metadata(
+    profile: str,
+    max_texture_dimension: int,
+    max_viewport_pixels: int,
+    mobile_ui_metadata: str | None = None,
+) -> dict[str, object]:
     return {
         "schema_version": "1.1",
         "tool_version": __version__,
@@ -166,6 +181,7 @@ def _metadata(profile: str, max_texture_dimension: int, max_viewport_pixels: int
             "max_texture_dimension": max_texture_dimension,
             "max_viewport_pixels": max_viewport_pixels,
         },
+        "mobile_ui_metadata": mobile_ui_metadata,
         "formats": ["text", "json", "markdown", "sarif"],
     }
 

@@ -4,7 +4,7 @@ Static mobile performance diagnostics for Godot 4 projects, with optional parsin
 
 The first release deliberately starts with static checks so it works in CI without an Android device.
 
-Use it before device testing to catch obvious mobile risks: desktop renderer settings, missing stretch configuration, oversized textures, and suspicious viewport settings.
+Use it before device testing to catch obvious mobile risks: desktop renderer settings, missing or risky stretch configuration, oversized textures, missing safe-area evidence, and suspicious viewport settings.
 
 ## Install
 
@@ -24,6 +24,7 @@ python -m pip install godot-mobile-perf-doctor
 godot-mobile-perf-doctor C:\Projects\MyGame --static
 godot-mobile-perf-doctor . --profile portrait-2d --format json --output perf-report.json
 godot-mobile-perf-doctor . --adb-summary adb-summary.txt --format markdown --output mobile-perf-report.md
+godot-mobile-perf-doctor . --mobile-ui-metadata reports\mobile-ui.json --format markdown --output mobile-perf-report.md
 ```
 
 List the built-in mobile profiles:
@@ -43,6 +44,7 @@ fail_on = "warning"
 output = "reports/mobile-perf.md"
 max_texture_dimension = 2048
 max_viewport_pixels = 2073600
+mobile_ui_metadata = "reports/mobile-ui.json"
 ```
 
 Profiles provide default texture and viewport budgets. CLI flags override config
@@ -72,7 +74,8 @@ godot-mobile-perf-doctor . --static --profile portrait-2d --fail-on warning --fo
 Use the report to check:
 
 - whether the renderer choice is suitable for mobile;
-- whether viewport and stretch settings are explicit;
+- whether viewport and stretch settings are explicit and not likely to distort phone layouts;
+- whether expected mobile UI metadata exists for safe-area and touch-layout review;
 - which PNG textures carry the largest estimated RGBA memory cost;
 - whether a recent adb summary shows janky frames that need follow-up.
 
@@ -86,7 +89,8 @@ godot-mobile-perf-doctor . --adb-summary reports\adb-summary.txt --format json -
 
 - Renderer setting and mobile risk.
 - Base viewport size against the selected mobile profile.
-- Stretch mode presence.
+- Stretch mode presence and `stretch/aspect="ignore"` risks.
+- Optional mobile UI metadata path for safe-area evidence handoff.
 - PNG texture dimensions and estimated RGBA memory.
 - Optional adb summary text for device model and janky frame counts.
 

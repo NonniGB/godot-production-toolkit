@@ -33,7 +33,7 @@
     },
     {
       "purpose": "Human release report",
-      "command": "godot-mobile-perf-doctor <project> --static --format markdown --output mobile-perf-report.md"
+      "command": "godot-mobile-perf-doctor <project> --static --mobile-ui-metadata reports/mobile-ui.json --format markdown --output mobile-perf-report.md"
     },
     {
       "purpose": "GitHub code scanning SARIF",

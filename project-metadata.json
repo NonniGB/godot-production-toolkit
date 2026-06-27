@@ -91,7 +91,7 @@
     },
     {
       "name": "godot-mobile-perf-doctor",
-      "role": "Static mobile performance diagnostics for Godot projects.",
+      "role": "Static mobile performance diagnostics for Godot projects, including renderer, viewport, stretch, texture, and safe-area evidence handoff checks.",
       "interfaces": ["cli", "json", "sarif", "markdown"]
     },
     {

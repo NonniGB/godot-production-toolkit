@@ -51,6 +51,7 @@ def main(argv: list[str] | None = None) -> int:
         profile_settings.max_viewport_pixels,
     )
     adb_summary = _configured_value(args.adb_summary, config, "adb_summary", None)
+    mobile_ui_metadata = _configured_value(args.mobile_ui_metadata, config, "mobile_ui_metadata", None)
     _validate_choice(parser, "format", output_format, {"text", "json", "markdown", "sarif"})
     _validate_choice(parser, "fail_on", fail_on, {"none", "warning", "error"})
     _validate_positive(parser, "max-texture-dimension", max_texture_dimension)
@@ -70,6 +71,16 @@ def main(argv: list[str] | None = None) -> int:
                 project_file.as_posix(),
             ),
         )
+    mobile_ui_path = _resolve_project_path(project, mobile_ui_metadata)
+    if mobile_ui_metadata and (mobile_ui_path is None or not mobile_ui_path.exists()):
+        findings.append(
+            Finding(
+                "missing_mobile_ui_metadata",
+                "warning",
+                f"Mobile UI metadata was configured at {mobile_ui_metadata}, but the file was not found.",
+                str(mobile_ui_metadata),
+            )
+        )
     findings.extend(texture_findings(textures, max_dimension=max_texture_dimension))
     adb = _load_adb(adb_summary)
 
@@ -81,6 +92,7 @@ def main(argv: list[str] | None = None) -> int:
             profile=str(profile),
             max_texture_dimension=max_texture_dimension,
             max_viewport_pixels=max_viewport_pixels,
+            mobile_ui_metadata=str(mobile_ui_metadata) if mobile_ui_metadata else None,
         )
     elif output_format == "markdown":
         rendered = render_markdown_report(
@@ -90,6 +102,7 @@ def main(argv: list[str] | None = None) -> int:
             profile=str(profile),
             max_texture_dimension=max_texture_dimension,
             max_viewport_pixels=max_viewport_pixels,
+            mobile_ui_metadata=str(mobile_ui_metadata) if mobile_ui_metadata else None,
         )
     elif output_format == "sarif":
         rendered = render_sarif_report(
@@ -99,6 +112,7 @@ def main(argv: list[str] | None = None) -> int:
             profile=str(profile),
             max_texture_dimension=max_texture_dimension,
             max_viewport_pixels=max_viewport_pixels,
+            mobile_ui_metadata=str(mobile_ui_metadata) if mobile_ui_metadata else None,
         )
     else:
         rendered = render_text_report(
@@ -108,6 +122,7 @@ def main(argv: list[str] | None = None) -> int:
             profile=str(profile),
             max_texture_dimension=max_texture_dimension,
             max_viewport_pixels=max_viewport_pixels,
+            mobile_ui_metadata=str(mobile_ui_metadata) if mobile_ui_metadata else None,
         )
 
     if output:
@@ -129,7 +144,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-mobile-perf-doctor",
         description="Static mobile performance diagnostics for Godot projects.",
     )
-    parser.add_argument("--version", action="version", version="godot-mobile-perf-doctor 0.1.7")
+    parser.add_argument("--version", action="version", version="godot-mobile-perf-doctor 0.1.8")
     parser.add_argument("--list-profiles", action="store_true", help="List built-in mobile budget profiles.")
     parser.add_argument("project", nargs="?", help="Godot project directory.")
     parser.add_argument("--static", action="store_true", help="Run static checks. Present for CLI clarity.")
@@ -138,6 +153,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-texture-dimension", type=int, default=None)
     parser.add_argument("--max-viewport-pixels", type=int, default=None)
     parser.add_argument("--adb-summary", help="Optional mocked or captured adb summary text file.")
+    parser.add_argument("--mobile-ui-metadata", help="Optional mobile UI metadata JSON path to require in CI.")
     parser.add_argument("--format", choices=["text", "json", "markdown", "sarif"], default=None)
     parser.add_argument("--output", help="Write report to a file instead of stdout.")
     parser.add_argument("--fail-on", choices=["warning", "error", "none"], default=None)
@@ -151,6 +167,13 @@ def _load_adb(path: str | None) -> AdbSummary | None:
     if not summary_path.exists():
         return None
     return parse_adb_summary(summary_path.read_text(encoding="utf-8"))
+
+
+def _resolve_project_path(project: Path, value: str | None) -> Path | None:
+    if not value:
+        return None
+    path = Path(value)
+    return path if path.is_absolute() else project / path
 
 
 def _render_profiles() -> str:

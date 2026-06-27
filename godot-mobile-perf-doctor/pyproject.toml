@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-mobile-perf-doctor"
-version = "0.1.7"
-description = "Static Godot 4 Android and mobile performance diagnostics for renderer, texture, audio, and project settings."
+version = "0.1.8"
+description = "Static Godot 4 Android and mobile performance diagnostics for renderer, texture, stretch, safe-area evidence, audio, and project settings."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Godot Mobile Perf Doctor contributors" }]
-keywords = ["godot", "android", "mobile", "performance", "textures", "ci", "gamedev"]
+keywords = ["godot", "android", "mobile", "performance", "textures", "safe-area", "ci", "gamedev"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

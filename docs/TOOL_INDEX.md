@@ -25,7 +25,7 @@ godot-export-doctor leaks . --format html --output reports/export-leaks.html --f
 godot-export-doctor inspect-folder build/android --hash-files --format markdown --output reports/exported-folder.md --fail-on none
 godot-export-doctor inspect-files reports/export-file-list.json --format markdown --output reports/exported-files.md --fail-on none
 godot-export-doctor pck reports/export-file-list.json --format markdown --output reports/exported-pck.md --fail-on none
-godot-mobile-perf-doctor . --static --format markdown --output reports/mobile-perf.md
+godot-mobile-perf-doctor . --static --mobile-ui-metadata reports/mobile-ui.json --format markdown --output reports/mobile-perf.md
 godot-asset-doctor . --profile mobile --format json --output reports/assets.json
 ```
 
@@ -147,7 +147,7 @@ godot-release-dashboard build reports --output reports/dashboard.html
 | `godot-gdscript-architecture-guard` | `godot-architecture-guard` | JSON, SARIF, Markdown, Mermaid |
 | `godot-input-map-auditor` | `godot-input-audit` | JSON, SARIF, Markdown |
 | `godot-localization-qa-guard` | `godot-l10n-guard` | JSON, SARIF, Markdown, CSV |
-| `godot-mobile-perf-doctor` | `godot-mobile-perf-doctor` | JSON, SARIF, Markdown |
+| `godot-mobile-perf-doctor` | `godot-mobile-perf-doctor` | JSON, SARIF, Markdown, stretch checks, safe-area evidence handoff |
 | `godot-mobile-ui-doctor` | `godot-mobile-ui-doctor` | JSON, Markdown, PNG |
 | `godot-pack-mod-doctor` | `godot-pack-mod-doctor` | JSON, Markdown, text, rule metadata |
 | `godot-release-dashboard-kit` | `godot-release-dashboard` | Workflow-filtered HTML, JSON, typed highlights, scenario retry sections, export artifact sections, previous-run readiness trends |

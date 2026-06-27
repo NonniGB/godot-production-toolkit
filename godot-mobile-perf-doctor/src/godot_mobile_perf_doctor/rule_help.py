@@ -22,6 +22,14 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Stretch mode disabled",
         "explanation": "Mobile projects usually need explicit stretch settings so layout and rendering scale predictably.",
     },
+    "stretch_aspect_ignore": {
+        "title": "Stretch aspect ignores shape",
+        "explanation": "Ignoring aspect ratio can distort phone layouts and hide problems that should be handled with keep, expand, or project-specific UI rules.",
+    },
+    "missing_mobile_ui_metadata": {
+        "title": "Mobile UI metadata missing",
+        "explanation": "Safe-area and touch-layout checks need a project-owned mobile UI metadata export, usually from godot-mobile-ui-doctor or a small Godot-side exporter.",
+    },
 }
 
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.8 - 2026-06-27
+
+- Added a stretch aspect warning for phone builds that use `display/window/stretch/aspect="ignore"`.
+- Added `--mobile-ui-metadata` and `mobile_ui_metadata` config support so CI can require a project-owned mobile UI or safe-area evidence export.
+- Included the configured mobile UI metadata path in JSON, Markdown, text, and SARIF report metadata.
+
 ## 0.1.7 - 2026-06-15
 
 - Raised the package build backend floor to `setuptools>=82.0.1`.

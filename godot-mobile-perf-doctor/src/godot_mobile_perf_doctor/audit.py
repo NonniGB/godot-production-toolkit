@@ -40,6 +40,15 @@ def audit_settings(settings: dict[str, Any], *, profile: str, max_viewport_pixel
                 "Stretch mode is disabled or missing; mobile projects usually need explicit scaling behavior.",
             )
         )
+    stretch_aspect = str(settings.get("display/window/stretch/aspect", "")).lower()
+    if stretch_mode not in {"", "disabled"} and stretch_aspect == "ignore":
+        findings.append(
+            Finding(
+                "stretch_aspect_ignore",
+                "warning",
+                "Stretch aspect is set to ignore; phone builds can distort UI or gameplay unless this is intentional.",
+            )
+        )
     return findings
 
 
