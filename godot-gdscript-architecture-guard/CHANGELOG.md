@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5 - 2026-06-27
+
+- Markdown reports now include a Mermaid module dependency graph when configured modules depend on each other.
+- The CLI and JSON report version now read from the package version to keep release metadata aligned.
+
 ## 0.1.4 - 2026-06-19
 
 - Added advisory possible-unused resource summaries for common Godot scene, resource, data, image, font, shader, and audio files.

@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 from typing import Any
 
+from . import __version__
 from .models import Finding, ModulePolicy
 from .rule_help import RULE_HELP, enrich_finding
 
@@ -109,7 +110,7 @@ def audit_project(
 
     return {
         "tool": "godot-gdscript-architecture-guard",
-        "version": "0.1.4",
+        "version": __version__,
         "metadata": {
             "schema_version": "1.1",
             "rule_count": len(RULE_HELP),

@@ -52,7 +52,7 @@ names = ["GameState"]
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("module_boundary_violation", rules)
             self.assertIn("autoload_access_violation", rules)
-            self.assertEqual(report["version"], "0.1.4")
+            self.assertEqual(report["version"], "0.1.5")
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
             self.assertIn("suggestion", report["findings"][0])
             self.assertIn("module_boundary_violation", report["rule_help"])
@@ -176,7 +176,7 @@ may_depend_on = []
             report = json.loads(stdout.getvalue())
             unused_paths = [row["path"] for row in report["possible_unused_resources"]]
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["version"], "0.1.4")
+            self.assertEqual(report["version"], "0.1.5")
             self.assertEqual(report["summary"]["possible_unused_resources"], 2)
             self.assertIn("assets/sprites/old_enemy.png", unused_paths)
             self.assertIn("assets/audio/unused_alert.ogg", unused_paths)
@@ -355,6 +355,10 @@ may_depend_on = []
             self.assertIn("## Possible Unused Resources", markdown)
             self.assertIn("## Module Ownership Summary", markdown)
             self.assertIn("| ui | 1 |", markdown)
+            self.assertIn("## Module Dependency Graph", markdown)
+            self.assertIn("```mermaid", markdown)
+            self.assertIn("flowchart LR", markdown)
+            self.assertIn("ui --> shared", markdown)
 
 
 if __name__ == "__main__":

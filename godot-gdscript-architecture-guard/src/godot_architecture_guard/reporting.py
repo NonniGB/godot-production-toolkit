@@ -80,6 +80,7 @@ def _markdown(report: dict[str, Any]) -> str:
     else:
         lines.append("| info | clean |  | No findings. | |")
     lines.extend(_markdown_owner_summaries(report))
+    lines.extend(_markdown_dependency_graph(report))
     lines.extend(_markdown_hotspots(report))
     lines.extend(_markdown_possible_unused_scripts(report))
     lines.extend(_markdown_possible_unused_resources(report))
@@ -106,6 +107,20 @@ def _markdown_owner_summaries(report: dict[str, Any]) -> list[str]:
             f"{row['autoload_violations']} | {row['unmatched_path_patterns']} | "
             f"{row['hotspots']} | {row['possible_unused_scripts']} |"
         )
+    return lines
+
+
+def _markdown_dependency_graph(report: dict[str, Any]) -> list[str]:
+    dependencies = report.get("dependencies", [])
+    if not dependencies:
+        return ["", "## Module Dependency Graph", "", "No module dependencies found."]
+    modules = sorted(report.get("modules", {}))
+    lines = ["", "## Module Dependency Graph", "", "```mermaid", "flowchart LR"]
+    for name in modules:
+        lines.append(f"  {name}[{name}]")
+    for edge in dependencies:
+        lines.append(f"  {edge['source']} --> {edge['target']}")
+    lines.append("```")
     return lines
 
 

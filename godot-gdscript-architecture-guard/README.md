@@ -39,6 +39,10 @@ Write a Markdown refactor note:
 godot-architecture-guard . --config architecture-guard.toml --format markdown --output reports\architecture.md --fail-on none
 ```
 
+Markdown reports include owner summaries, dependency hotspots, possible unused
+files, and a Mermaid module dependency graph when configured modules reference
+each other. Use `--format mermaid` when you only want the graph.
+
 ## Policy Example
 
 ```toml
@@ -82,5 +86,6 @@ JSON reports include `metadata`, `rule_help`, and per-finding suggestions so CI
 jobs and small review scripts can explain the issue without hard-coding rule
 text. They also include `owner_summaries`, `hotspots`, and
 `possible_unused_scripts` / `possible_unused_resources` arrays for refactor
-review.
+review. Markdown reports embed the same module graph that `--format mermaid`
+writes as a standalone artifact.
 SARIF output carries rule descriptions for code scanning tools.

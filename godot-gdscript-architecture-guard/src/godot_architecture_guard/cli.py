@@ -8,6 +8,8 @@ from .config import load_policy
 from .reporting import render_report
 from .scanner import audit_project, render_mermaid
 
+VERSION_LABEL = "godot-architecture-guard 0.1.5"
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
@@ -33,7 +35,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-architecture-guard",
         description="Check GDScript module boundaries and autoload access policy.",
     )
-    parser.add_argument("--version", action="version", version="godot-architecture-guard 0.1.4")
+    parser.add_argument("--version", action="version", version=VERSION_LABEL)
     parser.add_argument("project", help="Godot project directory.")
     parser.add_argument("--config", required=True, help="Architecture policy TOML file.")
     parser.add_argument("--format", choices=["text", "json", "markdown", "sarif", "mermaid"], default="text")

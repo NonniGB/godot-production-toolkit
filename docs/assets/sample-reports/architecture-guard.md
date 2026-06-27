@@ -22,6 +22,16 @@
 | shared | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
 | ui | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 |
 
+## Module Dependency Graph
+
+```mermaid
+flowchart LR
+  gameplay[gameplay]
+  shared[shared]
+  ui[ui]
+  ui --> gameplay
+```
+
 ## Dependency Hotspots
 
 | Score | Path | Module | Incoming | Outgoing | Autoload refs |
