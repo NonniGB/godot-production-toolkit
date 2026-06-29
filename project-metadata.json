@@ -123,6 +123,7 @@
   "script_and_ci_interfaces": {
     "manifest_files": "Each script-ready project has tool-manifest.json.",
     "manifest_validator": "python verify_tool_manifests.py",
+    "cli_smoke_validator": "python verify_cli_smoke.py",
     "machine_outputs": ["json", "sarif"],
     "human_outputs": ["text", "markdown", "html", "png-diffs", "mermaid"],
     "noninteractive_default": true,
@@ -215,6 +216,7 @@
   "verification_commands": [
     "python verify_tool_manifests.py",
     "python verify_release_alignment.py",
+    "python verify_cli_smoke.py",
     "python project_health_snapshot.py",
     "python -m unittest discover -s tests -v",
     "python -m unittest discover -s godot-production-doctor/tests -v",

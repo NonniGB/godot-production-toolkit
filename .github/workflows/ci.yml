@@ -34,6 +34,9 @@ jobs:
       - name: Validate release alignment
         run: python verify_release_alignment.py
 
+      - name: Smoke test CLI entry points
+        run: python verify_cli_smoke.py
+
       - name: Run root tests
         run: python -m unittest discover -s tests -v
 

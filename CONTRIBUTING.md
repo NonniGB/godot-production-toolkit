@@ -11,6 +11,8 @@ Run root checks from the repository root:
 
 ```powershell
 python verify_tool_manifests.py
+python verify_release_alignment.py
+python verify_cli_smoke.py
 python -m unittest discover -s tests -v
 ```
 

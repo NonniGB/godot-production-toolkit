@@ -106,6 +106,7 @@ Start with these files when evaluating or extending the suite:
 - `docs/assets/sample-reports/README.md`
 - `docs/PROJECT_HEALTH.md`
 - `verify_tool_manifests.py`
+- `verify_cli_smoke.py`
 
 Discovery files for search tools, scripts, and compact project orientation:
 
@@ -366,6 +367,7 @@ Run from the repository root:
 ```powershell
 python verify_tool_manifests.py
 python verify_release_alignment.py
+python verify_cli_smoke.py
 python project_health_snapshot.py
 python -m unittest discover -s tests -v
 ```
