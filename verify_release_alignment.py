@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import re
 import tomllib
 
 
@@ -126,6 +127,13 @@ ACTION_REF_FILES = (
     "godot-ci-doctor-action/tool-manifest.json",
 )
 
+PUBLIC_ACTION_PROJECTS = {
+    "godot-ci-doctor-action",
+    "godot-release-dashboard-action",
+}
+
+PACKAGE_FINDER_PATH = "docs/PACKAGE_FINDER.md"
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check release-facing version references stay aligned.")
@@ -160,26 +168,90 @@ def check_release_alignment(root: Path) -> list[str]:
     for package in PUBLISHED_PACKAGES:
         package_root = root / package
         package_version = _project_version(package_root / "pyproject.toml")
+        pyproject_data = _pyproject_data(package_root / "pyproject.toml")
+        tool_manifest = json.loads((package_root / "tool-manifest.json").read_text(encoding="utf-8"))
+        cli_name = PACKAGE_VERSION_FILES[package]["cli_name"]
+
+        if pyproject_data.get("project", {}).get("name") != package:
+            errors.append(f"{package}/pyproject.toml project.name does not match package directory")
+        if cli_name not in pyproject_data.get("project", {}).get("scripts", {}):
+            errors.append(f"{package}/pyproject.toml does not define console script {cli_name!r}")
+        if tool_manifest.get("name") != package:
+            errors.append(f"{package}/tool-manifest.json name does not match package directory")
+        if tool_manifest.get("entrypoint") != cli_name:
+            errors.append(f"{package}/tool-manifest.json entrypoint does not match {cli_name!r}")
+        if tool_manifest.get("interfaces", {}).get("cli") is not True:
+            errors.append(f"{package}/tool-manifest.json does not mark the CLI interface as true")
+
         _expect_text(package_root / "CHANGELOG.md", f"## {package_version}", errors)
         _expect_text(package_root / str(PACKAGE_VERSION_FILES[package]["init"]), f'__version__ = "{package_version}"', errors)
         _expect_text(
             package_root / str(PACKAGE_VERSION_FILES[package]["cli"]),
-            f'{PACKAGE_VERSION_FILES[package]["cli_name"]} {package_version}',
+            f"{cli_name} {package_version}",
             errors,
         )
 
+    errors.extend(_check_public_package_references(root))
     return errors
 
 
 def _project_version(path: Path) -> str:
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
-    return str(data["project"]["version"])
+    return str(_pyproject_data(path)["project"]["version"])
+
+
+def _pyproject_data(path: Path) -> dict:
+    return tomllib.loads(path.read_text(encoding="utf-8"))
 
 
 def _expect_text(path: Path, expected: str, errors: list[str]) -> None:
     text = path.read_text(encoding="utf-8")
     if expected not in text:
         errors.append(f"{path.as_posix()} does not contain {expected!r}")
+
+
+def _check_public_package_references(root: Path) -> list[str]:
+    errors: list[str] = []
+    metadata_path = root / "project-metadata.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    metadata_tools = {tool.get("name") for tool in metadata.get("tools", [])}
+    expected_tools = set(PUBLISHED_PACKAGES) | PUBLIC_ACTION_PROJECTS
+    missing_metadata = expected_tools - metadata_tools
+    extra_metadata = metadata_tools - expected_tools
+    if missing_metadata:
+        errors.append(f"project-metadata.json is missing tools {sorted(missing_metadata)}")
+    if extra_metadata:
+        errors.append(f"project-metadata.json lists unknown tools {sorted(extra_metadata)}")
+
+    for package in PUBLISHED_PACKAGES:
+        metadata_entry = next((tool for tool in metadata.get("tools", []) if tool.get("name") == package), None)
+        if metadata_entry and "cli" not in metadata_entry.get("interfaces", []):
+            errors.append(f"project-metadata.json entry for {package} does not list the cli interface")
+
+    package_finder_text = (root / PACKAGE_FINDER_PATH).read_text(encoding="utf-8")
+    known_packages = set(PUBLISHED_PACKAGES)
+    for package in PUBLISHED_PACKAGES:
+        cli_name = PACKAGE_VERSION_FILES[package]["cli_name"]
+        package_version = _project_version(root / package / "pyproject.toml")
+        _expect_text(root / "README.md", f"python -m pip install {package}", errors)
+        _expect_text(root / "README.md", f"https://pypi.org/project/{package}/", errors)
+        _expect_text(root / "README.md", f"| `{package_version}` |", errors)
+        _expect_text(root / PACKAGE_FINDER_PATH, f"python -m pip install {package}", errors)
+        _expect_text(root / PACKAGE_FINDER_PATH, cli_name, errors)
+
+    for package in sorted(_pip_install_packages(package_finder_text) - known_packages):
+        errors.append(f"{PACKAGE_FINDER_PATH} references unknown install package {package!r}")
+
+    return errors
+
+
+def _pip_install_packages(text: str) -> set[str]:
+    packages: set[str] = set()
+    for match in re.finditer(r"python -m pip install ([^`|]+)", text):
+        for token in match.group(1).split():
+            if token.startswith("-") or "\\" in token or "/" in token or token == ".":
+                continue
+            packages.add(token)
+    return packages
 
 
 if __name__ == "__main__":
