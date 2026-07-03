@@ -482,6 +482,7 @@ def build_doctor_profile(
         "workflow": render_github_action_example(checks),
     }
     payload["guided_plan"] = build_guided_plan(payload)
+    payload["review_handoff"] = build_review_handoff(payload)
     return payload
 
 
@@ -571,8 +572,44 @@ def build_guided_plan(profile: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def build_review_handoff(profile: dict[str, Any]) -> dict[str, Any]:
+    project = Path(str(profile["project"]))
+    reports_dir = _display_path(Path(str(profile["reports_dir"])), project)
+    guided = profile.get("guided_plan", {})
+    commands = list(guided.get("commands", [])) if isinstance(guided, dict) else []
+    first_run = next((command for command in commands if "--dry-run" in command), "")
+    report_run = next((command for command in commands if "--format markdown" in command), "")
+    dashboard = next((command for command in commands if command.startswith("godot-release-dashboard build")), "")
+    setup_blockers = [
+        {
+            "id": str(task["id"]),
+            "title": str(task["title"]),
+            "package": str(task.get("package", "")),
+            "expected_inputs": list(task.get("expected_inputs", [])),
+            "setup": str(task.get("setup", "")),
+        }
+        for task in profile["tasks"]
+        if not task["ready"]
+    ]
+    return {
+        "reports_dir": reports_dir,
+        "first_run_command": first_run,
+        "report_command": report_run,
+        "dashboard_command": dashboard,
+        "artifact_paths": [
+            f"{reports_dir}/summary.md",
+            f"{reports_dir}/evidence/manifest.json",
+            f"{reports_dir}/evidence/summary.json",
+            f"{reports_dir}/evidence/summary.html",
+            f"{reports_dir}/dashboard.html",
+        ],
+        "setup_blockers": setup_blockers,
+    }
+
+
 def render_guided_plan_markdown(profile: dict[str, Any]) -> str:
     guided = profile["guided_plan"]
+    handoff = profile.get("review_handoff", {})
     project = Path(str(profile["project"]))
     reports_dir = _display_path(Path(str(profile["reports_dir"])), project)
     lines = [
@@ -631,6 +668,39 @@ def render_guided_plan_markdown(profile: dict[str, Any]) -> str:
         lines.append("")
     lines.extend(["## Suggested Commands", ""])
     lines.extend(f"```powershell\n{command}\n```" for command in guided["commands"])
+    if isinstance(handoff, dict):
+        lines.extend(
+            [
+                "",
+                "## Review Handoff",
+                "",
+                f"- Reports folder: `{handoff.get('reports_dir', reports_dir)}`",
+            ]
+        )
+        first_run = str(handoff.get("first_run_command", ""))
+        report_command = str(handoff.get("report_command", ""))
+        dashboard_command = str(handoff.get("dashboard_command", ""))
+        if first_run:
+            lines.append(f"- First local check: `{first_run}`")
+        if report_command:
+            lines.append(f"- PR or release summary: `{report_command}`")
+        if dashboard_command:
+            lines.append(f"- Dashboard handoff: `{dashboard_command}`")
+        artifacts = [str(item) for item in handoff.get("artifact_paths", [])]
+        if artifacts:
+            lines.extend(["", "Expected report artifacts:"])
+            lines.extend(f"- `{artifact}`" for artifact in artifacts)
+        blockers = list(handoff.get("setup_blockers", []))
+        lines.extend(["", "Setup blockers:"])
+        if blockers:
+            for blocker in blockers:
+                expected_inputs = ", ".join(_display_input(item, project) for item in blocker.get("expected_inputs", []))
+                lines.append(
+                    f"- `{blocker['id']}`: {blocker['setup']}"
+                    + (f" Expected input: {expected_inputs}." if expected_inputs else "")
+                )
+        else:
+            lines.append("- None detected for this profile.")
     lines.extend(
         [
             "",

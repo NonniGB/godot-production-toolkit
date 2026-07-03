@@ -31,9 +31,10 @@ godot-project-doctor doctor path\to\godot-project --profile release --write-plan
 the short check list it would start with. `recommend` adds priority, setup
 notes, and a dry-run command for each suggested check. `doctor` groups checks
 into practical profiles and shows package installs, expected inputs, output
-paths, commands, and setup notes. Add `--write-plan` when you want a Markdown
-first-run plan with the selected package set, commands, missing inputs, starter
-config preview, workflow preview, and dashboard handoff.
+paths, commands, setup notes, and a review handoff for first-run reports,
+dashboard generation, expected artifacts, and setup blockers. Add `--write-plan`
+when you want a Markdown first-run plan with the selected package set, commands,
+missing inputs, starter config preview, workflow preview, and dashboard handoff.
 
 Preview a starter config and workflow without writing files:
 
@@ -118,8 +119,9 @@ passed. The current profiles are:
 `--write-plan` writes a Markdown checklist for the selected profile. The plan
 includes a compact `pip install` command for the profile's standalone packages,
 ready checks, setup notes for missing inputs, suggested run/collect commands, a
-starter config preview, a GitHub Actions preview, and a `godot-release-dashboard`
-command for turning the resulting reports into a static review page.
+review handoff with expected artifacts and setup blockers, a starter config
+preview, a GitHub Actions preview, and a `godot-release-dashboard` command for
+turning the resulting reports into a static review page.
 
 `recommend` is intentionally conservative. It looks for common project signals
 such as `export_presets.cfg`, GDScript files, PNG/import files, localization

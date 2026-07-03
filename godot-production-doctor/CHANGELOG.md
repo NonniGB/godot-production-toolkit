@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2 - 2026-07-03
+
+- Added an explicit review handoff to doctor profiles with first-run, report
+  summary, dashboard, artifact, and setup-blocker guidance.
+
 ## 0.2.1 - 2026-06-27
 
 - Updated generated report and workflow wording around Godot CI and release

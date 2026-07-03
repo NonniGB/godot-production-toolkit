@@ -61,7 +61,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-project-doctor",
         description="Plan, run, and summarize Godot CI and release evidence checks.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.2.1")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.2.2")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")
@@ -413,6 +413,26 @@ def _render_doctor_text(payload: dict[str, object]) -> str:
         )
         if not task["ready"]:
             lines.append(f"  Setup: {task['setup']}")
+    handoff = payload.get("review_handoff", {})
+    if isinstance(handoff, dict):
+        lines.extend(["", "Review handoff:"])
+        first_run = str(handoff.get("first_run_command", ""))
+        report_command = str(handoff.get("report_command", ""))
+        dashboard_command = str(handoff.get("dashboard_command", ""))
+        if first_run:
+            lines.append(f"- First local check: {first_run}")
+        if report_command:
+            lines.append(f"- PR or release summary: {report_command}")
+        if dashboard_command:
+            lines.append(f"- Dashboard: {dashboard_command}")
+        artifacts = [str(item) for item in handoff.get("artifact_paths", [])]
+        if artifacts:
+            lines.append("- Report artifacts: " + ", ".join(artifacts))
+        blockers = list(handoff.get("setup_blockers", []))
+        if blockers:
+            lines.append("- Setup blockers: " + "; ".join(f"{item['id']}: {item['setup']}" for item in blockers))
+        else:
+            lines.append("- Setup blockers: none")
     lines.extend(["", "Next steps:"])
     lines.extend(f"- {step}" for step in payload["next_steps"])
     if payload.get("workflow_written"):

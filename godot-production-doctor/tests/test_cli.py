@@ -290,6 +290,13 @@ allow_overrides = true
             profile_packages = {item["package"] for item in payload["guided_plan"]["packages"]}
             self.assertIn("godot-visual-smoke-test-kit", profile_packages)
             self.assertIn("godot-release-dashboard build", " ".join(payload["guided_plan"]["commands"]))
+            self.assertIn("review_handoff", payload)
+            handoff = payload["review_handoff"]
+            self.assertIn("godot-project-doctor run", handoff["first_run_command"])
+            self.assertIn("godot-release-dashboard build", handoff["dashboard_command"])
+            self.assertIn("reports/godot-project-doctor/mobile/summary.md", handoff["artifact_paths"])
+            blockers = {item["id"] for item in handoff["setup_blockers"]}
+            self.assertIn("mobile_ui", blockers)
             self.assertFalse((root / "reports" / "godot-project-doctor" / "mobile-plan.md").exists())
 
     def test_doctor_profile_catalog_includes_focused_workflows(self) -> None:
@@ -348,6 +355,9 @@ allow_overrides = true
             self.assertIn("Install:", rendered)
             self.assertIn("python -m pip install godot-export-preset-doctor", rendered)
             self.assertIn("Package: godot-export-preset-doctor", rendered)
+            self.assertIn("Review handoff:", rendered)
+            self.assertIn("Dashboard: godot-release-dashboard build", rendered)
+            self.assertIn("Setup blockers:", rendered)
 
     def test_doctor_profile_writes_workflow_only_when_requested(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -418,6 +428,10 @@ allow_overrides = true
             self.assertIn("godot-project-doctor run --project", plan_text)
             self.assertIn('--reports-dir "reports/mobile checks"', plan_text)
             self.assertIn("godot-release-dashboard build", plan_text)
+            self.assertIn("## Review Handoff", plan_text)
+            self.assertIn("Expected report artifacts:", plan_text)
+            self.assertIn("Setup blockers:", plan_text)
+            self.assertIn("reports/mobile checks/evidence/summary.html", plan_text)
             self.assertIn("## Starter Config Preview", plan_text)
             self.assertIn("## GitHub Actions Preview", plan_text)
             self.assertNotIn(str(root), plan_text)
@@ -610,7 +624,7 @@ allow_overrides = true
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.2.1", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.2.2", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -625,7 +639,7 @@ allow_overrides = true
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.2.1", completed.stdout)
+        self.assertIn("godot-project-doctor 0.2.2", completed.stdout)
 
 
 if __name__ == "__main__":
