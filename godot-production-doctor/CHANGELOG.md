@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.3 - 2026-07-04
+
+- Added source report paths and reproduction commands to collected report
+  bundle summaries so maintainers can rerun the check behind an artifact.
+
 ## 0.2.2 - 2026-07-03
 
 - Added an explicit review handoff to doctor profiles with first-run, report

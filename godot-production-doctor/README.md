@@ -136,6 +136,11 @@ suggests a short check set with reasons.
 - `summary.md`: Markdown report for release notes and PR comments.
 - `summary.html`: static report for local review or CI artifacts.
 
+Collected summaries include the source JSON report path for each tool. When the
+bundle was built from a `godot-project-doctor` plan, each report row also
+includes the command that generated that report so a maintainer can rerun the
+specific check from the artifact.
+
 `compare` reads two folders of JSON reports and shows which checks improved,
 regressed, appeared, or disappeared. Use `--fail-on error` or `--fail-on warning`
 when a CI job should fail only if the current run gets worse than the baseline.

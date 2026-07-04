@@ -996,7 +996,7 @@ def collect_evidence(
     if not skip_run:
         run_result = run_plan(plan, timeout=timeout)
 
-    summary = summarize_reports(Path(str(plan["reports_dir"])))
+    summary = summarize_reports(Path(str(plan["reports_dir"])), commands=plan["commands"])
     manifest = {
         "tool": "godot-project-doctor",
         "schema_version": "1.0",
@@ -1026,21 +1026,29 @@ def collect_evidence(
     return manifest
 
 
-def summarize_reports(reports_dir: Path) -> dict[str, Any]:
+def summarize_reports(reports_dir: Path, commands: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    command_by_report = _commands_by_report_path(commands or [])
     reports: list[dict[str, Any]] = []
     for path in sorted(reports_dir.glob("*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
         errors, warnings = _severity_counts(data)
-        reports.append(
-            {
-                "tool": _tool_name(data, path),
-                "path": str(path),
-                "summary": {"errors": errors, "warnings": warnings},
-                "finding_count": _finding_count(data),
-                "findings": _findings(data),
-                "artifacts": _artifact_paths(data),
+        report = {
+            "tool": _tool_name(data, path),
+            "path": str(path),
+            "source_report_path": str(path),
+            "summary": {"errors": errors, "warnings": warnings},
+            "finding_count": _finding_count(data),
+            "findings": _findings(data),
+            "artifacts": _artifact_paths(data),
+        }
+        command = command_by_report.get(str(path.resolve()))
+        if command:
+            report["reproduction"] = {
+                "check_id": str(command["id"]),
+                "command": _shell_join([str(part) for part in command["argv"]]),
+                "source_report_path": str(path),
             }
-        )
+        reports.append(report)
     return {
         "tool": "godot-project-doctor",
         "reports_dir": str(reports_dir),
@@ -1051,6 +1059,15 @@ def summarize_reports(reports_dir: Path) -> dict[str, Any]:
         },
         "reports": reports,
     }
+
+
+def _commands_by_report_path(commands: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    indexed: dict[str, dict[str, Any]] = {}
+    for command in commands:
+        report_path = command.get("report")
+        if report_path:
+            indexed[str(Path(str(report_path)).resolve())] = command
+    return indexed
 
 
 def compare_report_dirs(baseline_dir: Path, current_dir: Path) -> dict[str, Any]:

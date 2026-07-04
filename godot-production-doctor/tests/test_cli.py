@@ -491,12 +491,17 @@ allow_overrides = true
             self.assertEqual(payload["summary"]["errors"], 1)
             self.assertEqual(payload["summary"]["warnings"], 3)
             self.assertEqual(payload["summary"]["tools"], 2)
+            first_report = payload["reports"][0]
+            self.assertIn("source_report_path", first_report)
+            self.assertTrue(first_report["source_report_path"].endswith(".json"))
 
             markdown_stdout = StringIO()
             with redirect_stdout(markdown_stdout):
                 self.assertEqual(main(["summarize", str(reports), "--format", "markdown"]), 0)
             self.assertIn("# Godot Project Doctor Report", markdown_stdout.getvalue())
             self.assertIn("| godot-asset-pipeline-doctor | 1 | 2 |", markdown_stdout.getvalue())
+            self.assertIn("Source Report", markdown_stdout.getvalue())
+            self.assertIn("n/a", markdown_stdout.getvalue())
 
             html_stdout = StringIO()
             with redirect_stdout(html_stdout):
@@ -504,6 +509,7 @@ allow_overrides = true
             self.assertIn("<title>Godot Project Doctor Report</title>", html_stdout.getvalue())
             self.assertIn("godot-export-preset-doctor", html_stdout.getvalue())
             self.assertIn("Top Findings", html_stdout.getvalue())
+            self.assertIn("Source Report", html_stdout.getvalue())
             self.assertIn("Texture is large.", html_stdout.getvalue())
 
     def test_compare_reports_shows_deltas_and_can_fail_on_regressions(self) -> None:
@@ -571,6 +577,22 @@ allow_overrides = true
             root = Path(tmp)
             reports = root / "reports"
             reports.mkdir()
+            (root / "mobile-ui.json").write_text("[]\n", encoding="utf-8")
+            config = root / "godot-project-doctor.toml"
+            config.write_text(
+                "\n".join(
+                    [
+                        "[project]",
+                        'path = "."',
+                        'reports_dir = "reports"',
+                        "",
+                        "[tools.mobile_ui]",
+                        'metadata = "mobile-ui.json"',
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
             (reports / "mobile-ui.json").write_text(
                 json.dumps(
                     {
@@ -594,12 +616,9 @@ allow_overrides = true
                 exit_code = main(
                     [
                         "collect",
-                        "--project",
-                        str(root),
+                        str(config),
                         "--checks",
                         "mobile_ui",
-                        "--reports-dir",
-                        str(reports),
                         "--evidence-dir",
                         str(evidence),
                         "--skip-run",
@@ -614,6 +633,16 @@ allow_overrides = true
             self.assertTrue((evidence / "artifacts.json").exists())
             manifest = json.loads((evidence / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["summary"]["warnings"], 1)
+            report = manifest["reports"][0]
+            self.assertTrue(report["source_report_path"].endswith("mobile-ui.json"))
+            self.assertIn("reproduction", report)
+            self.assertEqual(report["reproduction"]["check_id"], "mobile_ui")
+            self.assertIn("godot-mobile-ui-doctor", report["reproduction"]["command"])
+            self.assertIn("--output", report["reproduction"]["command"])
+            summary_markdown = (evidence / "summary.md").read_text(encoding="utf-8")
+            self.assertIn("Reproduce", summary_markdown)
+            self.assertIn("godot-mobile-ui-doctor", summary_markdown)
+            self.assertIn("mobile-ui.json", (evidence / "summary.html").read_text(encoding="utf-8"))
             self.assertIn("summary.html", {path.name for path in evidence.iterdir()})
 
     def test_version_flag_prints_package_version(self) -> None:
@@ -624,7 +653,7 @@ allow_overrides = true
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.2.2", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.2.3", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -639,7 +668,7 @@ allow_overrides = true
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.2.2", completed.stdout)
+        self.assertIn("godot-project-doctor 0.2.3", completed.stdout)
 
 
 if __name__ == "__main__":

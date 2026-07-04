@@ -19,6 +19,10 @@ def render_text(summary: dict[str, object]) -> str:
     for report in summary["reports"]:
         report_summary = report["summary"]
         lines.append(f"- {report['tool']}: {report_summary['errors']} error(s), {report_summary['warnings']} warning(s)")
+        lines.append(f"  Source report: {report.get('source_report_path', report['path'])}")
+        reproduction = report.get("reproduction", {})
+        if isinstance(reproduction, dict) and reproduction.get("command"):
+            lines.append(f"  Reproduce: {reproduction['command']}")
     return "\n".join(lines)
 
 
@@ -31,13 +35,18 @@ def render_markdown(summary: dict[str, object]) -> str:
         f"- Errors: {totals['errors']}",
         f"- Warnings: {totals['warnings']}",
         "",
-        "| Tool | Errors | Warnings | Report |",
-        "|---|---:|---:|---|",
+        "| Tool | Errors | Warnings | Source Report | Reproduce |",
+        "|---|---:|---:|---|---|",
     ]
     for report in summary["reports"]:
         report_summary = report["summary"]
+        reproduction = report.get("reproduction", {})
+        reproduce_command = ""
+        if isinstance(reproduction, dict):
+            reproduce_command = str(reproduction.get("command", ""))
         lines.append(
-            f"| {report['tool']} | {report_summary['errors']} | {report_summary['warnings']} | {report['path']} |"
+            f"| {report['tool']} | {report_summary['errors']} | {report_summary['warnings']} | "
+            f"{report.get('source_report_path', report['path'])} | {reproduce_command or 'n/a'} |"
         )
     return "\n".join(lines)
 
@@ -61,7 +70,8 @@ def render_html(summary: dict[str, object]) -> str:
             f"<td>{escape(str(report['tool']))}</td>"
             f"<td>{report_summary['errors']}</td>"
             f"<td>{report_summary['warnings']}</td>"
-            f"<td>{escape(str(report['path']))}</td>"
+            f"<td>{escape(str(report.get('source_report_path', report['path'])))}</td>"
+            f"<td>{escape(_reproduction_command(report))}</td>"
             "</tr>"
         )
     issue_cards = []
@@ -71,14 +81,19 @@ def render_html(summary: dict[str, object]) -> str:
             title = escape(str(finding.get("rule_id") or finding.get("code") or finding.get("id") or "finding"))
             message = escape(str(finding.get("message", "")))
             tool = escape(str(report["tool"]))
-            issue_cards.append(
+            source = escape(str(report.get("source_report_path", report["path"])))
+            reproduce = escape(_reproduction_command(report))
+            card = (
                 "<article class=\"finding\">"
                 f"<span class=\"finding-severity\">{severity}</span>"
                 f"<h3>{title}</h3>"
                 f"<p>{message}</p>"
-                f"<small>{tool}</small>"
-                "</article>"
+                f"<small>{tool} - source: {source}</small>"
             )
+            if reproduce != "n/a":
+                card += f"<pre>{reproduce}</pre>"
+            card += "</article>"
+            issue_cards.append(card)
     return "\n".join(
         [
             "<!doctype html>",
@@ -98,7 +113,7 @@ def render_html(summary: dict[str, object]) -> str:
             "th,td{border-bottom:1px solid var(--line);padding:.72rem;text-align:left;vertical-align:top}tr:last-child td{border-bottom:0}th{background:#eef2f7;color:#344054;font-size:.84rem}",
             ".status{display:inline-block;border-radius:999px;padding:.2rem .55rem;font-size:.78rem;font-weight:700}.status.clean{background:#ecfdf3;color:var(--ok)}.status.warning{background:#fffaeb;color:var(--warn)}.status.error{background:#fef3f2;color:var(--err)}",
             ".findings{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.finding{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:0 8px 24px rgba(23,32,51,.05)}",
-            ".finding h3{margin:.25rem 0;font-size:1rem}.finding p{margin:.25rem 0 .5rem;color:var(--muted)}.finding-severity{font-size:.75rem;font-weight:800;text-transform:uppercase;color:var(--err)}small{color:var(--muted)}",
+            ".finding h3{margin:.25rem 0;font-size:1rem}.finding p{margin:.25rem 0 .5rem;color:var(--muted)}.finding-severity{font-size:.75rem;font-weight:800;text-transform:uppercase;color:var(--err)}small{color:var(--muted)}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f2f4f7;border-radius:6px;padding:.55rem;font-size:.78rem}",
             "@media(max-width:720px){main{padding:28px 16px}.totals{grid-template-columns:1fr}h1{font-size:1.7rem}table{font-size:.88rem}}",
             "</style>",
             "</head>",
@@ -115,7 +130,7 @@ def render_html(summary: dict[str, object]) -> str:
             "<section>",
             "<h2>Check Results</h2>",
             "<table>",
-            "<thead><tr><th>Status</th><th>Tool</th><th>Errors</th><th>Warnings</th><th>Report</th></tr></thead>",
+            "<thead><tr><th>Status</th><th>Tool</th><th>Errors</th><th>Warnings</th><th>Source Report</th><th>Reproduce</th></tr></thead>",
             "<tbody>",
             *rows,
             "</tbody>",
@@ -132,6 +147,13 @@ def render_html(summary: dict[str, object]) -> str:
             "</html>",
         ]
     )
+
+
+def _reproduction_command(report: dict[str, object]) -> str:
+    reproduction = report.get("reproduction", {})
+    if isinstance(reproduction, dict) and reproduction.get("command"):
+        return str(reproduction["command"])
+    return "n/a"
 
 
 def render_summary(summary: dict[str, object], output_format: str) -> str:
