@@ -51,7 +51,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.13")
+            self.assertEqual(data["tool_version"], "0.1.14")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["summary"]["workflows"], 1)
@@ -123,6 +123,17 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertIn('data-status="blocked"', html)
             self.assertIn('data-workflow="runtime"', html)
             self.assertIn("showAllReports()", html)
+            self.assertIn('href="#reports"', html)
+            self.assertIn('id="reports"', html)
+            self.assertIn('id="report-sections"', html)
+            self.assertIn('aria-controls="report-sections"', html)
+            self.assertIn('id="filter-status"', html)
+            self.assertIn('aria-live="polite"', html)
+            self.assertIn("<noscript>", html)
+            self.assertIn("@media print", html)
+            self.assertIn("focus-visible", html)
+            self.assertIn('tabindex="0"', html)
+            self.assertIn('aria-label="godot-scenario-report-kit report, attention, Runtime evidence"', html)
 
     def test_groups_reports_by_workflow(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

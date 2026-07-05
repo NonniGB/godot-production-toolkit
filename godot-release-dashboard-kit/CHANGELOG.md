@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.14 - 2026-07-05
+
+- HTML dashboards now include a skip link, keyboard focus outlines, accessible
+  filter status updates, focusable report cards, and a no-JavaScript note.
+- Added print styles so CI dashboard artifacts keep report cards, source links,
+  and reproduction commands readable when printed or saved as PDF.
+
 ## 0.1.13 - 2026-06-27
 
 - `godot-release-dashboard build` now prints actionable guidance when the input

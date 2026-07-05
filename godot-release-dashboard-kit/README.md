@@ -100,14 +100,16 @@ readiness bars, followed by cards for added, removed, and changed reports with
 status changes and error/warning deltas. The `--baseline` flag is accepted as a
 shorter alias. HTML dashboards include local filter buttons for blocked,
 attention, ready, and workflow-specific report groups, so a larger release page
-can be narrowed without rerunning any command.
+can be narrowed without rerunning any command. The generated page also includes
+keyboard focus states, a skip link, live filter status text, a no-JavaScript
+note, and print styles for reviewers who save CI artifacts as PDF.
 
 ## Outputs
 
 - `html`: self-contained static dashboard with release readiness metrics, local
   status/workflow filters, source report links, workflow-grouped report cards,
-  scenario evidence sections, export artifact evidence sections, and image
-  previews.
+  scenario evidence sections, export artifact evidence sections, image
+  previews, keyboard navigation affordances, and print-friendly report cards.
 - `json`: summary for scripts or later dashboard tooling, including counts for
   `blocked`, `attention`, `ready`, workflow groups, scenario bundles, scenarios,
   linked scenario evidence, flaky scenarios, retried scenarios, export artifact

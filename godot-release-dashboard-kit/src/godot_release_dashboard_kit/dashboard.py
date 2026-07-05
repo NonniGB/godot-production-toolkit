@@ -112,9 +112,12 @@ def render_html(dashboard: dict[str, Any]) -> str:
             "<html lang=\"en\"><head><meta charset=\"utf-8\">",
             f"<title>{escape(str(dashboard['title']))}</title>",
             "<link rel=\"icon\" href=\"data:,\">",
-            "<style>body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}.metrics,.filter-buttons{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card,.filters{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.workflow{margin-top:1.5rem}.workflow-summary,.muted{color:#4b5563}.ok,.ready,.improvement{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked,.regression{color:#b42318}.neutral{color:#2754c5}.status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}.tag{display:inline-block;background:#eef2f7;border-radius:999px;padding:.15rem .45rem;font-size:.85rem}.filters{margin-top:1rem}.filters button{border:1px solid #cbd5e1;background:#f8fafc;border-radius:6px;padding:.35rem .6rem;cursor:pointer}.filters button:hover{background:#eef2f7}.report-hidden{display:none}.trend-bar{display:flex;overflow:hidden;border-radius:6px;background:#e5e7eb;margin:.35rem 0 .75rem}.trend-segment{display:inline-block;min-width:2.5rem;padding:.25rem .4rem;color:white;font-size:.85rem;white-space:nowrap}.trend-segment.ok{background:#147d3f}.trend-segment.warn{background:#a15c00}.trend-segment.err{background:#b42318}code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}.image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}</style>",
-            "<script>function showAllReports(){document.querySelectorAll('[data-report-card]').forEach(function(card){card.classList.remove('report-hidden')})}function filterReports(kind,value){document.querySelectorAll('[data-report-card]').forEach(function(card){card.classList.toggle('report-hidden',card.dataset[kind]!==value)})}</script>",
+            f"<style>{_dashboard_css()}</style>",
+            f"<script>{_dashboard_script()}</script>",
             "</head><body>",
+            "<a class=\"skip-link\" href=\"#reports\">Skip to reports</a>",
+            "<noscript><p class=\"noscript\">Filters require JavaScript; all report cards are visible.</p></noscript>",
+            "<main id=\"main-content\">",
             f"<h1>{escape(str(dashboard['title']))}</h1>",
             project_html,
             description_html,
@@ -146,13 +149,44 @@ def render_html(dashboard: dict[str, Any]) -> str:
             "</div>",
             filter_controls,
             trend_section,
-            "<h2>Reports</h2>",
+            "<h2 id=\"reports\">Reports</h2>",
+            "<div id=\"report-sections\">",
             report_sections or "<p>No JSON or Markdown reports found.</p>",
+            "</div>",
             "<h2>Visual Artifacts</h2>",
             "<div class=\"gallery\">",
             image_cards or "<p>No PNG, JPG, SVG, or WebP artifacts found.</p>",
-            "</div></body></html>",
+            "</div></main></body></html>",
         ]
+    )
+
+
+def _dashboard_css() -> str:
+    return (
+        "body{font-family:system-ui,sans-serif;margin:2rem;color:#172033;background:#f7f8fb}"
+        ".skip-link{position:absolute;left:-999px;top:1rem;background:#172033;color:white;padding:.55rem .8rem;border-radius:6px;z-index:10}"
+        ".skip-link:focus{left:1rem}.noscript{background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:.75rem}"
+        ".metrics,.filter-buttons{display:flex;gap:1rem;flex-wrap:wrap}.metric,.card,.filters{background:white;border:1px solid #d8dee9;border-radius:8px;padding:1rem}"
+        ".grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}.workflow{margin-top:1.5rem}"
+        ".workflow-summary,.muted,.filter-status{color:#4b5563}.ok,.ready,.improvement{color:#147d3f}.warn,.attention{color:#a15c00}.err,.blocked,.regression{color:#b42318}.neutral{color:#2754c5}"
+        ".status{font-weight:700;text-transform:uppercase;letter-spacing:.04em}.tag{display:inline-block;background:#eef2f7;border-radius:999px;padding:.15rem .45rem;font-size:.85rem}"
+        ".filters{margin-top:1rem}.filters button{border:1px solid #cbd5e1;background:#f8fafc;border-radius:6px;padding:.35rem .6rem;cursor:pointer}"
+        ".filters button:hover{background:#eef2f7}a:focus-visible,button:focus-visible,.card:focus-visible{outline:3px solid #2754c5;outline-offset:2px}.report-hidden{display:none}"
+        ".trend-bar{display:flex;overflow:hidden;border-radius:6px;background:#e5e7eb;margin:.35rem 0 .75rem}.trend-segment{display:inline-block;min-width:2.5rem;padding:.25rem .4rem;color:white;font-size:.85rem;white-space:nowrap}"
+        ".trend-segment.ok{background:#147d3f}.trend-segment.warn{background:#a15c00}.trend-segment.err{background:#b42318}"
+        "code{background:#eef2f7;padding:.1rem .3rem;border-radius:4px}pre{background:#111827;color:#f9fafb;padding:.75rem;border-radius:6px;white-space:pre-wrap;word-break:break-word}"
+        ".gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}.image-card img{max-width:100%;border:1px solid #d8dee9;border-radius:6px;background:#111827}"
+        ".image-card p{word-break:break-word}a{color:#2754c5}table{border-collapse:collapse;width:100%;margin:.5rem 0}td,th{border-top:1px solid #d8dee9;padding:.35rem;text-align:left}dt{font-weight:700}dd{margin:0 0 .35rem}"
+        "@media print{body{background:white;color:#111;margin:0}main{padding:0}.skip-link,.filters,script{display:none!important}.metrics,.grid,.gallery{display:block}.metric,.card,.image-card{box-shadow:none;break-inside:avoid;border-color:#999;margin:.6rem 0}.report-hidden{display:block!important}a{color:#111;text-decoration:underline}pre{white-space:pre-wrap;border:1px solid #999;background:white;color:#111}}"
+    )
+
+
+def _dashboard_script() -> str:
+    return (
+        "function visibleReportCount(){return Array.from(document.querySelectorAll('[data-report-card]')).filter(function(card){return !card.classList.contains('report-hidden')}).length}"
+        "function updateFilterStatus(label){var target=document.getElementById('filter-status');if(target){target.textContent=label+'. '+visibleReportCount()+' report cards shown.'}}"
+        "function showAllReports(){document.querySelectorAll('[data-report-card]').forEach(function(card){card.classList.remove('report-hidden')});updateFilterStatus('Showing all reports')}"
+        "function filterReports(kind,value,label){document.querySelectorAll('[data-report-card]').forEach(function(card){card.classList.toggle('report-hidden',card.dataset[kind]!==value)});updateFilterStatus('Filtered by '+(label||value))}"
     )
 
 
@@ -1158,14 +1192,16 @@ def _filter_controls(dashboard: dict[str, Any]) -> str:
             if workflow_id and label:
                 workflow_buttons.append(
                     "<button type=\"button\" "
+                    "aria-controls=\"report-sections\" "
                     f"data-filter-workflow=\"{escape(workflow_id)}\" "
-                    f"onclick=\"filterReports('workflow','{escape(workflow_id)}')\">"
+                    f"onclick=\"filterReports('workflow','{_js_arg(workflow_id)}','{_js_arg(label)}')\">"
                     f"{escape(label)}</button>"
                 )
     status_buttons = "".join(
         "<button type=\"button\" "
+        "aria-controls=\"report-sections\" "
         f"data-filter-status=\"{status}\" "
-        f"onclick=\"filterReports('status','{status}')\">{label}</button>"
+        f"onclick=\"filterReports('status','{status}','{label}')\">{label}</button>"
         for status, label in (("blocked", "Blocked"), ("attention", "Needs attention"), ("ready", "Ready"))
     )
     workflow_html = "".join(workflow_buttons)
@@ -1173,10 +1209,14 @@ def _filter_controls(dashboard: dict[str, Any]) -> str:
         "<section class=\"filters\" aria-label=\"Report filters\">"
         "<h2>Filter Reports</h2>"
         "<div class=\"filter-buttons\">"
-        "<button type=\"button\" onclick=\"showAllReports()\">All reports</button>"
+        "<button type=\"button\" aria-controls=\"report-sections\" onclick=\"showAllReports()\">All reports</button>"
         f"{status_buttons}{workflow_html}"
-        "</div></section>"
+        "</div><p id=\"filter-status\" class=\"filter-status\" aria-live=\"polite\">Showing all reports.</p></section>"
     )
+
+
+def _js_arg(value: str) -> str:
+    return escape(value.replace("\\", "\\\\").replace("'", "\\'"))
 
 
 def _card(report: dict[str, Any]) -> str:
@@ -1193,8 +1233,10 @@ def _card(report: dict[str, Any]) -> str:
     status = str(report["status"])
     category = str(report.get("category") or "").strip()
     category_html = f" <span class=\"tag\">{escape(category)}</span>" if category else ""
+    card_label = f"{report['tool']} report, {status}, {workflow}"
     return (
-        "<section class=\"card\" data-report-card "
+        "<section class=\"card\" data-report-card tabindex=\"0\" "
+        f"aria-label=\"{escape(str(card_label))}\" "
         f"data-status=\"{escape(status)}\" data-workflow=\"{escape(workflow_id)}\">"
         f"<h2>{escape(str(report['tool']))}</h2>"
         f"<p class=\"status {escape(status)}\">{escape(status)}</p>"
