@@ -51,7 +51,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.14")
+            self.assertEqual(data["tool_version"], "0.1.15")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["summary"]["workflows"], 1)
@@ -239,6 +239,15 @@ class ReleaseDashboardTests(unittest.TestCase):
                                 "warnings": 1,
                                 "errors": 0,
                             },
+                            "visual_summary": {
+                                "kind": "visual_smoke_report",
+                                "relative_path": "../visual-smoke.json",
+                                "captures": 2,
+                                "comparisons": 2,
+                                "changed": 1,
+                                "warnings": 1,
+                                "errors": 0,
+                            },
                             "links": {
                                 "telemetry": {
                                     "kind": "telemetry",
@@ -281,6 +290,10 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertEqual(dashboard["summary"]["scenario_telemetry_samples"], 18)
             self.assertEqual(dashboard["summary"]["scenario_telemetry_spikes"], 2)
             self.assertEqual(dashboard["summary"]["scenario_telemetry_warnings"], 1)
+            self.assertEqual(dashboard["summary"]["visual_smoke_reports"], 1)
+            self.assertEqual(dashboard["summary"]["visual_smoke_captures"], 2)
+            self.assertEqual(dashboard["summary"]["visual_smoke_comparisons"], 2)
+            self.assertEqual(dashboard["summary"]["visual_smoke_changed"], 1)
             self.assertEqual(dashboard["reports"][0]["status"], "blocked")
             scenario_bundle = dashboard["reports"][0]["scenario_bundle"]
             self.assertEqual(scenario_bundle["scenarios"], 2)
@@ -292,16 +305,89 @@ class ReleaseDashboardTests(unittest.TestCase):
             self.assertEqual(scenario_bundle["missing_artifacts"], 1)
             self.assertEqual(scenario_bundle["telemetry_summary"]["samples"], 18)
             self.assertEqual(scenario_bundle["telemetry_summary"]["frame_p95_ms"], 21.5)
+            self.assertEqual(scenario_bundle["visual_summary"]["changed"], 1)
             self.assertIn("Scenario Bundle Evidence", html)
             self.assertIn("Scenarios: 1 passed / 2 total", html)
             self.assertIn("Telemetry samples: 18", html)
             self.assertIn("Telemetry spikes: 2", html)
             self.assertIn("Telemetry: 18 samples", html)
             self.assertIn("frame p95 21.50 ms", html)
+            self.assertIn("Visual smoke: 2 capture(s)", html)
+            self.assertIn("../visual-smoke.json", html)
             self.assertIn("../runtime-timeline.html", html)
             self.assertIn("../run.log", html)
             self.assertIn("screenshots/menu.png", html)
             self.assertIn("Missing evidence: 1", html)
+
+    def test_visual_smoke_reports_show_linked_screenshot_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports = root / "reports"
+            reports.mkdir()
+            (reports / "visual-smoke.json").write_text(
+                json.dumps(
+                    {
+                        "tool": "godot-visual-smoke-test-kit",
+                        "kind": "visual_smoke_report",
+                        "summary": {
+                            "captures": 2,
+                            "comparisons": 2,
+                            "changed": 1,
+                            "warnings": 1,
+                            "errors": 0,
+                        },
+                        "screenshots": [
+                            {"path": "screenshots/menu.png"},
+                            {"path": "screenshots/trade-flow.png"},
+                        ],
+                        "findings": [
+                            {
+                                "severity": "warning",
+                                "rule_id": "pixel_delta",
+                                "message": "trade_flow changed beyond the configured visual threshold.",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (reports / "compare.json").write_text(
+                json.dumps(
+                    {
+                        "metadata": {"report_kind": "visual_smoke_compare"},
+                        "summary": {"warnings": 1, "errors": 0},
+                        "baseline": "baselines/menu.png",
+                        "current": "current/menu.png",
+                        "diff": "diffs/menu.png",
+                        "changed_pixels": 4,
+                        "total_pixels": 100,
+                        "changed_percent": 4.0,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            output = root / "dashboard.html"
+
+            dashboard = build_dashboard(reports)
+            exit_code = main(["build", str(reports), "--output", str(output)])
+
+            html = output.read_text(encoding="utf-8")
+            reports_by_key = {report["report_key"]: report for report in dashboard["reports"]}
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(dashboard["summary"]["visual_smoke_reports"], 2)
+            self.assertEqual(dashboard["summary"]["visual_smoke_captures"], 2)
+            self.assertEqual(dashboard["summary"]["visual_smoke_comparisons"], 2)
+            self.assertEqual(dashboard["summary"]["visual_smoke_changed"], 2)
+            self.assertEqual(reports_by_key["visual-smoke.json"]["visual_smoke"]["captures"], 2)
+            self.assertEqual(reports_by_key["compare.json"]["visual_smoke"]["changed_pixels"], 4)
+            self.assertIn("Visual Smoke Evidence", html)
+            self.assertIn("Visual smoke reports: 2", html)
+            self.assertIn("Visual captures: 2", html)
+            self.assertIn("Visual changes: 2", html)
+            self.assertIn("screenshots/menu.png", html)
+            self.assertIn("diffs/menu.png", html)
+            self.assertIn("Changed pixels: 4/100 (4.00%)", html)
+            self.assertIn("pixel_delta", html)
 
     def test_scenario_flake_reports_show_retry_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

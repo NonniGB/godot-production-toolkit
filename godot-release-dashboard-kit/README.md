@@ -93,6 +93,12 @@ separate runtime evidence card. It lists flaky scenario groups, retried scenario
 runs, ordered attempt statuses, and final status values so a failed-then-passed
 scenario is easier to distinguish from a fresh failure.
 
+Visual smoke JSON from `godot-visual-smoke-test-kit` is shown as screenshot
+review evidence. The dashboard summarizes captures, comparisons, changed
+screenshots, pixel-change totals, linked screenshot or diff paths, and visual
+findings. Scenario bundle cards also surface linked visual-smoke summaries when
+the bundle references a visual report.
+
 When `--previous-reports-dir` is supplied, the dashboard scans the previous
 folder with the same report rules and adds a compact change section. The trend
 section shows previous/current blocked, attention, and ready counts as static
@@ -113,8 +119,9 @@ note, and print styles for reviewers who save CI artifacts as PDF.
 - `json`: summary for scripts or later dashboard tooling, including counts for
   `blocked`, `attention`, `ready`, workflow groups, scenario bundles, scenarios,
   linked scenario evidence, flaky scenarios, retried scenarios, export artifact
-  reports, inspected export files, hashed files, and export artifact finding
-  groups. Reports that include reproduction commands are counted in
+  reports, inspected export files, hashed files, export artifact finding groups,
+  visual-smoke reports, visual captures, visual comparisons, and changed visual
+  checks. Reports that include reproduction commands are counted in
   `summary.reports_with_commands`, and report cards can include `highlights`
   rows for typed summary values. Scenario-linked telemetry summaries are rolled
   up as sample, spike, warning, and error counts. When a previous folder is

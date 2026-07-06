@@ -12,6 +12,7 @@ It includes:
 - `scenario-bundle.json`: synthetic scenario evidence with reviewer links.
 - `scenario-flakes.json`: synthetic flaky/retried scenario evidence.
 - `runtime-timeline.json`: a tiny telemetry summary linked from the scenario bundle.
+- `visual-smoke.json`: a tiny screenshot comparison summary linked from the scenario bundle.
 - `run.log` and `junit.xml`: tiny linked files referenced by the scenario bundle.
 
 Some JSON reports include optional command and metadata fields so the dashboard

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.15 - 2026-07-06
+
+- HTML dashboards now show visual-smoke evidence sections for screenshot
+  reports, including capture counts, comparison counts, changed screenshots,
+  linked screenshot or diff paths, pixel-change summaries, and findings.
+- Scenario bundle cards now surface linked visual-smoke summaries next to
+  telemetry and other evidence links.
+- Dashboard summaries now include visual-smoke report, capture, comparison, and
+  changed-screenshot counts.
+
 ## 0.1.14 - 2026-07-05
 
 - HTML dashboards now include a skip link, keyboard focus outlines, accessible

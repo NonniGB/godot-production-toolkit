@@ -26,6 +26,7 @@ WORKFLOW_RULES = (
 )
 DEFAULT_WORKFLOW = {"id": "general", "label": "General reports"}
 EXPORT_ARTIFACT_KINDS = {"exported_folder_inspection", "exported_file_list_inspection"}
+VISUAL_SMOKE_KINDS = {"visual_smoke_report", "visual_smoke_compare", "visual_smoke_approval"}
 
 
 def build_dashboard(
@@ -59,6 +60,7 @@ def build_dashboard(
     }
     scenario_counts = _scenario_summary_counts(reports)
     export_artifact_counts = _export_artifact_summary_counts(reports)
+    visual_smoke_counts = _visual_smoke_summary_counts(reports)
     workflow_groups = _workflow_groups(reports)
     trends = _trend_summary(reports, baseline_reports)
     summary = {
@@ -74,6 +76,7 @@ def build_dashboard(
         **status_counts,
         **scenario_counts,
         **export_artifact_counts,
+        **visual_smoke_counts,
     }
     dashboard = {
         "tool": "godot-release-dashboard-kit",
@@ -146,6 +149,9 @@ def render_html(dashboard: dict[str, Any]) -> str:
             f"<div class=\"metric\">Files with SHA-256: {summary.get('export_artifact_hashed_files', 0)}</div>",
             f"<div class=\"metric warn\">Private export findings: {summary.get('export_artifact_private_findings', 0)}</div>",
             f"<div class=\"metric warn\">Development file findings: {summary.get('export_artifact_dev_findings', 0)}</div>",
+            f"<div class=\"metric\">Visual smoke reports: {summary.get('visual_smoke_reports', 0)}</div>",
+            f"<div class=\"metric\">Visual captures: {summary.get('visual_smoke_captures', 0)}</div>",
+            f"<div class=\"metric warn\">Visual changes: {summary.get('visual_smoke_changed', 0)}</div>",
             "</div>",
             filter_controls,
             trend_section,
@@ -232,19 +238,20 @@ def _json_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, Any
     errors = int(summary.get("errors", summary.get("error_count", 0))) if isinstance(summary, dict) else 0
     warnings = int(summary.get("warnings", summary.get("warning_count", 0))) if isinstance(summary, dict) else 0
     workflow, category = _explicit_grouping(data, summary) if isinstance(data, dict) else (None, None)
+    report_kind = str(data.get("kind") or _metadata_report_kind(data) or "json") if isinstance(data, dict) else "json"
     card = {
         "path": path.as_posix(),
         "report_key": _report_key(path, reports_root),
         "source_href": _source_href(path, link_base),
         "tool": str(data.get("tool") or data.get("name") or path.stem) if isinstance(data, dict) else path.stem,
-        "kind": str(data.get("kind", "json")) if isinstance(data, dict) else "json",
+        "kind": report_kind,
         "errors": errors,
         "warnings": warnings,
         "status": _release_state(errors, warnings),
         "summary": _summary_text(summary),
         **_workflow_for(
             str(data.get("tool") or data.get("name") or path.stem) if isinstance(data, dict) else path.stem,
-            str(data.get("kind", "json")) if isinstance(data, dict) else "json",
+            report_kind,
             path.as_posix(),
             workflow,
             category,
@@ -268,6 +275,8 @@ def _json_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, Any
         _apply_scenario_flake_state(card)
     if isinstance(data, dict) and data.get("kind") in EXPORT_ARTIFACT_KINDS:
         card.update(_export_artifact_details(data))
+    if isinstance(data, dict) and _is_visual_smoke_report(data):
+        card.update(_visual_smoke_details(data))
     return card
 
 
@@ -602,6 +611,8 @@ def _report_highlights(data: dict[str, Any], summary: object) -> list[dict[str, 
         )
     if "save" in haystack:
         rows.extend(_summary_metric_highlights(summary_dict, ("fixtures", "migrations", "validated", "redacted")))
+    if "visual" in haystack:
+        rows.extend(_summary_metric_highlights(summary_dict, ("captures", "comparisons", "changed", "baselines")))
     if "godot-scenario-report-kit" in tool or kind in {"scenario_bundle", "flake_compare"}:
         rows.extend(
             _summary_metric_highlights(
@@ -721,6 +732,7 @@ def _scenario_bundle_details(data: dict[str, Any]) -> dict[str, Any]:
             "evidence_links": evidence,
             "artifacts": artifacts,
             "telemetry_summary": _bundle_telemetry_summary(bundle),
+            "visual_summary": _bundle_visual_summary(bundle),
             "evidence": len(evidence),
             "evidence_count": len(evidence),
             "artifact_count": len(artifacts),
@@ -854,6 +866,104 @@ def _export_artifact_summary_counts(reports: list[dict[str, Any]]) -> dict[str, 
         "export_artifact_private_findings": sum(int(item.get("private_findings", 0)) for item in artifacts),
         "export_artifact_dev_findings": sum(int(item.get("dev_findings", 0)) for item in artifacts),
         "export_artifact_local_path_findings": sum(int(item.get("local_path_findings", 0)) for item in artifacts),
+    }
+
+
+def _is_visual_smoke_report(data: dict[str, Any]) -> bool:
+    tool = str(data.get("tool") or "").lower()
+    kind = str(data.get("kind") or _metadata_report_kind(data) or "").lower()
+    return kind in VISUAL_SMOKE_KINDS or "visual-smoke" in tool or "visual_smoke" in kind
+
+
+def _visual_smoke_details(data: dict[str, Any]) -> dict[str, Any]:
+    summary = data.get("summary", {})
+    summary_dict = summary if isinstance(summary, dict) else {}
+    screenshots = _visual_path_rows(data.get("screenshots"), "screenshot")
+    artifacts = _visual_path_rows(data.get("artifacts"), "artifact")
+    comparisons = _visual_path_rows(data.get("comparisons"), "comparison")
+    for key, label in (("baseline", "baseline"), ("current", "current"), ("diff", "diff")):
+        value = str(data.get(key) or "").strip()
+        if value:
+            artifacts.append({"kind": label, "path": value})
+    findings = _visual_finding_rows(data.get("findings"))
+    changed_pixels = _int_or_default(data.get("changed_pixels"), 0)
+    total_pixels = _int_or_default(data.get("total_pixels"), 0)
+    changed_percent = _float_or_default(data.get("changed_percent"), 0.0)
+    changed = _int_or_default(summary_dict.get("changed"), 1 if changed_pixels else 0)
+    return {
+        "visual_smoke": {
+            "kind": str(data.get("kind") or _metadata_report_kind(data) or ""),
+            "captures": _int_or_default(summary_dict.get("captures"), len(screenshots)),
+            "comparisons": _int_or_default(summary_dict.get("comparisons"), len(comparisons)),
+            "changed": changed,
+            "changed_pixels": changed_pixels,
+            "total_pixels": total_pixels,
+            "changed_percent": changed_percent,
+            "screenshots": screenshots[:12],
+            "artifacts": artifacts[:12],
+            "findings": findings[:12],
+        }
+    }
+
+
+def _metadata_report_kind(data: dict[str, Any]) -> str:
+    metadata = data.get("metadata", {})
+    return str(metadata.get("report_kind") or "") if isinstance(metadata, dict) else ""
+
+
+def _visual_path_rows(value: object, fallback_kind: str) -> list[dict[str, str]]:
+    if not isinstance(value, list):
+        return []
+    rows: list[dict[str, str]] = []
+    for item in value:
+        if isinstance(item, str):
+            rows.append({"kind": fallback_kind, "path": item})
+        elif isinstance(item, dict):
+            path = str(item.get("path") or item.get("relative_path") or "").strip()
+            if path:
+                rows.append({"kind": str(item.get("kind") or fallback_kind), "path": path})
+    return rows
+
+
+def _visual_finding_rows(value: object) -> list[dict[str, str]]:
+    if not isinstance(value, list):
+        return []
+    rows: list[dict[str, str]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        message = str(item.get("message") or item.get("explanation") or "").strip()
+        if not message:
+            continue
+        rows.append(
+            {
+                "severity": str(item.get("severity") or item.get("level") or ""),
+                "rule_id": str(item.get("rule_id") or item.get("rule") or ""),
+                "message": message,
+            }
+        )
+    return rows
+
+
+def _visual_smoke_summary_counts(reports: list[dict[str, Any]]) -> dict[str, int]:
+    direct = [
+        report["visual_smoke"]
+        for report in reports
+        if isinstance(report.get("visual_smoke"), dict)
+    ]
+    bundle_visual = [
+        bundle["visual_summary"]
+        for report in reports
+        if isinstance(report.get("scenario_bundle"), dict)
+        for bundle in [report["scenario_bundle"]]
+        if isinstance(bundle.get("visual_summary"), dict)
+    ]
+    rows = direct + bundle_visual
+    return {
+        "visual_smoke_reports": len(rows),
+        "visual_smoke_captures": sum(int(item.get("captures", 0)) for item in rows),
+        "visual_smoke_comparisons": sum(int(item.get("comparisons", 0)) for item in rows),
+        "visual_smoke_changed": sum(int(item.get("changed", 0)) for item in rows),
     }
 
 
@@ -1021,6 +1131,21 @@ def _bundle_telemetry_summary(bundle: dict[str, Any]) -> dict[str, Any] | None:
         "spikes": _int_or_default(telemetry.get("spikes"), 0),
         "warnings": _int_or_default(telemetry.get("warnings"), 0),
         "errors": _int_or_default(telemetry.get("errors"), 0),
+    }
+
+
+def _bundle_visual_summary(bundle: dict[str, Any]) -> dict[str, Any] | None:
+    visual = bundle.get("visual_summary")
+    if not isinstance(visual, dict):
+        return None
+    return {
+        "path": str(visual.get("relative_path") or visual.get("path") or ""),
+        "kind": str(visual.get("kind") or ""),
+        "captures": _int_or_default(visual.get("captures"), 0),
+        "comparisons": _int_or_default(visual.get("comparisons"), 0),
+        "changed": _int_or_default(visual.get("changed"), 0),
+        "warnings": _int_or_default(visual.get("warnings"), 0),
+        "errors": _int_or_default(visual.get("errors"), 0),
     }
 
 
@@ -1228,6 +1353,7 @@ def _card(report: dict[str, Any]) -> str:
     scenario_bundle = _scenario_bundle_html(report.get("scenario_bundle"))
     scenario_flakes = _scenario_flake_html(report.get("scenario_flakes"))
     export_artifacts = _export_artifact_html(report.get("export_artifacts"))
+    visual_smoke = _visual_smoke_html(report.get("visual_smoke"))
     workflow = str(report.get("workflow_label") or DEFAULT_WORKFLOW["label"])
     workflow_id = str(report.get("workflow_id") or DEFAULT_WORKFLOW["id"])
     status = str(report["status"])
@@ -1244,7 +1370,7 @@ def _card(report: dict[str, Any]) -> str:
         f"<p><a href=\"{escape(source_href)}\"><code>{escape(source_href)}</code></a></p>"
         f"<p class=\"{level}\">Errors: {report['errors']} | Warnings: {report['warnings']}</p>"
         f"<p>{escape(str(report.get('summary', '')))}</p>"
-        f"{highlights}{metadata}{commands}{scenario_bundle}{scenario_flakes}{export_artifacts}</section>"
+        f"{highlights}{metadata}{commands}{scenario_bundle}{scenario_flakes}{export_artifacts}{visual_smoke}</section>"
     )
 
 
@@ -1294,6 +1420,7 @@ def _scenario_bundle_html(bundle: object) -> str:
     evidence = bundle.get("evidence_links", [])
     artifacts = bundle.get("artifacts", [])
     telemetry = bundle.get("telemetry_summary")
+    visual = bundle.get("visual_summary")
     parts = [
         "<div class=\"bundle-details\">",
         "<h3>Scenario Bundle Evidence</h3>",
@@ -1320,6 +1447,17 @@ def _scenario_bundle_html(bundle: object) -> str:
                 "</p>",
             ]
         )
+    if isinstance(visual, dict):
+        path = str(visual.get("path") or "")
+        path_html = f" | <code>{escape(path)}</code>" if path else ""
+        parts.append(
+            "<p>"
+            f"Visual smoke: {int(visual.get('captures', 0))} capture(s) | "
+            f"{int(visual.get('comparisons', 0))} comparison(s) | "
+            f"changed {int(visual.get('changed', 0))} | "
+            f"warnings {int(visual.get('warnings', 0))}"
+            f"{path_html}</p>"
+        )
     if isinstance(evidence, list) and evidence:
         parts.append("<table><thead><tr><th>Kind</th><th>Path</th><th>Exists</th><th>Size</th></tr></thead><tbody>")
         for item in evidence:
@@ -1342,6 +1480,66 @@ def _scenario_bundle_html(bundle: object) -> str:
                     f"<td>{escape(str(item.get('scenario', '')))}</td>"
                     f"<td><code>{escape(str(item.get('path', '')))}</code></td>"
                     f"<td>{escape(str(item.get('exists', False)).lower())}</td>"
+                    "</tr>"
+                )
+        parts.append("</tbody></table>")
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def _visual_smoke_html(details: object) -> str:
+    if not isinstance(details, dict):
+        return ""
+    screenshots = details.get("screenshots", [])
+    artifacts = details.get("artifacts", [])
+    findings = details.get("findings", [])
+    parts = [
+        "<div class=\"bundle-details\">",
+        "<h3>Visual Smoke Evidence</h3>",
+        "<p>"
+        f"Captures: {int(details.get('captures', 0))} | "
+        f"Comparisons: {int(details.get('comparisons', 0))} | "
+        f"Changed: {int(details.get('changed', 0))}"
+        "</p>",
+    ]
+    if int(details.get("total_pixels", 0)) > 0:
+        parts.append(
+            "<p>"
+            f"Changed pixels: {int(details.get('changed_pixels', 0))}/"
+            f"{int(details.get('total_pixels', 0))} "
+            f"({_format_number(details.get('changed_percent'))}%)</p>"
+        )
+    if isinstance(screenshots, list) and screenshots:
+        parts.append("<table><thead><tr><th>Kind</th><th>Screenshot</th></tr></thead><tbody>")
+        for item in screenshots:
+            if isinstance(item, dict):
+                parts.append(
+                    "<tr>"
+                    f"<td>{escape(str(item.get('kind', 'screenshot')))}</td>"
+                    f"<td><code>{escape(str(item.get('path', '')))}</code></td>"
+                    "</tr>"
+                )
+        parts.append("</tbody></table>")
+    if isinstance(artifacts, list) and artifacts:
+        parts.append("<table><thead><tr><th>Kind</th><th>Artifact</th></tr></thead><tbody>")
+        for item in artifacts:
+            if isinstance(item, dict):
+                parts.append(
+                    "<tr>"
+                    f"<td>{escape(str(item.get('kind', 'artifact')))}</td>"
+                    f"<td><code>{escape(str(item.get('path', '')))}</code></td>"
+                    "</tr>"
+                )
+        parts.append("</tbody></table>")
+    if isinstance(findings, list) and findings:
+        parts.append("<table><thead><tr><th>Severity</th><th>Rule</th><th>Finding</th></tr></thead><tbody>")
+        for item in findings:
+            if isinstance(item, dict):
+                parts.append(
+                    "<tr>"
+                    f"<td>{escape(str(item.get('severity', '')))}</td>"
+                    f"<td><code>{escape(str(item.get('rule_id', '')))}</code></td>"
+                    f"<td>{escape(str(item.get('message', '')))}</td>"
                     "</tr>"
                 )
         parts.append("</tbody></table>")
