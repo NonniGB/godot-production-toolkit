@@ -98,8 +98,13 @@ def diff_report(baseline: list[ExportPreset], current: list[ExportPreset]) -> di
     findings: list[Finding] = []
     baseline_by_name = {preset.display_name(): preset for preset in baseline}
     current_by_name = {preset.display_name(): preset for preset in current}
-    added = sorted(set(current_by_name) - set(baseline_by_name))
-    removed = sorted(set(baseline_by_name) - set(current_by_name))
+    raw_added = set(current_by_name) - set(baseline_by_name)
+    raw_removed = set(baseline_by_name) - set(current_by_name)
+    renamed = _detect_renamed_presets(baseline_by_name, current_by_name, raw_removed, raw_added)
+    renamed_from = {row["from"] for row in renamed}
+    renamed_to = {row["to"] for row in renamed}
+    added = sorted(raw_added - renamed_to)
+    removed = sorted(raw_removed - renamed_from)
     changed: list[str] = []
     for name in sorted(set(baseline_by_name) & set(current_by_name)):
         before = _preset_compare_payload(baseline_by_name[name])
@@ -115,6 +120,19 @@ def diff_report(baseline: list[ExportPreset], current: list[ExportPreset]) -> di
                     message=f"Export preset {name!r} changed since the baseline.",
                 )
             )
+    for row in renamed:
+        findings.append(
+            Finding(
+                rule_id="export_preset_renamed",
+                severity="warning",
+                preset_index=current_by_name[row["to"]].index,
+                preset_name=row["to"],
+                message=(
+                    f"Export preset {row['from']!r} was renamed to {row['to']!r}; "
+                    "confirm CI export commands use the new preset name."
+                ),
+            )
+        )
     for name in removed:
         findings.append(
             Finding(
@@ -126,10 +144,11 @@ def diff_report(baseline: list[ExportPreset], current: list[ExportPreset]) -> di
             )
         )
     payload = _matrix_payload("export_diff", current, findings, [])
-    payload["diff"] = {"added": added, "removed": removed, "changed": changed}
+    payload["diff"] = {"added": added, "removed": removed, "changed": changed, "renamed": renamed}
     payload["summary"]["added"] = len(added)
     payload["summary"]["removed"] = len(removed)
     payload["summary"]["changed"] = len(changed)
+    payload["summary"]["renamed"] = len(renamed)
     return payload
 
 
@@ -284,6 +303,24 @@ def _preset_compare_payload(preset: ExportPreset) -> dict[str, Any]:
     }
 
 
+def _detect_renamed_presets(
+    baseline_by_name: dict[str, ExportPreset],
+    current_by_name: dict[str, ExportPreset],
+    removed_names: set[str],
+    added_names: set[str],
+) -> list[dict[str, str]]:
+    remaining_added = set(added_names)
+    renamed: list[dict[str, str]] = []
+    for old_name in sorted(removed_names):
+        before = _preset_compare_payload(baseline_by_name[old_name])
+        for new_name in sorted(remaining_added):
+            if before == _preset_compare_payload(current_by_name[new_name]):
+                renamed.append({"from": old_name, "to": new_name})
+                remaining_added.remove(new_name)
+                break
+    return renamed
+
+
 def _preset_local_path_findings(preset: ExportPreset) -> list[Finding]:
     findings: list[Finding] = []
     for field, value in (
@@ -408,7 +445,10 @@ def _text(report: dict[str, Any]) -> str:
     ]
     if report.get("diff"):
         diff = report["diff"]
-        lines.append(f"Added: {len(diff['added'])} | Removed: {len(diff['removed'])} | Changed: {len(diff['changed'])}")
+        lines.append(
+            f"Added: {len(diff['added'])} | Removed: {len(diff['removed'])} | "
+            f"Changed: {len(diff['changed'])} | Renamed: {len(diff.get('renamed', []))}"
+        )
     if report.get("files") is not None:
         lines.append(
             f"Files inspected: {summary.get('files', 0)} | Total bytes: {summary.get('total_bytes', 0)}"
@@ -435,6 +475,7 @@ def _markdown(report: dict[str, Any]) -> str:
     ]
     if report.get("diff"):
         diff = report["diff"]
+        renamed = _renamed_summary(diff.get("renamed", []))
         lines.extend(
             [
                 "## Diff",
@@ -442,6 +483,7 @@ def _markdown(report: dict[str, Any]) -> str:
                 f"- Added: {', '.join(diff['added']) or '-'}",
                 f"- Removed: {', '.join(diff['removed']) or '-'}",
                 f"- Changed: {', '.join(diff['changed']) or '-'}",
+                f"- Renamed: {', '.join(renamed) or '-'}",
                 "",
             ]
         )
@@ -483,8 +525,36 @@ def _markdown(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _renamed_summary(rows: Any) -> list[str]:
+    if not isinstance(rows, list):
+        return []
+    labels: list[str] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if row.get("from") is None or row.get("to") is None:
+            continue
+        labels.append(f"{row['from']} -> {row['to']}")
+    return labels
+
+
 def _html(report: dict[str, Any]) -> str:
     summary = report["summary"]
+    diff_html = ""
+    if report.get("diff"):
+        diff = report["diff"]
+        renamed = _renamed_summary(diff.get("renamed", []))
+        diff_html = f"""
+    <h2>Diff</h2>
+    <table>
+      <thead><tr><th>Added</th><th>Removed</th><th>Changed</th><th>Renamed</th></tr></thead>
+      <tbody><tr>
+        <td>{escape(', '.join(diff['added']) or '-')}</td>
+        <td>{escape(', '.join(diff['removed']) or '-')}</td>
+        <td>{escape(', '.join(diff['changed']) or '-')}</td>
+        <td>{escape(', '.join(renamed) or '-')}</td>
+      </tr></tbody>
+    </table>"""
     finding_rows = "\n".join(
         "<tr>"
         f"<td>{escape(str(finding['severity']))}</td>"
@@ -597,6 +667,7 @@ def _html(report: dict[str, Any]) -> str:
       <div class="metric"><span>Warnings</span><strong>{summary['warnings']}</strong></div>
       <div class="metric"><span>Errors</span><strong>{summary['errors']}</strong></div>
     </section>
+    {diff_html}
     <h2>Presets</h2>
     <table>
       <thead><tr><th>Preset</th><th>Platform</th><th>Runnable</th><th>Filter</th><th>Include</th><th>Exclude</th><th>Export path</th></tr></thead>

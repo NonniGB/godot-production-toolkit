@@ -17,7 +17,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-export-doctor 0.1.12", stdout.getvalue())
+        self.assertIn("godot-export-doctor 0.1.13", stdout.getvalue())
 
     def test_cli_reports_findings_as_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -210,7 +210,7 @@ export_path="build/web/index.html"
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.12")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.13")
             self.assertEqual(report["summary"]["presets"], 1)
 
     def test_cli_matrix_reports_missing_expected_platform(self) -> None:

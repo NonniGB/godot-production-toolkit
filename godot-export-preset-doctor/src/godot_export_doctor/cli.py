@@ -111,7 +111,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-export-doctor",
         description="Audit Godot export_presets.cfg release readiness.",
     )
-    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.12")
+    parser.add_argument("--version", action="version", version="godot-export-doctor 0.1.13")
     parser.add_argument(
         "command",
         nargs="?",

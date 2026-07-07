@@ -82,6 +82,10 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Export preset removed",
         "explanation": "A preset exists in the baseline but not in the current export configuration.",
     },
+    "export_preset_renamed": {
+        "title": "Export preset renamed",
+        "explanation": "A preset matches a baseline export target and configuration but now has a different name, so CI commands that select by preset name may need updating.",
+    },
     "exported_folder_dev_file": {
         "title": "Development file in exported folder",
         "explanation": "An exported folder contains a test, debug, log, backup, or source-art file.",

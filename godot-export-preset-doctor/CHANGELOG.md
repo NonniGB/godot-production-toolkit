@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.13 - 2026-07-07
+
+- Diff reports now identify unchanged export presets that were renamed, so
+  review output can distinguish a preset-name change from added and removed
+  export targets.
+
 ## 0.1.12 - 2026-06-27
 
 - Passing a missing explicit `--config` path now returns a concise usage error

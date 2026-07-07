@@ -74,7 +74,8 @@ godot-export-doctor . --platform Android --required-android-abi arm64-v8a --fail
 - Release-like presets with debug options enabled.
 - Hard-coded password, token, secret, or keystore-like values.
 - Missing or duplicated expected export platforms in a release matrix.
-- Export preset changes compared with a baseline.
+- Export preset changes compared with a baseline, including renamed presets
+  whose export target and options still match.
 - Broad export filters that may include debug/test/source files.
 - Exported folders that contain debug/test/source-art/log/backup files.
 - Exported folders and file lists that contain signing, key, provisioning, or
@@ -113,7 +114,9 @@ godot-export-doctor leaks . --format html --output reports\export-leaks.html --f
 ```
 
 `diff` compares the current `export_presets.cfg` with a baseline project or
-baseline preset file:
+baseline preset file. If a preset has the same export target and options but a
+new name, the diff reports it as renamed instead of separate added and removed
+presets:
 
 ```powershell
 godot-export-doctor diff . --baseline reports\baseline-export-presets --format markdown
