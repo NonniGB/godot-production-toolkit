@@ -222,6 +222,11 @@ opening every JSON file. Repeated rule ids are also grouped, which helps show
 whether a linked report is failing because of one repeated setup problem or a
 mix of unrelated issues.
 
+The combined report uses the same `pass`, `review`, and `action` readiness
+states for screen rows and linked reports. Linked reports still keep their
+source status, such as `missing` or `unreadable`, so CI summaries can separate a
+missing artifact from a report that ran and produced warnings.
+
 ## How To Export Metadata
 
 The tool deliberately keeps the input format simple. A project-specific exporter

@@ -28,14 +28,20 @@ def build_combined_readiness(
     matrix = build_readiness_matrix(viewports, screens, thresholds)
     linked_reports = [_linked_report(slot, path) for slot, path in sorted(report_paths.items())]
     summary = {
+        "status": _overall_status(matrix["matrix"], linked_reports),
         "screens": matrix["summary"]["screens"],
+        "screen_passes": matrix["summary"]["ready"],
         "screen_actions": matrix["summary"]["action"],
         "screen_reviews": matrix["summary"]["review"],
         "linked_reports": len(linked_reports),
+        "linked_report_passes": sum(1 for report in linked_reports if report["readiness_status"] == "pass"),
+        "linked_report_reviews": sum(1 for report in linked_reports if report["readiness_status"] == "review"),
+        "linked_report_actions": sum(1 for report in linked_reports if report["readiness_status"] == "action"),
         "linked_report_errors": sum(int(report["errors"]) for report in linked_reports),
         "linked_report_warnings": sum(int(report["warnings"]) for report in linked_reports),
         "linked_report_findings": sum(int(report["findings"]) for report in linked_reports),
         "missing_reports": sum(1 for report in linked_reports if report["status"] == "missing"),
+        "unreadable_reports": sum(1 for report in linked_reports if report["status"] == "unreadable"),
         "errors": matrix["summary"]["errors"] + sum(int(report["errors"]) for report in linked_reports),
         "warnings": matrix["summary"]["warnings"] + sum(int(report["warnings"]) for report in linked_reports),
     }
@@ -74,6 +80,7 @@ def _linked_report(slot: str, path: Path) -> dict[str, Any]:
         "warnings": 0,
         "findings": 0,
         "status": "missing",
+        "readiness_status": "action",
     }
     if not path.exists():
         return result
@@ -81,6 +88,7 @@ def _linked_report(slot: str, path: Path) -> dict[str, Any]:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         result["status"] = "unreadable"
+        result["readiness_status"] = "action"
         result["message"] = str(exc)
         result["errors"] = 1
         return result
@@ -95,6 +103,7 @@ def _linked_report(slot: str, path: Path) -> dict[str, Any]:
             "rule_summaries": _rule_summaries(data),
             "top_findings": _top_findings(data),
             "status": _status(errors, warnings),
+            "readiness_status": _status(errors, warnings),
         }
     )
     return result
@@ -205,16 +214,27 @@ def _status(errors: int, warnings: int) -> str:
     return "pass"
 
 
+def _overall_status(matrix_rows: list[dict[str, Any]], linked_reports: list[dict[str, Any]]) -> str:
+    statuses = [str(row.get("status", "pass")) for row in matrix_rows]
+    statuses.extend(str(report.get("readiness_status", "pass")) for report in linked_reports)
+    if "action" in statuses:
+        return "action"
+    if "review" in statuses:
+        return "review"
+    return "pass"
+
+
 def _text(report: dict[str, Any]) -> str:
     summary = report["summary"]
     lines = [
         "Godot Mobile Readiness",
         (
-            f"Screens: {summary['screens']} | Action: {summary['screen_actions']} | "
+            f"Status: {summary['status']} | Screens: {summary['screens']} | Action: {summary['screen_actions']} | "
             f"Review: {summary['screen_reviews']}"
         ),
         (
             f"Linked reports: {summary['linked_reports']} | "
+            f"Action: {summary['linked_report_actions']} | Review: {summary['linked_report_reviews']} | "
             f"Errors: {summary['errors']} | Warnings: {summary['warnings']} | "
             f"Findings: {summary['linked_report_findings']}"
         ),
@@ -231,8 +251,9 @@ def _text(report: dict[str, Any]) -> str:
         lines.extend(["", "Linked reports:"])
         for item in report["linked_reports"]:
             lines.append(
-                f"- {item['label']}: {item['status']} "
-                f"({item['errors']} errors, {item['warnings']} warnings) - {item['path']}"
+                f"- {item['label']}: {item['readiness_status']} "
+                f"(source status {item['status']}; "
+                f"{item['errors']} errors, {item['warnings']} warnings) - {item['path']}"
             )
             for finding in item.get("top_findings", []):
                 location = f" [{finding['location']}]" if finding.get("location") else ""
@@ -256,10 +277,15 @@ def _markdown(report: dict[str, Any]) -> str:
         "",
         "| Metric | Value |",
         "|---|---:|",
+        f"| Overall status | {summary['status']} |",
         f"| Screens | {summary['screens']} |",
+        f"| Screens passing | {summary['screen_passes']} |",
         f"| Screens needing action | {summary['screen_actions']} |",
         f"| Screens needing review | {summary['screen_reviews']} |",
         f"| Linked reports | {summary['linked_reports']} |",
+        f"| Linked reports passing | {summary['linked_report_passes']} |",
+        f"| Linked reports needing action | {summary['linked_report_actions']} |",
+        f"| Linked reports needing review | {summary['linked_report_reviews']} |",
         f"| Linked report findings | {summary['linked_report_findings']} |",
         f"| Total errors | {summary['errors']} |",
         f"| Total warnings | {summary['warnings']} |",
@@ -281,13 +307,13 @@ def _markdown(report: dict[str, Any]) -> str:
                 "",
                 "## Linked Reports",
                 "",
-                "| Area | Status | Errors | Warnings | Common Rules | Top Findings | Report |",
-                "|---|---|---:|---:|---|---|---|",
+                "| Area | Readiness | Source Status | Errors | Warnings | Common Rules | Top Findings | Report |",
+                "|---|---|---|---:|---:|---|---|---|",
             ]
         )
         for item in report["linked_reports"]:
             lines.append(
-                f"| {item['label']} | {item['status']} | {item['errors']} | "
+                f"| {item['label']} | {item['readiness_status']} | {item['status']} | {item['errors']} | "
                 f"{item['warnings']} | {_rule_summary(item.get('rule_summaries', []))} | "
                 f"{_finding_summary(item.get('top_findings', []))} | `{item['path']}` |"
             )

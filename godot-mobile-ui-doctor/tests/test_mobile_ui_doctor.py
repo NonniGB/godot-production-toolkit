@@ -23,7 +23,7 @@ class MobileUiDoctorTests(unittest.TestCase):
             viewports, screens, thresholds = load_metadata(path)
             report = audit_mobile_ui(viewports, screens, thresholds)
 
-            self.assertEqual(report["tool_version"], "0.1.13")
+            self.assertEqual(report["tool_version"], "0.1.14")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("touch_target_too_small", report["metadata"]["rules"])
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
@@ -135,7 +135,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.13", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.14", stdout.getvalue())
 
     def test_cli_reports_missing_metadata_with_actionable_guidance(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -426,16 +426,55 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             self.assertEqual(report["kind"], "combined_mobile_readiness")
             self.assertEqual(report["summary"]["linked_reports"], 2)
+            self.assertEqual(report["summary"]["status"], "action")
+            self.assertEqual(report["summary"]["screen_passes"], 0)
+            self.assertEqual(report["summary"]["linked_report_actions"], 1)
+            self.assertEqual(report["summary"]["linked_report_reviews"], 1)
+            self.assertEqual(report["summary"]["linked_report_passes"], 0)
             self.assertEqual(report["summary"]["linked_report_errors"], 1)
             self.assertEqual(report["summary"]["linked_report_warnings"], 1)
             self.assertEqual(report["summary"]["linked_report_findings"], 2)
             self.assertEqual({item["slot"] for item in report["linked_reports"]}, {"input", "export"})
             input_link = next(item for item in report["linked_reports"] if item["slot"] == "input")
+            export_link = next(item for item in report["linked_reports"] if item["slot"] == "export")
+            self.assertEqual(input_link["readiness_status"], "review")
+            self.assertEqual(export_link["readiness_status"], "action")
             self.assertEqual(input_link["top_findings"][0]["rule"], "missing_touch_binding")
             self.assertEqual(input_link["top_findings"][0]["location"], "ui_accept")
             self.assertEqual(input_link["rule_summaries"][0]["rule"], "missing_touch_binding")
             self.assertEqual(input_link["rule_summaries"][0]["findings"], 2)
             self.assertEqual(input_link["rule_summaries"][0]["locations"], ["ui_accept", "ui_cancel"])
+
+    def test_readiness_missing_linked_report_maps_to_action_status(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = root / "ui.json"
+            output = root / "readiness.json"
+            metadata.write_text(json.dumps(_sample_metadata()), encoding="utf-8")
+
+            exit_code = main(
+                [
+                    "readiness",
+                    str(metadata),
+                    "--input-report",
+                    str(root / "missing-input.json"),
+                    "--format",
+                    "json",
+                    "--output",
+                    str(output),
+                    "--fail-on",
+                    "none",
+                ]
+            )
+
+            report = json.loads(output.read_text(encoding="utf-8"))
+            input_link = report["linked_reports"][0]
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["status"], "action")
+            self.assertEqual(report["summary"]["missing_reports"], 1)
+            self.assertEqual(report["summary"]["linked_report_actions"], 1)
+            self.assertEqual(input_link["status"], "missing")
+            self.assertEqual(input_link["readiness_status"], "action")
 
     def test_readiness_markdown_includes_top_linked_findings(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -511,7 +550,7 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertIn("# Godot Mobile Readiness", rendered)
             self.assertIn("| main_menu | portrait_phone | review |", rendered)
-            self.assertIn("| Visual smoke | pass | 0 | 0 |", rendered)
+            self.assertIn("| Visual smoke | pass | pass | 0 | 0 |", rendered)
 
     def test_layout_risk_joins_stress_pack_by_translation_key(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

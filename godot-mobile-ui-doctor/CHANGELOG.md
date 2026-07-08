@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.14 - 2026-07-08
+
+- Combined mobile readiness reports now include an overall `pass` / `review` /
+  `action` status, screen pass counts, and linked-report pass/review/action
+  rollups.
+- Linked reports keep their source status while also exposing a shared
+  `readiness_status`, so missing or unreadable reports are easy to distinguish
+  from report findings that need review.
+
 ## 0.1.13 - 2026-06-27
 
 - Missing mobile UI metadata and visual-smoke plan paths now return concise
