@@ -176,6 +176,11 @@ back to visible text matches for a first pass. JSON findings include a bounded
 stress label that made a control risky without copying the full translation
 catalog into every artifact.
 
+Layout-risk reports also include stress-pack variant provenance, matched
+translation-key counts, and a bounded unmatched text-node list. Use that list to
+spot exported labels whose `translation_key` or source text does not line up
+with the generated stress pack before relying on the warning count alone.
+
 ## Overlay Previews
 
 The `overlays` command writes one PNG per screen and viewport. It draws the
@@ -202,6 +207,10 @@ includes `layout_risk_labels` for the marked nodes, and larger marked controls
 can show a short stress-text preview inside the PNG. This is useful when a
 Markdown table says a label is risky but a reviewer needs to see where that
 control sits on the phone layout.
+
+The overlay summary also carries the layout-risk stress-variant count and
+unmatched text-node count, so dashboard or CI steps can tell whether a clean
+overlay pass had full localization-stress coverage.
 
 ## Combined Readiness
 

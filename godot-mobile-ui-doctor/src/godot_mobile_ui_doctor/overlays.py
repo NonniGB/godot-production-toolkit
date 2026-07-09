@@ -29,7 +29,8 @@ def render_overlays(
 ) -> dict[str, Any]:
     options.output_dir.mkdir(parents=True, exist_ok=True)
     audit_report = audit_mobile_ui(viewports, screens, thresholds)
-    layout_risk_findings = _load_layout_risk_findings(options.layout_risk_report)
+    layout_risk_report = _load_layout_risk_report(options.layout_risk_report)
+    layout_risk_findings = layout_risk_report["findings"]
     findings = audit_report["findings"] + layout_risk_findings
     files: list[dict[str, Any]] = []
 
@@ -62,6 +63,7 @@ def render_overlays(
         "schema_version": "1.1",
         "metadata": {
             "rules": rule_catalog(),
+            "layout_risk_report": layout_risk_report["metadata"],
         },
         "kind": "mobile_ui_overlay_previews",
         "summary": {
@@ -71,6 +73,10 @@ def render_overlays(
             "screenshots": sum(1 for item in files if item["screenshot"]),
             "layout_risk_findings": len(layout_risk_findings),
             "layout_risk_labels": sum(len(item["layout_risk_labels"]) for item in files),
+            "layout_risk_unmatched_text_nodes": int(
+                layout_risk_report["summary"].get("unmatched_text_nodes", 0)
+            ),
+            "layout_risk_stress_variants": int(layout_risk_report["summary"].get("stress_variants", 0)),
             "errors": audit_report["summary"]["errors"] + _count_severity(layout_risk_findings, "error"),
             "warnings": audit_report["summary"]["warnings"] + _count_severity(
                 layout_risk_findings, "warning"
@@ -302,9 +308,9 @@ def _slug(value: str) -> str:
     return slug or "screen"
 
 
-def _load_layout_risk_findings(path: Path | None) -> list[dict[str, Any]]:
+def _load_layout_risk_report(path: Path | None) -> dict[str, Any]:
     if path is None:
-        return []
+        return {"findings": [], "summary": {}, "metadata": {}}
     import json
 
     report = json.loads(path.read_text(encoding="utf-8"))
@@ -315,7 +321,13 @@ def _load_layout_risk_findings(path: Path | None) -> list[dict[str, Any]]:
     findings = report.get("findings", [])
     if not isinstance(findings, list):
         raise ValueError("layout risk report findings must be a list.")
-    return [finding for finding in findings if isinstance(finding, dict)]
+    summary = report.get("summary", {})
+    metadata = report.get("metadata", {})
+    return {
+        "findings": [finding for finding in findings if isinstance(finding, dict)],
+        "summary": summary if isinstance(summary, dict) else {},
+        "metadata": metadata if isinstance(metadata, dict) else {},
+    }
 
 
 def _count_severity(findings: list[dict[str, Any]], severity: str) -> int:

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.15 - 2026-07-09
+
+- Layout-risk JSON and Markdown reports now include stress-pack variant
+  provenance, matched translation-key counts, and a bounded list of exported UI
+  text nodes that did not match the stress pack.
+- Overlay summaries now carry layout-risk stress-variant and unmatched-text-node
+  counts forward, making it easier to connect localization stress inputs to UI
+  preview artifacts.
+
 ## 0.1.14 - 2026-07-08
 
 - Combined mobile readiness reports now include an overall `pass` / `review` /

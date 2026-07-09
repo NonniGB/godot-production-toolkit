@@ -16,10 +16,12 @@ def build_layout_risk_report(
     thresholds: Thresholds,
     stress_pack: Path,
 ) -> dict[str, Any]:
-    catalogs = _load_stress_pack(stress_pack)
+    catalogs, stress_summary = _load_stress_pack(stress_pack)
     findings: list[dict[str, Any]] = []
     text_nodes = [node for screen in screens for node in screen.nodes if node.text or node.translation_key]
     matched_nodes = 0
+    matched_keys: set[str] = set()
+    unmatched_nodes: list[dict[str, Any]] = []
 
     for screen in screens:
         viewport = viewports.get(screen.viewport)
@@ -30,11 +32,14 @@ def build_layout_risk_report(
                 continue
             entry = _match_entry(node, catalogs)
             if entry is None:
+                unmatched_nodes.append(_unmatched_node(screen.name, viewport.name, node))
                 continue
             matched_nodes += 1
+            matched_keys.add(str(entry["key"]))
             findings.extend(_find_node_risks(screen.name, viewport, node, entry, thresholds))
 
     warnings = sum(1 for finding in findings if finding["severity"] == "warning")
+    capped_unmatched_nodes = unmatched_nodes[:50]
     return {
         "tool": "godot-mobile-ui-doctor",
         "version": __version__,
@@ -44,6 +49,7 @@ def build_layout_risk_report(
         "metadata": {
             "rules": rule_catalog(),
             "stress_pack": str(stress_pack),
+            "stress_pack_summary": stress_summary,
         },
         "summary": {
             "screens": len(screens),
@@ -51,10 +57,16 @@ def build_layout_risk_report(
             "text_nodes": len(text_nodes),
             "matched_nodes": matched_nodes,
             "unmatched_text_nodes": len(text_nodes) - matched_nodes,
+            "unmatched_text_nodes_reported": len(capped_unmatched_nodes),
+            "unmatched_text_nodes_truncated": max(0, len(unmatched_nodes) - len(capped_unmatched_nodes)),
+            "matched_translation_keys": len(matched_keys),
             "stress_entries": len(catalogs),
+            "stress_variants": len(stress_summary["variants"]),
             "errors": 0,
             "warnings": warnings,
         },
+        "matched_translation_keys": sorted(matched_keys)[:50],
+        "unmatched_text_nodes": capped_unmatched_nodes,
         "findings": [enrich_finding(finding) for finding in findings],
     }
 
@@ -67,13 +79,14 @@ def render_layout_risk_report(report: dict[str, Any], format_name: str) -> str:
     return _render_text(report)
 
 
-def _load_stress_pack(manifest_path: Path) -> dict[str, dict[str, Any]]:
+def _load_stress_pack(manifest_path: Path) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     outputs = manifest.get("outputs")
     if not isinstance(outputs, list) or not outputs:
         raise ValueError("stress-pack manifest must contain a non-empty outputs list.")
     base = manifest_path.parent
     entries: dict[str, dict[str, Any]] = {}
+    variants: list[dict[str, Any]] = []
     for output in outputs:
         if not isinstance(output, dict):
             continue
@@ -83,7 +96,20 @@ def _load_stress_pack(manifest_path: Path) -> dict[str, dict[str, Any]]:
         variant = str(output.get("variant", csv_path.stem))
         locale = str(output.get("locale", variant))
         _merge_stress_csv(entries, csv_path, variant, locale)
-    return entries
+        variants.append(
+            {
+                "variant": variant,
+                "locale": locale,
+                "path": str(csv_path),
+                "strings": int(output.get("strings", 0) or 0),
+            }
+        )
+    return entries, {
+        "source_language": manifest.get("source_language"),
+        "catalogs": manifest.get("catalogs", []),
+        "manifest_path": str(manifest_path),
+        "variants": variants,
+    }
 
 
 def _merge_stress_csv(
@@ -123,6 +149,18 @@ def _match_entry(node: UiNode, entries: dict[str, dict[str, Any]]) -> dict[str, 
         if node.text and node.text == entry.get("source"):
             return entry
     return None
+
+
+def _unmatched_node(screen_name: str, viewport_name: str, node: UiNode) -> dict[str, Any]:
+    row = {
+        "screen": screen_name,
+        "viewport": viewport_name,
+        "node": node.id,
+        "translation_key": node.translation_key,
+        "text_preview": _preview_text(node.text),
+        "match_hint": "translation_key" if node.translation_key else "source_text",
+    }
+    return {key: value for key, value in row.items() if value}
 
 
 def _find_node_risks(
@@ -182,8 +220,14 @@ def _render_text(report: dict[str, Any]) -> str:
             f"Text nodes: {summary['text_nodes']} | Matched: {summary['matched_nodes']} | "
             f"Unmatched: {summary['unmatched_text_nodes']}"
         ),
+        f"Stress variants: {summary['stress_variants']} | Matched keys: {summary['matched_translation_keys']}",
         f"Warnings: {summary['warnings']}",
     ]
+    if report.get("unmatched_text_nodes"):
+        lines.append("Unmatched text nodes:")
+        for row in report["unmatched_text_nodes"][:5]:
+            key = f" key {row['translation_key']}" if row.get("translation_key") else ""
+            lines.append(f"- {row['screen']} / {row['node']}{key}")
     if not report["findings"]:
         lines.append("No stress-pack layout risks found.")
         return "\n".join(lines)
@@ -206,12 +250,53 @@ def _render_markdown(report: dict[str, Any]) -> str:
         f"| Text nodes | {summary['text_nodes']} |",
         f"| Matched nodes | {summary['matched_nodes']} |",
         f"| Unmatched text nodes | {summary['unmatched_text_nodes']} |",
+        f"| Unmatched text nodes reported | {summary['unmatched_text_nodes_reported']} |",
+        f"| Matched translation keys | {summary['matched_translation_keys']} |",
         f"| Stress entries | {summary['stress_entries']} |",
+        f"| Stress variants | {summary['stress_variants']} |",
         f"| Warnings | {summary['warnings']} |",
         "",
-        "## Findings",
+        "## Stress Pack",
         "",
+        "| Variant | Locale | Strings | File |",
+        "|---|---|---:|---|",
     ]
+    for variant in report.get("metadata", {}).get("stress_pack_summary", {}).get("variants", []):
+        lines.append(
+            f"| {variant['variant']} | {variant['locale']} | {variant['strings']} | `{variant['path']}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Unmatched Text Nodes",
+            "",
+        ]
+    )
+    unmatched_nodes = report.get("unmatched_text_nodes", [])
+    if unmatched_nodes:
+        lines.extend(
+            [
+                "| Screen | Viewport | Node | Translation Key | Text Preview | Match Hint |",
+                "|---|---|---|---|---|---|",
+            ]
+        )
+        for row in unmatched_nodes:
+            lines.append(
+                f"| {row['screen']} | {row['viewport']} | {row['node']} | "
+                f"{row.get('translation_key', '-')} | {row.get('text_preview', '-')} | {row['match_hint']} |"
+            )
+    else:
+        lines.append("All exported UI text nodes matched the stress pack.")
+    if summary["unmatched_text_nodes_truncated"]:
+        lines.append("")
+        lines.append(f"Additional unmatched nodes omitted: {summary['unmatched_text_nodes_truncated']}.")
+    lines.extend(
+        [
+            "",
+            "## Findings",
+            "",
+        ]
+    )
     if not report["findings"]:
         lines.append("No stress-pack layout risks found.")
         return "\n".join(lines)

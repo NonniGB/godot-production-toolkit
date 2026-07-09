@@ -23,7 +23,7 @@ class MobileUiDoctorTests(unittest.TestCase):
             viewports, screens, thresholds = load_metadata(path)
             report = audit_mobile_ui(viewports, screens, thresholds)
 
-            self.assertEqual(report["tool_version"], "0.1.14")
+            self.assertEqual(report["tool_version"], "0.1.15")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("touch_target_too_small", report["metadata"]["rules"])
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
@@ -135,7 +135,7 @@ class MobileUiDoctorTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-mobile-ui-doctor 0.1.14", stdout.getvalue())
+        self.assertIn("godot-mobile-ui-doctor 0.1.15", stdout.getvalue())
 
     def test_cli_reports_missing_metadata_with_actionable_guidance(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -349,6 +349,12 @@ class MobileUiDoctorTests(unittest.TestCase):
             self.assertEqual(layout_exit, 0)
             self.assertEqual(overlay_exit, 0)
             self.assertEqual(report["summary"]["layout_risk_findings"], 1)
+            self.assertEqual(report["summary"]["layout_risk_unmatched_text_nodes"], 1)
+            self.assertEqual(report["summary"]["layout_risk_stress_variants"], 1)
+            self.assertEqual(
+                report["metadata"]["layout_risk_report"]["stress_pack_summary"]["variants"][0]["variant"],
+                "long",
+            )
             self.assertIn("stress_text_preview", layout_data["findings"][0])
             self.assertLessEqual(len(layout_data["findings"][0]["stress_text_preview"]), 64)
             self.assertEqual(report["summary"]["layout_risk_labels"], 1)
@@ -564,7 +570,18 @@ class MobileUiDoctorTests(unittest.TestCase):
 
             self.assertEqual(report["kind"], "mobile_ui_layout_risk")
             self.assertEqual(report["summary"]["matched_nodes"], 1)
+            self.assertEqual(report["summary"]["matched_translation_keys"], 1)
+            self.assertEqual(report["summary"]["unmatched_text_nodes"], 1)
+            self.assertEqual(report["summary"]["unmatched_text_nodes_reported"], 1)
+            self.assertEqual(report["summary"]["stress_variants"], 1)
             self.assertEqual(report["summary"]["warnings"], 1)
+            self.assertEqual(report["matched_translation_keys"], ["MENU_CONTINUE"])
+            self.assertEqual(report["unmatched_text_nodes"][0]["node"], "subtitle")
+            self.assertEqual(report["unmatched_text_nodes"][0]["translation_key"], "MENU_SUBTITLE")
+            self.assertEqual(
+                report["metadata"]["stress_pack_summary"]["variants"][0]["locale"],
+                "qps-long",
+            )
             finding = report["findings"][0]
             self.assertEqual(finding["rule_id"], "localized_text_overflow_risk")
             self.assertEqual(finding["node"], "continue")
@@ -594,7 +611,10 @@ class MobileUiDoctorTests(unittest.TestCase):
             rendered = output.read_text(encoding="utf-8")
             self.assertEqual(exit_code, 0)
             self.assertIn("# Godot Mobile UI Layout Risk", rendered)
+            self.assertIn("## Stress Pack", rendered)
+            self.assertIn("## Unmatched Text Nodes", rendered)
             self.assertIn("`MENU_CONTINUE`", rendered)
+            self.assertIn("MENU_SUBTITLE", rendered)
 
 
 def _sample_metadata() -> dict[str, object]:
@@ -734,6 +754,17 @@ def _layout_risk_metadata() -> dict[str, object]:
                         "translation_key": "MENU_CONTINUE",
                         "font_size": 22,
                         "interactive": True,
+                    },
+                    {
+                        "id": "subtitle",
+                        "kind": "label",
+                        "x": 24,
+                        "y": 150,
+                        "width": 180,
+                        "height": 30,
+                        "text": "No stress entry",
+                        "translation_key": "MENU_SUBTITLE",
+                        "font_size": 18,
                     }
                 ],
             }
@@ -753,6 +784,8 @@ def _write_stress_pack_fixture(root: Path) -> Path:
     manifest.write_text(
         json.dumps(
             {
+                "source_language": "en",
+                "catalogs": ["translations/strings.csv"],
                 "outputs": [
                     {
                         "variant": "long",
