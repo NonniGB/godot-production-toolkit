@@ -20,7 +20,7 @@ class ReportingCliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-save-guard 0.1.6", stdout.getvalue())
+        self.assertIn("godot-save-guard 0.1.7", stdout.getvalue())
 
     def test_markdown_report_lists_fixture_findings(self) -> None:
         report = render_markdown_report(
@@ -62,7 +62,7 @@ class ReportingCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.6")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.7")
             self.assertEqual(report["summary"]["errors"], 1)
             self.assertEqual(report["rules"]["numeric_type_drift"]["title"], "Numeric type drift")
             finding = report["fixtures"][0]["findings"][0]
@@ -339,6 +339,56 @@ class ReportingCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             self.assertEqual(finding_rows[0][1]["rule_id"], "numeric_type_drift")
             self.assertIn("save.v2.json", finding_rows[0][0])
+
+    def test_cli_migrate_chain_failure_names_step_fixture_output_and_stderr(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            fixture = root / "save.json"
+            chain = root / "chain.toml"
+            report_path = root / "migration.json"
+            script = root / "fail.py"
+            fixture.write_text(json.dumps({"version": 1}), encoding="utf-8")
+            script.write_text(
+                "import sys\n"
+                "print('could not load legacy inventory', file=sys.stderr)\n"
+                "raise SystemExit(9)\n",
+                encoding="utf-8",
+            )
+            chain.write_text(
+                "\n".join(
+                    [
+                        "[[steps]]",
+                        'from = "1"',
+                        'to = "2"',
+                        f'command = \'"{sys.executable}" "{script}" {{input}} {{output}}\'',
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            exit_code = main(
+                [
+                    "migrate-chain",
+                    str(fixture),
+                    "--chain",
+                    str(chain),
+                    "--output-dir",
+                    str(root / "migrated"),
+                    "--format",
+                    "json",
+                    "--output",
+                    str(report_path),
+                ]
+            )
+
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            finding = report["fixtures"][0]["findings"][0]
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(finding["rule_id"], "migration_command_failed")
+            self.assertIn("Migration step 1->2 failed for save.json", finding["message"])
+            self.assertIn("Expected output:", finding["message"])
+            self.assertIn("save.v2.json", finding["message"])
+            self.assertIn("stderr: could not load legacy inventory", finding["message"])
 
     def test_cli_migration_graph_reports_missing_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

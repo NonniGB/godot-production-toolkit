@@ -427,7 +427,7 @@ The repo keeps the tools together. The installable umbrella package is `godot-pr
 | [`godot-production-doctor`](https://pypi.org/project/godot-production-doctor/) | `0.2.3` |
 | [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.15` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.6` |
-| [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.6` |
+| [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.7` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.10` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.5` |
 | [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.2` |

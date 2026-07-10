@@ -61,3 +61,8 @@ cannot load.
 
 Add `--compare-original` when reviewers also need a compact before-and-after
 summary of added, removed, and changed JSON paths.
+
+If a chain step fails, the report names the step, original fixture, expected
+output path, and captured stdout/stderr snippets from the project migration
+command when they are available. That gives CI logs enough context to identify
+which migration script needs review without attaching full save files.

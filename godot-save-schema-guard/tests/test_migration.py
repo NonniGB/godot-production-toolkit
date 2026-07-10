@@ -1,4 +1,5 @@
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -9,6 +10,7 @@ from godot_save_guard.migration import (
     build_migration_command,
     compare_migrated_fixture,
     parse_migration_chain,
+    run_migration_command,
 )
 
 
@@ -92,6 +94,27 @@ class MigrationTests(unittest.TestCase):
             self.assertIn("changed 2", finding.message)
             self.assertIn("$.inventory", finding.message)
             self.assertIn("$.debug", finding.message)
+
+    def test_failed_migration_command_can_capture_output_snippets(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            script = root / "fail.py"
+            script.write_text(
+                "import sys\n"
+                "print('started migration')\n"
+                "print('missing field credits', file=sys.stderr)\n"
+                "raise SystemExit(7)\n",
+                encoding="utf-8",
+            )
+
+            finding = run_migration_command(f'"{sys.executable}" "{script}"', capture_output=True)
+
+            self.assertIsNotNone(finding)
+            assert finding is not None
+            self.assertEqual(finding.rule_id, "migration_command_failed")
+            self.assertIn("exit code 7", finding.message)
+            self.assertIn("stdout: started migration", finding.message)
+            self.assertIn("stderr: missing field credits", finding.message)
 
 
 if __name__ == "__main__":

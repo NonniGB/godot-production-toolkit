@@ -196,13 +196,39 @@ def _sample_paths(label: str, paths: list[str], limit: int = 3) -> list[str]:
     return [f"{label}: {shown}{suffix}"]
 
 
-def run_migration_command(command: str) -> Finding | None:
-    completed = subprocess.run(command, shell=True, check=False)
+def run_migration_command(command: str, *, capture_output: bool = False) -> Finding | None:
+    if capture_output:
+        completed = subprocess.run(command, shell=True, check=False, capture_output=True, text=True)
+    else:
+        completed = subprocess.run(command, shell=True, check=False)
     if completed.returncode != 0:
+        output_note = _command_output_note(completed) if capture_output else ""
         return Finding(
             "migration_command_failed",
             "error",
             "$",
-            f"Migration command failed with exit code {completed.returncode}.",
+            f"Migration command failed with exit code {completed.returncode}.{output_note}",
         )
     return None
+
+
+def _command_output_note(completed: subprocess.CompletedProcess[str]) -> str:
+    notes = []
+    stdout = _compact_output(completed.stdout)
+    stderr = _compact_output(completed.stderr)
+    if stdout:
+        notes.append(f"stdout: {stdout}")
+    if stderr:
+        notes.append(f"stderr: {stderr}")
+    if not notes:
+        return ""
+    return " " + " ".join(f"{note}." for note in notes)
+
+
+def _compact_output(value: str | None, limit: int = 300) -> str:
+    if not value:
+        return ""
+    compacted = " ".join(value.strip().split())
+    if len(compacted) <= limit:
+        return compacted
+    return compacted[: limit - 3].rstrip() + "..."

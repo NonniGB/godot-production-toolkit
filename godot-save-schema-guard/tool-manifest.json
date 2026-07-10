@@ -9,6 +9,7 @@
     "human_output": ["text", "markdown report"],
     "migration_chain_config": true,
     "migration_graph_check": true,
+    "migration_failure_context": true,
     "migration_output_comparison": true,
     "fixture_generation": true,
     "fixture_redaction": true,

@@ -47,7 +47,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-save-guard",
         description="Validate Godot save fixtures and migration compatibility.",
     )
-    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.6")
+    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.7")
     subparsers = parser.add_subparsers(dest="command")
 
     validate = subparsers.add_parser("validate", help="Validate JSON save fixtures.")
@@ -219,15 +219,19 @@ def _migrate_chain(args: argparse.Namespace) -> int:
                 )
             )
         else:
-            for step, _, _, command in commands:
-                finding = run_migration_command(command)
+            for step, _, output_path, command in commands:
+                finding = run_migration_command(command, capture_output=True)
                 if finding:
                     findings.append(
                         Finding(
                             finding.rule_id,
                             finding.severity,
                             finding.json_path,
-                            f"Migration step {step.label} failed. {finding.message}",
+                            (
+                                f"Migration step {step.label} failed for {fixture.name}. "
+                                f"Expected output: {output_path}. {finding.message} "
+                                "Review this step's migration script before continuing the chain."
+                            ),
                         )
                     )
                     break

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.7 - 2026-07-10
+
+- Improved `migrate-chain` failure reports with the failed step, fixture name,
+  expected output path, and captured stdout/stderr snippets.
+- Added tests for migration command output capture and chain failure messages.
+
 ## 0.1.6 - 2026-06-17
 
 - Added `migrate-chain --compare-original` to compare each original fixture with its final migrated output.

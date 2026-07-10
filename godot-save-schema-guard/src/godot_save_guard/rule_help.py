@@ -28,7 +28,11 @@ RULE_HELP: dict[str, dict[str, str]] = {
     },
     "migration_command_failed": {
         "title": "Migration command failed",
-        "explanation": "A project-owned migration command returned a non-zero exit code.",
+        "explanation": (
+            "A project-owned migration command returned a non-zero exit code. "
+            "Chain reports include the failed step, expected output, and captured "
+            "command output when available."
+        ),
     },
     "migration_compare_summary": {
         "title": "Migration comparison summary",
