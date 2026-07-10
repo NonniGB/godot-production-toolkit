@@ -21,7 +21,7 @@ classifiers = [
   "Topic :: Multimedia :: Graphics",
   "Topic :: Software Development :: Quality Assurance"
 ]
-dependencies = ["Pillow>=10"]
+dependencies = ["Pillow>=12.3.0"]
 
 [project.urls]
 Homepage = "https://github.com/NonniGB/godot-production-toolkit/tree/main/godot-visual-smoke-test-kit"
