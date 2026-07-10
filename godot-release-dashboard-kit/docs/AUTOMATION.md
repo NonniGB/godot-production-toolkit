@@ -1,5 +1,9 @@
 # Automation
 
+Malformed reports, invalid summary counts, and unreadable image artifacts are
+represented as blocked dashboard inputs instead of being skipped or treated as
+ready.
+
 Build an HTML dashboard artifact from existing reports:
 
 ```powershell

@@ -38,6 +38,8 @@ godot-save-guard redact saves\fixtures --path player.name --path players.*.email
 - Unexpected properties when `additionalProperties` is false.
 - Generated fixture samples from required schema fields, defaults, enum values, and optional JSON overrides.
 - Migration command failures.
+- Migration timeouts and unavailable migration executables.
+- Shell-free migration execution with collision-safe nested output paths.
 - Migration-chain failure messages that name the failed step, fixture, expected
   output, and captured stdout/stderr snippets.
 - Ordered migration chains from older save versions to the current format.

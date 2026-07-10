@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "name": "godot-ci-doctor-action",
-  "entrypoint": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2",
+  "entrypoint": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@06d66f390a45743b4437d09bc63eb8778b52c0a4",
   "module": "github composite action",
   "interfaces": {
     "cli": false,
@@ -23,11 +23,11 @@
   "recommended_commands": [
     {
       "purpose": "Minimal pull request workflow",
-      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2 with tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor"
+      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@06d66f390a45743b4437d09bc63eb8778b52c0a4 with tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor"
     },
     {
       "purpose": "Strict release workflow",
-      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2 with fail-on: warning and tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor"
+      "command": "uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@06d66f390a45743b4437d09bc63eb8778b52c0a4 with fail-on: warning and tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor"
     }
   ]
 }

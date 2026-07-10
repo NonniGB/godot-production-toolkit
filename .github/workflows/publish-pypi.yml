@@ -1,4 +1,4 @@
-name: Publish Python Packages
+name: Publish Python Package
 
 on:
   push:
@@ -13,8 +13,6 @@ on:
         type: choice
         options:
           - godot-asset-pipeline-doctor
-          - godot-export-preset-doctor
-          - godot-mobile-perf-doctor
           - godot-production-doctor
 
 permissions:
@@ -22,33 +20,63 @@ permissions:
 
 jobs:
   publish:
-    name: Build and publish ${{ startsWith(github.ref_name, 'godot-production-doctor-v') && 'godot-production-doctor' || (github.event_name == 'workflow_dispatch' && inputs.package || 'godot-asset-pipeline-doctor') }}
+    name: Validate, build, and publish selected package
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
       contents: read
       id-token: write
-    env:
-      PACKAGE_DIR: ${{ startsWith(github.ref_name, 'godot-production-doctor-v') && 'godot-production-doctor' || (github.event_name == 'workflow_dispatch' && inputs.package || 'godot-asset-pipeline-doctor') }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.11"
 
-      - name: Install build tools
-        run: python -m pip install --upgrade build twine
+      - name: Resolve package and verify tag/version alignment
+        id: package
+        shell: bash
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          MANUAL_PACKAGE: ${{ inputs.package || '' }}
+        run: |
+          set -euo pipefail
+          resolved="$(python resolve_publish_package.py --ref-name "$REF_NAME" --manual-package "$MANUAL_PACKAGE")"
+          echo "directory=${resolved%%|*}" >> "$GITHUB_OUTPUT"
+          echo "version=${resolved#*|}" >> "$GITHUB_OUTPUT"
 
-      - name: Build package
-        run: python -m build "$PACKAGE_DIR"
+      - name: Install validation and build tools
+        run: python -m pip install --upgrade build twine jsonschema
 
-      - name: Check package metadata
-        run: python -m twine check "$PACKAGE_DIR"/dist/*
+      - name: Install suite packages
+        shell: bash
+        run: |
+          for project in */pyproject.toml; do
+            python -m pip install -e "${project%/pyproject.toml}"
+          done
+
+      - name: Run suite release gates
+        run: |
+          python verify_tool_manifests.py
+          python verify_release_alignment.py
+          python verify_cli_smoke.py
+          python -m unittest discover -s tests -v
+
+      - name: Run all package test suites
+        shell: bash
+        run: |
+          for tests_dir in */tests; do
+            python -m unittest discover -s "$tests_dir" -v
+          done
+
+      - name: Build and check selected package
+        run: |
+          python -m build "${{ steps.package.outputs.directory }}"
+          python -m twine check "${{ steps.package.outputs.directory }}"/dist/*
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b
         with:
-          packages-dir: ${{ env.PACKAGE_DIR }}/dist
+          packages-dir: ${{ steps.package.outputs.directory }}/dist

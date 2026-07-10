@@ -17,7 +17,8 @@ It is built as seventeen focused command-line tools, one umbrella CLI package, a
 copy the command, and keep the report as a local or CI artifact. Install a
 single PyPI package when you need one focused check, use the GitHub Action for
 pull request reports, or install `godot-production-doctor` when you want the
-`godot-project-doctor` umbrella command to run several tools together.
+`godot-production-doctor` umbrella command to run several tools together. The
+historical `godot-project-doctor` command remains available for compatibility.
 
 ![Godot Project Doctor HTML report](docs/assets/screenshots/project-doctor-html-report.png)
 
@@ -38,7 +39,7 @@ godot-project-doctor run examples\release-readiness-demo\godot-project-doctor.to
 Add the main CI action to a Godot project:
 
 ```yaml
-- uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2
+- uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@06d66f390a45743b4437d09bc63eb8778b52c0a4
   with:
     project: .
     checks: assets,export,input,localization,signals,mobile_perf
@@ -339,7 +340,7 @@ The rough split is:
 Add the suite to a Godot project with one workflow step:
 
 ```yaml
-- uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2
+- uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@06d66f390a45743b4437d09bc63eb8778b52c0a4
   with:
     project: .
     checks: assets,export,input,localization,signals,mobile_perf
@@ -353,7 +354,7 @@ Upload `reports/godot-project-doctor` as a workflow artifact to keep JSON, Markd
 Build a dashboard artifact from reports produced by earlier jobs:
 
 ```yaml
-- uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@main
+- uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@06d66f390a45743b4437d09bc63eb8778b52c0a4
   with:
     reports-dir: reports/release-evidence
     dashboard-dir: reports/release-dashboard
@@ -416,7 +417,7 @@ The repo keeps the tools together. The installable umbrella package is `godot-pr
 |---|---:|
 | [`gdscript-api-comment-coverage`](https://pypi.org/project/gdscript-api-comment-coverage/) | `0.1.3` |
 | [`godot-asset-pipeline-doctor`](https://pypi.org/project/godot-asset-pipeline-doctor/) | `0.1.10` |
-| [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.3` |
+| [`godot-content-graph-doctor`](https://pypi.org/project/godot-content-graph-doctor/) | `0.1.4` |
 | [`godot-export-preset-doctor`](https://pypi.org/project/godot-export-preset-doctor/) | `0.1.13` |
 | [`godot-gdscript-architecture-guard`](https://pypi.org/project/godot-gdscript-architecture-guard/) | `0.1.5` |
 | [`godot-input-map-auditor`](https://pypi.org/project/godot-input-map-auditor/) | `0.1.3` |
@@ -424,10 +425,10 @@ The repo keeps the tools together. The installable umbrella package is `godot-pr
 | [`godot-mobile-perf-doctor`](https://pypi.org/project/godot-mobile-perf-doctor/) | `0.1.8` |
 | [`godot-mobile-ui-doctor`](https://pypi.org/project/godot-mobile-ui-doctor/) | `0.1.15` |
 | [`godot-pack-mod-doctor`](https://pypi.org/project/godot-pack-mod-doctor/) | `0.1.6` |
-| [`godot-production-doctor`](https://pypi.org/project/godot-production-doctor/) | `0.2.3` |
-| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.15` |
+| [`godot-production-doctor`](https://pypi.org/project/godot-production-doctor/) | `0.2.4` |
+| [`godot-release-dashboard-kit`](https://pypi.org/project/godot-release-dashboard-kit/) | `0.1.16` |
 | [`godot-runtime-telemetry-lab`](https://pypi.org/project/godot-runtime-telemetry-lab/) | `0.1.6` |
-| [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.7` |
+| [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.8` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.10` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.5` |
 | [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.2` |

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.8 - 2026-07-10
+
+- Migration templates now run as argument lists without a command shell, so
+  fixture paths cannot inject shell syntax.
+- Added per-command timeouts and actionable timeout or unavailable-command
+  findings.
+- Nested fixtures keep their relative paths in migrated output, preventing
+  same-name files from overwriting one another.
+
 ## 0.1.7 - 2026-07-10
 
 - Improved `migrate-chain` failure reports with the failed step, fixture name,

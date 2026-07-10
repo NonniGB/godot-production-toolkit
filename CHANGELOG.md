@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Hardened umbrella execution, content loading, save migrations, and dashboard
+  aggregation so missing, stale, malformed, timed-out, or unavailable inputs
+  cannot appear as clean results.
+- Expanded Suite CI across Python 3.11 and 3.14, all-package builds, clean wheel
+  installation smoke tests, composite-action smoke jobs, and schema validation.
+- Hardened package publishing behind exact package tag/version resolution while
+  preserving registered trusted-publisher workflow identities, pinned workflow
+  actions to immutable revisions, and expanded dependency updates to all
+  package directories.
 - Improved `godot-pack-mod-doctor` with a restricted-pack `security` command
   for executable, script, archive, and native-library file policies.
 - Improved `godot-localization-qa-guard` with screenshot capture plans for

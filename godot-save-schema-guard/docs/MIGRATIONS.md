@@ -15,7 +15,7 @@ IDs or values that make the fixture easier to recognize in reports.
 Build command templates with `{input}` and `{output}`:
 
 ```powershell
-godot-save-guard migrate saves\v1 --output-dir migrated\v2 --command "godot --headless --script tools/migrate_save.gd --input {input} --output {output}"
+godot-save-guard migrate saves\v1 --output-dir migrated\v2 --timeout 120 --command "godot --headless --script tools/migrate_save.gd --input {input} --output {output}"
 ```
 
 For projects with several released save versions, define an ordered migration
@@ -53,6 +53,13 @@ godot-save-guard migrate-chain saves\v1 --chain migrations.toml --output-dir mig
 
 Each step writes an intermediate output named after the original fixture and
 target version, such as `save.v2.json` and `save.v3.json`.
+
+Commands run directly, without a system shell. Use a program and arguments in
+the template; shell operators such as pipes, redirects, and `&&` are not
+supported. `{input}` and `{output}` are kept as single arguments even when paths
+contain spaces. Nested fixture folders are preserved below the output folder,
+so two fixtures with the same filename cannot overwrite each other. Use
+`--timeout` to change the 120-second limit for each command or chain step.
 
 When `--schema` is provided, the command validates the final migrated output
 with the same save-compatibility rules used by `validate`. That catches cases

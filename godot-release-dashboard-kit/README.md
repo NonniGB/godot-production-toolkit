@@ -12,6 +12,9 @@ typed highlights such as frame p95, pack order, export preset counts, scenario
 retry counts, exported file counts, and risk scores without making readers open
 every JSON file first.
 
+Unreadable or malformed JSON is shown as a blocked card rather than being
+treated as release-ready or aborting the whole dashboard.
+
 ## Install
 
 ```powershell

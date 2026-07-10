@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.4 - 2026-07-10
+
+- Failed, timed-out, unavailable, and missing-report tool runs now produce
+  explicit error reports and cannot be hidden by stale files.
+- Malformed reports are summarized as errors instead of crashing or appearing
+  clean.
+- Added the collision-free `godot-production-doctor` command while retaining
+  `godot-project-doctor` as a compatibility alias.
+
 ## 0.2.3 - 2026-07-04
 
 - Added source report paths and reproduction commands to collected report

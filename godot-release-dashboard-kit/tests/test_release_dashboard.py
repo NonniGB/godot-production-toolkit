@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -15,6 +16,43 @@ from godot_release_dashboard_kit.dashboard import build_dashboard
 
 
 class ReleaseDashboardTests(unittest.TestCase):
+    def test_malformed_and_non_object_json_are_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            reports = Path(tmp)
+            (reports / "broken.json").write_text("{", encoding="utf-8")
+            (reports / "list.json").write_text("[]", encoding="utf-8")
+
+            dashboard = build_dashboard(reports)
+
+            self.assertEqual(dashboard["summary"]["blocked"], 2)
+            self.assertTrue(all(report["malformed"] for report in dashboard["reports"]))
+
+    def test_invalid_summary_counts_do_not_crash(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            reports = Path(tmp)
+            (reports / "bad-counts.json").write_text(
+                json.dumps({"tool": "bad-counts", "summary": {"errors": None, "warnings": "many"}}),
+                encoding="utf-8",
+            )
+
+            dashboard = build_dashboard(reports)
+
+            self.assertEqual(dashboard["reports"][0]["errors"], 1)
+            self.assertEqual(dashboard["reports"][0]["warnings"], 0)
+            self.assertEqual(dashboard["reports"][0]["status"], "blocked")
+
+    def test_unreadable_image_is_a_blocked_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            reports = Path(tmp)
+            image = reports / "capture.png"
+            image.write_bytes(b"png")
+
+            with patch.object(Path, "read_bytes", side_effect=OSError("access denied")):
+                dashboard = build_dashboard(reports)
+
+            self.assertEqual(dashboard["summary"]["blocked"], 1)
+            self.assertEqual(dashboard["reports"][0]["kind"], "artifact_error")
+
     def test_builds_html_dashboard(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -51,7 +89,7 @@ class ReleaseDashboardTests(unittest.TestCase):
 
             data = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(exit_code, 0)
-            self.assertEqual(data["tool_version"], "0.1.15")
+            self.assertEqual(data["tool_version"], "0.1.16")
             self.assertEqual(data["summary"]["reports"], 1)
             self.assertEqual(data["summary"]["images"], 1)
             self.assertEqual(data["summary"]["workflows"], 1)

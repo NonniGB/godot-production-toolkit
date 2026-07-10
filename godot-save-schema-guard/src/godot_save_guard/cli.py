@@ -47,7 +47,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-save-guard",
         description="Validate Godot save fixtures and migration compatibility.",
     )
-    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.7")
+    parser.add_argument("--version", action="version", version="godot-save-guard 0.1.8")
     subparsers = parser.add_subparsers(dest="command")
 
     validate = subparsers.add_parser("validate", help="Validate JSON save fixtures.")
@@ -77,12 +77,14 @@ def _build_parser() -> argparse.ArgumentParser:
     migrate.add_argument("fixtures", help="JSON fixture file or directory.")
     migrate.add_argument("--command", required=True, help="Command template using {input} and {output}.")
     migrate.add_argument("--output-dir", required=True, help="Directory for migrated fixtures.")
+    migrate.add_argument("--timeout", type=_positive_int, default=120, help="Maximum seconds per migration command.")
     _add_report_args(migrate)
 
     migrate_chain = subparsers.add_parser("migrate-chain", help="Run an ordered migration chain for fixtures.")
     migrate_chain.add_argument("fixtures", help="JSON fixture file or directory.")
     migrate_chain.add_argument("--chain", required=True, help="TOML file containing ordered migration steps.")
     migrate_chain.add_argument("--output-dir", required=True, help="Directory for migrated fixtures.")
+    migrate_chain.add_argument("--timeout", type=_positive_int, default=120, help="Maximum seconds per migration step.")
     migrate_chain.add_argument(
         "--schema",
         help="Validate each final migrated fixture against this JSON schema after the chain succeeds.",
@@ -175,9 +177,14 @@ def _migrate(args: argparse.Namespace) -> int:
             )
         )
     for fixture in files:
-        output = output_dir / fixture.name
-        command = build_migration_command(args.command, fixture, output)
-        finding = run_migration_command(command)
+        relative = fixture.relative_to(fixtures_path) if fixtures_path.is_dir() else Path(fixture.name)
+        output = output_dir / relative
+        output.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            command = build_migration_command(args.command, fixture, output)
+            finding = run_migration_command(command, timeout=args.timeout)
+        except ValueError as exc:
+            finding = Finding("migration_command_invalid", "error", "$", f"Invalid migration command: {exc}.")
         results.append(FixtureResult(fixture, [finding] if finding else []))
     _write_report(args, results)
     return _exit_code(results, args.fail_on)
@@ -207,7 +214,17 @@ def _migrate_chain(args: argparse.Namespace) -> int:
         )
     for fixture in files:
         findings: list[Finding] = []
-        commands = build_chain_commands(steps, fixture, output_dir)
+        relative = fixture.relative_to(fixtures_path) if fixtures_path.is_dir() else Path(fixture.name)
+        try:
+            commands = build_chain_commands(steps, fixture, output_dir, relative)
+        except ValueError as exc:
+            results.append(
+                FixtureResult(
+                    fixture,
+                    [Finding("migration_command_invalid", "error", "$", f"Invalid migration command: {exc}.")],
+                )
+            )
+            continue
         if args.dry_run:
             labels = ", ".join(step.label for step, _, _, _ in commands) or "none"
             findings.append(
@@ -220,7 +237,8 @@ def _migrate_chain(args: argparse.Namespace) -> int:
             )
         else:
             for step, _, output_path, command in commands:
-                finding = run_migration_command(command, capture_output=True)
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                finding = run_migration_command(command, capture_output=True, timeout=args.timeout)
                 if finding:
                     findings.append(
                         Finding(
@@ -228,7 +246,7 @@ def _migrate_chain(args: argparse.Namespace) -> int:
                             finding.severity,
                             finding.json_path,
                             (
-                                f"Migration step {step.label} failed for {fixture.name}. "
+                                f"Migration step {step.label} failed for {relative.as_posix()}. "
                                 f"Expected output: {output_path}. {finding.message} "
                                 "Review this step's migration script before continuing the chain."
                             ),
@@ -269,6 +287,13 @@ def _migrate_chain(args: argparse.Namespace) -> int:
         results.append(FixtureResult(fixture, findings))
     _write_report(args, results)
     return _exit_code(results, args.fail_on)
+
+
+def _positive_int(value: str) -> int:
+    parsed = int(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("timeout must be greater than zero")
+    return parsed
 
 
 def _migration_graph(args: argparse.Namespace) -> int:

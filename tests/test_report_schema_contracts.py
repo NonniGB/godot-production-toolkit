@@ -2,16 +2,32 @@ import json
 from pathlib import Path
 import unittest
 
+from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIR = ROOT / "docs" / "report-schemas"
-SAMPLE_REPORTS = [
-    ROOT / "docs" / "assets" / "sample-reports" / "assets.json",
-    ROOT / "docs" / "assets" / "sample-reports" / "export.json",
-    ROOT / "docs" / "assets" / "sample-reports" / "input-map.json",
-    ROOT / "docs" / "assets" / "sample-reports" / "mobile-perf.json",
-    ROOT / "docs" / "assets" / "sample-reports" / "pack-mod.json",
-]
+
+
+def _validator() -> Draft202012Validator:
+    report_schema = json.loads((SCHEMA_DIR / "tool-diagnostic-report-v1.schema.json").read_text(encoding="utf-8"))
+    finding_schema = json.loads((SCHEMA_DIR / "finding-v1.schema.json").read_text(encoding="utf-8"))
+    registry = Registry().with_resource(finding_schema["$id"], Resource.from_contents(finding_schema))
+    Draft202012Validator.check_schema(report_schema)
+    return Draft202012Validator(report_schema, registry=registry)
+
+
+def _sample_reports() -> list[Path]:
+    reports: list[Path] = []
+    for path in sorted((ROOT / "docs" / "assets" / "sample-reports").glob("*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, dict) and isinstance(data.get("summary"), dict) and (
+            isinstance(data.get("tool"), str)
+            or isinstance(data.get("metadata", {}).get("report_kind"), str)
+        ):
+            reports.append(path)
+    return reports
 
 
 class ReportSchemaContractTests(unittest.TestCase):
@@ -24,20 +40,20 @@ class ReportSchemaContractTests(unittest.TestCase):
                 self.assertIn("type", schema)
 
     def test_sample_reports_match_top_level_diagnostic_contract(self) -> None:
-        for path in SAMPLE_REPORTS:
+        validator = _validator()
+        reports = _sample_reports()
+        self.assertTrue(reports)
+        for path in reports:
             with self.subTest(path=path.name):
                 report = json.loads(path.read_text(encoding="utf-8"))
-                self.assertIsInstance(report.get("tool"), str)
-                self.assertTrue(report["tool"])
-                self.assertIsInstance(report.get("summary"), dict)
-                self.assertTrue(report["summary"])
+                validator.validate(report)
 
-                rows = report.get("findings", report.get("issues", []))
-                self.assertIsInstance(rows, list)
-                for row in rows:
-                    self.assertIn(row.get("severity"), {"error", "warning", "info"})
-                    self.assertIsInstance(row.get("message"), str)
-                    self.assertTrue(row["message"])
+    def test_invalid_summary_counts_are_rejected(self) -> None:
+        validator = _validator()
+
+        errors = list(validator.iter_errors({"tool": "demo", "summary": {"errors": None}}))
+
+        self.assertTrue(errors)
 
     def test_report_schema_docs_explain_compatibility_policy(self) -> None:
         text = (SCHEMA_DIR / "README.md").read_text(encoding="utf-8")

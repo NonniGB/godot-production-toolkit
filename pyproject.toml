@@ -32,6 +32,9 @@ classifiers = [
 ]
 dependencies = []
 
+[project.optional-dependencies]
+dev = ["jsonschema>=4.23"]
+
 [tool.godot-production-toolkit]
 tool_count = 20
 umbrella_package = "godot-production-doctor"

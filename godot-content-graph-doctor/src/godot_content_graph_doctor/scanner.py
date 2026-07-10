@@ -16,10 +16,14 @@ def validate_content_graph(project: Path, specs: tuple[CollectionSpec, ...]) -> 
     root = project.resolve()
     collections: dict[str, CollectionData] = {}
     findings: list[Finding] = []
+    unavailable: set[str] = set()
 
     for spec in specs:
-        data = _load_collection(root, spec)
+        data, load_findings = _load_collection(root, spec)
         collections[spec.name] = data
+        findings.extend(load_findings)
+        if load_findings:
+            unavailable.add(spec.name)
         _index_ids(data, findings)
 
     referenced: dict[str, set[str]] = {name: set() for name in collections}
@@ -37,6 +41,8 @@ def validate_content_graph(project: Path, specs: tuple[CollectionSpec, ...]) -> 
                         message=f"Reference field {ref_spec.field!r} targets unknown collection {ref_spec.collection!r}.",
                     )
                 )
+                continue
+            if target.spec.name in unavailable:
                 continue
             for record in data.records:
                 source_id = str(record.get(data.spec.id_field, "<missing id>"))
@@ -177,21 +183,48 @@ def changed_file_impact(project: Path, specs: tuple[CollectionSpec, ...], change
     }
 
 
-def _load_collection(root: Path, spec: CollectionSpec) -> CollectionData:
+def _load_collection(root: Path, spec: CollectionSpec) -> tuple[CollectionData, list[Finding]]:
     path = (root / spec.path).resolve()
+    empty = CollectionData(spec=spec, records=[], source_path=str(path), ids={})
     if not path.exists():
-        return CollectionData(spec=spec, records=[], source_path=str(path), ids={})
-    if path.suffix.lower() == ".json":
-        raw = json.loads(path.read_text(encoding="utf-8"))
-    elif path.suffix.lower() == ".csv":
-        with path.open(newline="", encoding="utf-8") as handle:
-            raw = list(csv.DictReader(handle))
-    elif path.suffix.lower() == ".toml":
-        raw = tomllib.loads(path.read_text(encoding="utf-8"))
-    else:
-        raw = []
+        return empty, [_collection_input_finding(spec, "collection_input_missing", f"Collection file does not exist: {path}.")]
+    if not path.is_file():
+        return empty, [_collection_input_finding(spec, "collection_input_unsupported", f"Collection path is not a file: {path}.")]
+    suffix = path.suffix.lower()
+    if suffix not in {".json", ".csv", ".toml"}:
+        return empty, [_collection_input_finding(spec, "collection_input_unsupported", f"Unsupported collection format {suffix or '<none>'}: {path}.")]
+    try:
+        if suffix == ".json":
+            raw = json.loads(path.read_text(encoding="utf-8"))
+        elif suffix == ".csv":
+            with path.open(newline="", encoding="utf-8") as handle:
+                raw = list(csv.DictReader(handle))
+        else:
+            raw = tomllib.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError, tomllib.TOMLDecodeError, csv.Error) as exc:
+        return empty, [_collection_input_finding(spec, "collection_input_unreadable", f"Could not read collection {path}: {exc}.")]
     records = _records_from_raw(raw, spec.name)
-    return CollectionData(spec=spec, records=records, source_path=str(path), ids={})
+    if not _supported_collection_shape(raw, spec.name):
+        return empty, [_collection_input_finding(spec, "collection_input_unsupported", f"Collection {path} has an unsupported top-level shape.")]
+    return CollectionData(spec=spec, records=records, source_path=str(path), ids={}), []
+
+
+def _collection_input_finding(spec: CollectionSpec, rule_id: str, message: str) -> Finding:
+    return Finding(rule_id=rule_id, severity="error", collection=spec.name, message=message)
+
+
+def _supported_collection_shape(raw: Any, collection_name: str) -> bool:
+    if isinstance(raw, list):
+        return all(isinstance(item, dict) for item in raw)
+    if not isinstance(raw, dict):
+        return False
+    if not raw:
+        return True
+    for key in ("items", "data", "rows", collection_name):
+        value = raw.get(key)
+        if isinstance(value, list):
+            return all(isinstance(item, dict) for item in value)
+    return all(isinstance(value, dict) for value in raw.values())
 
 
 def _finding_dict(finding: Finding) -> dict[str, Any]:

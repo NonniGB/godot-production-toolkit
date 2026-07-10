@@ -52,7 +52,14 @@ def build_dashboard(
         if baseline_dir is not None
         else []
     )
-    images = [_image_card(path) for path in sorted(reports_dir.rglob("*")) if path.suffix.lower() in IMAGE_EXTENSIONS]
+    images: list[dict[str, Any]] = []
+    for path in sorted(reports_dir.rglob("*")):
+        if path.suffix.lower() not in IMAGE_EXTENSIONS:
+            continue
+        try:
+            images.append(_image_card(path))
+        except OSError as exc:
+            reports.append(_artifact_error_card(path, link_base, reports_dir, exc))
     status_counts = {
         "blocked": sum(1 for report in reports if report["status"] == "blocked"),
         "attention": sum(1 for report in reports if report["status"] == "attention"),
@@ -221,7 +228,9 @@ def _report_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, A
 def _json_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, Any]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
+        if not isinstance(data, dict):
+            raise ValueError("top-level JSON value must be an object")
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
         return {
             "path": path.as_posix(),
             "report_key": _report_key(path, reports_root),
@@ -231,14 +240,19 @@ def _json_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, Any
             "errors": 1,
             "warnings": 0,
             "status": "blocked",
-            "summary": f"Unreadable JSON: {exc}",
+            "summary": f"Unreadable report: {exc}",
+            "malformed": True,
             **_workflow_for(path.stem, "json", path.as_posix()),
         }
-    summary = data.get("summary", {}) if isinstance(data, dict) else {}
-    errors = int(summary.get("errors", summary.get("error_count", 0))) if isinstance(summary, dict) else 0
-    warnings = int(summary.get("warnings", summary.get("warning_count", 0))) if isinstance(summary, dict) else 0
-    workflow, category = _explicit_grouping(data, summary) if isinstance(data, dict) else (None, None)
-    report_kind = str(data.get("kind") or _metadata_report_kind(data) or "json") if isinstance(data, dict) else "json"
+    summary = data.get("summary", {})
+    if not isinstance(summary, dict):
+        return _malformed_json_card(path, link_base, reports_root, "summary must be an object")
+    if _invalid_summary_counts(summary):
+        return _malformed_json_card(path, link_base, reports_root, "summary counts must be non-negative integers")
+    errors = _safe_nonnegative_int(summary.get("errors", summary.get("error_count", 0)))
+    warnings = _safe_nonnegative_int(summary.get("warnings", summary.get("warning_count", 0)))
+    workflow, category = _explicit_grouping(data, summary)
+    report_kind = str(data.get("kind") or _metadata_report_kind(data) or "json")
     card = {
         "path": path.as_posix(),
         "report_key": _report_key(path, reports_root),
@@ -280,6 +294,41 @@ def _json_card(path: Path, link_base: Path, reports_root: Path) -> dict[str, Any
     return card
 
 
+def _safe_nonnegative_int(value: object) -> int:
+    if isinstance(value, bool):
+        return int(value)
+    try:
+        return max(0, int(value))
+    except (TypeError, ValueError, OverflowError):
+        return 0
+
+
+def _invalid_summary_counts(summary: dict[str, Any]) -> bool:
+    for key in ("errors", "warnings", "error_count", "warning_count"):
+        if key not in summary:
+            continue
+        value = summary[key]
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            return True
+    return False
+
+
+def _malformed_json_card(path: Path, link_base: Path, reports_root: Path, message: str) -> dict[str, Any]:
+    return {
+        "path": path.as_posix(),
+        "report_key": _report_key(path, reports_root),
+        "source_href": _source_href(path, link_base),
+        "tool": path.stem,
+        "kind": "json",
+        "errors": 1,
+        "warnings": 0,
+        "status": "blocked",
+        "summary": f"Unreadable report: {message}",
+        "malformed": True,
+        **_workflow_for(path.stem, "json", path.as_posix()),
+    }
+
+
 def _image_card(path: Path) -> dict[str, Any]:
     return {
         "path": path.as_posix(),
@@ -287,6 +336,22 @@ def _image_card(path: Path) -> dict[str, Any]:
         "mime": _mime_type(path),
         "size_bytes": path.stat().st_size,
         "data_uri": _data_uri(path),
+    }
+
+
+def _artifact_error_card(path: Path, link_base: Path, reports_root: Path, exc: OSError) -> dict[str, Any]:
+    return {
+        "path": path.as_posix(),
+        "report_key": _report_key(path, reports_root),
+        "source_href": _source_href(path, link_base),
+        "tool": path.stem,
+        "kind": "artifact_error",
+        "errors": 1,
+        "warnings": 0,
+        "status": "blocked",
+        "summary": f"Unreadable image artifact: {exc}",
+        "malformed": True,
+        **_workflow_for(path.stem, "image", path.as_posix()),
     }
 
 

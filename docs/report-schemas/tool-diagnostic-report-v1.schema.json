@@ -31,6 +31,12 @@
     },
     "summary": {
       "type": "object",
+      "properties": {
+        "errors": { "type": "integer", "minimum": 0 },
+        "warnings": { "type": "integer", "minimum": 0 },
+        "error_count": { "type": "integer", "minimum": 0 },
+        "warning_count": { "type": "integer", "minimum": 0 }
+      },
       "additionalProperties": true
     },
     "findings": {

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+import shlex
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -21,8 +22,12 @@ class MigrationStep:
         return f"{self.from_version}->{self.to_version}"
 
 
-def build_migration_command(template: str, input_path: Path, output_path: Path) -> str:
-    return template.replace("{input}", str(input_path)).replace("{output}", str(output_path))
+def build_migration_command(template: str, input_path: Path, output_path: Path) -> list[str]:
+    """Build an argv without allowing fixture paths or templates through a shell."""
+    parts = shlex.split(template, posix=True)
+    if not parts:
+        raise ValueError("migration command must name an executable")
+    return [part.replace("{input}", str(input_path)).replace("{output}", str(output_path)) for part in parts]
 
 
 def load_migration_chain(path: Path) -> list[MigrationStep]:
@@ -89,11 +94,13 @@ def build_chain_commands(
     steps: list[MigrationStep],
     input_path: Path,
     output_dir: Path,
-) -> list[tuple[MigrationStep, Path, Path, str]]:
-    commands: list[tuple[MigrationStep, Path, Path, str]] = []
+    relative_path: Path | None = None,
+) -> list[tuple[MigrationStep, Path, Path, list[str]]]:
+    commands: list[tuple[MigrationStep, Path, Path, list[str]]] = []
     current_input = input_path
+    relative = relative_path or Path(input_path.name)
     for step in steps:
-        output_path = output_dir / f"{input_path.stem}.v{step.to_version}{input_path.suffix}"
+        output_path = output_dir / relative.parent / f"{relative.stem}.v{step.to_version}{relative.suffix}"
         command = build_migration_command(step.command, current_input, output_path)
         commands.append((step, current_input, output_path, command))
         current_input = output_path
@@ -196,11 +203,33 @@ def _sample_paths(label: str, paths: list[str], limit: int = 3) -> list[str]:
     return [f"{label}: {shown}{suffix}"]
 
 
-def run_migration_command(command: str, *, capture_output: bool = False) -> Finding | None:
-    if capture_output:
-        completed = subprocess.run(command, shell=True, check=False, capture_output=True, text=True)
-    else:
-        completed = subprocess.run(command, shell=True, check=False)
+def run_migration_command(
+    command: list[str], *, capture_output: bool = False, timeout: int = 120
+) -> Finding | None:
+    try:
+        completed = subprocess.run(
+            command,
+            shell=False,
+            check=False,
+            capture_output=capture_output,
+            text=True,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as exc:
+        output_note = _exception_output_note(exc) if capture_output else ""
+        return Finding(
+            "migration_command_timed_out",
+            "error",
+            "$",
+            f"Migration command exceeded the {timeout}-second timeout.{output_note}",
+        )
+    except OSError as exc:
+        return Finding(
+            "migration_command_unavailable",
+            "error",
+            "$",
+            f"Migration command could not be started: {exc}.",
+        )
     if completed.returncode != 0:
         output_note = _command_output_note(completed) if capture_output else ""
         return Finding(
@@ -210,6 +239,14 @@ def run_migration_command(command: str, *, capture_output: bool = False) -> Find
             f"Migration command failed with exit code {completed.returncode}.{output_note}",
         )
     return None
+
+
+def _exception_output_note(exc: subprocess.TimeoutExpired) -> str:
+    class Output:
+        stdout = exc.stdout.decode(errors="replace") if isinstance(exc.stdout, bytes) else exc.stdout
+        stderr = exc.stderr.decode(errors="replace") if isinstance(exc.stderr, bytes) else exc.stderr
+
+    return _command_output_note(Output())
 
 
 def _command_output_note(completed: subprocess.CompletedProcess[str]) -> str:

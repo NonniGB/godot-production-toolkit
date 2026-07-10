@@ -26,10 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out project
-        uses: actions/checkout@v4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.11"
 
@@ -82,7 +82,7 @@ jobs:
           godot --headless --path "$GODOT_PROJECT_DIR" --export-release "$EXPORT_PRESET" "$EXPORT_OUTPUT"
 
       - name: Upload Android build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           # Change this name if your release process expects a different artifact.
           name: android-export
@@ -90,8 +90,7 @@ jobs:
 
       - name: Upload Android reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: android-export-reports
           path: ${{ env.REPORTS_DIR }}
-

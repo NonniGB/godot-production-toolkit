@@ -7,6 +7,10 @@ or content packs live in JSON, CSV, or TOML files.
 It does not need the Godot editor. It reads content files, checks ids and
 references, and produces reports that work locally or in CI.
 
+Every configured collection is required. Missing, unreadable, malformed, or
+unsupported inputs are reported as errors so incomplete content cannot appear
+healthy.
+
 ## Install
 
 ```powershell

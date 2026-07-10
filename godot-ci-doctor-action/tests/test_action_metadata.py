@@ -18,7 +18,7 @@ class ActionMetadataTests(unittest.TestCase):
     def test_action_installs_python_and_runs_project_doctor(self) -> None:
         text = (ROOT / "action.yml").read_text(encoding="utf-8")
 
-        self.assertIn("actions/setup-python@v5", text)
+        self.assertIn("actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065", text)
         self.assertIn("python -m pip install", text)
         self.assertIn('python -m pip install "${tool_packages[@]}"', text)
         self.assertIn('default: "godot-production-doctor ', text)
@@ -51,7 +51,7 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertIn("## Local Reproduction", readme)
         self.assertIn("## Artifacts", readme)
         self.assertIn("SARIF", readme)
-        self.assertIn("godot-project-doctor run", readme)
+        self.assertIn("godot-production-doctor run", readme)
         self.assertIn("shell-style package list", readme)
 
 

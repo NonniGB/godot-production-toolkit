@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.4 - 2026-07-10
+
+- Missing, unreadable, malformed, and unsupported configured collections now
+  produce explicit errors instead of empty clean results or tracebacks.
+- Reference checks avoid secondary missing-reference noise when a target
+  collection could not be loaded.
+
 ## 0.1.3 - 2026-06-09
 
 - Added report metadata with schema version, tool version, project path, and supported output formats.

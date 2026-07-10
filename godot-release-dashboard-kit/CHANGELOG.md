@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.16 - 2026-07-10
+
+- Malformed, unreadable, and non-object JSON inputs now become blocked cards.
+- Invalid summary count values no longer crash dashboard generation.
+
 ## 0.1.15 - 2026-07-06
 
 - HTML dashboards now show visual-smoke evidence sections for screenshot

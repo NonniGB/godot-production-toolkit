@@ -13,11 +13,13 @@ dashboard artifacts.
 
 - Seventeen standalone Python CLI packages.
 - One umbrella CLI package: `godot-production-doctor`, which installs the
-  `godot-project-doctor` command.
+  same-named primary command and the historical `godot-project-doctor` alias.
 - Two composite GitHub Actions: `godot-ci-doctor-action` and
   `godot-release-dashboard-action`.
 - JSON output for scripts and CI.
 - SARIF output for selected CI/code-scanning checks.
+- Suite CI on Python 3.11 and 3.14, including all-package wheel builds and clean
+  installed-command smoke tests.
 - Markdown, HTML, SVG, Mermaid, text, PNG diff, and generated asset outputs for human review.
 - Root and per-tool tests, examples, contribution docs, security notes, and changelogs.
 

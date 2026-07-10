@@ -1,7 +1,7 @@
 # Godot CI Doctor Action
 
 This composite action installs the Godot CI and release evidence tools, runs
-`godot-project-doctor`, and writes JSON, Markdown, and HTML summaries for
+`godot-production-doctor`, and writes JSON, Markdown, and HTML summaries for
 GitHub Actions artifacts.
 
 ## Usage
@@ -18,15 +18,15 @@ jobs:
   doctor:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@06d66f390a45743b4437d09bc63eb8778b52c0a4
         with:
           project: .
           checks: assets,export,input,localization,signals,mobile_perf
           tool-packages: godot-production-doctor godot-asset-pipeline-doctor godot-export-preset-doctor godot-input-map-auditor godot-localization-qa-guard godot-scene-signal-auditor godot-mobile-perf-doctor
           fail-on: error
           reports-dir: reports/godot-project-doctor
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: godot-doctor-reports
@@ -38,8 +38,8 @@ jobs:
 Run the same checks locally before pushing:
 
 ```powershell
-godot-project-doctor run --project . --checks assets,export,input,localization,signals,mobile_perf --reports-dir reports/godot-project-doctor --format json --output reports/godot-project-doctor/summary.json
-godot-project-doctor summarize reports/godot-project-doctor --format html --output reports/godot-project-doctor/summary.html
+godot-production-doctor run --project . --checks assets,export,input,localization,signals,mobile_perf --reports-dir reports/godot-project-doctor --format json --output reports/godot-project-doctor/summary.json
+godot-production-doctor summarize reports/godot-project-doctor --format html --output reports/godot-project-doctor/summary.html
 ```
 
 ## Artifacts

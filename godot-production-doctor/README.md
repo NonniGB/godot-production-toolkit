@@ -1,7 +1,8 @@
 # Godot Production Doctor
 
-`godot-production-doctor` installs the `godot-project-doctor` umbrella CLI for
-Godot CI and release evidence checks. The command recommends package installs,
+`godot-production-doctor` installs a same-named umbrella CLI for Godot CI and
+release evidence checks. The historical `godot-project-doctor` command remains
+available for existing scripts. The command recommends package installs,
 plans, runs, summarizes, compares, and collects the standalone tools without
 hiding their individual commands.
 

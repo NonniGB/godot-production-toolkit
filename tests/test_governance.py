@@ -37,9 +37,12 @@ class GovernanceTests(unittest.TestCase):
 
         dependabot = (ROOT / ".github/dependabot.yml").read_text(encoding="utf-8")
         self.assertIn('package-ecosystem: "pip"', dependabot)
-        self.assertIn('directory: "/godot-production-doctor"', dependabot)
-        self.assertIn('directory: "/godot-asset-pipeline-doctor"', dependabot)
-        self.assertIn('directory: "/godot-mobile-perf-doctor"', dependabot)
+        self.assertIn('directories:', dependabot)
+        self.assertIn('- "/godot-production-doctor"', dependabot)
+        self.assertIn('- "/godot-asset-pipeline-doctor"', dependabot)
+        self.assertIn('- "/godot-mobile-perf-doctor"', dependabot)
+        self.assertIn('- "/godot-save-schema-guard"', dependabot)
+        self.assertIn('- "/pixel-space-asset-toolkit"', dependabot)
 
     def test_fixture_contribution_guide_warns_about_private_inputs(self) -> None:
         guide = ROOT / "examples" / "CONTRIBUTING_FIXTURES.md"

@@ -939,8 +939,8 @@ def render_github_action_example(checks: list[str] | None = None) -> str:
             "  godot-release-evidence:",
             "    runs-on: ubuntu-latest",
             "    steps:",
-            "      - uses: actions/checkout@v4",
-            "      - uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2",
+            "      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+            "      - uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@06d66f390a45743b4437d09bc63eb8778b52c0a4",
             "        with:",
             "          project: .",
             f"          checks: {check_text}",
@@ -971,18 +971,113 @@ def run_plan(plan: dict[str, Any], dry_run: bool = False, timeout: int = 120) ->
     reports_dir.mkdir(parents=True, exist_ok=True)
     results: list[dict[str, Any]] = []
     for command in plan["commands"]:
-        completed = subprocess.run(command["argv"], capture_output=True, text=True, timeout=timeout, check=False)
-        results.append(
-            {
+        report_path = Path(str(command["report"]))
+        report_path.unlink(missing_ok=True)
+        try:
+            completed = subprocess.run(
+                command["argv"], capture_output=True, text=True, timeout=timeout, check=False
+            )
+            result = {
                 "id": command["id"],
                 "returncode": completed.returncode,
                 "stdout": completed.stdout[-4000:],
                 "stderr": completed.stderr[-4000:],
                 "report": command["report"],
             }
-        )
-    summary = summarize_reports(reports_dir)
+            if completed.returncode != 0:
+                _write_execution_failure_report(
+                    report_path,
+                    command,
+                    "tool_execution_failed",
+                    f"Tool exited with code {completed.returncode}.",
+                    stdout=completed.stdout,
+                    stderr=completed.stderr,
+                )
+            elif not report_path.is_file():
+                _write_execution_failure_report(
+                    report_path,
+                    command,
+                    "tool_report_missing",
+                    "Tool completed without writing its expected JSON report.",
+                )
+        except subprocess.TimeoutExpired as exc:
+            result = {
+                "id": command["id"],
+                "returncode": None,
+                "stdout": _bounded_output(exc.stdout),
+                "stderr": _bounded_output(exc.stderr),
+                "report": command["report"],
+                "status": "timed_out",
+            }
+            _write_execution_failure_report(
+                report_path,
+                command,
+                "tool_execution_timeout",
+                f"Tool exceeded the {timeout}-second timeout.",
+                stdout=exc.stdout,
+                stderr=exc.stderr,
+            )
+        except OSError as exc:
+            result = {
+                "id": command["id"],
+                "returncode": None,
+                "stdout": "",
+                "stderr": str(exc),
+                "report": command["report"],
+                "status": "unavailable",
+            }
+            _write_execution_failure_report(
+                report_path,
+                command,
+                "tool_executable_unavailable",
+                f"Tool could not be started: {exc}.",
+            )
+        results.append(result)
+    summary = summarize_reports(reports_dir, commands=plan["commands"])
     return {"status": "completed", "plan": plan, "results": results, "summary": summary["summary"], "reports": summary["reports"]}
+
+
+def _bounded_output(value: str | bytes | None, limit: int = 4000) -> str:
+    if value is None:
+        return ""
+    text = value.decode(errors="replace") if isinstance(value, bytes) else str(value)
+    return text[-limit:]
+
+
+def _write_execution_failure_report(
+    path: Path,
+    command: dict[str, Any],
+    rule_id: str,
+    message: str,
+    *,
+    stdout: str | bytes | None = None,
+    stderr: str | bytes | None = None,
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    finding = {
+        "rule_id": rule_id,
+        "severity": "error",
+        "message": message,
+        "check_id": str(command["id"]),
+    }
+    if _bounded_output(stdout):
+        finding["stdout"] = _bounded_output(stdout)
+    if _bounded_output(stderr):
+        finding["stderr"] = _bounded_output(stderr)
+    path.write_text(
+        json.dumps(
+            {
+                "tool": str(command["id"]),
+                "kind": "tool_execution",
+                "summary": {"errors": 1, "warnings": 0},
+                "findings": [finding],
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
 
 def collect_evidence(
@@ -1030,7 +1125,33 @@ def summarize_reports(reports_dir: Path, commands: list[dict[str, Any]] | None =
     command_by_report = _commands_by_report_path(commands or [])
     reports: list[dict[str, Any]] = []
     for path in sorted(reports_dir.glob("*.json")):
-        data = json.loads(path.read_text(encoding="utf-8"))
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                raise ValueError("top-level JSON value must be an object")
+            summary_data = data.get("summary")
+            if not isinstance(summary_data, dict):
+                raise ValueError("summary must be an object")
+            for key in ("errors", "warnings", "error_count", "warning_count"):
+                if key in summary_data and (
+                    isinstance(summary_data[key], bool)
+                    or not isinstance(summary_data[key], int)
+                    or summary_data[key] < 0
+                ):
+                    raise ValueError(f"summary.{key} must be a non-negative integer")
+        except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+            data = {
+                "tool": path.stem,
+                "kind": "malformed_report",
+                "summary": {"errors": 1, "warnings": 0},
+                "findings": [
+                    {
+                        "rule_id": "malformed_report",
+                        "severity": "error",
+                        "message": f"Could not read report: {exc}.",
+                    }
+                ],
+            }
         errors, warnings = _severity_counts(data)
         report = {
             "tool": _tool_name(data, path),
@@ -1412,8 +1533,10 @@ def _tool_name(data: dict[str, Any], path: Path) -> str:
 
 def _severity_counts(data: dict[str, Any]) -> tuple[int, int]:
     summary = data.get("summary", {})
-    errors = int(summary.get("errors", summary.get("error_count", 0)))
-    warnings = int(summary.get("warnings", summary.get("warning_count", 0)))
+    if not isinstance(summary, dict):
+        summary = {}
+    errors = _safe_nonnegative_int(summary.get("errors", summary.get("error_count", 0)))
+    warnings = _safe_nonnegative_int(summary.get("warnings", summary.get("warning_count", 0)))
     if errors or warnings:
         return errors, warnings
 
@@ -1426,6 +1549,15 @@ def _severity_counts(data: dict[str, Any]) -> tuple[int, int]:
         elif severity == "warning":
             warnings += 1
     return errors, warnings
+
+
+def _safe_nonnegative_int(value: object) -> int:
+    if isinstance(value, bool):
+        return int(value)
+    try:
+        return max(0, int(value))
+    except (TypeError, ValueError, OverflowError):
+        return 0
 
 
 def _finding_count(data: dict[str, Any]) -> int:

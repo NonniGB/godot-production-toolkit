@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tomllib
@@ -18,10 +19,11 @@ def main(argv: list[str] | None = None) -> int:
         description="Smoke test published CLI entry points from the checkout.",
     )
     parser.add_argument("--json", action="store_true", help="Print machine-readable smoke results.")
+    parser.add_argument("--installed", action="store_true", help="Invoke installed console scripts instead of source modules.")
     args = parser.parse_args(argv)
 
     root = Path(__file__).resolve().parent
-    results = run_cli_smoke(root)
+    results = run_cli_smoke(root, installed=args.installed)
     failures = [result for result in results if result.error]
 
     if args.json:
@@ -48,7 +50,7 @@ def main(argv: list[str] | None = None) -> int:
     return 1 if failures else 0
 
 
-def run_cli_smoke(root: Path) -> list["SmokeResult"]:
+def run_cli_smoke(root: Path, installed: bool = False) -> list["SmokeResult"]:
     env = _checkout_env(root)
     results: list[SmokeResult] = []
     for package in PUBLISHED_PACKAGES:
@@ -68,10 +70,46 @@ def run_cli_smoke(root: Path) -> list["SmokeResult"]:
             continue
         module, function = target
         for smoke_arg in SMOKE_ARGS:
-            results.append(
-                _run_entrypoint(package, PACKAGE_VERSION_FILES[package]["cli_name"], module, function, smoke_arg, env)
-            )
+            if installed:
+                results.append(_run_installed(package, PACKAGE_VERSION_FILES[package]["cli_name"], smoke_arg))
+            else:
+                results.append(
+                    _run_entrypoint(package, PACKAGE_VERSION_FILES[package]["cli_name"], module, function, smoke_arg, env)
+                )
+    if "godot-production-doctor" in PUBLISHED_PACKAGES:
+        for smoke_arg in SMOKE_ARGS:
+            if installed:
+                results.append(_run_installed("godot-production-doctor", "godot-production-doctor", smoke_arg))
+            else:
+                results.append(
+                    _run_entrypoint(
+                        "godot-production-doctor",
+                        "godot-production-doctor",
+                        "godot_project_doctor.cli",
+                        "entrypoint",
+                        smoke_arg,
+                        env,
+                    )
+                )
     return results
+
+
+def _run_installed(package: str, cli_name: str, argument: str) -> "SmokeResult":
+    executable = shutil.which(cli_name)
+    if executable is None:
+        return SmokeResult(
+            package=package,
+            cli_name=cli_name,
+            argument=argument,
+            returncode=1,
+            stdout="",
+            stderr="console script was not found on PATH",
+            error="missing installed console script",
+        )
+    completed = subprocess.run(
+        [executable, argument], check=False, capture_output=True, text=True, timeout=15
+    )
+    return _smoke_result(package, cli_name, argument, completed)
 
 
 def _checkout_env(root: Path) -> dict[str, str]:
@@ -119,11 +157,22 @@ def _run_entrypoint(
         argument,
     ]
     completed = subprocess.run(command, check=False, capture_output=True, env=env, text=True, timeout=15)
+    return _smoke_result(package, cli_name, argument, completed)
+
+
+def _smoke_result(
+    package: str,
+    cli_name: str,
+    argument: str,
+    completed: subprocess.CompletedProcess[str],
+) -> "SmokeResult":
     output = f"{completed.stdout}\n{completed.stderr}".strip()
     error = None
     if completed.returncode != 0:
         error = f"expected exit 0, got {completed.returncode}"
-    elif argument == "--version" and cli_name not in output:
+    elif argument == "--version" and cli_name not in output and not (
+        package == "godot-production-doctor" and "godot-project-doctor" in output
+    ):
         error = f"--version output did not contain {cli_name!r}"
     elif argument == "--help" and "usage:" not in output.lower():
         error = "--help output did not contain usage text"

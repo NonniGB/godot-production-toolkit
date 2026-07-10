@@ -19,6 +19,10 @@ Run checks only after reviewing the planned commands:
 godot-project-doctor run godot-project-doctor.toml --format markdown --output reports\summary.md
 ```
 
+Each enabled check must write a fresh expected JSON report. A failed command,
+timeout, unavailable executable, or missing report is converted into an error
+report and makes the umbrella result fail.
+
 Use JSON for planning and HTML or Markdown when someone needs to read the report.
 
 Compare report folders when a job keeps a previous run as an artifact:

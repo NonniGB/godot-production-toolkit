@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-production-doctor"
-version = "0.2.3"
+version = "0.2.4"
 description = "Umbrella CLI for Godot CI and release evidence checks."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -27,6 +27,7 @@ Issues = "https://github.com/NonniGB/godot-production-toolkit/issues"
 
 [project.scripts]
 godot-project-doctor = "godot_project_doctor.cli:entrypoint"
+godot-production-doctor = "godot_project_doctor.cli:entrypoint"
 
 [tool.setuptools.packages.find]
 where = ["src"]

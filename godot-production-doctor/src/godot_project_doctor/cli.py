@@ -61,7 +61,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="godot-project-doctor",
         description="Plan, run, and summarize Godot CI and release evidence checks.",
     )
-    parser.add_argument("--version", action="version", version="godot-project-doctor 0.2.3")
+    parser.add_argument("--version", action="version", version="godot-project-doctor 0.2.4")
     subparsers = parser.add_subparsers(dest="command")
 
     plan = subparsers.add_parser("plan", help="Show the tool commands that would run.")

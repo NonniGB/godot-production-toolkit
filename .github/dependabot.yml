@@ -1,19 +1,25 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/godot-production-doctor"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "pip"
-    directory: "/godot-asset-pipeline-doctor"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "pip"
-    directory: "/godot-export-preset-doctor"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "pip"
-    directory: "/godot-mobile-perf-doctor"
+    directories:
+      - "/gdscript-api-comment-coverage"
+      - "/godot-asset-pipeline-doctor"
+      - "/godot-content-graph-doctor"
+      - "/godot-export-preset-doctor"
+      - "/godot-gdscript-architecture-guard"
+      - "/godot-input-map-auditor"
+      - "/godot-localization-qa-guard"
+      - "/godot-mobile-perf-doctor"
+      - "/godot-mobile-ui-doctor"
+      - "/godot-pack-mod-doctor"
+      - "/godot-production-doctor"
+      - "/godot-release-dashboard-kit"
+      - "/godot-runtime-telemetry-lab"
+      - "/godot-save-schema-guard"
+      - "/godot-scenario-report-kit"
+      - "/godot-scene-signal-auditor"
+      - "/godot-visual-smoke-test-kit"
+      - "/pixel-space-asset-toolkit"
     schedule:
       interval: "weekly"
   - package-ecosystem: "github-actions"

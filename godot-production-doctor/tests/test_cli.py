@@ -13,9 +13,53 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from godot_project_doctor.cli import main
+from godot_project_doctor.runner import run_plan, summarize_reports
 
 
 class ProjectDoctorCliTests(unittest.TestCase):
+    def test_malformed_report_is_counted_as_an_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            reports = Path(tmp)
+            (reports / "broken.json").write_text("[]", encoding="utf-8")
+
+            summary = summarize_reports(reports)
+
+            self.assertEqual(summary["summary"]["errors"], 1)
+            self.assertEqual(summary["reports"][0]["findings"][0]["rule_id"], "malformed_report")
+
+    def test_invalid_report_counts_are_counted_as_an_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            reports = Path(tmp)
+            (reports / "broken.json").write_text(
+                '{"tool":"broken","summary":{"errors":null}}', encoding="utf-8"
+            )
+
+            summary = summarize_reports(reports)
+
+            self.assertEqual(summary["summary"]["errors"], 1)
+            self.assertEqual(summary["reports"][0]["findings"][0]["rule_id"], "malformed_report")
+
+    def test_run_replaces_stale_report_when_executable_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            reports = Path(tmp)
+            report = reports / "check.json"
+            report.write_text('{"summary":{"errors":0}}', encoding="utf-8")
+            plan = {
+                "reports_dir": str(reports),
+                "commands": [
+                    {
+                        "id": "missing-check",
+                        "argv": ["definitely-not-a-real-doctor-command"],
+                        "report": str(report),
+                    }
+                ],
+            }
+
+            result = run_plan(plan)
+
+            self.assertEqual(result["summary"]["errors"], 1)
+            self.assertEqual(result["reports"][0]["findings"][0]["rule_id"], "tool_executable_unavailable")
+
     def test_plan_json_lists_enabled_and_disabled_tools(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -653,7 +697,7 @@ allow_overrides = true
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-project-doctor 0.2.3", stdout.getvalue())
+        self.assertIn("godot-project-doctor 0.2.4", stdout.getvalue())
 
     def test_module_execution_prints_version(self) -> None:
         env = os.environ.copy()
@@ -668,7 +712,7 @@ allow_overrides = true
         )
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn("godot-project-doctor 0.2.3", completed.stdout)
+        self.assertIn("godot-project-doctor 0.2.4", completed.stdout)
 
 
 if __name__ == "__main__":

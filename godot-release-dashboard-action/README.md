@@ -17,7 +17,7 @@ jobs:
   dashboard:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
       - name: Download toolkit reports
         uses: actions/download-artifact@v4
@@ -26,7 +26,7 @@ jobs:
           path: reports/release-evidence
           merge-multiple: true
 
-      - uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@main
+      - uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@06d66f390a45743b4437d09bc63eb8778b52c0a4
         with:
           reports-dir: reports/release-evidence
           dashboard-dir: reports/release-dashboard

@@ -27,13 +27,13 @@ class ReleaseDashboardActionMetadataTests(unittest.TestCase):
     def test_action_builds_html_and_json_dashboard_artifacts(self) -> None:
         text = (ROOT / "action.yml").read_text(encoding="utf-8")
 
-        self.assertIn("actions/setup-python@v5", text)
+        self.assertIn("actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065", text)
         self.assertIn("python -m pip install", text)
         self.assertIn('python -m pip install "${tool_packages[@]}"', text)
         self.assertIn("godot-release-dashboard build", text)
         self.assertIn("--format json", text)
         self.assertIn('"${extra_args[@]}"', text)
-        self.assertIn("actions/upload-artifact@v4", text)
+        self.assertIn("actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", text)
 
     def test_shell_steps_quote_user_facing_inputs(self) -> None:
         text = (ROOT / "action.yml").read_text(encoding="utf-8")

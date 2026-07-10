@@ -2,6 +2,21 @@ from __future__ import annotations
 
 
 RULE_HELP: dict[str, dict[str, str]] = {
+    "collection_input_missing": {
+        "title": "Collection input missing",
+        "explanation": "A configured collection file does not exist, so the graph cannot be checked reliably.",
+        "suggestion": "Create the file or correct the collection path in the configuration.",
+    },
+    "collection_input_unreadable": {
+        "title": "Collection input unreadable",
+        "explanation": "A configured collection could not be decoded or parsed.",
+        "suggestion": "Check file permissions, encoding, and JSON, CSV, or TOML syntax.",
+    },
+    "collection_input_unsupported": {
+        "title": "Collection input unsupported",
+        "explanation": "A configured collection uses an unsupported format or data shape.",
+        "suggestion": "Use a JSON, CSV, or TOML file with a list or supported object collection shape.",
+    },
     "duplicate_id": {
         "title": "Duplicate id",
         "explanation": "Two or more records in the same collection use the same id, so references may resolve unpredictably.",

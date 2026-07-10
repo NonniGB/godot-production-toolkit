@@ -24,8 +24,27 @@ class MigrationTests(unittest.TestCase):
 
         self.assertEqual(
             command,
-            f"godot --headless --script migrate.gd --input {Path('old/save.json')} --output {Path('new/save.json')}",
+            [
+                "godot", "--headless", "--script", "migrate.gd", "--input",
+                str(Path("old/save.json")), "--output", str(Path("new/save.json")),
+            ],
         )
+
+    def test_fixture_paths_remain_single_arguments(self) -> None:
+        command = build_migration_command(
+            "python migrate.py {input} {output}",
+            Path("old saves/save & one.json"),
+            Path("new saves/save;one.json"),
+        )
+
+        self.assertEqual(command[2], str(Path("old saves/save & one.json")))
+        self.assertEqual(command[3], str(Path("new saves/save;one.json")))
+
+    def test_empty_or_unbalanced_command_template_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            build_migration_command("   ", Path("old.json"), Path("new.json"))
+        with self.assertRaises(ValueError):
+            build_migration_command('python "unterminated', Path("old.json"), Path("new.json"))
 
     def test_parses_ordered_migration_chain(self) -> None:
         steps = parse_migration_chain(
@@ -54,6 +73,36 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(commands[0][2], Path("migrated/save.v2.json"))
         self.assertIn(str(Path("migrated/save.v2.json")), commands[1][3])
         self.assertEqual(commands[1][2], Path("migrated/save.v3.json"))
+
+    def test_chain_preserves_nested_relative_path(self) -> None:
+        steps = parse_migration_chain(
+            {"steps": [{"from": "1", "to": "2", "command": "copy {input} {output}"}]}
+        )
+
+        commands = build_chain_commands(
+            steps,
+            Path("fixtures/profile-a/save.json"),
+            Path("migrated"),
+            Path("profile-a/save.json"),
+        )
+
+        self.assertEqual(commands[0][2], Path("migrated/profile-a/save.v2.json"))
+
+    def test_missing_migration_executable_is_a_finding(self) -> None:
+        finding = run_migration_command(["definitely-not-a-real-migration-command"])
+
+        self.assertIsNotNone(finding)
+        self.assertEqual(finding.rule_id, "migration_command_unavailable")
+
+    def test_migration_timeout_is_a_finding(self) -> None:
+        finding = run_migration_command(
+            [sys.executable, "-c", "import time; time.sleep(2)"],
+            timeout=1,
+            capture_output=True,
+        )
+
+        self.assertIsNotNone(finding)
+        self.assertEqual(finding.rule_id, "migration_command_timed_out")
 
     def test_analyzes_supported_versions_that_cannot_reach_current(self) -> None:
         steps = parse_migration_chain(

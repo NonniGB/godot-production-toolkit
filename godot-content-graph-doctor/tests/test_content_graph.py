@@ -14,6 +14,42 @@ from godot_content_graph_doctor.cli import main
 
 
 class ContentGraphTests(unittest.TestCase):
+    def test_missing_collection_is_an_error_instead_of_an_empty_success(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / "content-graph.toml"
+            config.write_text(
+                '[collections.items]\npath = "missing.json"\nid = "id"\n',
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--config", str(config), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 1)
+            self.assertIn("collection_input_missing", {item["rule_id"] for item in report["findings"]})
+
+    def test_malformed_and_unsupported_collections_are_errors(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "broken.json").write_text("{", encoding="utf-8")
+            (root / "data.txt").write_text("ignored", encoding="utf-8")
+            config = root / "content-graph.toml"
+            config.write_text(
+                '[collections.broken]\npath = "broken.json"\nid = "id"\n'
+                '[collections.unsupported]\npath = "data.txt"\nid = "id"\n',
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                main([str(root), "--config", str(config), "--format", "json", "--fail-on", "none"])
+
+            rules = {item["rule_id"] for item in json.loads(stdout.getvalue())["findings"]}
+            self.assertEqual(rules, {"collection_input_unreadable", "collection_input_unsupported"})
+
     def test_json_report_finds_missing_reference_and_unused_content(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -80,7 +116,7 @@ collection = "items"
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
-            self.assertEqual(report["metadata"]["tool_version"], "0.1.3")
+            self.assertEqual(report["metadata"]["tool_version"], "0.1.4")
             self.assertEqual(report["summary"]["collections"], 2)
             rule_ids = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("missing_reference", rule_ids)
@@ -173,7 +209,7 @@ collection = "items"
 
             rendered = stdout.getvalue()
             self.assertEqual(exit_code, 0)
-            self.assertIn("Tool version: 0.1.3", rendered)
+            self.assertIn("Tool version: 0.1.4", rendered)
             self.assertIn("Suggested fix", rendered)
             self.assertIn("## Rule Notes", rendered)
             self.assertIn("Missing referenced content", rendered)

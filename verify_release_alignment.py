@@ -83,6 +83,7 @@ PACKAGE_VERSION_FILES = {
         "init": "src/godot_project_doctor/__init__.py",
         "cli": "src/godot_project_doctor/cli.py",
         "cli_name": "godot-project-doctor",
+        "cli_aliases": ("godot-production-doctor",),
     },
     "godot-release-dashboard-kit": {
         "init": "src/godot_release_dashboard_kit/__init__.py",
@@ -126,6 +127,7 @@ ACTION_REF_FILES = (
     "godot-ci-doctor-action/README.md",
     "godot-ci-doctor-action/tool-manifest.json",
 )
+PUBLIC_ACTION_REVISION = "06d66f390a45743b4437d09bc63eb8778b52c0a4"
 
 PUBLIC_ACTION_PROJECTS = {
     "godot-ci-doctor-action",
@@ -157,7 +159,7 @@ def main(argv: list[str] | None = None) -> int:
 def check_release_alignment(root: Path) -> list[str]:
     version = _project_version(root / "pyproject.toml")
     tag = f"v{version}"
-    action_ref = f"@{tag}"
+    action_ref = f"@{PUBLIC_ACTION_REVISION}"
     errors: list[str] = []
 
     _expect_text(root / "CHANGELOG.md", f"## {version}", errors)
@@ -176,6 +178,9 @@ def check_release_alignment(root: Path) -> list[str]:
             errors.append(f"{package}/pyproject.toml project.name does not match package directory")
         if cli_name not in pyproject_data.get("project", {}).get("scripts", {}):
             errors.append(f"{package}/pyproject.toml does not define console script {cli_name!r}")
+        for alias in PACKAGE_VERSION_FILES[package].get("cli_aliases", ()):
+            if alias not in pyproject_data.get("project", {}).get("scripts", {}):
+                errors.append(f"{package}/pyproject.toml does not define console script alias {alias!r}")
         if tool_manifest.get("name") != package:
             errors.append(f"{package}/tool-manifest.json name does not match package directory")
         if tool_manifest.get("entrypoint") != cli_name:

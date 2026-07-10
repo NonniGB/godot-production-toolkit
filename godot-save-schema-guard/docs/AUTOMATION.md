@@ -1,5 +1,9 @@
 # Script And CI Usage
 
+Migration commands run without a system shell and have a 120-second timeout by
+default. Use `--timeout` when a reviewed migration needs longer. Nested fixture
+paths are preserved under the output directory to prevent filename collisions.
+
 Read `tool-manifest.json` first. It declares the CLI entry point, module entry point, output formats, write behavior, and exit-code behavior.
 
 Script-friendly validation command:

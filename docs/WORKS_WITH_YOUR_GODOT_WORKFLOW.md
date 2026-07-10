@@ -50,7 +50,7 @@ existing Godot export/test steps depending on what evidence you want it to
 inspect.
 
 ```yaml
-- uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@v0.1.2
+- uses: NonniGB/godot-production-toolkit/godot-ci-doctor-action@06d66f390a45743b4437d09bc63eb8778b52c0a4
   with:
     project: .
     checks: assets,export,input,localization,signals,mobile_perf
@@ -66,7 +66,7 @@ When other jobs already upload report artifacts, the dashboard action can turn
 those reports into one static review page:
 
 ```yaml
-- uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@main
+- uses: NonniGB/godot-production-toolkit/godot-release-dashboard-action@06d66f390a45743b4437d09bc63eb8778b52c0a4
   with:
     reports-dir: reports/release-evidence
     dashboard-dir: reports/release-dashboard
