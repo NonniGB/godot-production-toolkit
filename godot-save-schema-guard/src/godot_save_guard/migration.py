@@ -204,8 +204,15 @@ def _sample_paths(label: str, paths: list[str], limit: int = 3) -> list[str]:
 
 
 def run_migration_command(
-    command: list[str], *, capture_output: bool = False, timeout: int = 120
+    command: list[str] | str, *, capture_output: bool = False, timeout: int = 120
 ) -> Finding | None:
+    if isinstance(command, str):
+        try:
+            command = shlex.split(command, posix=True)
+        except ValueError as exc:
+            return Finding("migration_command_invalid", "error", "$", f"Invalid migration command: {exc}.")
+        if not command:
+            return Finding("migration_command_invalid", "error", "$", "Migration command must name an executable.")
     try:
         completed = subprocess.run(
             command,
