@@ -322,6 +322,23 @@ def _html(report: dict[str, Any]) -> str:
 
 def _bundle_markdown(bundle: dict[str, Any]) -> list[str]:
     lines = ["", "## Bundle Evidence", ""]
+    manifest = bundle.get("manifest_summary")
+    if isinstance(manifest, dict):
+        lines.extend(
+            [
+                "| Manifest | Value |",
+                "|---|---|",
+                f"| Expected scenarios | {manifest.get('expected_scenarios', 0)} |",
+                f"| Result scenarios | {manifest.get('result_scenarios', 0)} |",
+                f"| Missing results | {manifest.get('missing_results', 0)} |",
+                f"| Unlisted results | {manifest.get('unlisted_results', 0)} |",
+                f"| Missing expected artifacts | {manifest.get('missing_expected_artifacts', 0)} |",
+                f"| Missing required tags | {_list_cell(manifest.get('missing_required_tags'))} |",
+                f"| Missing required flows | {_list_cell(manifest.get('missing_required_critical_flows'))} |",
+                f"| Missing required platforms | {_list_cell(manifest.get('missing_required_platforms'))} |",
+                "",
+            ]
+        )
     telemetry = bundle.get("telemetry_summary")
     if isinstance(telemetry, dict):
         lines.extend(
@@ -400,6 +417,7 @@ def _bundle_html(bundle: Any) -> list[str]:
     rows = [
         "<h2>Bundle Evidence</h2>",
         *_telemetry_summary_html(bundle.get("telemetry_summary")),
+        *_manifest_summary_html(bundle.get("manifest_summary")),
         *_visual_summary_html(bundle.get("visual_summary")),
         *_log_summary_html(bundle.get("log_summaries")),
         "<table><thead><tr><th>Kind</th><th>Path</th><th>Exists</th><th>Size bytes</th></tr></thead><tbody>",
@@ -484,6 +502,29 @@ def _telemetry_summary_html(telemetry: Any) -> list[str]:
     ]
 
 
+def _manifest_summary_html(manifest: Any) -> list[str]:
+    if not isinstance(manifest, dict):
+        return []
+    rows = [
+        ("Expected scenarios", manifest.get("expected_scenarios", 0)),
+        ("Result scenarios", manifest.get("result_scenarios", 0)),
+        ("Missing results", manifest.get("missing_results", 0)),
+        ("Unlisted results", manifest.get("unlisted_results", 0)),
+        ("Missing expected artifacts", manifest.get("missing_expected_artifacts", 0)),
+        ("Missing required tags", _list_cell(manifest.get("missing_required_tags"))),
+        ("Missing required flows", _list_cell(manifest.get("missing_required_critical_flows"))),
+        ("Missing required platforms", _list_cell(manifest.get("missing_required_platforms"))),
+    ]
+    return [
+        "<table><thead><tr><th>Manifest</th><th>Value</th></tr></thead><tbody>",
+        *[
+            f"<tr><td>{escape(label)}</td><td>{escape(str(value))}</td></tr>"
+            for label, value in rows
+        ],
+        "</tbody></table>",
+    ]
+
+
 def _visual_summary_html(visual: Any) -> list[str]:
     if not isinstance(visual, dict):
         return []
@@ -520,6 +561,13 @@ def _number_cell(value: object) -> str:
         return f"{float(value):.2f}"
     except (TypeError, ValueError):
         return "0.00"
+
+
+def _list_cell(value: object) -> str:
+    if not isinstance(value, list):
+        return "-"
+    values = [str(item) for item in value if str(item).strip()]
+    return _md_cell(", ".join(values) if values else "-")
 
 
 def _md_cell(value: object) -> str:

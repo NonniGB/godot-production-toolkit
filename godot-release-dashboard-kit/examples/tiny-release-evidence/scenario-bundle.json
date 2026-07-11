@@ -1,6 +1,6 @@
 {
   "tool": "godot-scenario-report-kit",
-  "tool_version": "0.1.9",
+  "tool_version": "0.1.11",
   "schema_version": "1.1",
   "kind": "scenario_bundle",
   "workflow": "Runtime evidence",
@@ -28,9 +28,29 @@
     "log_lines": 4,
     "log_warnings": 1,
     "log_errors": 1,
-    "log_crashes": 0
+    "log_crashes": 0,
+    "manifest_expected_scenarios": 2,
+    "manifest_result_scenarios": 2,
+    "manifest_missing_results": 0,
+    "manifest_unlisted_results": 0,
+    "manifest_missing_expected_artifacts": 2,
+    "manifest_missing_required_tags": 0,
+    "manifest_missing_required_flows": 0,
+    "manifest_missing_required_platforms": 0
   },
   "bundle": {
+    "manifest_summary": {
+      "expected_scenarios": 2,
+      "result_scenarios": 2,
+      "missing_results": 0,
+      "unlisted_results": 0,
+      "missing_expected_artifacts": 2,
+      "missing_required_tags": [],
+      "missing_required_critical_flows": [],
+      "missing_required_platforms": [],
+      "warnings": 1,
+      "errors": 0
+    },
     "telemetry_summary": {
       "kind": "runtime_telemetry_timeline",
       "relative_path": "runtime-timeline.json",

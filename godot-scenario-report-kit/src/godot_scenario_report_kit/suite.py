@@ -168,6 +168,24 @@ def bundle(
         manifest_report = manifest_check(manifest_path, results_path)
         report["coverage"] = manifest_report.get("coverage")
         report["manifest_findings"] = manifest_report.get("findings", [])
+        manifest_summary = _manifest_bundle_summary(manifest_report)
+        report["bundle"]["manifest_summary"] = manifest_summary
+        report["summary"]["manifest_expected_scenarios"] = manifest_summary["expected_scenarios"]
+        report["summary"]["manifest_result_scenarios"] = manifest_summary["result_scenarios"]
+        report["summary"]["manifest_missing_results"] = manifest_summary["missing_results"]
+        report["summary"]["manifest_unlisted_results"] = manifest_summary["unlisted_results"]
+        report["summary"]["manifest_missing_expected_artifacts"] = manifest_summary[
+            "missing_expected_artifacts"
+        ]
+        report["summary"]["manifest_missing_required_tags"] = len(
+            manifest_summary["missing_required_tags"]
+        )
+        report["summary"]["manifest_missing_required_flows"] = len(
+            manifest_summary["missing_required_critical_flows"]
+        )
+        report["summary"]["manifest_missing_required_platforms"] = len(
+            manifest_summary["missing_required_platforms"]
+        )
     report["summary"]["artifacts"] = sum(len(row["bundle_artifacts"]) for row in scenario_rows)
     report["summary"]["linked_evidence"] = sum(1 for value in links.values() if value is not None) + len(
         custom_evidence
@@ -418,6 +436,36 @@ def _log_summaries(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
             }
         )
     return summaries
+
+
+def _manifest_bundle_summary(report: dict[str, Any]) -> dict[str, Any]:
+    summary = report.get("summary") if isinstance(report.get("summary"), dict) else {}
+    coverage = report.get("coverage") if isinstance(report.get("coverage"), dict) else {}
+    scenarios = report.get("scenarios") if isinstance(report.get("scenarios"), list) else []
+    result_scenarios = (
+        report.get("result_scenarios") if isinstance(report.get("result_scenarios"), list) else []
+    )
+    findings = [item for item in report.get("findings", []) if isinstance(item, dict)]
+    return {
+        "expected_scenarios": len(scenarios),
+        "result_scenarios": len(result_scenarios),
+        "missing_results": _finding_count(findings, "manifest_result_missing"),
+        "unlisted_results": _finding_count(findings, "manifest_unlisted_result"),
+        "missing_expected_artifacts": _finding_count(
+            findings, "manifest_expected_artifact_missing"
+        ),
+        "missing_required_tags": _string_list(coverage.get("missing_required_tags")),
+        "missing_required_critical_flows": _string_list(
+            coverage.get("missing_required_critical_flows")
+        ),
+        "missing_required_platforms": _string_list(coverage.get("missing_required_platforms")),
+        "warnings": _int_value(summary.get("warnings")),
+        "errors": _int_value(summary.get("errors")),
+    }
+
+
+def _finding_count(findings: list[dict[str, Any]], rule_id: str) -> int:
+    return sum(1 for finding in findings if finding.get("rule_id") == rule_id)
 
 
 def _looks_like_log(kind: str, path: Path) -> bool:

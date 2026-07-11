@@ -36,7 +36,7 @@ class ScenarioReportTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.10")
+            self.assertEqual(report["tool_version"], "0.1.11")
             self.assertEqual(report["schema_version"], "1.1")
             self.assertIn("scenario_failed", report["metadata"]["rules"])
             self.assertEqual(report["summary"]["scenarios"], 1)
@@ -381,6 +381,98 @@ class ScenarioReportTests(unittest.TestCase):
             self.assertEqual(report["bundle"]["telemetry_summary"]["samples"], 1)
             self.assertEqual(report["bundle"]["telemetry_summary"]["frame_max_ms"], 12.0)
             self.assertIn("bundle_missing_artifact", {finding["rule_id"] for finding in report["findings"]})
+            self.assertEqual(report["bundle"]["manifest_summary"]["expected_scenarios"], 1)
+            self.assertEqual(report["summary"]["manifest_missing_results"], 0)
+
+    def test_bundle_summarizes_manifest_alignment_for_review(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            results = root / "results"
+            results.mkdir()
+            manifest = root / "scenario-manifest.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "coverage": {
+                            "required_tags": ["smoke", "combat"],
+                            "required_critical_flows": ["startup", "combat"],
+                            "required_platforms": ["desktop", "android"],
+                        },
+                        "scenarios": [
+                            {
+                                "id": "menu",
+                                "owner": "ui",
+                                "tags": ["smoke"],
+                                "critical_flows": ["startup"],
+                                "platforms": ["desktop"],
+                                "expected_artifacts": ["screenshots/menu.png"],
+                            },
+                            {
+                                "id": "combat",
+                                "owner": "systems",
+                                "tags": [],
+                                "critical_flows": [],
+                                "platforms": [],
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (results / "menu.json").write_text(
+                json.dumps({"scenario": "menu", "status": "passed"}),
+                encoding="utf-8",
+            )
+            (results / "settings.json").write_text(
+                json.dumps({"scenario": "settings", "status": "passed"}),
+                encoding="utf-8",
+            )
+
+            json_stdout = StringIO()
+            with redirect_stdout(json_stdout):
+                json_exit = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--manifest",
+                        str(manifest),
+                        "--format",
+                        "json",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            markdown_stdout = StringIO()
+            with redirect_stdout(markdown_stdout):
+                markdown_exit = main(
+                    [
+                        "bundle",
+                        str(results),
+                        "--manifest",
+                        str(manifest),
+                        "--format",
+                        "markdown",
+                        "--fail-on",
+                        "none",
+                    ]
+                )
+
+            report = json.loads(json_stdout.getvalue())
+            manifest_summary = report["bundle"]["manifest_summary"]
+            self.assertEqual(json_exit, 0)
+            self.assertEqual(markdown_exit, 0)
+            self.assertEqual(manifest_summary["expected_scenarios"], 2)
+            self.assertEqual(manifest_summary["result_scenarios"], 2)
+            self.assertEqual(manifest_summary["missing_results"], 1)
+            self.assertEqual(manifest_summary["unlisted_results"], 1)
+            self.assertEqual(manifest_summary["missing_expected_artifacts"], 1)
+            self.assertEqual(manifest_summary["missing_required_tags"], ["combat"])
+            self.assertEqual(manifest_summary["missing_required_critical_flows"], ["combat"])
+            self.assertEqual(manifest_summary["missing_required_platforms"], ["android"])
+            self.assertEqual(report["summary"]["manifest_missing_results"], 1)
+            self.assertIn("| Missing results | 1 |", markdown_stdout.getvalue())
+            self.assertIn("| Missing required tags | combat |", markdown_stdout.getvalue())
 
     def test_bundle_summarizes_runtime_telemetry_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

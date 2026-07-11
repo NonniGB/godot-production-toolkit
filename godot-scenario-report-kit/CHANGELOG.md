@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.11 - 2026-07-11
+
+- Scenario bundles with `--manifest` now include a compact manifest summary for
+  expected scenarios, result scenarios, missing results, unlisted results,
+  missing expected artifacts, and missing required coverage.
+- Markdown and HTML bundle output now show manifest summary tables beside other
+  linked evidence summaries.
+- Added tests for bundle manifest alignment summaries.
+
 ## 0.1.10 - 2026-06-27
 
 - Missing scenario result paths now produce a `result_path_missing` finding

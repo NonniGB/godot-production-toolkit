@@ -40,6 +40,11 @@ godot-telemetry-lab timeline reports\runtime --format json --output reports\runt
 godot-scenario-report bundle reports\scenarios --manifest scenario-manifest.json --telemetry reports\runtime-timeline.json --evidence log=reports\run.log --evidence junit=reports\junit.xml --format json --output reports\scenario-bundle.json
 ```
 
+When `--manifest` is present, the bundle includes a compact manifest summary
+for missing results, unlisted results, missing expected artifacts, and missing
+required coverage. This is useful when CI produced some scenario artifacts but
+did not run the whole expected suite.
+
 The tool is runner-neutral. A Godot test harness can emit the small JSON shape
 described in the README, or produce JUnit XML that the report kit reads
 directly. Linked telemetry JSON or Markdown is summarized into small counters

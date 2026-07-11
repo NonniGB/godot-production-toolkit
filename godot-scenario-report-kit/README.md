@@ -147,6 +147,12 @@ does not rewrite project-owned evidence; it builds a compact manifest of
 scenario results, listed artifacts, and optional telemetry or visual-smoke
 reports so reviewers can see which files belong together.
 
+When `--manifest` is provided, the bundle adds a compact `manifest_summary`
+with expected scenario counts, result counts, missing results, unlisted results,
+missing expected artifacts, and missing required coverage tags, flows, or
+platforms. This keeps release bundles useful even when the main result set is
+only part of the expected suite.
+
 When `--telemetry` points at JSON from `godot-runtime-telemetry-lab`, the bundle
 adds a compact `telemetry_summary` with sample count, frame p95, frame max,
 memory max, spike count, and finding counts. Raw telemetry samples are not

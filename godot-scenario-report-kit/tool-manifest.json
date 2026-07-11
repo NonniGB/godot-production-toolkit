@@ -7,6 +7,7 @@
     "cli": true,
     "machine_output": ["json"],
     "human_output": ["text", "markdown", "html"],
+    "bundle_manifest_summary": true,
     "visual_interface": "static html report"
   },
   "run_behavior": {
