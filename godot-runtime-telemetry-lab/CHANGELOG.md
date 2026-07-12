@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.7 - 2026-07-12
+
+- `adapt` now groups long-form Godot monitor exports with `monitor`/`value`
+  columns into normalized runtime samples.
+- Unsupported adapter input now produces a structured finding with guidance
+  instead of silently returning zero-filled telemetry.
+- Added a tiny long-form Godot Performance monitor CSV fixture.
+
 ## 0.1.6 - 2026-06-27
 
 - Missing telemetry paths, unsupported input files, and empty telemetry

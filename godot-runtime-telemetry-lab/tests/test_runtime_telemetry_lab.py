@@ -28,7 +28,7 @@ class RuntimeTelemetryLabTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["tool_version"], "0.1.6")
+            self.assertEqual(report["tool_version"], "0.1.7")
             self.assertEqual(report["summary"]["samples"], 2)
             self.assertEqual(report["summary"]["warnings"], 1)
             self.assertEqual(report["findings"][0]["rule_id"], "frame_p95_over_budget")
@@ -227,6 +227,52 @@ class RuntimeTelemetryLabTests(unittest.TestCase):
             self.assertAlmostEqual(sample["memory_mb"], 200.0)
             self.assertEqual(sample["nodes"], 80)
             self.assertEqual(sample["draw_calls"], 12)
+
+    def test_adapt_groups_long_form_godot_monitor_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "godot-performance-long.csv"
+            path.write_text(
+                "scenario,phase,time_s,monitor,value\n"
+                "flight,launch,0,Performance.TIME_PROCESS,0.012\n"
+                "flight,launch,0,Performance.TIME_PHYSICS_PROCESS,0.003\n"
+                "flight,launch,0,Performance.RENDER_VIDEO_MEM_USED,188743680\n"
+                "flight,combat,1,Performance.TIME_PROCESS,0.026\n"
+                "flight,combat,1,Performance.TIME_PHYSICS_PROCESS,0.006\n"
+                "flight,combat,1,Performance.RENDER_VIDEO_MEM_USED,209715200\n",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["adapt", str(path), "--format", "json"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["errors"], 0)
+            self.assertEqual(report["summary"]["samples"], 2)
+            self.assertEqual(report["samples"][0]["phase"], "launch")
+            self.assertAlmostEqual(report["samples"][0]["frame_ms"], 12.0)
+            self.assertAlmostEqual(report["samples"][0]["physics_ms"], 3.0)
+            self.assertAlmostEqual(report["samples"][0]["memory_mb"], 180.0)
+            self.assertEqual(report["samples"][1]["phase"], "combat")
+            self.assertAlmostEqual(report["samples"][1]["frame_ms"], 26.0)
+
+    def test_adapt_reports_unsupported_monitor_shape(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "godot-monitor.csv"
+            path.write_text("scenario,label\nmenu,ready\n", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(["adapt", str(path), "--format", "json", "--fail-on", "error"])
+
+            report = json.loads(stdout.getvalue())
+            finding = report["findings"][0]
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(report["summary"]["errors"], 1)
+            self.assertEqual(finding["rule_id"], "telemetry_adapter_unsupported")
+            self.assertEqual(finding["rule_title"], "Unsupported telemetry adapter input")
+            self.assertIn("monitor/name and value", finding["rule_help"])
 
 
 if __name__ == "__main__":

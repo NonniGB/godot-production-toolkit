@@ -6,7 +6,7 @@ import sys
 
 from .telemetry import BUDGET_PROFILES, adapt, budget_profile, compare, load_budget, render, summarize, timeline
 
-VERSION_LABEL = "godot-telemetry-lab 0.1.6"
+VERSION_LABEL = "godot-telemetry-lab 0.1.7"
 
 
 def main(argv: list[str] | None = None) -> int:

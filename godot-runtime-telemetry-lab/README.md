@@ -25,6 +25,7 @@ godot-telemetry-lab compare reports\baseline reports\current --format json --out
 godot-telemetry-lab timeline reports\runtime --format html --output reports\runtime-timeline.html
 godot-telemetry-lab adapt reports\godot-monitor.csv --format json --output reports\runtime-normalized.json
 godot-telemetry-lab adapt godot-runtime-telemetry-lab\examples\tiny-godot-monitor\godot-performance-monitor.csv --format json --output reports\runtime-normalized.json
+godot-telemetry-lab adapt godot-runtime-telemetry-lab\examples\tiny-godot-monitor\godot-performance-monitor-long.csv --format json --output reports\runtime-normalized-long.json
 godot-telemetry-lab budget init --profile android-high --output reports\runtime-budget.json
 ```
 
@@ -60,6 +61,11 @@ and converts them to milliseconds. Memory monitors such as
 `Performance.MEMORY_STATIC`, `Performance.RENDER_VIDEO_MEM_USED`,
 `Performance.RENDER_TEXTURE_MEM_USED`, and
 `Performance.RENDER_BUFFER_MEM_USED` are treated as bytes and converted to MiB.
+Wide rows and long monitor rows are both supported. Long rows can use columns
+such as `scenario`, `phase`, `time_s`, `monitor`, and `value`; the adapter
+groups rows with the same scenario, phase, and timestamp into one telemetry
+sample. If an input file has no recognized frame, memory, node, or draw-call
+signals, `adapt` emits a structured finding with next-step guidance.
 
 ## Commands
 
@@ -105,4 +111,5 @@ It also includes a tiny Godot monitor CSV fixture:
 
 ```powershell
 godot-telemetry-lab adapt godot-runtime-telemetry-lab\examples\tiny-godot-monitor\godot-performance-monitor.csv --format json --output reports\runtime-normalized.json
+godot-telemetry-lab adapt godot-runtime-telemetry-lab\examples\tiny-godot-monitor\godot-performance-monitor-long.csv --format json --output reports\runtime-normalized-long.json
 ```

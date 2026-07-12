@@ -1,0 +1,7 @@
+scenario,phase,time_s,monitor,value
+flight,launch,0.0,Performance.TIME_PROCESS,0.012
+flight,launch,0.0,Performance.TIME_PHYSICS_PROCESS,0.003
+flight,launch,0.0,Performance.RENDER_VIDEO_MEM_USED,188743680
+flight,combat,1.0,Performance.TIME_PROCESS,0.026
+flight,combat,1.0,Performance.TIME_PHYSICS_PROCESS,0.006
+flight,combat,1.0,Performance.RENDER_VIDEO_MEM_USED,209715200

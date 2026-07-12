@@ -29,6 +29,13 @@ RULE_CATALOG: dict[str, dict[str, str]] = {
         "title": "Telemetry input could not be read",
         "help": "Check that telemetry JSON is valid and CSV files are readable UTF-8 text.",
     },
+    "telemetry_adapter_unsupported": {
+        "title": "Unsupported telemetry adapter input",
+        "help": (
+            "Use wide telemetry rows with frame, memory, node, or draw-call fields, "
+            "or long monitor rows with monitor/name and value columns."
+        ),
+    },
     "frame_p95_over_budget": {
         "title": "Frame p95 over budget",
         "help": "Inspect scenario phases and recent rendering or script changes around the slow frames.",
@@ -191,14 +198,16 @@ def budget_profile(name: str) -> dict[str, Any]:
 
 def adapt(path: Path, source_format: str = "auto") -> dict[str, Any]:
     raw_samples, input_findings = _load_samples_with_findings(path)
-    samples = [_adapt_sample(sample, index) for index, sample in enumerate(raw_samples)]
+    samples = _adapt_samples(raw_samples)
+    adapter_findings = [] if input_findings else _adapter_findings(path, raw_samples, samples)
+    findings = [*input_findings, *adapter_findings]
     summary = {
         "samples": len(samples),
         "scenarios": sorted({str(sample.get("scenario", "default")) for sample in samples}),
         "errors": 0,
         "warnings": 0,
     }
-    _add_finding_counts(summary, input_findings)
+    _add_finding_counts(summary, findings)
     return {
         "tool": "godot-runtime-telemetry-lab",
         "tool_version": __version__,
@@ -208,7 +217,7 @@ def adapt(path: Path, source_format: str = "auto") -> dict[str, Any]:
         "source_format": source_format,
         "summary": summary,
         "samples": samples,
-        "findings": _enrich_findings(input_findings),
+        "findings": _enrich_findings(findings),
     }
 
 
@@ -336,8 +345,85 @@ def _load_csv(path: Path) -> list[dict[str, Any]]:
         return [dict(row) for row in csv.DictReader(handle)]
 
 
+def _adapt_samples(raw_samples: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if _looks_like_long_monitor_export(raw_samples):
+        raw_samples = _pivot_long_monitor_rows(raw_samples)
+    return [_adapt_sample(sample, index) for index, sample in enumerate(raw_samples)]
+
+
+def _looks_like_long_monitor_export(samples: list[dict[str, Any]]) -> bool:
+    return any(_monitor_name(sample) is not None and _monitor_value(sample) is not None for sample in samples)
+
+
+def _pivot_long_monitor_rows(samples: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+    for index, row in enumerate(samples):
+        monitor = _monitor_name(row)
+        value = _monitor_value(row)
+        if monitor is None or value is None:
+            continue
+        scenario = str(row.get("scenario") or row.get("run") or "default")
+        phase = str(row.get("phase") or row.get("event") or "")
+        time_value = _first_text(row, "time_s", "timestamp_s", "elapsed_s", "time")
+        frame_value = _first_text(row, "frame", "frame_index")
+        key = (scenario, phase, time_value or "", frame_value or "")
+        sample = grouped.setdefault(key, {"scenario": scenario, "phase": phase})
+        if time_value is not None:
+            sample["time_s"] = time_value
+        if frame_value is not None:
+            sample["frame"] = frame_value
+        sample[monitor] = value
+    return list(grouped.values())
+
+
+def _monitor_name(sample: dict[str, Any]) -> str | None:
+    value = _first_text(sample, "monitor", "monitor_name", "name", "metric", "counter")
+    return value.strip() if value and value.strip() else None
+
+
+def _monitor_value(sample: dict[str, Any]) -> object | None:
+    lowered = {str(sample_key).lower(): sample_value for sample_key, sample_value in sample.items()}
+    for key in ("value", "monitor_value", "sample_value", "metric_value"):
+        if key in sample:
+            return sample[key]
+        if key in lowered:
+            return lowered[key]
+    return None
+
+
+def _adapter_findings(
+    path: Path,
+    raw_samples: list[dict[str, Any]],
+    samples: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    if samples and any(_sample_has_signal(sample) for sample in samples):
+        return []
+    if raw_samples:
+        message = (
+            f"Could not find supported telemetry fields in {path}. "
+            "Use columns such as frame_ms, fps, memory_mb, Performance.TIME_PROCESS, "
+            "or long monitor rows with monitor/name and value columns."
+        )
+    else:
+        message = (
+            f"No telemetry rows were found in {path}. Use a JSON/CSV file with samples or long monitor rows."
+        )
+    return [
+        {
+            "rule_id": "telemetry_adapter_unsupported",
+            "severity": "error",
+            "source": str(path),
+            "message": message,
+        }
+    ]
+
+
+def _sample_has_signal(sample: dict[str, Any]) -> bool:
+    return any(float(sample.get(field, 0.0) or 0.0) != 0.0 for field in NUMERIC_FIELDS)
+
+
 def _adapt_sample(sample: dict[str, Any], index: int) -> dict[str, Any]:
-    fps = _first_number(sample, "fps", "frames_per_second", "Performance.TIME_FPS")
+    fps = _first_number(sample, "fps", "frames_per_second", "Performance.TIME_FPS", "TIME_FPS")
     frame_ms = _first_number(
         sample,
         "frame_ms",
@@ -345,13 +431,13 @@ def _adapt_sample(sample: dict[str, Any], index: int) -> dict[str, Any]:
         "delta_ms",
         "process_ms",
     )
-    performance_process_s = _first_number(sample, "Performance.TIME_PROCESS")
+    performance_process_s = _first_number(sample, "Performance.TIME_PROCESS", "TIME_PROCESS")
     if frame_ms is None and performance_process_s is not None:
         frame_ms = performance_process_s * 1000.0
     if frame_ms is None and fps and fps > 0:
         frame_ms = 1000.0 / fps
     physics_ms = _first_number(sample, "physics_ms", "physics_frame_ms", "physics_process_ms")
-    performance_physics_s = _first_number(sample, "Performance.TIME_PHYSICS_PROCESS")
+    performance_physics_s = _first_number(sample, "Performance.TIME_PHYSICS_PROCESS", "TIME_PHYSICS_PROCESS")
     if physics_ms is None and performance_physics_s is not None:
         physics_ms = performance_physics_s * 1000.0
     memory_mb = _first_number(
@@ -360,9 +446,13 @@ def _adapt_sample(sample: dict[str, Any], index: int) -> dict[str, Any]:
         "static_memory_mb",
         "memory_static_mb",
         "Performance.MEMORY_STATIC",
+        "MEMORY_STATIC",
         "Performance.RENDER_VIDEO_MEM_USED",
+        "RENDER_VIDEO_MEM_USED",
         "Performance.RENDER_TEXTURE_MEM_USED",
+        "RENDER_TEXTURE_MEM_USED",
         "Performance.RENDER_BUFFER_MEM_USED",
+        "RENDER_BUFFER_MEM_USED",
     )
     if memory_mb is not None and memory_mb > 4096:
         memory_mb = memory_mb / 1048576.0
@@ -374,9 +464,39 @@ def _adapt_sample(sample: dict[str, Any], index: int) -> dict[str, Any]:
         "frame_ms": frame_ms or 0.0,
         "physics_ms": physics_ms or 0.0,
         "memory_mb": memory_mb or 0.0,
-        "nodes": int(_first_number(sample, "nodes", "node_count", "object_node_count", "Performance.OBJECT_NODE_COUNT") or 0),
-        "draw_calls": int(_first_number(sample, "draw_calls", "render_draw_calls", "Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME") or 0),
+        "nodes": int(
+            _first_number(
+                sample,
+                "nodes",
+                "node_count",
+                "object_node_count",
+                "Performance.OBJECT_NODE_COUNT",
+                "OBJECT_NODE_COUNT",
+            )
+            or 0
+        ),
+        "draw_calls": int(
+            _first_number(
+                sample,
+                "draw_calls",
+                "render_draw_calls",
+                "Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME",
+                "RENDER_TOTAL_DRAW_CALLS_IN_FRAME",
+            )
+            or 0
+        ),
     }
+
+
+def _first_text(sample: dict[str, Any], *keys: str) -> str | None:
+    lowered = {str(key).lower(): value for key, value in sample.items()}
+    for key in keys:
+        value = sample.get(key)
+        if value is None:
+            value = lowered.get(key.lower())
+        if value is not None:
+            return str(value)
+    return None
 
 
 def _first_number(sample: dict[str, Any], *keys: str) -> float | None:
