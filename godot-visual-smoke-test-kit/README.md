@@ -27,12 +27,22 @@ godot-visual-smoke approve current\menu.png baselines\menu.png
 godot-visual-smoke compare baselines\menu.png current\menu.png --format json --output visual-report.json
 ```
 
+First successful path:
+
+1. Run `plan` and capture current screenshots with your project-owned Godot helper.
+2. Run `compare` with `--format json --output visual-report.json` and upload the current image, diff image, and JSON report as CI artifacts.
+3. Review the current and diff images.
+4. Run `approve` only for an intentional visual update.
+
+If either the baseline or current screenshot is missing, `compare` returns a normal text or JSON finding that names the missing file and the next step.
+
 ## What It Does
 
 - Parses `visual-smoke.toml`.
 - Supports named viewport presets.
 - Reuses viewport manifests across multiple smoke-test configs.
 - Compares baseline and current PNG screenshots.
+- Reports missing baseline or current screenshots with next-step guidance.
 - Applies per-channel pixel tolerance.
 - Fails when changed pixel percentage exceeds the configured threshold.
 - Writes red diff images.
@@ -54,6 +64,7 @@ godot-visual-smoke compare baselines\menu.png current\menu.png --format json --o
 python -m pip install -e .
 python -m unittest discover -s tests -v
 godot-visual-smoke plan examples\visual-smoke.toml --project examples\tiny-godot-project
+godot-visual-smoke compare baselines\menu.png current\menu.png --diff diffs\menu.png --format json --output visual-report.json
 ```
 
 Examples are generic. Do not publish screenshots from private projects unless they have been reviewed.

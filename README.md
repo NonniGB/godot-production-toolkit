@@ -431,5 +431,5 @@ The repo keeps the tools together. The installable umbrella package is `godot-pr
 | [`godot-save-schema-guard`](https://pypi.org/project/godot-save-schema-guard/) | `0.1.8` |
 | [`godot-scenario-report-kit`](https://pypi.org/project/godot-scenario-report-kit/) | `0.1.11` |
 | [`godot-scene-signal-auditor`](https://pypi.org/project/godot-scene-signal-auditor/) | `0.1.5` |
-| [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.2` |
+| [`godot-visual-smoke-test-kit`](https://pypi.org/project/godot-visual-smoke-test-kit/) | `0.1.3` |
 | [`pixel-space-asset-toolkit`](https://pypi.org/project/pixel-space-asset-toolkit/) | `0.1.4` |

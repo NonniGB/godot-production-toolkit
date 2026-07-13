@@ -19,7 +19,7 @@ class CliTests(unittest.TestCase):
                 main(["--version"])
 
         self.assertEqual(raised.exception.code, 0)
-        self.assertIn("godot-visual-smoke 0.1.2", stdout.getvalue())
+        self.assertIn("godot-visual-smoke 0.1.3", stdout.getvalue())
 
     def test_compare_cli_writes_json_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -48,6 +48,31 @@ class CliTests(unittest.TestCase):
             self.assertEqual(payload["metadata"]["report_kind"], "visual_smoke_compare")
             self.assertEqual(payload["findings"][0]["rule_id"], "visual_diff_threshold_exceeded")
             self.assertIn("changed more pixels", payload["findings"][0]["explanation"])
+
+    def test_compare_cli_reports_missing_screenshot_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baselines" / "menu.png"
+            current = root / "current" / "menu.png"
+            output = root / "report.json"
+
+            exit_code = main(
+                [
+                    "compare",
+                    str(baseline),
+                    str(current),
+                    "--format",
+                    "json",
+                    "--output",
+                    str(output),
+                ]
+            )
+
+            payload = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(exit_code, 1)
+            self.assertFalse(payload["passed"])
+            self.assertEqual(payload["findings"][0]["rule_id"], "visual_screenshot_missing")
+            self.assertIn("approved baseline", payload["findings"][0]["message"])
 
     def test_approve_cli_can_write_json_status(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

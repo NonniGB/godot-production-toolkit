@@ -10,6 +10,10 @@ RULE_HELP: dict[str, dict[str, str]] = {
         "title": "Screenshot size mismatch",
         "explanation": "The baseline and current screenshots have different dimensions, so pixel comparison cannot be trusted.",
     },
+    "visual_screenshot_missing": {
+        "title": "Screenshot missing",
+        "explanation": "The compare command needs both an approved baseline and a current capture before it can review pixels.",
+    },
 }
 
 

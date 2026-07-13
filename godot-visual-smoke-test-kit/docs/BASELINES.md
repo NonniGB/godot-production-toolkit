@@ -3,8 +3,12 @@
 Compare:
 
 ```powershell
-godot-visual-smoke compare baselines\menu.png current\menu.png --diff diffs\menu.png
+godot-visual-smoke compare baselines\menu.png current\menu.png --diff diffs\menu.png --format json --output visual-report.json
 ```
+
+Upload or open the current screenshot, diff image, and JSON report before
+deciding whether the change is expected. If the baseline or current screenshot
+is missing, `compare` reports a normal finding that names the missing path.
 
 Approve:
 

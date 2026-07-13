@@ -9,11 +9,14 @@ from .rule_help import catalog_for, explain_rule
 
 def render_text_result(result: DiffResult) -> str:
     status = "PASS" if result.passed else "FAIL"
-    lines = [
-        f"Visual smoke diff: {status}",
-        f"Changed pixels: {result.changed_pixels}/{result.total_pixels} ({result.changed_percent:.4f}%).",
-        f"Max delta: {result.max_delta}.",
-    ]
+    lines = [f"Visual smoke diff: {status}"]
+    if result.total_pixels:
+        lines.extend(
+            [
+                f"Changed pixels: {result.changed_pixels}/{result.total_pixels} ({result.changed_percent:.4f}%).",
+                f"Max delta: {result.max_delta}.",
+            ]
+        )
     if result.reason:
         lines.append(result.reason)
     if not result.passed:
@@ -58,6 +61,8 @@ def report_metadata(report_kind: str, formats: list[str]) -> dict[str, object]:
 
 
 def _rule_id_for_result(result: DiffResult) -> str:
+    if result.reason.startswith(("Missing baseline screenshot", "Missing current screenshot")):
+        return "visual_screenshot_missing"
     if result.reason.startswith("Image size differs"):
         return "visual_image_size_mismatch"
     return "visual_diff_threshold_exceeded"

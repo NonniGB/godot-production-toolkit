@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3 - 2026-07-13
+
+- `compare` now reports missing baseline or current screenshots as structured
+  text/JSON findings with next-step guidance.
+- Added missing-screenshot rule metadata for CI reports.
+- Clarified the first compare-review-approve workflow in README and docs.
+
 ## 0.1.2 - 2026-06-09
 
 - Added reusable viewport manifests for visual smoke planning.

@@ -19,7 +19,7 @@
     "writes_only_when_requested": true,
     "exit_codes": {
       "0": "visual diff passed, approval succeeded, or --fail-on none",
-      "1": "visual diff exceeded threshold",
+      "1": "visual diff exceeded threshold or screenshot input was missing",
       "2": "CLI or argument error"
     }
   },

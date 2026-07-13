@@ -43,6 +43,21 @@ class DiffTests(unittest.TestCase):
             self.assertTrue(result.passed)
             self.assertEqual(result.changed_pixels, 0)
 
+    def test_compare_images_reports_missing_current_screenshot(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            baseline = root / "baseline.png"
+            current = root / "missing-current.png"
+            Image.new("RGBA", (1, 1), (10, 10, 10, 255)).save(baseline)
+
+            result = compare_images(baseline, current)
+
+            self.assertFalse(result.passed)
+            self.assertEqual(result.total_pixels, 0)
+            self.assertIn("Missing current screenshot", result.reason)
+            self.assertIn("visual_screenshot_missing", render_json_result(result))
+            self.assertIn("Capture current screenshots", render_text_result(result))
+
 
 if __name__ == "__main__":
     unittest.main()

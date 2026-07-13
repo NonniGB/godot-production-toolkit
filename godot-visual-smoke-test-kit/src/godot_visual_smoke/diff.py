@@ -15,6 +15,19 @@ def compare_images(
     pixel_tolerance: int = 0,
     max_changed_percent: float = 0.0,
 ) -> DiffResult:
+    if not baseline.exists():
+        return _missing_screenshot_result(
+            baseline,
+            current,
+            f"Missing baseline screenshot: {baseline}. Add an approved baseline before enforcing visual diffs.",
+        )
+    if not current.exists():
+        return _missing_screenshot_result(
+            baseline,
+            current,
+            f"Missing current screenshot: {current}. Capture current screenshots before running compare.",
+        )
+
     with Image.open(baseline) as baseline_image, Image.open(current) as current_image:
         base = baseline_image.convert("RGBA")
         curr = current_image.convert("RGBA")
@@ -65,3 +78,18 @@ def compare_images(
             max_delta,
             passed,
         )
+
+
+def _missing_screenshot_result(baseline: Path, current: Path, reason: str) -> DiffResult:
+    return DiffResult(
+        str(baseline),
+        str(current),
+        0,
+        0,
+        0,
+        0,
+        0.0,
+        0,
+        False,
+        reason=reason,
+    )
