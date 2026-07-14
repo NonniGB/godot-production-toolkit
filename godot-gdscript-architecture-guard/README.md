@@ -63,6 +63,9 @@ allowed_autoloads = []
 
 [autoloads]
 names = ["GameState", "Settings"]
+
+[ignore]
+paths = ["addons/generated/**", "scripts/generated/**"]
 ```
 
 If `scripts/ui/menu.gd` preloads `res://scripts/gameplay/inventory.gd`, the tool
@@ -73,6 +76,9 @@ policy path as a warning. JSON, text, and Markdown reports also include advisory
 sections for module ownership, files with many visible script references, and
 scripts or resources that do not appear in visible `res://` references.
 Script checks also treat `class_name` declarations as public entry points.
+Use `[ignore] paths` for generated, vendor, or imported helper folders that would
+otherwise dominate owner summaries, hotspots, and possible-unused advice.
+Patterns are matched against project-relative paths with forward slashes.
 
 ## Outputs
 

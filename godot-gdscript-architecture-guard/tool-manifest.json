@@ -12,6 +12,7 @@
     "possible_unused_script_summary": true,
     "possible_unused_resource_summary": true,
     "module_path_coverage": true,
+    "policy_ignore_paths": true,
     "visual_interface": "Mermaid dependency graph"
   },
   "run_behavior": {

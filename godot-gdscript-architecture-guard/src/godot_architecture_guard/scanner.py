@@ -46,10 +46,11 @@ def audit_project(
     modules: tuple[ModulePolicy, ...],
     autoloads: tuple[str, ...],
     policy_path: Path | None = None,
+    ignore_paths: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     root = project.resolve()
     policy_report_path = _display_path(root, policy_path) if policy_path else "architecture-guard.toml"
-    files = sorted(path for path in root.rglob("*.gd") if ".godot" not in path.parts)
+    files = sorted(path for path in root.rglob("*.gd") if _should_scan_path(root, path, ignore_paths))
     module_by_file = {path: _module_for_path(root, path, modules) for path in files}
     references_by_file: dict[Path, set[Path]] = {path: set() for path in files}
     autoload_references_by_file: dict[Path, int] = {path: 0 for path in files}
@@ -73,14 +74,14 @@ def audit_project(
         text = path.read_text(encoding="utf-8", errors="ignore")
         if CLASS_NAME_RE.search(text):
             class_name_files.add(path)
-        references_by_file[path].update(_existing_script_targets(root, text))
+        references_by_file[path].update(_existing_script_targets(root, text, ignore_paths))
         autoload_references_by_file[path] = _count_autoload_references(text, autoloads)
-        _check_resource_dependencies(root, rel, text, module, modules, findings, edges)
+        _check_resource_dependencies(root, rel, text, module, modules, findings, edges, ignore_paths)
         _check_autoload_access(rel, text, module, autoloads, findings)
 
-    project_references = _project_script_references(root)
-    resource_files = _resource_files(root)
-    project_resource_references = _project_resource_references(root)
+    project_references = _project_script_references(root, ignore_paths)
+    resource_files = _resource_files(root, ignore_paths)
+    project_resource_references = _project_resource_references(root, ignore_paths)
     hotspots = _build_hotspots(root, files, module_by_file, references_by_file, autoload_references_by_file)
     possible_unused_scripts = _build_possible_unused_scripts(
         root,
@@ -136,6 +137,9 @@ def audit_project(
                 "allowed_autoloads": list(module.allowed_autoloads),
             }
             for module in modules
+        },
+        "policy": {
+            "ignore_paths": list(ignore_paths),
         },
         "dependencies": [{"source": source, "target": target} for source, target in sorted(edges)],
         "owner_summaries": owner_summaries,
@@ -197,9 +201,12 @@ def _check_resource_dependencies(
     modules: tuple[ModulePolicy, ...],
     findings: list[Finding],
     edges: set[tuple[str, str]],
+    ignore_paths: tuple[str, ...],
 ) -> None:
     for target_res in _load_targets(text):
         target_path = root / target_res.removeprefix("res://")
+        if _is_ignored(root, target_path, ignore_paths):
+            continue
         target_module = _module_for_res_path(target_res, modules)
         if not target_path.exists():
             findings.append(
@@ -258,11 +265,11 @@ def _load_targets(text: str) -> list[str]:
     return [match.group(1) for match in RESOURCE_RE.finditer(text)]
 
 
-def _existing_script_targets(root: Path, text: str) -> set[Path]:
+def _existing_script_targets(root: Path, text: str, ignore_paths: tuple[str, ...] = ()) -> set[Path]:
     targets: set[Path] = set()
     for match in RESOURCE_PATH_RE.finditer(text):
         target = root / match.group(1).removeprefix("res://")
-        if target.exists() and target.suffix == ".gd":
+        if target.exists() and target.suffix == ".gd" and not _is_ignored(root, target, ignore_paths):
             targets.add(target.resolve())
     return targets
 
@@ -271,47 +278,63 @@ def _count_autoload_references(text: str, autoloads: tuple[str, ...]) -> int:
     return sum(len(re.findall(rf"\b{re.escape(name)}\b", text)) for name in autoloads)
 
 
-def _project_script_references(root: Path) -> set[Path]:
+def _project_script_references(root: Path, ignore_paths: tuple[str, ...]) -> set[Path]:
     references: set[Path] = set()
     for path in root.rglob("*"):
-        if not path.is_file() or ".godot" in path.parts:
+        if not _should_scan_path(root, path, ignore_paths):
             continue
         if path.suffix not in TEXT_REFERENCE_SUFFIXES and path.name != "project.godot":
             continue
         text = path.read_text(encoding="utf-8", errors="ignore")
-        references.update(_existing_script_targets(root, text))
+        references.update(_existing_script_targets(root, text, ignore_paths))
     return references
 
 
-def _resource_files(root: Path) -> list[Path]:
+def _resource_files(root: Path, ignore_paths: tuple[str, ...]) -> list[Path]:
     files: list[Path] = []
     for path in root.rglob("*"):
-        if not path.is_file() or ".godot" in path.parts:
+        if not _should_scan_path(root, path, ignore_paths):
             continue
         if path.suffix.lower() in RESOURCE_CANDIDATE_SUFFIXES:
             files.append(path.resolve())
     return sorted(files)
 
 
-def _project_resource_references(root: Path) -> set[Path]:
+def _project_resource_references(root: Path, ignore_paths: tuple[str, ...]) -> set[Path]:
     references: set[Path] = set()
     for path in root.rglob("*"):
-        if not path.is_file() or ".godot" in path.parts:
+        if not _should_scan_path(root, path, ignore_paths):
             continue
         if path.suffix not in TEXT_REFERENCE_SUFFIXES and path.name != "project.godot":
             continue
         text = path.read_text(encoding="utf-8", errors="ignore")
-        references.update(_existing_resource_targets(root, text))
+        references.update(_existing_resource_targets(root, text, ignore_paths))
     return references
 
 
-def _existing_resource_targets(root: Path, text: str) -> set[Path]:
+def _existing_resource_targets(root: Path, text: str, ignore_paths: tuple[str, ...]) -> set[Path]:
     targets: set[Path] = set()
     for match in ANY_RESOURCE_PATH_RE.finditer(text):
         target = root / match.group(1).removeprefix("res://")
-        if target.exists() and target.suffix.lower() in RESOURCE_CANDIDATE_SUFFIXES:
+        if (
+            target.exists()
+            and target.suffix.lower() in RESOURCE_CANDIDATE_SUFFIXES
+            and not _is_ignored(root, target, ignore_paths)
+        ):
             targets.add(target.resolve())
     return targets
+
+
+def _should_scan_path(root: Path, path: Path, ignore_paths: tuple[str, ...]) -> bool:
+    return path.is_file() and ".godot" not in path.parts and not _is_ignored(root, path, ignore_paths)
+
+
+def _is_ignored(root: Path, path: Path, ignore_paths: tuple[str, ...]) -> bool:
+    try:
+        rel = path.resolve().relative_to(root).as_posix()
+    except ValueError:
+        return False
+    return any(fnmatch.fnmatch(rel, pattern) for pattern in ignore_paths)
 
 
 def _build_hotspots(

@@ -8,7 +8,7 @@ from .config import load_policy
 from .reporting import render_report
 from .scanner import audit_project, render_mermaid
 
-VERSION_LABEL = "godot-architecture-guard 0.1.5"
+VERSION_LABEL = "godot-architecture-guard 0.1.6"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -17,10 +17,10 @@ def main(argv: list[str] | None = None) -> int:
     project = Path(args.project)
     try:
         config_path = _resolve_config(project, Path(args.config))
-        modules, autoloads = load_policy(config_path)
+        modules, autoloads, ignore_paths = load_policy(config_path)
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
-    report = audit_project(project, modules, autoloads, config_path)
+    report = audit_project(project, modules, autoloads, config_path, ignore_paths)
     rendered = render_mermaid(report) if args.format == "mermaid" else render_report(report, args.format)
     _emit(rendered, args.output)
     return _exit_code(report, args.fail_on)

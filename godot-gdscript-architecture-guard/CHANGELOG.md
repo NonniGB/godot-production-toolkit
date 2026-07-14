@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.6 - 2026-07-14
+
+- Added policy ignore paths so generated, vendor, or imported helper folders
+  can be excluded from script scans, resource scans, owner summaries, hotspots,
+  and possible-unused advice.
+- JSON reports now include the active ignore patterns under `policy`.
+- Documented ignore-path usage in the README and tiny architecture fixture.
+
 ## 0.1.5 - 2026-06-27
 
 - Markdown reports now include a Mermaid module dependency graph when configured modules depend on each other.

@@ -52,7 +52,7 @@ names = ["GameState"]
             rules = {finding["rule_id"] for finding in report["findings"]}
             self.assertIn("module_boundary_violation", rules)
             self.assertIn("autoload_access_violation", rules)
-            self.assertEqual(report["version"], "0.1.5")
+            self.assertEqual(report["version"], "0.1.6")
             self.assertEqual(report["metadata"]["schema_version"], "1.1")
             self.assertIn("suggestion", report["findings"][0])
             self.assertIn("module_boundary_violation", report["rule_help"])
@@ -176,7 +176,7 @@ may_depend_on = []
             report = json.loads(stdout.getvalue())
             unused_paths = [row["path"] for row in report["possible_unused_resources"]]
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["version"], "0.1.5")
+            self.assertEqual(report["version"], "0.1.6")
             self.assertEqual(report["summary"]["possible_unused_resources"], 2)
             self.assertIn("assets/sprites/old_enemy.png", unused_paths)
             self.assertIn("assets/audio/unused_alert.ogg", unused_paths)
@@ -359,6 +359,49 @@ may_depend_on = []
             self.assertIn("```mermaid", markdown)
             self.assertIn("flowchart LR", markdown)
             self.assertIn("ui --> shared", markdown)
+
+    def test_policy_ignore_paths_excludes_generated_scripts_and_resources(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scripts" / "main").mkdir(parents=True)
+            (root / "scripts" / "generated").mkdir(parents=True)
+            (root / "assets" / "generated").mkdir(parents=True)
+            (root / "scripts" / "main" / "menu.gd").write_text(
+                'extends Node\nconst Generated = preload("res://scripts/generated/api.gd")\n'
+                'const Icon = preload("res://assets/generated/icon.png")\n',
+                encoding="utf-8",
+            )
+            (root / "scripts" / "generated" / "api.gd").write_text("extends RefCounted\n", encoding="utf-8")
+            (root / "assets" / "generated" / "icon.png").write_bytes(b"fake-png")
+            config = root / "architecture-guard.toml"
+            config.write_text(
+                """
+ignore_paths = ["scripts/generated/**", "assets/generated/**"]
+
+[modules.main]
+paths = ["scripts/main/**"]
+may_depend_on = []
+""",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main([str(root), "--config", str(config), "--format", "json", "--fail-on", "none"])
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["summary"]["scripts"], 1)
+            self.assertEqual(report["policy"]["ignore_paths"], ["scripts/generated/**", "assets/generated/**"])
+            self.assertNotIn(
+                "scripts/generated/api.gd",
+                [row["path"] for row in report["possible_unused_scripts"]],
+            )
+            self.assertNotIn(
+                "assets/generated/icon.png",
+                [row["path"] for row in report["possible_unused_resources"]],
+            )
+            self.assertFalse(report["findings"])
 
 
 if __name__ == "__main__":

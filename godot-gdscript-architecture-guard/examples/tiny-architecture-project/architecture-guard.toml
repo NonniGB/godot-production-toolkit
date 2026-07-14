@@ -16,3 +16,5 @@ allowed_autoloads = []
 [autoloads]
 names = ["GameState", "Settings"]
 
+[ignore]
+paths = ["addons/generated/**", "scripts/generated/**"]

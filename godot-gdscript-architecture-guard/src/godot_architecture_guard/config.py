@@ -7,7 +7,7 @@ from typing import Any
 from .models import ModulePolicy
 
 
-def load_policy(path: Path) -> tuple[tuple[ModulePolicy, ...], tuple[str, ...]]:
+def load_policy(path: Path) -> tuple[tuple[ModulePolicy, ...], tuple[str, ...], tuple[str, ...]]:
     data = tomllib.loads(path.read_text(encoding="utf-8"))
     raw_modules = data.get("modules")
     if not isinstance(raw_modules, dict) or not raw_modules:
@@ -26,7 +26,16 @@ def load_policy(path: Path) -> tuple[tuple[ModulePolicy, ...], tuple[str, ...]]:
         )
     autoloads_raw = data.get("autoloads", {})
     autoloads = tuple(str(item) for item in _list(autoloads_raw.get("names", []) if isinstance(autoloads_raw, dict) else []))
-    return tuple(modules), autoloads
+    ignore_paths = _ignore_paths(data)
+    return tuple(modules), autoloads, ignore_paths
+
+
+def _ignore_paths(data: dict[str, Any]) -> tuple[str, ...]:
+    patterns = [str(item) for item in _list(data.get("ignore_paths", []))]
+    ignore_raw = data.get("ignore", {})
+    if isinstance(ignore_raw, dict):
+        patterns.extend(str(item) for item in _list(ignore_raw.get("paths", [])))
+    return tuple(pattern for pattern in patterns if pattern)
 
 
 def _list(value: Any) -> list[Any]:
@@ -35,4 +44,3 @@ def _list(value: Any) -> list[Any]:
     if isinstance(value, list):
         return value
     return [value]
-
